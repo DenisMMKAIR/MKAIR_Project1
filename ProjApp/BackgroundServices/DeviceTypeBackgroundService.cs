@@ -30,7 +30,8 @@ public class DeviceTypeBackgroundService : EventSubscriberBase, IHostedService
 
     public Task StartAsync(CancellationToken cancellationToken)
     {
-        OnEventTriggered();
+        // TODO: Decide later. Do we need this? Trigger on program start
+        // OnEventTriggered();
         return Task.CompletedTask;
     }
 
@@ -43,27 +44,36 @@ public class DeviceTypeBackgroundService : EventSubscriberBase, IHostedService
     {
         using var scope = _serviceScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
+
         var existsNumbers = await db.DeviceTypes.Select(t => t.Number).ToListAsync();
+
         var deviceTypesToAdd = await db.PendingManometrVerifications
             .Where(m => !existsNumbers.Contains(m.DeviceTypeNumber))
             .Select(m => m.DeviceTypeNumber)
+            .Distinct()
             .ToListAsync();
+
+        if (deviceTypesToAdd.Count == 0) return;
+
         _logger.LogInformation("{Count} device types to get", deviceTypesToAdd.Count);
+
         var newAPIDevices = await _outerDeviceAPI.GetDeviceTypesAsync(deviceTypesToAdd);
-        // TODO: Make iasyncenumerable to save each request coz of requests are throttled
-        // and we cant wait for all. It can be alot new devices
+
         var addCommand = scope.ServiceProvider.GetRequiredService<AddDeviceTypeCommand>();
-        IReadOnlyList<DeviceType> newDevices =
-            [.. newAPIDevices.Select(d => new DeviceType { Name = d.Name, Number = d.Number, Notation = d.Notation })];
+
+        var newDevices = newAPIDevices
+            .Select(d => new DeviceType { Name = d.Name, Number = d.Number, Notation = d.Notation })
+            .ToArray();
+
         var result = await addCommand.ExecuteAsync(newDevices);
+
         if (result.Error != null)
         {
             _logger.LogError("{Error}", result.Error);
+            return;
         }
-        else
-        {
-            _logger.LogInformation("{NewCount} device types added. {DuplicatesCount} duplicates", result.NewCount, result.DuplicatesCount);
-        }
+
+        _logger.LogInformation("{NewCount} device types added. {DuplicatesCount} duplicates", result.NewCount, result.DuplicatesCount);
         _keeper.Signal(BackgroundEvents.GetDeviceTypeDone);
     }
 }

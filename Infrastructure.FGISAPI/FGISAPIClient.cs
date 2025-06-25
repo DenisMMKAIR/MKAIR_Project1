@@ -20,41 +20,37 @@ public class FGISAPIClient : IFGISAPI
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "FGIS_API1");
     }
 
-
     public async Task<IReadOnlyList<IFGISAPI.FGISDeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
     {
         const string endpoint = "mit";
-        var result = new List<IFGISAPI.FGISDeviceType>(deviceNumbers.Count);
-        foreach (var deviceTypeNum in deviceNumbers)
+        const uint rows = 100;
+        var result = new HashSet<IFGISAPI.FGISDeviceType>(); // FGISDeviceType is record so it can be used in HashSet without equality implementation
+
+        foreach (var deviceNumbersChunk in deviceNumbers.SplitBy(rows))
         {
-            var response = await GetItemListAsync<ListResponse<DeviceTypeShort>>(endpoint, query: $"?number={deviceTypeNum}");
-            if (response.Result.Count == 0)
-            {
-                _logger.LogError("Не найден тип {DevType}", deviceTypeNum);
-                continue;
-            }
-            if (response.Result.Count > 1)
-            {
-                _logger.LogError("Тип {DevType}. Найдено больше 1", deviceTypeNum);
-            }
-            result.AddRange(response.Result.Items.Select(dt => new IFGISAPI.FGISDeviceType(dt.Number, dt.Title, dt.Notation)));
+            var search = deviceNumbersChunk.Aggregate((a, c) => $"{a}%20{c}");
+            var response = await GetItemListAsync<ListResponse<DeviceTypeShort>>(endpoint, search, rows);
+            result = [.. result.Union(response.Result.Items.Select(d => new IFGISAPI.FGISDeviceType(d.Number, d.Title, d.Notation)))];
         }
-        return result;
+
+        if (deviceNumbers.Count != result.Count)
+        {
+            _logger.LogError("Количество входящих и полученных типов не совпадает {InCount}-{OutCount}", deviceNumbers.Count, result.Count);
+        }
+
+        return [.. result];
     }
 
     record DeviceTypeShort(string Number, string Title, string Notation);
 
-    /// <summary>
-    /// Use search or query. NOT BOTH
-    /// </summary>
-    /// <typeparam name="T"></typeparam>
-    /// <param name="endpoint"></param>
-    /// <param name="search"></param>
-    /// <param name="query"></param>
-    /// <returns></returns>
-    private async Task<T> GetItemListAsync<T>(string endpoint, string? search = null, string? query = null)
+    private async Task<T> GetItemListAsync<T>(string endpoint, string search, uint? rows = null)
     {
-        query ??= BuildQuery(search);
+        var query = BuildQuery(search, rows: rows);
+        return await RequestBaseAsync<T>($"/{endpoint}", query);
+    }
+
+    private async Task<T> GetItemListAsync<T>(string endpoint, string query)
+    {
         return await RequestBaseAsync<T>($"/{endpoint}", query);
     }
 
@@ -127,5 +123,33 @@ public class FGISAPIClient : IFGISAPI
         }
 
         throw new NotImplementedException("Unreachable code");
+    }
+}
+
+internal static class EnumerableExtensions
+{
+    public static IEnumerable<IReadOnlyList<T>> SplitBy<T>(this IEnumerable<T> source, uint chunkSize)
+    {
+        if (chunkSize == 0)
+        {
+            throw new ArgumentException("Chunk size must be greater than zero.", nameof(chunkSize));
+        }
+
+        using var enumerator = source.GetEnumerator();
+        while (true)
+        {
+            var chunk = new List<T>((int)chunkSize);
+            for (uint i = 0; i < chunkSize && enumerator.MoveNext(); i++)
+            {
+                chunk.Add(enumerator.Current);
+            }
+
+            if (chunk.Count == 0)
+            {
+                break;
+            }
+
+            yield return chunk;
+        }
     }
 }
