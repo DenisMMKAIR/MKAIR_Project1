@@ -7,6 +7,7 @@ using ProjApp.InfrastructureInterfaces;
 using ProjApp.Services;
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database.Commands;
+using Infrastructure.FGISAPI;
 
 namespace ProjApp.Usage;
 
@@ -25,16 +26,9 @@ public static class ProjectDI
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
 
-        serviceCollection.AddSingleton<IOuterDeviceAPI, DUMMYOuterDeviceAPI>();
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
-    }
-}
-
-internal class DUMMYOuterDeviceAPI : IOuterDeviceAPI
-{
-    public Task<IOuterDeviceAPI.DeviceTypeResult?> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
-    {
-        return Task.FromResult<IOuterDeviceAPI.DeviceTypeResult?>(null);
+        
+        serviceCollection.AddSingleton<IFGISAPI, FGISAPIClient>();
     }
 }
