@@ -8,8 +8,8 @@ public class PaginatedList<T>
     public int TotalPages { get; private set; }
     public bool HasPreviousPage => PageIndex > 1;
     public bool HasNextPage => PageIndex < TotalPages;
-    public IReadOnlyList<T> Items { get; private set; }
     public int TotalCount { get; private set; }
+    public IReadOnlyList<T> Items { get; private set; }
 
     public PaginatedList(List<T> items, int count, int pageIndex, int pageSize)
     {
