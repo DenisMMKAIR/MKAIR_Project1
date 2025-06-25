@@ -1,0 +1,26 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+	<PropertyGroup>
+		<OutputType>Library</OutputType>
+		<TargetFramework>net8.0</TargetFramework>
+		<LangVersion>Latest</LangVersion>
+		<ImplicitUsings>enable</ImplicitUsings>
+		<Nullable>enable</Nullable>
+	</PropertyGroup>
+
+	<ItemGroup>
+		<PackageReference Include="PuppeteerSharp" Version="20.1.3" />
+		<PackageReference Include="AngleSharp" Version="1.3.0" />
+	</ItemGroup>
+
+	<ItemGroup>
+		<Content Include="Forms/*.html">
+			<CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+		</Content>
+	</ItemGroup>
+
+	<ItemGroup>
+	  <ProjectReference Include="..\Infrastructure.SharedCode\Infrastructure.SharedCode.csproj" />
+	</ItemGroup>
+
+</Project>

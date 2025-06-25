@@ -1,0 +1,435 @@
+<!DOCTYPE html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Manometr form</title>
+  </head>
+  <body>
+    <p class="v-center">
+      Общество с ограниченной ответственностью "Многоцелевая Компания.
+      Автоматизация. Исследования. Разработки"
+    </p>
+    <p class="v-center" id="setValue_address">
+      Ханты-Мансийский автономный округ - Югра, г.о. Нижневартовск, г
+      Нижневартовск, ул Индустриальная, зд. 32, стр. 1, кабинет 14
+    </p>
+    <p class="v-center">
+      Уникальный номер записи об аккредитации в реестре аккредитованных лиц
+      №RA.RU.314356
+    </p>
+    <p class="v-center bold spread-header">
+      ПРОТОКОЛ ПЕРИОДИЧЕСКОЙ ПОВЕРКИ №
+      <span id="setValue_protocolNumber">25/012/22</span>
+    </p>
+    <div class="spread-bottom">
+      <div class="split-60 line">
+        <p id="setValue_deviceTypeName">
+          Манометры деформационные с трубчатой пружиной 2 Манометры
+          деформационные с трубчатой пружиной 2 Манометры деформационные с
+          трубчатой пружиной 2
+        </p>
+        <p class="v-center h-bottom" id="setValue_deviceTypeModification">
+          213.40.063
+        </p>
+      </div>
+      <p class="undertext">
+        наименование, тип (согласно Гос. реестра СИ РФ), если в состав средства
+        измерений входят несколько автономных блоков, то привести их перечень
+      </p>
+    </div>
+    <div class="spread-bottom">
+      <div class="line">
+        <p class="v-center" id="setValue_deviceTypeNumber">55984-13</p>
+      </div>
+      <p class="undertext">номер по Государственному реестру СИ РФ</p>
+    </div>
+    <div class="split-20 spread-bottom">
+      <div></div>
+      <div>
+        <div class="line">
+          <p class="v-center" id="setValue_deviceSerial">05322</p>
+        </div>
+        <p class="undertext">
+          заводской номер (все цифры и буквы заводского номера)
+        </p>
+      </div>
+    </div>
+    <div class="split-20 spread-bottom">
+      <div>
+        <p>Год выпуска:</p>
+      </div>
+      <div class="line">
+        <p class="v-center" id="setValue_manufactureYear">2015</p>
+      </div>
+    </div>
+    <div class="split-20 spread-bottom">
+      <div>
+        <p>Принадлежащее:</p>
+      </div>
+      <div>
+        <div class="line">
+          <p class="h-center" style="gap: 10px">
+            <span>
+              <span id="setValue_owner">ООО "РИ-ИНВЕСТ"</span>
+              <span>, ИНН</span>
+            </span>
+            <span id="setValue_ownerINN">7705551779</span>
+          </p>
+        </div>
+        <p class="undertext">
+          наименование юридического/ фамилия имя и отчество физического лица-
+          владельца средства измерений, ИНН/КПП
+        </p>
+      </div>
+    </div>
+    <div class="split-35 spread-bottom">
+      <p>Документ на методику поверки:</p>
+      <div>
+        <div class="line">
+          <p class="p-small" id="mainLine_verifications">
+            МИ 2124-90 «ГСИ. Манометры, вакуумметры, мановакуумметры, напоромеры,
+          </p>
+        </div>
+        <p class="undertext">наименование и номер документа</p>
+      </div>
+    </div>
+    <div class="spread-bottom" id="addIn_verifications">
+      <p class="line p-small" id="additionalLine_verifications">
+        тягомеры и тягонапоромеры показывающие и самопишущие. Методика поверки»
+      </p>
+    </div>
+    <div class="split-20 spread-bottom">
+      <p>Средства поверки:</p>
+      <div>
+        <p class="line p-small" id="mainLine_etalons">
+          77090.19.2Р.00761950; 77090-19; Преобразователи давления эталонные;
+          ЭЛМЕТРО-Паскаль-04, Паскаль-04;
+        </p>
+        <p class="undertext">
+          Указываются эталоны единиц величин, обеспечивающие передачу размера
+          единицы величины в соответствии с поверочной схемой,
+        </p>
+      </div>
+    </div>
+    <div class="spread-bottom">
+      <p class="line p-small" id="additionalLine_etalons">
+        2022 г. 7М-0,02-Т35; 3110; 2020; 2Р; Эталон 2-го разряда; Приказ
+        Росстандарта № 2653 от 20 октября 2022 г.; их наименование,
+      </p>
+      <p class="undertext spread-bottom" id="addAfter_etalons">
+        номер (все цифры и буквы регистрационного номера)
+      </p>
+    </div>
+    <div class="split-20 spread-bottom">
+      <p>Условия поверки:</p>
+      <div>
+        <p class="line" style="display: flex; gap: 15px">
+          <span>температура окружающего воздуха</span>
+          <span><span id="setValue_temperature">22,8</span>°С</span>
+          <span>относительная влажность</span>
+          <span><span id="setValue_humidity">42</span>%</span>
+        </p>
+        <p class="undertext">
+          Указываются влияющие факторы, нормированные в НД на методику поверки,
+          с указанием конкретных показателей (значений)
+        </p>
+      </div>
+    </div>
+    <div class="split-20 spread-bottom">
+      <div></div>
+      <div class="line">
+        <p style="display: flex; gap: 15px">
+          <span>атмосферное давление</span
+          ><span id="setValue_pressure">101,2 кПа</span>
+        </p>
+      </div>
+    </div>
+    <div class="split-30 spread-bottom">
+      <p>1.Результаты внешнего осмотра:</p>
+      <p class="line" id="setValue_verificationVisualCheckup">
+        соответствует п. 5.1 методики поверки
+      </p>
+    </div>
+    <div class="split-30 spread-bottom">
+      <p>2.Результаты опробования:</p>
+      <p class="line" id="setValue_verificationResultCheckup">
+        соответствует п. 5.2.3 методики поверки
+      </p>
+    </div>
+    <p class="spread-botton-large">
+      <span>3.Определение основной погрешности и вариации </span
+      ><span id="setValue_verificationAccuracyCheckup"
+        >в соответствии с п. 5.3 методики поверки</span
+      >
+    </p>
+    <table class="spread-botton-large">
+      <thead>
+        <tr>
+          <th colspan="2">Показания поверяемого СИ</th>
+          <th colspan="2">Показания эталона</th>
+          <th colspan="2" rowspan="2">Приведенная погрешность, %</th>
+          <th rowspan="3">Допустимая приведенная погрешность, %</th>
+          <th rowspan="3">Вариация показаний, %</th>
+          <th rowspan="3">Допустимая вариация, %</th>
+        </tr>
+        <tr class="units-row">
+          <th colspan="2" id="measurementUnit1">bar</th>
+          <th colspan="2" id="measurementUnit2">bar</th>
+        </tr>
+        <tr class="header-row">
+          <th>прямой ход</th>
+          <th>обратный ход</th>
+          <th>прямой ход</th>
+          <th>обратный ход</th>
+          <th>прямой ход</th>
+          <th>обратный ход</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+        </tr>
+        <tr>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>0</td>
+          <td>-</td>
+          <td>-</td>
+        </tr>
+      </tbody>
+    </table>
+    <p class="spread-botton-large">
+      Заключение: на основании результатов поверки, СИ признано
+      <span class="line">пригодным</span>/<span>непригодным</span>
+      к применению
+    </p>
+    <div class="split-15 spread-bottom">
+      <p>Дата поверки:</p>
+      <div>
+        <p class="line h-center" id="setValue_verificationDate">28.03.2024</p>
+        <p class="undertext">Указывается дата поверки в формате ЧЧ.ММ.ГГГГ.</p>
+      </div>
+    </div>
+    <br class="spread-botton-large" />
+    <div class="split-15 spread-bottom">
+      <p>Поверитель:</p>
+      <div>
+        <div class="line" style="display: flex; justify-content: space-around">
+          <div>
+            <img alt="ПОДПИСЬ" id="sign" src="большаков с.н. 1.png1"/>
+          </div>
+          <p id="setValue_worker">Иванов Иван Иванович</p>
+        </div>
+        <div
+          class="undertext"
+          style="display: flex; justify-content: space-around"
+        >
+          <p>(подпись)</p>
+          <p>(фамилия, инициалы)</p>
+        </div>
+      </div>
+    </div>
+  </body>
+  <style>
+    body {
+      padding: 2rem 5rem;
+    }
+    p {
+      padding: 0;
+      margin: 0;
+      font-family: "Times New Roman";
+      font-size: 12px;
+    }
+    table {
+      border-collapse: collapse;
+      width: 100%;
+      margin: 0 auto;
+      font-size: 12px;
+    }
+    th,
+    td {
+      border: 1px solid black;
+      text-align: center;
+    }
+    .spread-header {
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+    }
+    .spread-bottom {
+      margin-bottom: 0.2rem;
+    }
+    .spread-botton-large {
+      margin-bottom: 0.7rem;
+    }
+    .split-15 {
+      display: flex;
+    }
+    .split-15 > *:first-child {
+      flex: 0 0 15%;
+    }
+    .split-15 > *:last-child {
+      flex: 0 0 85%;
+    }
+    .split-20 {
+      display: flex;
+    }
+    .split-20 > *:first-child {
+      flex: 0 0 20%;
+    }
+    .split-20 > *:last-child {
+      flex: 0 0 80%;
+    }
+    .split-25 {
+      display: flex;
+    }
+    .split-25 > *:first-child {
+      flex: 0 0 25%;
+    }
+    .split-25 > *:last-child {
+      flex: 0 0 75%;
+    }
+    .split-30 {
+      display: flex;
+    }
+    .split-30 > *:first-child {
+      flex: 0 0 30%;
+    }
+    .split-30 > *:last-child {
+      flex: 0 0 70%;
+    }
+    .split-35 {
+      display: flex;
+    }
+    .split-35 > *:first-child {
+      flex: 0 0 35%;
+    }
+    .split-35 > *:last-child {
+      flex: 0 0 65%;
+    }
+    .split-50 {
+      display: flex;
+      justify-content: space-between;
+    }
+    .split-50 > * {
+      flex: 1;
+    }
+    .split-60 {
+      display: flex;
+    }
+    .split-60 > *:first-child {
+      flex: 0 0 60%;
+    }
+    .split-60 > *:last-child {
+      flex: 0 0 40%;
+    }
+    .v-center {
+      text-align: center;
+    }
+    .h-center {
+      display: flex;
+      justify-content: center;
+    }
+    .h-bottom {
+      display: flex;
+      align-items: flex-end;
+      justify-content: center;
+    }
+    .p-small {
+      font-size: 10px;
+    }
+    .undertext {
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+      font-size: 0.5rem;
+    }
+    .text-stretch {
+      text-align: justify;
+    }
+    .bold {
+      font-weight: bold;
+    }
+    .line {
+      border-bottom: 1px solid black;
+    }
+  </style>
+</html>

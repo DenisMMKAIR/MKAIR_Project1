@@ -1,0 +1,22 @@
+using Infrastructure.Receiver.Verifications.PendingManometr;
+using Microsoft.Extensions.Logging;
+using ProjApp.Database;
+using ProjApp.Database.Entities;
+using ProjApp.InfrastructureInterfaces;
+
+namespace Infrastructure.Receiver.Services;
+
+public class PendingManometrVerificationExcelProcessor : IPendingManometrVerificationsProcessor
+{
+    private readonly ExcelFileProcessor<PendingManometrVerificationDataItem, PendingManometrVerification> _excelProcessor;
+
+    public PendingManometrVerificationExcelProcessor(ILogger<PendingManometrVerificationExcelProcessor> logger)
+    {
+        _excelProcessor = new(logger, new PendingManometrVerificationsColumnsSetup());
+    }
+
+    public IReadOnlyList<PendingManometrVerification> ReadVerificationFile(Stream fileStream, string fileName, string sheetName, string dataRange, DeviceLocation location)
+    {
+        return _excelProcessor.ReadVerificationFile(fileStream, fileName, sheetName, dataRange, location);
+    }
+}

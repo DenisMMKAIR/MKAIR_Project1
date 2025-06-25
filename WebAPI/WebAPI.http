@@ -1,0 +1,26 @@
+@WebAPI_HostAddress = http://localhost:5170/api
+
+GET {{WebAPI_HostAddress}}/weatherforecast/get
+Accept: application/json
+
+###
+
+POST {{WebAPI_HostAddress}}/PendingVerifications/AcceptExcelVerifications
+Accept: application/json
+Content-Type: multipart/form-data; boundary=----WebKitFormBoundary7MA4YWxkTrZu0gW
+
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="dataRange"
+
+A1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="sheetName"
+
+A1
+------WebKitFormBoundary7MA4YWxkTrZu0gW
+Content-Disposition: form-data; name="file"; filename="поверки.xlsx"
+Content-Type: application/vnd.openxmlformats-officedocument.spreadsheetml.sheet
+
+< C:\Users\Denis\Projects\Project1\WebAPI.Tests\Samples\поверки.xlsx
+------WebKitFormBoundary7MA4YWxkTrZu0gW--
+###
