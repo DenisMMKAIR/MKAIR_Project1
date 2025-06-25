@@ -1,4 +1,3 @@
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
@@ -12,7 +11,6 @@ namespace WebAPI.Tests;
 public abstract class ControllersFixture
 {
     public ServiceProvider ServiceProvider { get; set; }
-    public IFormFile Verifications1File { get; set; }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -33,8 +31,6 @@ public abstract class ControllersFixture
         var db = ServiceProvider.GetRequiredService<ProjDatabase>();
         db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
-
-        Verifications1File = Samples.Verifications1.ToFormFile();
     }
 
     [OneTimeTearDown]

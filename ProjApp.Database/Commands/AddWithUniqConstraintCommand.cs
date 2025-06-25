@@ -44,9 +44,12 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
     {
         if (items.Count == 0) return Result.Ok(0, 0);
 
-        var dbItems = await _db.Set<T>()
-            .Where(e => items.Any(i => _comparer.Equals(i, e)))
-            .ToListAsync();
+        // TODO: optimize. Problem: Cant use async because EF cant translate _comparer(or _comparer.Equal) to SQL
+        // Cant get another approach
+        var dbItems = _db.Set<T>()
+            .AsEnumerable()
+            .Where(e => items.Contains(e, _comparer))
+            .ToList();
 
         var newItems = items.Except(dbItems, _comparer).ToList();
 
