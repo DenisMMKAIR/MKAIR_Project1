@@ -1,8 +1,15 @@
+using ProjApp.Database.Entities;
+
 namespace ProjApp.InfrastructureInterfaces;
 
 public interface IFGISAPI
 {
-    Task<IReadOnlyList<FGISDeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers);
+    Task<IReadOnlyList<DeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers);
+    Task<GetInitialVerificationType> GetInitialVerifications(string date);
 
-    public record FGISDeviceType(string Number, string Name, string Notation);
+    public record GetInitialVerificationType(
+        IReadOnlyList<Etalon> Etalons,
+        IReadOnlyList<DeviceType> DeviceTypes,
+        IReadOnlyList<InitialVerification> InitialVerifications
+    );
 }

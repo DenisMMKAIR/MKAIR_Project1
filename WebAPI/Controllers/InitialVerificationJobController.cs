@@ -8,15 +8,15 @@ namespace WebAPI.Controllers;
 
 public class InitialVerificationJobController : ApiControllerBase
 {
-    private readonly InitiailVerificationJobService _service;
+    private readonly InitialVerificationJobService _service;
 
-    public InitialVerificationJobController(InitiailVerificationJobService service)
+    public InitialVerificationJobController(InitialVerificationJobService service)
     {
         _service = service;
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<InitiailVerificationJob>> GetJobs([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<InitialVerificationJob>> GetJobs([Required][FromQuery] GetPaginatedRequest request)
     {
         return await _service.GetJobs(request.PageIndex, request.PageSize);
     }

@@ -17,21 +17,3 @@ public class PendingManometrVerification : DatabaseEntity
     public double? Accuracy { get; set; }
     public required DeviceLocation Location { get; set; }
 }
-
-public class PendingManometrVerificationUniqComparer : IEqualityComparer<PendingManometrVerification>
-{
-    public bool Equals(PendingManometrVerification? x, PendingManometrVerification? y)
-    {
-        if (x == null || y == null) return false;
-
-        return x.DeviceTypeNumber.Equals(y.DeviceTypeNumber) &&
-               x.DeviceSerial.Equals(y.DeviceSerial) &&
-               x.Date.Equals(y.Date) &&
-               x.Location.Equals(y.Location);
-    }
-
-    public int GetHashCode([DisallowNull] PendingManometrVerification obj)
-    {
-        return HashCode.Combine(obj.DeviceTypeNumber, obj.DeviceSerial, obj.Date, obj.Location);
-    }
-}

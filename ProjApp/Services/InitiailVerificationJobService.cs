@@ -7,16 +7,16 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.Services;
 
-public class InitiailVerificationJobService
+public class InitialVerificationJobService
 {
-    private readonly ILogger<InitiailVerificationJobService> _logger;
+    private readonly ILogger<InitialVerificationJobService> _logger;
     private readonly ProjDatabase _database;
-    private readonly AddInitiailVerificationJobCommand _addCommand;
+    private readonly AddInitialVerificationJobCommand _addCommand;
     private readonly EventKeeper _eventKeeper;
 
-    public InitiailVerificationJobService(ILogger<InitiailVerificationJobService> logger,
+    public InitialVerificationJobService(ILogger<InitialVerificationJobService> logger,
                                           ProjDatabase database,
-                                          AddInitiailVerificationJobCommand addCommand,
+                                          AddInitialVerificationJobCommand addCommand,
                                           EventKeeper eventKeeper)
     {
         _logger = logger;
@@ -25,10 +25,10 @@ public class InitiailVerificationJobService
         _eventKeeper = eventKeeper;
     }
 
-    public async Task<ServicePaginatedResult<InitiailVerificationJob>> GetJobs(int pageIndex, int pageSize)
+    public async Task<ServicePaginatedResult<InitialVerificationJob>> GetJobs(int pageIndex, int pageSize)
     {
-        var result = await _database.InitiailVerificationJobs.ToPaginatedAsync(pageIndex, pageSize);
-        return ServicePaginatedResult<InitiailVerificationJob>.Success(result);
+        var result = await _database.InitialVerificationJobs.ToPaginatedAsync(pageIndex, pageSize);
+        return ServicePaginatedResult<InitialVerificationJob>.Success(result);
     }
 
     public async Task<ServiceResult> AddJob(int year, int month)
@@ -42,7 +42,7 @@ public class InitiailVerificationJobService
         var to = DateOnly.FromDateTime(DateTime.Now);
         if (cur < from || cur > to) return ServiceResult.Fail("Неверно задана дата. От 2024.02 До текущей даты");
 
-        var incomingJob = new InitiailVerificationJob { Date = $"{year}.{month}", LoadedVerifications = 0 };
+        var incomingJob = new InitialVerificationJob { Date = $"{year}.{month}", LoadedVerifications = 0 };
         var result = await _addCommand.ExecuteAsync(incomingJob);
         if (result.Error != null)
         {

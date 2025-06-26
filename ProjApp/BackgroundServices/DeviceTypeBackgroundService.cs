@@ -62,7 +62,7 @@ public class DeviceTypeBackgroundService : EventSubscriberBase, IHostedService
         var addCommand = scope.ServiceProvider.GetRequiredService<AddDeviceTypeCommand>();
 
         var newDevices = newAPIDevices
-            .Select(d => new DeviceType { Name = d.Name, Number = d.Number, Notation = d.Notation })
+            .Select(d => new DeviceType { Title = d.Title, Number = d.Number, Notation = d.Notation })
             .ToArray();
 
         var result = await addCommand.ExecuteAsync(newDevices);

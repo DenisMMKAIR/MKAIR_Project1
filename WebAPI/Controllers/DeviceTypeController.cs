@@ -24,7 +24,7 @@ public class DeviceTypeController : ApiControllerBase
     [HttpPost]
     public async Task<ServiceResult> AddDeviceType([Required][FromForm] DeviceTypeRequest deviceType)
     {
-        var deviceTypeEntity = new DeviceType { Name = deviceType.Name, Number = deviceType.Number, Notation = deviceType.Notation };
+        var deviceTypeEntity = new DeviceType { Title = deviceType.Name, Number = deviceType.Number, Notation = deviceType.Notation };
         return await _deviceTypeService.AddDeviceTypeAsync(deviceTypeEntity);
     }
 

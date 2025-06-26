@@ -21,15 +21,16 @@ public static class ProjectDI
 
         serviceCollection.AddTransient<AddPendingManometrCommand>();
         serviceCollection.AddTransient<AddDeviceTypeCommand>();
-        serviceCollection.AddTransient<AddInitiailVerificationJobCommand>();
+        serviceCollection.AddTransient<AddInitialVerificationJobCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
-        serviceCollection.AddScoped<InitiailVerificationJobService>();
+        serviceCollection.AddScoped<InitialVerificationJobService>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
+        serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         
         serviceCollection.AddSingleton<IFGISAPI, FGISAPIClient>();
     }

@@ -2,6 +2,8 @@
 using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Extensions.Logging;
+using ProjApp.Database.Commands;
+using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
 
 namespace Infrastructure.FGISAPI;
@@ -20,17 +22,17 @@ public class FGISAPIClient : IFGISAPI
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "FGIS_API1");
     }
 
-    public async Task<IReadOnlyList<IFGISAPI.FGISDeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
+    public async Task<IReadOnlyList<DeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
     {
         const string endpoint = "mit";
         const uint rows = 100;
-        var result = new HashSet<IFGISAPI.FGISDeviceType>(); // FGISDeviceType is record so it can be used in HashSet without equality implementation
+        var result = new HashSet<DeviceType>(new DeviceTypeUniqComparer());
 
         foreach (var deviceNumbersChunk in deviceNumbers.SplitBy(rows))
         {
             var search = deviceNumbersChunk.Aggregate((a, c) => $"{a}%20{c}");
-            var response = await GetItemListAsync<ListResponse<DeviceTypeShort>>(endpoint, search, rows);
-            result = [.. result.Union(response.Result.Items.Select(d => new IFGISAPI.FGISDeviceType(d.Number, d.Title, d.Notation)))];
+            var response = await GetItemListAsync<ListResponse<DeviceType>>(endpoint, search, rows);
+            result = [.. result.Union(response.Result.Items)];
         }
 
         if (deviceNumbers.Count != result.Count)
@@ -41,7 +43,10 @@ public class FGISAPIClient : IFGISAPI
         return [.. result];
     }
 
-    record DeviceTypeShort(string Number, string Title, string Notation);
+    public Task<IFGISAPI.GetInitialVerificationType> GetInitialVerifications(string date)
+    {
+        throw new NotImplementedException();
+    }
 
     private async Task<T> GetItemListAsync<T>(string endpoint, string search, uint? rows = null)
     {
