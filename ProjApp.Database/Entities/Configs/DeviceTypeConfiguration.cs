@@ -11,10 +11,3 @@ internal class DeviceTypeConfiguration : IEntityTypeConfiguration<DeviceType>
                .IsUnique();
     }
 }
-
-public class DeviceType1 : DatabaseEntity
-{
-    public required string Number { get; set; }
-    public required string Name { get; set; }
-    public required string Notation { get; set; }
-}
