@@ -23,6 +23,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProjApp.Usage", "ProjApp.Us
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.FGISAPI", "Infrastructure.FGISAPI\Infrastructure.FGISAPI.csproj", "{00226848-AB64-4B32-A8D9-522915AF816D}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.FGIS.Database", "Infrastructure.FGIS.Database\Infrastructure.FGIS.Database.csproj", "{D442A2D8-2103-452A-B359-4BD071262A8D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Infrastructure.FGIS.Database.Maintenance", "Infrastructure.FGIS.Database.Maintenance\Infrastructure.FGIS.Database.Maintenance.csproj", "{B0024A06-AB2D-45EF-9E59-6C715E7382BE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -69,6 +73,14 @@ Global
 		{00226848-AB64-4B32-A8D9-522915AF816D}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{00226848-AB64-4B32-A8D9-522915AF816D}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{00226848-AB64-4B32-A8D9-522915AF816D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D442A2D8-2103-452A-B359-4BD071262A8D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D442A2D8-2103-452A-B359-4BD071262A8D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D442A2D8-2103-452A-B359-4BD071262A8D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D442A2D8-2103-452A-B359-4BD071262A8D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B0024A06-AB2D-45EF-9E59-6C715E7382BE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B0024A06-AB2D-45EF-9E59-6C715E7382BE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B0024A06-AB2D-45EF-9E59-6C715E7382BE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B0024A06-AB2D-45EF-9E59-6C715E7382BE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
