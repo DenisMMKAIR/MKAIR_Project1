@@ -24,6 +24,7 @@ public abstract class ControllersFixture
         services.AddLogging(cfg => cfg.AddConsole());
         services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<DeviceTypeController>();
+        services.AddTransient<InitialVerificationJobController>();
         services.RegisterProjectDI(configuration);
 
         ServiceProvider = services.BuildServiceProvider();

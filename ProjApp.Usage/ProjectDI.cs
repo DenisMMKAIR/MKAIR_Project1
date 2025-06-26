@@ -21,10 +21,12 @@ public static class ProjectDI
 
         serviceCollection.AddTransient<AddPendingManometrCommand>();
         serviceCollection.AddTransient<AddDeviceTypeCommand>();
+        serviceCollection.AddTransient<AddInitiailVerificationJobCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
+        serviceCollection.AddScoped<InitiailVerificationJobService>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();

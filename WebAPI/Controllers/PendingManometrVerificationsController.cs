@@ -18,14 +18,7 @@ public class PendingManometrVerificationsController : ApiControllerBase
         _logger = logger;
         _verificationService = verificationService;
     }
-
-    /// <summary>
-    /// Принимает поверки виде excel документа
-    /// </summary>
-    /// <param name="file">Файл excel</param>
-    /// <param name="sheetName">Название листа</param>
-    /// <param name="dataRange">Диапазон данных включая заголовки. Например A1:B2</param>
-    /// <returns></returns>
+    
     [HttpPost]
     public async Task<ServiceResult> AcceptExcelVerifications([Required][FromForm] ExcelVerificationsRequest request, CancellationToken cancellationToken)
     {
@@ -33,7 +26,6 @@ public class PendingManometrVerificationsController : ApiControllerBase
         using var memory = new MemoryStream();
         await file.CopyToAsync(memory, cancellationToken);
         memory.Position = 0;
-        _logger.LogDebug("Получен файл для обработки: {FileName}", file.FileName);
         var result = await _verificationService.ProcessIncomingExcelAsync(memory, file.FileName, sheetName, dataRange, location);
         return result;
     }

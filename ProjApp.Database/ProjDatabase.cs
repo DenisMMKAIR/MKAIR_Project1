@@ -8,6 +8,7 @@ public class ProjDatabase : DbContext
 {
     public ProjDatabase(DbContextOptions<ProjDatabase> options) : base(options) { }
 
+    public DbSet<InitiailVerificationJob> InitiailVerificationJobs => Set<InitiailVerificationJob>();
     public DbSet<DeviceType> DeviceTypes => Set<DeviceType>();
     public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
     public DbSet<Owner> Owners => Set<Owner>();
