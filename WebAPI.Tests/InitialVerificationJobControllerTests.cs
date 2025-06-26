@@ -23,11 +23,20 @@ public class InitialVerificationJobControllerTests : ControllersFixture
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
         var response = await controller.AddJob(new(2024, 01));
         Assert.That(response.Error, Is.Not.Null);
-        Assert.That(response.Error, Is.EqualTo("Неверно задана дата. От 2024.02.01 до сегодня"));
+        Assert.That(response.Error, Is.EqualTo("Неверно задана дата. От 2024.02 До текущей даты"));
     }
 
     [Test]
     public async Task Test3()
+    {
+        var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
+        var response = await controller.AddJob(new(0, 0));
+        Assert.That(response.Error, Is.Not.Null);
+        Assert.That(response.Error, Is.EqualTo("Неверно задан год. От 2024"));
+    }
+
+    [Test]
+    public async Task Test4()
     {
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
         var response = await controller.GetJobs(new());

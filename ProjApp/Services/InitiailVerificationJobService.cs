@@ -33,11 +33,14 @@ public class InitiailVerificationJobService
 
     public async Task<ServiceResult> AddJob(int year, int month)
     {
-        var cur = new DateOnly(year, month, 1);
-        var end = DateOnly.FromDateTime(DateTime.Now);
-        var begin = new DateOnly(2024, 2, 1);
+        if (year < 2024) return ServiceResult.Fail("Неверно задан год. От 2024");
+        if (year > DateTime.Now.Year) return ServiceResult.Fail("Неверно задан год. До текущего года");
+        if (month < 1 || month > 12) return ServiceResult.Fail("Неверно задан месяц. От 1 до 12");
 
-        if (cur < begin || cur > end) return ServiceResult.Fail("Неверно задана дата. От 2024.02.01 до сегодня");
+        var cur = new DateOnly(year, month, 1);
+        var from = new DateOnly(2024, 2, 1);
+        var to = DateOnly.FromDateTime(DateTime.Now);
+        if (cur < from || cur > to) return ServiceResult.Fail("Неверно задана дата. От 2024.02 До текущей даты");
 
         var incomingJob = new InitiailVerificationJob { Date = $"{year}.{month}", LoadedVerifications = 0 };
         var result = await _addCommand.ExecuteAsync(incomingJob);
