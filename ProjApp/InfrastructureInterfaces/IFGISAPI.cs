@@ -9,7 +9,6 @@ public interface IFGISAPI
 
     public record GetInitialVerificationType(
         IReadOnlyList<Etalon> Etalons,
-        IReadOnlyList<DeviceType> DeviceTypes,
         IReadOnlyList<InitialVerification> InitialVerifications
     );
 }

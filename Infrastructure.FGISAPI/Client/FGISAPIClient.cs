@@ -2,13 +2,11 @@
 using System.Runtime.Serialization;
 using System.Text;
 using Microsoft.Extensions.Logging;
-using ProjApp.Database.Commands;
-using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
 
-namespace Infrastructure.FGISAPI;
+namespace Infrastructure.FGISAPI.Client;
 
-public class FGISAPIClient : IFGISAPI
+public partial class FGISAPIClient : IFGISAPI
 {
     private readonly ILogger<FGISAPIClient> _logger;
     private readonly HTTPQueueManager _httpQueueManager;
@@ -20,32 +18,6 @@ public class FGISAPIClient : IFGISAPI
         _httpQueueManager = new(logger);
         _httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "FGIS_API1");
-    }
-
-    public async Task<IReadOnlyList<DeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
-    {
-        const string endpoint = "mit";
-        const uint rows = 100;
-        var result = new HashSet<DeviceType>(new DeviceTypeUniqComparer());
-
-        foreach (var deviceNumbersChunk in deviceNumbers.SplitBy(rows))
-        {
-            var search = deviceNumbersChunk.Aggregate((a, c) => $"{a}%20{c}");
-            var response = await GetItemListAsync<ListResponse<DeviceType>>(endpoint, search, rows);
-            result = [.. result.Union(response.Result.Items)];
-        }
-
-        if (deviceNumbers.Count != result.Count)
-        {
-            _logger.LogError("Количество входящих и полученных типов не совпадает {InCount}-{OutCount}", deviceNumbers.Count, result.Count);
-        }
-
-        return [.. result];
-    }
-
-    public Task<IFGISAPI.GetInitialVerificationType> GetInitialVerifications(string date)
-    {
-        throw new NotImplementedException();
     }
 
     private async Task<T> GetItemListAsync<T>(string endpoint, string search, uint? rows = null)
@@ -127,34 +99,7 @@ public class FGISAPIClient : IFGISAPI
             }
         }
 
+        // TODO: Fix how we can get here
         throw new NotImplementedException("Unreachable code");
-    }
-}
-
-internal static class EnumerableExtensions
-{
-    public static IEnumerable<IReadOnlyList<T>> SplitBy<T>(this IEnumerable<T> source, uint chunkSize)
-    {
-        if (chunkSize == 0)
-        {
-            throw new ArgumentException("Chunk size must be greater than zero.", nameof(chunkSize));
-        }
-
-        using var enumerator = source.GetEnumerator();
-        while (true)
-        {
-            var chunk = new List<T>((int)chunkSize);
-            for (uint i = 0; i < chunkSize && enumerator.MoveNext(); i++)
-            {
-                chunk.Add(enumerator.Current);
-            }
-
-            if (chunk.Count == 0)
-            {
-                break;
-            }
-
-            yield return chunk;
-        }
     }
 }

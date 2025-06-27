@@ -9,6 +9,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\Infrastructure.FGIS.Database\Infrastructure.FGIS.Database.csproj" />
     <ProjectReference Include="..\ProjApp\ProjApp.csproj" />
   </ItemGroup>
 

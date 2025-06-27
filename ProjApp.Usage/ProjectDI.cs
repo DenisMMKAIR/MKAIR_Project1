@@ -32,6 +32,6 @@ public static class ProjectDI
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         
-        serviceCollection.AddSingleton<IFGISAPI, FGISAPIClient>();
+        serviceCollection.AddFGISAPI();
     }
 }
