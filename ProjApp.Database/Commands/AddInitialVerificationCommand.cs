@@ -19,12 +19,12 @@ public class InitialVerificationUniqComparer : IEqualityComparer<InitialVerifica
         if (x == null || y == null) return false;
 
         return x.VerificationDate.Equals(y.VerificationDate) &&
-            x.Device!.DeviceType!.Number.Equals(y.Device!.DeviceType!.Number) &&
-            x.Device!.Serial.Equals(y.Device!.Serial);
+            x.DeviceTypeNumber.Equals(y.DeviceTypeNumber) &&
+            x.DeviceSerial.Equals(y.DeviceSerial);
     }
 
     public int GetHashCode([DisallowNull] InitialVerification obj)
     {
-        return HashCode.Combine(obj.VerificationDate, obj.Device!.DeviceType!.Number, obj.Device!.Serial);
+        return HashCode.Combine(obj.VerificationDate, obj.DeviceTypeNumber, obj.DeviceSerial);
     }
 }

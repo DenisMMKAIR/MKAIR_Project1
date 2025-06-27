@@ -2,6 +2,8 @@ namespace ProjApp.Database.Entities;
 
 public class InitialVerification : DatabaseEntity
 {
+    public required string DeviceTypeNumber { get; set; }
+    public required string DeviceSerial { get; set; }
     public required string Owner { get; set; }
     public required string Worker { get; set; }
     public required string AdditionalInfo { get; set; }

@@ -7,7 +7,7 @@ internal class InitialVerificationConfiguration : IEntityTypeConfiguration<Initi
 {
     public void Configure(EntityTypeBuilder<InitialVerification> builder)
     {
-        builder.HasIndex(e => new { e.VerificationDate, e.Device!.Serial, e.Device!.DeviceType!.Number })
+        builder.HasIndex(e => new { e.VerificationDate, e.DeviceSerial, e.DeviceTypeNumber })
                .IsUnique();
     }
 }
