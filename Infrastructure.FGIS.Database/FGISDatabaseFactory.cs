@@ -5,15 +5,12 @@ namespace Infrastructure.FGIS.Database;
 
 public class FGISDatabaseFactory
 {
-    public static FGISDatabase Create()
+    public static void Configure(DbContextOptionsBuilder builder)
     {
         var configuration = new ConfigurationBuilder()
-            .AddUserSecrets<FGISDatabase>()
+            .AddUserSecrets<ProjApp.Settings.EmptySettings>(optional: false)
             .Build();
-        var options = new DbContextOptionsBuilder<FGISDatabase>()
-            .UseNpgsql(configuration.GetConnectionString("FGISCache"))
-            .UseSnakeCaseNamingConvention()
-            .Options;
-        return new FGISDatabase(options);
+        builder.UseNpgsql(configuration.GetConnectionString("FGISCache"))
+               .UseSnakeCaseNamingConvention();
     }
 }

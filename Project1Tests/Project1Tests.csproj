@@ -25,7 +25,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\Infrastructure.DocumentProcessor\Infrastructure.DocumentProcessor.csproj" />
-    <ProjectReference Include="..\Infrastructure.Receiver\Infrastructure.Receiver.csproj" />
+    <ProjectReference Include="..\ProjApp.Usage\ProjApp.Usage.csproj" />
   </ItemGroup>
 
   <ItemGroup>
