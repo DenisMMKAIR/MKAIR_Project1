@@ -9,7 +9,7 @@ public static class FGISAPIDependencyInjection
 {
     public static void AddFGISAPI(this IServiceCollection serviceCollection)
     {
-        serviceCollection.AddDbContext<FGISDatabase>(_ => FGISDatabaseFactory.Create());
+        serviceCollection.AddDbContext<FGISDatabase>(builder => FGISDatabaseFactory.Configure(builder));
         serviceCollection.AddSingleton<IFGISAPI, FGISAPIClient>();
     }
 }
