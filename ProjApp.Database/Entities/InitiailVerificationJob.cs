@@ -1,5 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
-
 namespace ProjApp.Database.Entities;
 
 public class InitialVerificationJob : DatabaseEntity
