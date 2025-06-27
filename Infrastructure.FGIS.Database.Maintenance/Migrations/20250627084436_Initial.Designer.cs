@@ -12,7 +12,7 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    [Migration("20250626051855_Initial")]
+    [Migration("20250627084436_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -25,7 +25,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Device", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Device", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -46,13 +46,20 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("device_serial_number");
 
+                    b.Property<Guid?>("DeviceTypeId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("device_type_id");
+
                     b.HasKey("Id")
                         .HasName("pk_devices");
+
+                    b.HasIndex("DeviceTypeId")
+                        .HasDatabaseName("ix_devices_device_type_id");
 
                     b.ToTable("devices", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.DeviceType", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.DeviceType", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -80,76 +87,136 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     b.ToTable("device_types", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Etalon", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Etalon", b =>
                 {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
+                    b.Property<string>("Number")
+                        .HasColumnType("text")
+                        .HasColumnName("number");
 
-                    b.Property<string>("ManufactureNum")
+                    b.Property<bool>("Applicability")
+                        .HasColumnType("boolean")
+                        .HasColumnName("applicability");
+
+                    b.Property<string>("Factory_Num")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("manufacture_num");
+                        .HasColumnName("factory_num");
 
-                    b.Property<long>("ManufactureYear")
-                        .HasColumnType("bigint")
-                        .HasColumnName("manufacture_year");
+                    b.Property<string>("MiNotation")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("mi_notation");
+
+                    b.Property<string>("MiType")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("mi_type");
+
+                    b.Property<string>("MiType_Num")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("mi_type_num");
 
                     b.Property<string>("Modification")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("modification");
 
-                    b.Property<string>("Notation")
+                    b.Property<string>("NpEnumber")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("notation");
+                        .HasColumnName("np_enumber");
+
+                    b.Property<string>("RankClass")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("rank_class");
 
                     b.Property<string>("RankCode")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("rank_code");
 
-                    b.Property<string>("RankTitle")
+                    b.Property<string>("Schematitle")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("rank_title");
+                        .HasColumnName("schematitle");
 
-                    b.Property<string>("RegNumber")
+                    b.Property<string>("Schematype")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("reg_number");
+                        .HasColumnName("schematype");
 
-                    b.Property<string>("SchemaTitle")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("schema_title");
+                    b.Property<int>("Year")
+                        .HasColumnType("integer")
+                        .HasColumnName("year");
 
-                    b.Property<string>("TypeNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("type_number");
-
-                    b.Property<string>("TypeTitle")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("type_title");
-
-                    b.Property<Guid?>("VerificationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("verification_id");
-
-                    b.HasKey("Id")
+                    b.HasKey("Number")
                         .HasName("pk_etalons");
-
-                    b.HasIndex("VerificationId")
-                        .HasDatabaseName("ix_etalons_verification_id");
 
                     b.ToTable("etalons", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Verification", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Etalon+EtalonVerificationDocs", b =>
+                {
+                    b.Property<string>("Vri_Id")
+                        .HasColumnType("text")
+                        .HasColumnName("vri_id");
+
+                    b.Property<bool>("Applicability")
+                        .HasColumnType("boolean")
+                        .HasColumnName("applicability");
+
+                    b.Property<string>("EtalonNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("etalon_number");
+
+                    b.Property<string>("Org_Title")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("org_title");
+
+                    b.Property<string>("Result_Docnum")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("result_docnum");
+
+                    b.Property<string>("Valid_Date")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("valid_date");
+
+                    b.Property<string>("Verification_Date")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("verification_date");
+
+                    b.HasKey("Vri_Id")
+                        .HasName("pk_etalon_verification_docs");
+
+                    b.HasIndex("EtalonNumber")
+                        .HasDatabaseName("ix_etalon_verification_docs_etalon_number");
+
+                    b.ToTable("etalon_verification_docs", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.MonthResult", b =>
+                {
+                    b.Property<DateOnly>("Date")
+                        .HasColumnType("date")
+                        .HasColumnName("date");
+
+                    b.Property<bool>("Done")
+                        .HasColumnType("boolean")
+                        .HasColumnName("done");
+
+                    b.HasKey("Date")
+                        .HasName("pk_month_results");
+
+                    b.ToTable("month_results", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Verification", b =>
                 {
                     b.Property<Guid>("Id")
                         .ValueGeneratedOnAdd()
@@ -173,9 +240,10 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("device_id");
 
-                    b.Property<Guid?>("DeviceTypeId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_type_id");
+                    b.PrimitiveCollection<string[]>("EtalonNumbers")
+                        .IsRequired()
+                        .HasColumnType("text[]")
+                        .HasColumnName("etalon_numbers");
 
                     b.Property<DateOnly>("NextDate")
                         .HasColumnType("date")
@@ -197,40 +265,40 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     b.HasIndex("DeviceId")
                         .HasDatabaseName("ix_verifications_device_id");
 
-                    b.HasIndex("DeviceTypeId")
-                        .HasDatabaseName("ix_verifications_device_type_id");
-
                     b.ToTable("verifications", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Etalon", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Device", b =>
                 {
-                    b.HasOne("Infrastructure.FGIS.Database.Verification", null)
-                        .WithMany("Etalons")
-                        .HasForeignKey("VerificationId")
-                        .HasConstraintName("fk_etalons_verifications_verification_id");
-                });
-
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Verification", b =>
-                {
-                    b.HasOne("Infrastructure.FGIS.Database.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .HasConstraintName("fk_verifications_devices_device_id");
-
-                    b.HasOne("Infrastructure.FGIS.Database.DeviceType", "DeviceType")
+                    b.HasOne("Infrastructure.FGIS.Database.Entities.DeviceType", "DeviceType")
                         .WithMany()
                         .HasForeignKey("DeviceTypeId")
-                        .HasConstraintName("fk_verifications_device_types_device_type_id");
-
-                    b.Navigation("Device");
+                        .HasConstraintName("fk_devices_device_types_device_type_id");
 
                     b.Navigation("DeviceType");
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Verification", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Etalon+EtalonVerificationDocs", b =>
                 {
-                    b.Navigation("Etalons");
+                    b.HasOne("Infrastructure.FGIS.Database.Entities.Etalon", null)
+                        .WithMany("CResults")
+                        .HasForeignKey("EtalonNumber")
+                        .HasConstraintName("fk_etalon_verification_docs_etalons_etalon_number");
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Verification", b =>
+                {
+                    b.HasOne("Infrastructure.FGIS.Database.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .HasConstraintName("fk_verifications_devices_device_id");
+
+                    b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Etalon", b =>
+                {
+                    b.Navigation("CResults");
                 });
 #pragma warning restore 612, 618
         }

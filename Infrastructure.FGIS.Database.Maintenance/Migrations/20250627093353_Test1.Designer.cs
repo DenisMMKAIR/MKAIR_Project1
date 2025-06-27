@@ -3,6 +3,7 @@ using System;
 using Infrastructure.FGIS.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    partial class FGISDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20250627093353_Test1")]
+    partial class Test1
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -207,10 +210,6 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                         .HasColumnType("boolean")
                         .HasColumnName("done");
 
-                    b.Property<bool>("VerificationIdsCollected")
-                        .HasColumnType("boolean")
-                        .HasColumnName("verification_ids_collected");
-
                     b.HasKey("Date")
                         .HasName("pk_month_results");
 
@@ -273,10 +272,6 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     b.Property<string>("Vri_id")
                         .HasColumnType("text")
                         .HasColumnName("vri_id");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
 
                     b.HasKey("Vri_id")
                         .HasName("pk_verification_ids");

@@ -1,6 +1,7 @@
 ﻿using System.Net.Http.Json;
 using System.Runtime.Serialization;
 using System.Text;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
 
@@ -9,12 +10,14 @@ namespace Infrastructure.FGISAPI.Client;
 public partial class FGISAPIClient : IFGISAPI
 {
     private readonly ILogger<FGISAPIClient> _logger;
+    private readonly IServiceScopeFactory _scopeFactory;
     private readonly HTTPQueueManager _httpQueueManager;
     private readonly HttpClient _httpClient;
 
-    public FGISAPIClient(ILogger<FGISAPIClient> logger)
+    public FGISAPIClient(ILogger<FGISAPIClient> logger, IServiceScopeFactory scopeFactory)
     {
         _logger = logger;
+        _scopeFactory = scopeFactory;
         _httpQueueManager = new(logger);
         _httpClient = new HttpClient { Timeout = TimeSpan.FromMinutes(2) };
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "FGIS_API1");
@@ -29,6 +32,11 @@ public partial class FGISAPIClient : IFGISAPI
     private async Task<T> GetItemListAsync<T>(string endpoint, string query)
     {
         return await RequestBaseAsync<T>($"/{endpoint}", query);
+    }
+
+    private async Task<T> GetItemAsync<T>(string endpoint, string itemId)
+    {
+        return await RequestBaseAsync<T>($"/{endpoint}/", itemId);
     }
 
     /// <summary>

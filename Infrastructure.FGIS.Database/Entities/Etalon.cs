@@ -1,14 +1,29 @@
 namespace Infrastructure.FGIS.Database.Entities;
 
 public record Etalon(
-    Guid Id,
-    string RegNumber,
-    string TypeNumber,
-    string TypeTitle,
-    string Notation,
+    string Number,
+    string MiType_Num,
+    string MiType,
+    string MiNotation,
     string Modification,
-    string ManufactureNum,
-    uint ManufactureYear,
+    string Factory_Num,
+    int Year,
+    string Schematype,
+    string Schematitle,
+    string NpEnumber,
     string RankCode,
-    string RankTitle,
-    string SchemaTitle);
+    string RankClass,
+    bool Applicability
+)
+{
+    public IReadOnlyList<EtalonVerificationDocs> CResults { get; set; } = [];
+
+    public record EtalonVerificationDocs(
+        string Vri_Id,
+        string Org_Title,
+        string Verification_Date,
+        string Valid_Date,
+        string Result_Docnum,
+        bool Applicability
+    );
+}

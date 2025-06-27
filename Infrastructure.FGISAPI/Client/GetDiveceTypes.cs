@@ -1,3 +1,4 @@
+using Infrastructure.FGISAPI.RequestResponse;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Commands;
 using ProjDeviceType = ProjApp.Database.Entities.DeviceType;
@@ -6,6 +7,7 @@ namespace Infrastructure.FGISAPI.Client;
 
 public partial class FGISAPIClient
 {
+    [Obsolete(message:"Method need to be rewritten using cache")]
     public async Task<IReadOnlyList<ProjDeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
     {
         const string endpoint = "mit";

@@ -1,9 +1,8 @@
 using Infrastructure.FGIS.Database;
-using Infrastructure.FGISAPI.Client;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using ProjApp.Database;
+using ProjApp.InfrastructureInterfaces;
 using ProjApp.Usage;
 
 namespace Project1Tests.FGISAPITests;
@@ -12,7 +11,7 @@ namespace Project1Tests.FGISAPITests;
 public abstract class FGISAPIClientFixture
 {
     public ServiceProvider ServiceProvider { get; set; }
-    public FGISAPIClient Client { get; set; }
+    public IFGISAPI Client { get; set; }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -29,11 +28,7 @@ public abstract class FGISAPIClientFixture
 
         ServiceProvider = services.BuildServiceProvider();
 
-        Client = ServiceProvider.GetRequiredService<FGISAPIClient>();
-
-        var db = ServiceProvider.GetRequiredService<ProjDatabase>();
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
+        Client = ServiceProvider.GetRequiredService<IFGISAPI>();
     }
 
     [OneTimeTearDown]

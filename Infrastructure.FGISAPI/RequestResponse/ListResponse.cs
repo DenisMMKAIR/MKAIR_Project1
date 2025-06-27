@@ -1,4 +1,4 @@
-namespace Infrastructure.FGISAPI;
+namespace Infrastructure.FGISAPI.RequestResponse;
 
 public class ListResponse<T>
 {
