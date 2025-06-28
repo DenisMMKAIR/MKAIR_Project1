@@ -1,5 +1,6 @@
 ﻿using Infrastructure.FGIS.Database.Entities;
 using Microsoft.EntityFrameworkCore;
+using ProjApp.Database.SupportTypes;
 
 namespace Infrastructure.FGIS.Database;
 
@@ -15,11 +16,23 @@ public class FGISDatabase : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
+        modelBuilder.Entity<MonthResult>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<MonthResult>().HasKey(x => x.Date);
+
+        modelBuilder.Entity<VerificationId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<VerificationId>().HasKey(x => x.Vri_id);
+
         modelBuilder.Entity<Verification>().HasKey(x => x.Vri_id);
-        modelBuilder.Entity<Etalon>().HasKey(x => x.Number);
-        modelBuilder.Entity<Etalon.EtalonVerificationDocs>().HasKey(x => x.Vri_Id);
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Info));
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta, mietum => mietum.ToTable(nameof(Verification.Mietum)))));
+
+        modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<EtalonsId>().HasKey(x => x.Rmieta_id);
+
+        modelBuilder.Entity<Etalon>().HasKey(x => x.Number);
+
+        modelBuilder.Entity<Etalon.EtalonVerificationDocs>().HasKey(x => x.Vri_Id);
     }
 }

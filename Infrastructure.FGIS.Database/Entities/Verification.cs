@@ -27,20 +27,20 @@ public class Verification
 
     public class MeansClass
     {
-        public List<Mietum> Mieta { get; } = [];
+        public required IReadOnlyList<Mietum> Mieta { get; set; }
     }
 
     public class InfoClass
     {
-        public bool BriefIndicator { get; set; }
+        public required bool BriefIndicator { get; set; }
         public required string Additional_Info { get; set; }
     }
 
     public class Applicable
     {
         public required string CertNum { get; set; }
-        public bool SignPass { get; set; }
-        public bool SignMi { get; set; }
+        public required bool SignPass { get; set; }
+        public required bool SignMi { get; set; }
     }
 
     public class Mietum
@@ -53,7 +53,7 @@ public class Verification
         public required string Notation { get; set; }
         public required string Modification { get; set; }
         public required string ManufactureNum { get; set; }
-        public int ManufactureYear { get; set; }
+        public required int ManufactureYear { get; set; }
         public required string RankCode { get; set; }
         public required string RankTitle { get; set; }
         public required string SchemaTitle { get; set; }
@@ -66,7 +66,7 @@ public class Verification
         public required string MitypeType { get; set; }
         public required string MitypeTitle { get; set; }
         public required string ManufactureNum { get; set; }
-        public int ManufactureYear { get; set; }
+        public required int ManufactureYear { get; set; }
         public required string Modification { get; set; }
     }
 }
