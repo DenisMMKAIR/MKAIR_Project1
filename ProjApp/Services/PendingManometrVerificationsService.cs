@@ -44,10 +44,10 @@ public class PendingManometrVerificationsService
 
             if (result.Error != null) return ServiceResult.Fail(result.Error);
 
-            _logger.LogInformation("Добавлено {Count} записей. Отсеясно дубликатов {DuplicatesCount}", result.NewCount, result.DuplicatesCount);
+            _logger.LogInformation("{Msg}", result.Message);
             _keeper.Signal(BackgroundEvents.GetDevicesType);
 
-            return ServiceResult.Success($"Добавлено {result.NewCount} записей. Отсеясно дубликатов {result.DuplicatesCount}");
+            return ServiceResult.Success($"{result.Message}");
         }
         catch (Exception ex)
         {

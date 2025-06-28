@@ -73,7 +73,7 @@ public class DeviceTypeBackgroundService : EventSubscriberBase, IHostedService
             return;
         }
 
-        _logger.LogInformation("{NewCount} device types added. {DuplicatesCount} duplicates", result.NewCount, result.DuplicatesCount);
+        _logger.LogInformation("{Msg}", result.Message);
         _keeper.Signal(BackgroundEvents.GetDeviceTypeDone);
     }
 }

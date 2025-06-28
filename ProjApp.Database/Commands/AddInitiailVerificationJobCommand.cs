@@ -6,7 +6,7 @@ namespace ProjApp.Database.Commands;
 
 public class AddInitialVerificationJobCommand : AddWithUniqConstraintCommand<InitialVerificationJob>
 {
-    public AddInitialVerificationJobCommand(ILogger<AddWithUniqConstraintCommand<InitialVerificationJob>> logger,
+    public AddInitialVerificationJobCommand(ILogger<AddInitialVerificationJobCommand> logger,
          ProjDatabase db) :
          base(logger, db, new InitialVerificationJobUniqComparer())
     { }

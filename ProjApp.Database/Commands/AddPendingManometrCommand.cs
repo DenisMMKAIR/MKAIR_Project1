@@ -6,7 +6,7 @@ namespace ProjApp.Database.Commands;
 
 public class AddPendingManometrCommand : AddWithUniqConstraintCommand<PendingManometrVerification>
 {
-    public AddPendingManometrCommand(ILogger<AddWithUniqConstraintCommand<PendingManometrVerification>> logger,
+    public AddPendingManometrCommand(ILogger<AddPendingManometrCommand> logger,
          ProjDatabase db) :
          base(logger, db, new PendingManometrVerificationUniqComparer())
     { }

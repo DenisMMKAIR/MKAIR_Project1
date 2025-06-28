@@ -14,7 +14,7 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
         var response = await controller.AcceptExcelVerifications(new(verifications1File, "excel", "A1:P555", DeviceLocation.АнтипинскийНПЗ), CancellationToken.None);
         Assert.Multiple(() =>
         {
-            Assert.That(response.Message, Is.EqualTo("Добавлено 554 записей. Отсеясно дубликатов 0"));
+            Assert.That(response.Message, Is.EqualTo("Добавлено 554 новых элементов"));
             Assert.That(response.Error, Is.Null);
         });
     }
@@ -27,7 +27,7 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
         var response = await controller.AcceptExcelVerifications(new(verifications1File, "excel", "A1:P555", DeviceLocation.АнтипинскийНПЗ), CancellationToken.None);
         Assert.Multiple(() =>
         {
-            Assert.That(response.Message, Is.EqualTo("Добавлено 0 записей. Отсеясно дубликатов 554"));
+            Assert.That(response.Message, Is.EqualTo("Все элементы уже существуют в базе данных"));
             Assert.That(response.Error, Is.Null);
         });
     }

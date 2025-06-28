@@ -20,8 +20,11 @@ public static class ProjectDI
                    .UseSnakeCaseNamingConvention());
 
         serviceCollection.AddTransient<AddPendingManometrCommand>();
+        serviceCollection.AddTransient<AddEtalonCommand>();
+        serviceCollection.AddTransient<AddDeviceCommand>();
         serviceCollection.AddTransient<AddDeviceTypeCommand>();
         serviceCollection.AddTransient<AddInitialVerificationJobCommand>();
+        serviceCollection.AddTransient<AddInitialVerificationCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();

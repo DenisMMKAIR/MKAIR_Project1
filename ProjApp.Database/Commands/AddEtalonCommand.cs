@@ -6,7 +6,7 @@ namespace ProjApp.Database.Commands;
 
 public class AddEtalonCommand : AddWithUniqConstraintCommand<Etalon>
 {
-    public AddEtalonCommand(ILogger<AddWithUniqConstraintCommand<Etalon>> logger,
+    public AddEtalonCommand(ILogger<AddEtalonCommand> logger,
          ProjDatabase db) :
          base(logger, db, new EtalonUniqComparer())
     { }
@@ -18,8 +18,8 @@ public class EtalonUniqComparer : IEqualityComparer<Etalon>
     {
         if (x == null || y == null) return false;
 
-        return x.Number.Equals(y.Number) &&
-               x.Date.Equals(y.Date);
+        return x.Number == y.Number &&
+               x.Date == y.Date;
     }
 
     public int GetHashCode([DisallowNull] Etalon obj)
