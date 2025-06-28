@@ -16,7 +16,7 @@ public record Etalon(
     bool Applicability
 )
 {
-    public IReadOnlyList<EtalonVerificationDocs> CResults { get; set; } = [];
+    public required IReadOnlyList<EtalonVerificationDocs> CResults { get; set; }
 
     public record EtalonVerificationDocs(
         string Vri_Id,

@@ -50,7 +50,8 @@ public partial class FGISAPIClient
         if (monthResult.VerificationsCollected)
         {
             _logger.LogInformation("Поверки уже загружены");
-            verifications = await db.Verifications.Where(v => verificationIds.Any(vId => vId.Vri_id == v.Vri_id)).ToListAsync();
+            var ids = verificationIds.Select(v => v.Vri_id).ToList();
+            verifications = await db.Verifications.Where(v => ids.Contains(v.Vri_id)).ToListAsync();
         }
         else
         {
@@ -76,7 +77,8 @@ public partial class FGISAPIClient
         if (monthResult.EtalonsCollected)
         {
             _logger.LogInformation("Эталоны уже загружены");
-            etalons = await db.Etalons.Where(e => etalonsIds.Any(eId => eId.RegNumber == e.Number)).ToListAsync();
+            var ids = etalonsIds.Select(e => e.RegNumber).ToList();
+            etalons = await db.Etalons.Where(e => ids.Contains(e.Number)).ToListAsync();
         }
         else
         {
@@ -84,7 +86,12 @@ public partial class FGISAPIClient
             etalons = await CollectEtalons(monthResult, db, etalonsIds);
         }
 
-        return MapToInitialVerifications(verifications, etalons);
+        var projectVerification = MapToInitialVerifications(verifications, etalons);
+
+        monthResult.Done = true;
+        await db.SaveChangesAsync();
+
+        return projectVerification;
     }
 
     private async Task<IReadOnlyList<FIGSEtalon>> CollectEtalons(MonthResult monthResult, FGISDatabase db, IReadOnlyList<EtalonsId> etalonsIds)
@@ -123,7 +130,7 @@ public partial class FGISAPIClient
         var rows = 100u;
         var etalonsIds = new List<EtalonsId>();
 
-        foreach (var etalonRegNums in verifications.SelectMany(v => v.Means.Mieta.Select(mi => mi.RegNumber)).SplitBy(rows))
+        foreach (var etalonRegNums in verifications.SelectMany(v => v.Means.Mieta.Select(mi => mi.RegNumber)).Distinct().SplitBy(rows))
         {
             var query = $"?rows={rows}&search={string.Join("%20", etalonRegNums)}";
             var result = await GetItemListAsync<ListResponse<EtalonIdResponse>>("mieta", query);
@@ -160,7 +167,7 @@ public partial class FGISAPIClient
             foreach (var verificationId in chunk)
             {
                 var result = await GetItemAsync<VerificationResponse>("vri", verificationId.Vri_id);
-                verifsToSave.Add(result.Result.ToVerification());
+                verifsToSave.Add(result.Result.ToVerification(verificationId.Vri_id));
             }
 
             verfs.AddRange(verifsToSave);
@@ -213,7 +220,6 @@ public partial class FGISAPIClient
 
         db.VerificationIds.AddRange(verificationIds);
         monthResult.VerificationIdsCollected = true;
-        // TODO: Check if true applied
         await db.SaveChangesAsync();
 
         return verificationIds;
@@ -223,29 +229,50 @@ public partial class FGISAPIClient
     {
         _logger.LogInformation("Данные на {Date} возвращены из кэша", monthResult.Date);
 
-        var initialVerifications = await db.Verifications
-            .Where(v => v.VriInfo.VrfDate == monthResult.Date)
+        var fgisVerification = await db.Verifications
+            .Where(v => v.VriInfo.VrfDate.Year == monthResult.Date.Year && v.VriInfo.VrfDate.Month == monthResult.Date.Month)
             .ToListAsync();
 
-        var etalons = await db.Etalons
-            .Where(e => EtalonHasDate(e, initialVerifications))
-            .ToListAsync();
-
-        return MapToInitialVerifications(initialVerifications, etalons);
-    }
-
-    private static InitialVerification[] MapToInitialVerifications(IReadOnlyList<Verification> verifications, IReadOnlyList<FIGSEtalon> etalons)
-    {
-        var projEtalons = etalons
-            .SelectMany(e => FGISEtalonToProjectEtalon(e))
+        var etalonNums = fgisVerification
+            .SelectMany(v => v.Means.Mieta.Select(mi => mi.RegNumber))
+            .Distinct()
             .ToList();
 
-        var projVerifications = verifications
+        var fgisEtalons = await db.Etalons
+            .Where(e => etalonNums.Contains(e.Number))
+            .ToListAsync();
+
+        return MapToInitialVerifications(fgisVerification, fgisEtalons);
+    }
+
+    private static InitialVerification[] MapToInitialVerifications(IReadOnlyList<Verification> FGISVerifications, IReadOnlyList<FIGSEtalon> FGISEtalons)
+    {
+        var projEtalons = FGISEtalons
+            .SelectMany(FGISEtalonToProjectEtalon)
+            .ToList();
+
+        var projVerifications = FGISVerifications
             .Select(v =>
             {
                 var deviceType = new ProjectDeviceType { Number = v.MiInfo.SingleMI.MitypeNumber, Title = v.MiInfo.SingleMI.MitypeTitle, Notation = v.MiInfo.SingleMI.MitypeType };
 
                 var device = new ProjectDevice { DeviceType = deviceType, Serial = v.MiInfo.SingleMI.ManufactureNum, ManufacturedYear = (uint)v.MiInfo.SingleMI.ManufactureYear };
+
+                var mietaNumbers = v.Means.Mieta
+                    .Select(mi => mi.RegNumber)
+                    .Distinct()
+                    .ToList();
+
+                var etalons = projEtalons
+                    .Where(e => v.VriInfo.VrfDate >= e.Date && v.VriInfo.VrfDate <= e.ToDate)
+                    .Where(e => mietaNumbers.Contains(e.Number))
+                    .DistinctBy(e => e.Number)
+                    .ToList();
+
+                if (etalons.Count < mietaNumbers.Count)
+                {
+                    throw new Exception($"Не найдены или найдены частично эталоны поверки [НомерТипа]{deviceType.Number} [СерийныйУстройства]{device.Serial} [Дата]{v.VriInfo.VrfDate}. Номер в базе фгис: {v.Vri_id}");
+                }
 
                 return new InitialVerification
                 {
@@ -257,20 +284,12 @@ public partial class FGISAPIClient
                     VerificationDate = v.VriInfo.VrfDate,
                     VerifiedUntilDate = v.VriInfo.ValidDate,
                     Device = device,
-                    Etalons = projEtalons,
+                    Etalons = etalons,
                 };
             })
             .ToArray();
 
         return projVerifications;
-    }
-
-    private static bool EtalonHasDate(FIGSEtalon e, IReadOnlyList<Verification> verifications)
-    {
-        var verifDates = verifications.Select(v => v.VriInfo.VrfDate).ToList();
-        var etalonDates = e.CResults.Select(cr =>
-            new { Valid = DateOnly.Parse(cr.Verification_Date), Until = DateOnly.Parse(cr.Valid_Date) }).ToList();
-        return etalonDates.Any(ed => verifDates.Any(vd => vd >= ed.Valid && vd <= ed.Until));
     }
 
     private static IEnumerable<ProjectEtalon> FGISEtalonToProjectEtalon(FIGSEtalon e)

@@ -3,7 +3,6 @@ using Infrastructure.Receiver.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
@@ -16,8 +15,6 @@ public static class ProjectDI
 {
     public static void RegisterProjectDI(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
-        serviceCollection.AddLogging(cfg => cfg.ClearProviders().AddConsole());
-
         serviceCollection.AddDbContext<ProjDatabase>(builder =>
             builder.UseNpgsql(configuration.GetConnectionString("default"))
                    .UseSnakeCaseNamingConvention());

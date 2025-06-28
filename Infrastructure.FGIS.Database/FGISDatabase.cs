@@ -16,23 +16,24 @@ public class FGISDatabase : DbContext
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<MonthResult>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<MonthResult>().HasKey(x => x.Date);
+        modelBuilder.Entity<MonthResult>().Property(x => x.Date).HasConversion(new YearMonthConverter());
 
-        modelBuilder.Entity<VerificationId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<VerificationId>().HasKey(x => x.Vri_id);
+        modelBuilder.Entity<VerificationId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
 
         modelBuilder.Entity<Verification>().HasKey(x => x.Vri_id);
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Info));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
+        // Also they ALWAYS lazy load
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
 
-        modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<EtalonsId>().HasKey(x => x.Rmieta_id);
+        modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
 
         modelBuilder.Entity<Etalon>().HasKey(x => x.Number);
-
-        modelBuilder.Entity<Etalon.EtalonVerificationDocs>().HasKey(x => x.Vri_Id);
+        // Also they ALWAYS lazy load
+        modelBuilder.Entity<Etalon>().OwnsMany(e => e.CResults);
     }
 }

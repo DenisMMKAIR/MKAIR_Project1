@@ -4,11 +4,11 @@ namespace Infrastructure.FGISAPI.RequestResponse;
 
 public static class VerificationMapper
 {
-    public static Verification ToVerification(this VerificationResult verification)
+    public static Verification ToVerification(this VerificationResult verification, string vri_id)
     {
         return new Verification
         {
-            Vri_id = verification.Vri_id,
+            Vri_id = vri_id,
             MiInfo = new Verification.MiInfoClass
             {
                 SingleMI = new Verification.SingleMI
@@ -69,7 +69,6 @@ public static class VerificationMapper
     {
         return new VerificationResult
         {
-            Vri_id = verification.Vri_id,
             MiInfo = new VerificationResult.MiInfoClass
             {
                 SingleMI = new VerificationResult.SingleMI

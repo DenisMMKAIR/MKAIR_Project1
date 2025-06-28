@@ -8,7 +8,6 @@ public class VerificationResponse
 
 public class VerificationResult
 {
-    public required string Vri_id { get; set; }
     public required MiInfoClass MiInfo { get; set; }
     public required VriInfoClass VriInfo { get; set; }
     public required MeansClass Means { get; set; }
