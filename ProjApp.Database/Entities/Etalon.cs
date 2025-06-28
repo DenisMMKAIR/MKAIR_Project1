@@ -7,4 +7,3 @@ public class Etalon : DatabaseEntity
     public required DateOnly ToDate { get; set; }
     public required string FullInfo { get; set; }
 }
-
