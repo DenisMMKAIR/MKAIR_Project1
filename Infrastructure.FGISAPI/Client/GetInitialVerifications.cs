@@ -256,7 +256,7 @@ public partial class FGISAPIClient
             {
                 var deviceType = new ProjectDeviceType { Number = v.MiInfo.SingleMI.MitypeNumber, Title = v.MiInfo.SingleMI.MitypeTitle, Notation = v.MiInfo.SingleMI.MitypeType };
 
-                var device = new ProjectDevice { DeviceType = deviceType, Serial = v.MiInfo.SingleMI.ManufactureNum, ManufacturedYear = (uint)v.MiInfo.SingleMI.ManufactureYear };
+                var device = new ProjectDevice { DeviceType = deviceType, DeviceTypeNumber = deviceType.Number, Serial = v.MiInfo.SingleMI.ManufactureNum, ManufacturedYear = (uint)v.MiInfo.SingleMI.ManufactureYear };
 
                 var mietaNumbers = v.Means.Mieta
                     .Select(mi => mi.RegNumber)

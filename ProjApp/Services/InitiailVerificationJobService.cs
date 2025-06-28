@@ -48,7 +48,7 @@ public class InitialVerificationJobService
             return ServiceResult.Fail("Месяц не может быть больше текущего");
         }
 
-        var incomingJob = new InitialVerificationJob { Date = date, LoadedVerifications = 0 };
+        var incomingJob = new InitialVerificationJob { Date = date };
         var result = await _addCommand.ExecuteAsync(incomingJob);
         if (result.Error != null)
         {
