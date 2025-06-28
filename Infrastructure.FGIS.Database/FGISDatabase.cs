@@ -26,7 +26,7 @@ public class FGISDatabase : DbContext
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Info));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta, mietum => mietum.ToTable(nameof(Verification.Mietum)))));
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
 
         modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
         modelBuilder.Entity<EtalonsId>().HasKey(x => x.Rmieta_id);

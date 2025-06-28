@@ -128,7 +128,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Mietum",
+                name: "mietum",
                 columns: table => new
                 {
                     means_class_verification_vri_id = table.Column<string>(type: "text", nullable: false),
@@ -174,7 +174,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                 name: "etalon_verification_docs");
 
             migrationBuilder.DropTable(
-                name: "Mietum");
+                name: "mietum");
 
             migrationBuilder.DropTable(
                 name: "month_results");

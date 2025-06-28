@@ -339,7 +339,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                     b2.HasKey("MeansClassVerificationVri_id", "Id")
                                         .HasName("pk_mietum");
 
-                                    b2.ToTable("Mietum", (string)null);
+                                    b2.ToTable("mietum", (string)null);
 
                                     b2.WithOwner()
                                         .HasForeignKey("MeansClassVerificationVri_id")
