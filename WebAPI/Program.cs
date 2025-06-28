@@ -13,6 +13,12 @@ else
     builder.Configuration.AddJsonFile(appSettingsPath, optional: false);
 }
 
+builder.Services.AddLogging(cfg =>
+{
+    cfg.ClearProviders();
+    cfg.AddConfiguration(builder.Configuration.GetSection("Logging"));
+    cfg.AddConsole();
+});
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg => cfg.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" }));
