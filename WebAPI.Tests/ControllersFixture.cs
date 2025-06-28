@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Usage;
 using WebAPI.Controllers;
@@ -21,7 +20,6 @@ public abstract class ControllersFixture
 
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddLogging(cfg => cfg.AddConsole());
         services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobController>();

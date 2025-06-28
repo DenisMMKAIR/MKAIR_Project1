@@ -39,6 +39,7 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
 
     protected override async Task ProcessWorkAsync()
     {
+        throw new NotImplementedException();
         using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
@@ -46,11 +47,11 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
         {
             _logger.LogInformation("Processing initial verification job {Job}. ProcessedCount {ProcessedCount}",
                 job.Date, job.LoadedVerifications);
-                
-            var date = DateOnly.Parse(job.Date);
-            var result = await _fgisAPI.GetInitialVerifications(date);
+
+            var result = await _fgisAPI.GetInitialVerifications(job.Date);
 
             _keeper.Signal(BackgroundEvents.DoneInitialVerificationJob);
         }
+
     }
 }

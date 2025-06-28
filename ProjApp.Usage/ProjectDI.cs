@@ -1,13 +1,14 @@
-﻿using Infrastructure.Receiver.Services;
+﻿using Infrastructure.FGISAPI;
+using Infrastructure.Receiver.Services;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
-using Microsoft.Extensions.Configuration;
+using ProjApp.Database.Commands;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Services;
-using Microsoft.EntityFrameworkCore;
-using ProjApp.Database.Commands;
-using Infrastructure.FGISAPI;
 
 namespace ProjApp.Usage;
 
@@ -15,6 +16,8 @@ public static class ProjectDI
 {
     public static void RegisterProjectDI(this IServiceCollection serviceCollection, IConfiguration configuration)
     {
+        serviceCollection.AddLogging(cfg => cfg.ClearProviders().AddConsole());
+
         serviceCollection.AddDbContext<ProjDatabase>(builder =>
             builder.UseNpgsql(configuration.GetConnectionString("default"))
                    .UseSnakeCaseNamingConvention());
@@ -31,7 +34,7 @@ public static class ProjectDI
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
-        
+
         serviceCollection.AddFGISAPI();
     }
 }

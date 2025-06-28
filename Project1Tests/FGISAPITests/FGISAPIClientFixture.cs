@@ -1,7 +1,6 @@
 using Infrastructure.FGIS.Database;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Usage;
 
@@ -23,7 +22,6 @@ public abstract class FGISAPIClientFixture
 
         var services = new ServiceCollection();
         services.AddSingleton<IConfiguration>(configuration);
-        services.AddLogging(cfg => cfg.AddConsole());
         services.RegisterProjectDI(configuration);
 
         ServiceProvider = services.BuildServiceProvider();

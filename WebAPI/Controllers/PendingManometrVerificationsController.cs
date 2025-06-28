@@ -18,7 +18,7 @@ public class PendingManometrVerificationsController : ApiControllerBase
         _logger = logger;
         _verificationService = verificationService;
     }
-    
+
     [HttpPost]
     public async Task<ServiceResult> AcceptExcelVerifications([Required][FromForm] ExcelVerificationsRequest request, CancellationToken cancellationToken)
     {

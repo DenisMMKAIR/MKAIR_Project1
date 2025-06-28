@@ -21,22 +21,12 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     public async Task Test2()
     {
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
-        var response = await controller.AddJob(new(2024, 01));
-        Assert.That(response.Error, Is.Not.Null);
-        Assert.That(response.Error, Is.EqualTo("Неверно задана дата. От 2024.02 До текущей даты"));
+        var result = await controller.AddJob(new(2023, 02));
+        Assert.That(result.Error, Is.EqualTo("Год от 2024 до текущего"));
     }
 
     [Test]
     public async Task Test3()
-    {
-        var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
-        var response = await controller.AddJob(new(0, 0));
-        Assert.That(response.Error, Is.Not.Null);
-        Assert.That(response.Error, Is.EqualTo("Неверно задан год. От 2024"));
-    }
-
-    [Test]
-    public async Task Test4()
     {
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobController>();
         var response = await controller.GetJobs(new());
@@ -45,6 +35,6 @@ public class InitialVerificationJobControllerTests : ControllersFixture
             Assert.That(response.Data, Is.Not.Null);
             Assert.That(response.Error, Is.Null);
         });
-        Assert.That(response.Data.Items.Count, Is.EqualTo(1));
+        Assert.That(response.Data.Items, Has.Count.EqualTo(1));
     }
 }

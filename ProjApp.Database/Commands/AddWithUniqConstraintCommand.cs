@@ -35,7 +35,9 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
             await transaction.RollbackAsync();
-            _logger.LogError(ex, "Не удалось добавить. Обнаружены дубликаты");
+            var e = (PostgresException)ex.InnerException!;
+            _logger.LogError("Не удалось добавить. Обнаружены дубликаты. {Details}. {MessageText}",
+                e.Detail, e.MessageText);
             return Result.Failed("Не удалось добавить. Обнаружены дубликаты");
         }
     }
@@ -68,7 +70,9 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
             await transaction.RollbackAsync();
-            _logger.LogError(ex, "Не удалось добавить. Обнаружены дубликаты");
+            var e = (PostgresException)ex.InnerException!;
+            _logger.LogError("Не удалось добавить. Обнаружены дубликаты. {Details}. {MessageText}",
+                e.Detail, e.MessageText);
             return Result.Failed("Не удалось добавить. Обнаружены дубликаты");
         }
     }

@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using ProjApp.Database.Entities;
+using ProjApp.Database.SupportTypes;
 using ProjApp.Services;
 using WebAPI.Controllers.Requests;
 
@@ -24,7 +25,7 @@ public class InitialVerificationJobController : ApiControllerBase
     [HttpPost]
     public async Task<ServiceResult> AddJob([Required][FromForm] AddJobRequest request)
     {
-        return await _service.AddJob(request.Year, request.Month);
+        return await _service.AddJob((request.Year, request.Month));
     }
 
     public record AddJobRequest(int Year, int Month);
