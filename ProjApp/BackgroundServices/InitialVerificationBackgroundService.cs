@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
+using ProjApp.Database.Commands;
 using ProjApp.InfrastructureInterfaces;
 
 namespace ProjApp.BackgroundServices;
@@ -39,19 +40,20 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
 
     protected override async Task ProcessWorkAsync()
     {
-        throw new NotImplementedException();
         using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
+        var addCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
         foreach (var job in jobs)
         {
-            _logger.LogInformation("Processing initial verification job {Job}. ProcessedCount {ProcessedCount}",
-                job.Date, job.LoadedVerifications);
-
-            var result = await _fgisAPI.GetInitialVerifications(job.Date);
-
+            _logger.LogInformation("Загрузка данных за {Date}", job.Date);
+            var initialVerifications = await _fgisAPI.GetInitialVerifications(job.Date);
+            var saveResult = await addCommand.ExecuteAsync(initialVerifications);
+            _logger.LogInformation("{Msg}", saveResult.Message);
+            db.InitialVerificationJobs.Remove(job);
+            await db.SaveChangesAsync();
+            _logger.LogInformation("Загрузка данных за {Date} завершена", job.Date);
             _keeper.Signal(BackgroundEvents.DoneInitialVerificationJob);
         }
-
     }
 }
