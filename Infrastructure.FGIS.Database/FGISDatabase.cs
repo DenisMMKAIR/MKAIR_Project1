@@ -30,7 +30,7 @@ public class FGISDatabase : DbContext
         // Also they ALWAYS lazy load
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
 
-        modelBuilder.Entity<EtalonsId>().HasKey(x => x.Rmieta_id);
+        modelBuilder.Entity<EtalonsId>().HasKey(x => new { x.Rmieta_id, x.Date });
         modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
 
         modelBuilder.Entity<Etalon>().HasKey(x => x.Number);
