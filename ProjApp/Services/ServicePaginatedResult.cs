@@ -1,9 +1,8 @@
 using ProjApp.Database;
-using ProjApp.Database.Entities;
 
 namespace ProjApp.Services;
 
-public class ServicePaginatedResult<T> where T : DatabaseEntity
+public class ServicePaginatedResult<T>
 {
     public string? Message { get; init; }
     public string? Error { get; init; }

@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using ProjApp.Database.Entities;
+using ProjApp.Mapping;
 using ProjApp.Services;
 using WebAPI.Controllers.Requests;
 
@@ -16,7 +16,7 @@ public class InitialVerificationsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<InitialVerification>> GetVerifications([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request)
     {
         return await _service.GetInitialVerifications(request.PageIndex, request.PageSize);
     }

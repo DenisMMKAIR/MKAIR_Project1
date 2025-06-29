@@ -1,6 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database;
-using ProjApp.Database.Entities;
+using ProjApp.Mapping;
 
 namespace ProjApp.Services;
 
@@ -13,13 +13,14 @@ public class InitialVerificationService
         _database = database;
     }
 
-    public async Task<ServicePaginatedResult<InitialVerification>> GetInitialVerifications(int page, int pageSize)
+    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetInitialVerifications(int page, int pageSize)
     {
         var result = await _database.InitialVerifications
             .Include(iv => iv.Device)
             .ThenInclude(d => d!.DeviceType)
             .Include(iv => iv.Etalons)
+            .Map(iv => InitialVerificationDto.MapTo(iv))
             .ToPaginatedAsync(page, pageSize);
-        return ServicePaginatedResult<InitialVerification>.Success(result);
+        return ServicePaginatedResult<InitialVerificationDto>.Success(result);
     }
 }
