@@ -15,7 +15,7 @@ namespace Infrastructure.FGISAPI.Client;
 
 public partial class FGISAPIClient
 {
-    public async Task<IReadOnlyList<InitialVerification>> GetInitialVerifications(YearMonth requestDate)
+    public async Task<(IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>)> GetInitialVerifications(YearMonth requestDate)
     {
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
@@ -81,7 +81,7 @@ public partial class FGISAPIClient
         var collectionNums = etalonsIds.Select(e => e.RegNumber).ToList();
         var etalons = await db.Etalons.Where(e => collectionNums.Contains(e.Number)).ToListAsync();
 
-        var projectVerification = MapToInitialVerifications(verifications, etalons);
+        var projectVerification = MapAllVerifications(verifications, etalons);
 
         monthResult.Done = true;
         await db.SaveChangesAsync();
@@ -267,7 +267,7 @@ public partial class FGISAPIClient
         return verificationIds;
     }
 
-    private async Task<IReadOnlyList<InitialVerification>> GetFromCache(FGISDatabase db, MonthResult monthResult)
+    private async Task<(IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>)> GetFromCache(FGISDatabase db, MonthResult monthResult)
     {
         _logger.LogInformation("Данные на {Date} возвращены из кэша", monthResult.Date);
 
@@ -284,10 +284,63 @@ public partial class FGISAPIClient
             .Where(e => etalonNums.Contains(e.Number))
             .ToListAsync();
 
-        return MapToInitialVerifications(fgisVerification, fgisEtalons);
+        return MapAllVerifications(fgisVerification, fgisEtalons);
     }
 
-    private static InitialVerification[] MapToInitialVerifications(IReadOnlyList<Verification> FGISVerifications, IReadOnlyList<FIGSEtalon> FGISEtalons)
+    private static (IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>) MapAllVerifications(
+        IReadOnlyList<Verification> fgisVerification,
+        IReadOnlyList<FIGSEtalon> fgisEtalons)
+    {
+
+        var goodVrfs = fgisVerification
+            .Where(v => v.VriInfo.Applicable != null)
+            .ToList();
+
+        var failedVrfs = fgisVerification
+            .Where(v => v.VriInfo.Inapplicable != null)
+            .ToList();
+
+        static InitialVerification MapGood(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        {
+            return new InitialVerification
+            {
+                DeviceTypeNumber = deviceType.Number,
+                DeviceSerial = device.Serial,
+                Owner = v.VriInfo.MiOwner,
+                AdditionalInfo = v.Info.Additional_Info,
+                VerificationTypeName = v.VriInfo.DocTitle,
+                VerificationDate = v.VriInfo.VrfDate,
+                VerifiedUntilDate = v.VriInfo.ValidDate!.Value,
+                Device = device,
+                Etalons = etalons,
+            };
+        }
+
+        static InitialVerificationFailed MapFailed(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        {
+            return new InitialVerificationFailed
+            {
+                DeviceTypeNumber = deviceType.Number,
+                DeviceSerial = device.Serial,
+                Owner = v.VriInfo.MiOwner,
+                AdditionalInfo = v.Info.Additional_Info,
+                VerificationTypeName = v.VriInfo.DocTitle,
+                VerificationDate = v.VriInfo.VrfDate,
+                Device = device,
+                Etalons = etalons,
+                FailedDocNumber = v.VriInfo.Inapplicable!.NoticeNum,
+            };
+        }
+
+        return (MapToInitialVerifications(goodVrfs, fgisEtalons, MapGood),
+                MapToInitialVerifications(failedVrfs, fgisEtalons, MapFailed));
+    }
+
+    private static IReadOnlyList<T> MapToInitialVerifications<T>(
+        IReadOnlyList<Verification> FGISVerifications,
+        IReadOnlyList<FIGSEtalon> FGISEtalons,
+        Func<Verification, ProjectDeviceType, ProjectDevice, IReadOnlyList<ProjectEtalon>, T> map)
+        where T : IInitialVerification
     {
         var projEtalons = FGISEtalons
             .SelectMany(FGISEtalonToProjectEtalon)
@@ -311,23 +364,12 @@ public partial class FGISAPIClient
                     .DistinctBy(e => e.Number)
                     .ToList();
 
-                if (etalons.Count < mietaNumbers.Count)
+                if (etalons.Count == 0 || etalons.Count < mietaNumbers.Count)
                 {
                     throw new Exception($"Не найдены или найдены частично эталоны поверки [НомерТипа]{deviceType.Number} [СерийныйУстройства]{device.Serial} [Дата]{v.VriInfo.VrfDate}. Номер в базе фгис: {v.Vri_id}");
                 }
 
-                return new InitialVerification
-                {
-                    DeviceTypeNumber = deviceType.Number,
-                    DeviceSerial = device.Serial,
-                    Owner = v.VriInfo.MiOwner,
-                    AdditionalInfo = v.Info.Additional_Info,
-                    VerificationTypeName = v.VriInfo.DocTitle,
-                    VerificationDate = v.VriInfo.VrfDate,
-                    VerifiedUntilDate = v.VriInfo.ValidDate,
-                    Device = device,
-                    Etalons = etalons,
-                };
+                return map(v, deviceType, device, etalons);
             })
             .ToArray();
 

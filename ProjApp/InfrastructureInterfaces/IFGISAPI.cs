@@ -6,5 +6,5 @@ namespace ProjApp.InfrastructureInterfaces;
 public interface IFGISAPI
 {
     Task<IReadOnlyList<DeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers);
-    Task<IReadOnlyList<InitialVerification>> GetInitialVerifications(YearMonth date);
+    Task<(IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>)> GetInitialVerifications(YearMonth date);
 }

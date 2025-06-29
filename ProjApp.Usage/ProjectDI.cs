@@ -6,6 +6,7 @@ using Microsoft.Extensions.DependencyInjection;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
+using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Services;
 
@@ -24,7 +25,8 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddDeviceCommand>();
         serviceCollection.AddTransient<AddDeviceTypeCommand>();
         serviceCollection.AddTransient<AddInitialVerificationJobCommand>();
-        serviceCollection.AddTransient<AddInitialVerificationCommand>();
+        serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerification>>();
+        serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerificationFailed>>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();

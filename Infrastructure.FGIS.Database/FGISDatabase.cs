@@ -26,6 +26,7 @@ public class FGISDatabase : DbContext
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Info));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
+        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Inapplicable)));
         // Also they ALWAYS lazy load
         modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
 

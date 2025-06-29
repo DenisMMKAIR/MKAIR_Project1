@@ -19,10 +19,11 @@ public class Verification
         public required string SignCipher { get; set; }
         public required string MiOwner { get; set; }
         public required DateOnly VrfDate { get; set; }
-        public required DateOnly ValidDate { get; set; }
         public required string VriType { get; set; }
         public required string DocTitle { get; set; }
-        public required Applicable Applicable { get; set; }
+        public Applicable? Applicable { get; set; }
+        public Inapplicable? Inapplicable { get; set; }
+        public DateOnly? ValidDate { get; set; }
     }
 
     public class MeansClass
@@ -34,6 +35,11 @@ public class Verification
     {
         public required bool BriefIndicator { get; set; }
         public string? Additional_Info { get; set; }
+    }
+
+    public class Inapplicable
+    {
+        public required string NoticeNum { get; set; }
     }
 
     public class Applicable

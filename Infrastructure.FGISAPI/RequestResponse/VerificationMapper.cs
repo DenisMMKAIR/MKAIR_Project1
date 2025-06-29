@@ -6,6 +6,14 @@ public static class VerificationMapper
 {
     public static Verification ToVerification(this VerificationResult verification, string vri_id)
     {
+        var goodVrf = verification.VriInfo.Applicable != null;
+        var failedVrf = verification.VriInfo.Inapplicable != null;
+
+        if (goodVrf == failedVrf)
+        {
+            throw new Exception("Поверка должна быть либо хорошая, либо неудачная");
+        }
+
         return new Verification
         {
             Vri_id = vri_id,
@@ -31,12 +39,18 @@ public static class VerificationMapper
                 ValidDate = verification.VriInfo.ValidDate,
                 VriType = verification.VriInfo.VriType,
                 DocTitle = verification.VriInfo.DocTitle,
-                Applicable = new Verification.Applicable
+
+                Applicable = goodVrf ? new Verification.Applicable
                 {
-                    CertNum = verification.VriInfo.Applicable.CertNum,
+                    CertNum = verification.VriInfo.Applicable!.CertNum,
                     SignPass = verification.VriInfo.Applicable.SignPass,
                     SignMi = verification.VriInfo.Applicable.SignMi
-                }
+                } : null,
+
+                Inapplicable = failedVrf ? new Verification.Inapplicable
+                {
+                    NoticeNum = verification.VriInfo.Inapplicable!.NoticeNum
+                } : null,
             },
             Means = new Verification.MeansClass
             {
@@ -67,6 +81,14 @@ public static class VerificationMapper
 
     public static VerificationResult ToVerificationResult(this Verification verification)
     {
+        var goodVrf = verification.VriInfo.Applicable != null;
+        var failedVrf = verification.VriInfo.Inapplicable != null;
+
+        if (goodVrf == failedVrf)
+        {
+            throw new Exception("Поверка должна быть либо хорошая, либо неудачная");
+        }
+
         return new VerificationResult
         {
             MiInfo = new VerificationResult.MiInfoClass
@@ -91,12 +113,18 @@ public static class VerificationMapper
                 ValidDate = verification.VriInfo.ValidDate,
                 VriType = verification.VriInfo.VriType,
                 DocTitle = verification.VriInfo.DocTitle,
-                Applicable = new VerificationResult.Applicable
+
+                Applicable = goodVrf ? new VerificationResult.Applicable
                 {
-                    CertNum = verification.VriInfo.Applicable.CertNum,
+                    CertNum = verification.VriInfo.Applicable!.CertNum,
                     SignPass = verification.VriInfo.Applicable.SignPass,
                     SignMi = verification.VriInfo.Applicable.SignMi
-                }
+                } : null,
+
+                Inapplicable = failedVrf ? new VerificationResult.Inapplicable
+                {
+                    NoticeNum = verification.VriInfo.Inapplicable!.NoticeNum
+                } : null,
             },
             Means = new VerificationResult.MeansClass
             {

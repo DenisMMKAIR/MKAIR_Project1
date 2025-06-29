@@ -4,6 +4,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
+using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
 
 namespace ProjApp.BackgroundServices;
@@ -42,14 +43,20 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var addCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand>();
+        var addGoodVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<InitialVerification>>();
+        var addFailedVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<InitialVerificationFailed>>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
         foreach (var job in jobs)
         {
             _logger.LogInformation("Загрузка данных за {Date}", job.Date);
-            var initialVerifications = await _fgisAPI.GetInitialVerifications(job.Date);
-            var saveResult = await addCommand.ExecuteAsync(initialVerifications);
-            _logger.LogInformation("{Msg}", saveResult.Message);
+            var (vrfGood, vdfFailed) = await _fgisAPI.GetInitialVerifications(job.Date);
+
+            var saveGood = await addGoodVerificationsCommand.ExecuteAsync(vrfGood);
+            _logger.LogInformation("Поверки исправных устройств {Msg}", saveGood.Message);
+
+            var saveFailed = await addFailedVerificationsCommand.ExecuteAsync(vdfFailed);
+            _logger.LogInformation("Поверки неисправных устройств {Msg}", saveFailed.Message);
+
             db.InitialVerificationJobs.Remove(job);
             await db.SaveChangesAsync();
             _logger.LogInformation("Загрузка данных за {Date} завершена", job.Date);

@@ -4,25 +4,25 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.Database.Commands;
 
-public class AddInitialVerificationCommand : AddWithUniqConstraintCommand<InitialVerification>
+public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> where T : DatabaseEntity, IInitialVerification
 {
     private readonly AddDeviceTypeCommand _addDeviceTypeCommand;
     private readonly AddDeviceCommand _addDeviceCommand;
     private readonly AddEtalonCommand _addEtalonCommand;
 
-    public AddInitialVerificationCommand(ILogger<AddInitialVerificationCommand> logger,
+    public AddInitialVerificationCommand(ILogger<AddInitialVerificationCommand<T>> logger,
          ProjDatabase db,
          AddDeviceTypeCommand addDeviceTypeCommand,
          AddDeviceCommand addDeviceCommand,
          AddEtalonCommand addEtalonCommand) :
-         base(logger, db, new InitialVerificationUniqComparer())
+         base(logger, db, new InitialVerificationUniqComparer<T>())
     {
         _addDeviceTypeCommand = addDeviceTypeCommand;
         _addDeviceCommand = addDeviceCommand;
         _addEtalonCommand = addEtalonCommand;
     }
 
-    public override async Task<Result> ExecuteAsync(IReadOnlyList<InitialVerification> items)
+    public override async Task<Result> ExecuteAsync(IReadOnlyList<T> items)
     {
         foreach (var item in items)
         {
@@ -46,9 +46,9 @@ public class AddInitialVerificationCommand : AddWithUniqConstraintCommand<Initia
     }
 }
 
-public class InitialVerificationUniqComparer : IEqualityComparer<InitialVerification>
+public class InitialVerificationUniqComparer<T> : IEqualityComparer<T> where T : IInitialVerification
 {
-    public bool Equals(InitialVerification? x, InitialVerification? y)
+    public bool Equals(T? x, T? y)
     {
         if (x == null || y == null) return false;
 
@@ -57,7 +57,7 @@ public class InitialVerificationUniqComparer : IEqualityComparer<InitialVerifica
             x.DeviceSerial.Equals(y.DeviceSerial);
     }
 
-    public int GetHashCode([DisallowNull] InitialVerification obj)
+    public int GetHashCode([DisallowNull] T obj)
     {
         return HashCode.Combine(obj.VerificationDate, obj.DeviceTypeNumber, obj.DeviceSerial);
     }
