@@ -45,13 +45,13 @@ public abstract class ControllersFixture
         services.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         services.AddScoped<PendingManometrVerificationsService>();
         services.AddScoped<DeviceTypeService>();
-        services.AddScoped<InitialVerificationJobService>();
+        services.AddScoped<InitialVerificationJobsService>();
 
         services.AddSingleton<EventKeeper>();
 
         services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<DeviceTypeController>();
-        services.AddTransient<InitialVerificationJobController>();
+        services.AddTransient<InitialVerificationJobsController>();
 
         ServiceProvider = services.BuildServiceProvider();
 

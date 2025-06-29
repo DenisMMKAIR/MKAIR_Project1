@@ -29,7 +29,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
-        serviceCollection.AddScoped<InitialVerificationJobService>();
+        serviceCollection.AddScoped<InitialVerificationJobsService>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();

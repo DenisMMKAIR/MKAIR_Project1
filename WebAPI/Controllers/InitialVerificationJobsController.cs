@@ -6,11 +6,11 @@ using WebAPI.Controllers.Requests;
 
 namespace WebAPI.Controllers;
 
-public class InitialVerificationJobController : ApiControllerBase
+public class InitialVerificationJobsController : ApiControllerBase
 {
-    private readonly InitialVerificationJobService _service;
+    private readonly InitialVerificationJobsService _service;
 
-    public InitialVerificationJobController(InitialVerificationJobService service)
+    public InitialVerificationJobsController(InitialVerificationJobsService service)
     {
         _service = service;
     }

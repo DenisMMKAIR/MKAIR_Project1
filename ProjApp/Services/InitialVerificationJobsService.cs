@@ -7,14 +7,14 @@ using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Services;
 
-public class InitialVerificationJobService
+public class InitialVerificationJobsService
 {
-    private readonly ILogger<InitialVerificationJobService> _logger;
+    private readonly ILogger<InitialVerificationJobsService> _logger;
     private readonly ProjDatabase _database;
     private readonly AddInitialVerificationJobCommand _addCommand;
     private readonly EventKeeper _eventKeeper;
 
-    public InitialVerificationJobService(ILogger<InitialVerificationJobService> logger,
+    public InitialVerificationJobsService(ILogger<InitialVerificationJobsService> logger,
                                           ProjDatabase database,
                                           AddInitialVerificationJobCommand addCommand,
                                           EventKeeper eventKeeper)
