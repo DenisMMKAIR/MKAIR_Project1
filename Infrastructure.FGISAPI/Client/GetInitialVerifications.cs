@@ -142,7 +142,7 @@ public partial class FGISAPIClient
         var rows = 100u;
 
         var downloadedIds = await db.EtalonIds
-            .Where(e => e.Date.Year == monthResult.Date.Year && e.Date.Month == monthResult.Date.Month)
+            .Where(e => e.Date == monthResult.Date)
             .Select(e => e.RegNumber)
             .ToListAsync();
 
