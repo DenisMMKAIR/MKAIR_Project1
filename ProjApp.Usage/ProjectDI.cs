@@ -30,6 +30,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
         serviceCollection.AddScoped<InitialVerificationJobsService>();
+        serviceCollection.AddScoped<InitialVerificationService>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();

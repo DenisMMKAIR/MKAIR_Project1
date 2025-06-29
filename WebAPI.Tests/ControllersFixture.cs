@@ -1,13 +1,9 @@
-using Infrastructure.Receiver.Services;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
-using ProjApp.Database.Commands;
-using ProjApp.InfrastructureInterfaces;
-using ProjApp.Services;
+using ProjApp.Usage;
 using WebAPI.Controllers;
 
 namespace WebAPI.Tests;
@@ -31,27 +27,14 @@ public abstract class ControllersFixture
             cfg.AddConsole();
         });
 
-        services.AddDbContext<ProjDatabase>(builder =>
-            builder.UseNpgsql(configuration.GetConnectionString("default"))
-                   .UseSnakeCaseNamingConvention());
+        services.RegisterProjectDI(configuration);
 
-        services.AddTransient<AddPendingManometrCommand>();
-        services.AddTransient<AddEtalonCommand>();
-        services.AddTransient<AddDeviceCommand>();
-        services.AddTransient<AddDeviceTypeCommand>();
-        services.AddTransient<AddInitialVerificationJobCommand>();
-        services.AddTransient<AddInitialVerificationCommand>();
-
-        services.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
-        services.AddScoped<PendingManometrVerificationsService>();
-        services.AddScoped<DeviceTypeService>();
-        services.AddScoped<InitialVerificationJobsService>();
-
-        services.AddSingleton<EventKeeper>();
-
-        services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobsController>();
+        services.AddTransient<InitialVerificationsController>();
+        services.AddTransient<PendingManometrVerificationsController>();
+
+        services.AddSingleton<InitialVerificationBackgroundService>();
 
         ServiceProvider = services.BuildServiceProvider();
 
