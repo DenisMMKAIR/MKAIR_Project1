@@ -11,9 +11,11 @@ public class InitialVerificationDto
     public required DateOnly VerifiedUntilDate { get; set; }
     public required string VerificationTypeName { get; set; }
     public required string Owner { get; set; }
-    public required string AdditionalInfo { get; set; }
     public required IReadOnlyList<string> Etalons { get; set; }
     public required Guid Id { get; set; }
+
+    // Optional
+    public string? AdditionalInfo { get; set; }
 
     public static InitialVerificationDto MapTo(InitialVerification initialVerification) => new()
     {

@@ -38,7 +38,7 @@ public class VerificationResult
     public class InfoClass
     {
         public required bool BriefIndicator { get; set; }
-        public required string Additional_Info { get; set; }
+        public string? Additional_Info { get; set; }
     }
 
     public class Applicable
