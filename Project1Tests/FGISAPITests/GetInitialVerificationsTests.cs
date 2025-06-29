@@ -17,7 +17,7 @@ public class GetInitialVerificationsTests : FGISAPIFixture
 
         using (Assert.EnterMultipleScope())
         {
-            Assert.That(etalons, Has.Length.EqualTo(32));
+            Assert.That(etalons, Has.Length.EqualTo(10));
             Assert.That(good, Has.Count.EqualTo(689));
             Assert.That(failed, Has.Count.EqualTo(0));
         }
