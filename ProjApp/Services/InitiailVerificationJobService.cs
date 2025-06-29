@@ -55,8 +55,8 @@ public class InitialVerificationJobService
             _logger.LogError("{Msg}", result.Error);
             return ServiceResult.Fail(result.Error);
         }
-        _logger.LogInformation("{Msg}", result.Message);
+        _logger.LogInformation("Задание добавлено");
         _eventKeeper.Signal(BackgroundEvents.NewInitialVerificationJob);
-        return ServiceResult.Success($"{result.Message}");
+        return ServiceResult.Success("Задание добавлено");
     }
 }
