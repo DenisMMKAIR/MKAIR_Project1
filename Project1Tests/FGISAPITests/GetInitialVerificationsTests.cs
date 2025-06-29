@@ -1,6 +1,6 @@
 namespace Project1Tests.FGISAPITests;
 
-public class GetInitialVerificationsTests : FGISAPIClientFixture
+public class GetInitialVerificationsTests : FGISAPIFixture
 {
     [Test]
     public async Task Test1()

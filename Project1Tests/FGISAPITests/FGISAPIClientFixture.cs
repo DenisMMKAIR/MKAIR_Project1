@@ -1,13 +1,13 @@
+using Infrastructure.FGISAPI;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
-using ProjApp.Usage;
 
 namespace Project1Tests.FGISAPITests;
 
 [TestFixture]
-public abstract class FGISAPIClientFixture
+public abstract class FGISAPIFixture
 {
     public ServiceProvider ServiceProvider { get; set; }
     public IFGISAPI Client { get; set; }
@@ -25,8 +25,8 @@ public abstract class FGISAPIClientFixture
             cfg.AddConfiguration(configuration.GetSection("Logging"));
             cfg.AddConsole();
         });
-        services.AddSingleton<IConfiguration>(configuration);
-        services.RegisterProjectDI(configuration);
+
+        services.AddFGISAPI();
 
         ServiceProvider = services.BuildServiceProvider();
 
