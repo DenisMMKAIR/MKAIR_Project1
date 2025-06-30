@@ -27,12 +27,16 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddInitialVerificationJobCommand>();
         serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerification>>();
         serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerificationFailed>>();
+        //serviceCollection.AddTransient<AddVerificationMethodCommand>();
+        serviceCollection.AddTransient<AddProtocolCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
         serviceCollection.AddScoped<InitialVerificationJobsService>();
         serviceCollection.AddScoped<InitialVerificationService>();
+        //serviceCollection.AddScoped<VerificationMethodsService>();
+        serviceCollection.AddScoped<ProtocolsService>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
