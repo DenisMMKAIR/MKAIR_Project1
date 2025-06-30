@@ -1,8 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
-using ProjApp.Database;
 using ProjApp.Database.Entities;
 using ProjApp.Services;
+using ProjApp.Services.ServiceResults;
 using WebAPI.Controllers.Requests;
 
 namespace WebAPI.Controllers;
@@ -35,6 +35,4 @@ public class PendingManometrVerificationsController : ApiControllerBase
     {
         return await _verificationService.GetPaginatedAsync(request.PageIndex, request.PageSize);
     }
-
-    public record ExcelVerificationsRequest(IFormFile File, string SheetName, string DataRange, DeviceLocation DeviceLocation);
 }
