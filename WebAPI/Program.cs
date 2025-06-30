@@ -13,6 +13,8 @@ else
     builder.Configuration.AddJsonFile(appSettingsPath, optional: false);
 }
 
+builder.Configuration.AddUserSecrets<ProjApp.Settings.EmptySettings>(optional: false);
+
 builder.Services.AddLogging(cfg =>
 {
     cfg.ClearProviders();
