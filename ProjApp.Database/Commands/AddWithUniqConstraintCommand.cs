@@ -13,11 +13,11 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 
     public AddWithUniqConstraintCommand(ILogger logger,
                                         ProjDatabase db,
-                                        IEqualityComparer<T> comparer)
+                                        IEqualityComparer<T> uniqComparer)
     {
         _logger = logger;
         _db = db;
-        _comparer = comparer;
+        _comparer = uniqComparer;
     }
 
     public virtual async Task<Result> ExecuteAsync(params IReadOnlyList<T> items)
@@ -25,7 +25,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         if (items.Count == 0) return Result.Ok(items, "Список пуст, добавление не требуется");
 
         // TODO: optimize. Problem: Cant use async because EFCore cant translate _comparer(or _comparer.Equal) to SQL
-        // Cant get another approach
+        // Cant get another approach. So we put equality check out of EFCore by UniqComparer
         var dbItems = _db.Set<T>()
             .AsEnumerable()
             .Where(e => items.Contains(e, _comparer))

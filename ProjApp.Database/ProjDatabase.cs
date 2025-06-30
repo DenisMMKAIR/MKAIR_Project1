@@ -1,6 +1,6 @@
-using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database.Entities;
+using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Database;
 
@@ -15,12 +15,17 @@ public class ProjDatabase : DbContext
     public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
     public DbSet<InitialVerificationFailed> FailedInitialVerifications => Set<InitialVerificationFailed>();
     public DbSet<Protocol> Protocols => Set<Protocol>();
+    //public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
 
     public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
-        modelBuilder.ApplyConfigurationsFromAssembly(Assembly.GetAssembly(typeof(ProjDatabase))!);
-        base.OnModelCreating(modelBuilder);
+        modelBuilder.Entity<InitialVerificationJob>()
+            .Property(e => e.Date)
+            .HasConversion(new YearMonthConverter());
+
+        // modelBuilder.Entity<VerificationMethod>()
+        //     .OwnsMany(v => v.Checkups);
     }
 }
