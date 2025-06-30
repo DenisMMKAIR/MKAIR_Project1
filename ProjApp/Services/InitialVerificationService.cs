@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database;
 using ProjApp.Mapping;
+using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 

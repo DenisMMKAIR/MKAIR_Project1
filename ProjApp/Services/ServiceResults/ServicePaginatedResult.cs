@@ -1,6 +1,6 @@
 using ProjApp.Database;
 
-namespace ProjApp.Services;
+namespace ProjApp.Services.ServiceResults;
 
 public class ServicePaginatedResult<T>
 {

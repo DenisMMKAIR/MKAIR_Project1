@@ -1,6 +1,7 @@
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
+using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 
