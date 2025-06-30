@@ -32,15 +32,15 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
 
             var addDeviceTypeResult = await _addDeviceTypeCommand.ExecuteAsync(item.Device.DeviceType);
             if (addDeviceTypeResult.Error != null) return Result.Failed(addDeviceTypeResult.Error);
-            item.Device.DeviceType = addDeviceTypeResult.SavedItems!.Single();
+            item.Device.DeviceType = addDeviceTypeResult.Items!.Single();
 
             var addDeviceResult = await _addDeviceCommand.ExecuteAsync(item.Device);
             if (addDeviceResult.Error != null) return Result.Failed(addDeviceResult.Error);
-            item.Device = addDeviceResult.SavedItems!.Single();
+            item.Device = addDeviceResult.Items!.Single();
 
             var addEtalonResult = await _addEtalonCommand.ExecuteAsync(item.Etalons);
             if (addEtalonResult.Error != null) return Result.Failed(addEtalonResult.Error);
-            item.Etalons = addEtalonResult.SavedItems!;
+            item.Etalons = addEtalonResult.Items!;
         }
         return await base.ExecuteAsync(items);
     }

@@ -19,10 +19,7 @@ internal static class Tools
     {
         var fileName = Path.GetFileName(filePath);
         var content = File.ReadAllBytes(filePath);
-        var stream = new MemoryStream(content)
-        {
-            Position = 0
-        };
+        var stream = new MemoryStream(content);
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(_ => _.OpenReadStream()).Returns(stream);
         fileMock.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
@@ -34,7 +31,8 @@ internal static class Tools
 
     private static Task MockCopyToAsync(IFormFile formFile, Stream target, CancellationToken? token = null)
     {
-        using var fs = formFile.OpenReadStream();
+        var fs = formFile.OpenReadStream();
+        fs.Position = 0;
         fs.CopyTo(target);
         return Task.CompletedTask;
     }

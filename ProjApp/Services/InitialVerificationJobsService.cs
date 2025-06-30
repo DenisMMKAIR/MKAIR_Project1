@@ -4,6 +4,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Database.SupportTypes;
+using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 
@@ -50,12 +51,8 @@ public class InitialVerificationJobsService
 
         var incomingJob = new InitialVerificationJob { Date = date };
         var result = await _addCommand.ExecuteAsync(incomingJob);
-        if (result.Error != null)
-        {
-            _logger.LogError("{Msg}", result.Error);
-            return ServiceResult.Fail(result.Error);
-        }
-        _logger.LogInformation("Задание добавлено");
+        if (result.Error != null) return ServiceResult.Fail(result.Error);
+        if (result.NewCount!.Value == 0) return ServiceResult.Fail("Задание уже существует");
         _eventKeeper.Signal(BackgroundEvents.NewInitialVerificationJob);
         return ServiceResult.Success("Задание добавлено");
     }

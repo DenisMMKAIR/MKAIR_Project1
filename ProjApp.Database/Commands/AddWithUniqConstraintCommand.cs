@@ -22,7 +22,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 
     public virtual async Task<Result> ExecuteAsync(params IReadOnlyList<T> items)
     {
-        if (items.Count == 0) return Result.Ok(items, "Список пуст, добавление не требуется");
+        if (items.Count == 0) return Result.Ok("Список пуст, добавление не требуется", items, newCount: 0, duplicateCount: 0);
 
         // TODO: optimize. Problem: Cant use async because EFCore cant translate _comparer(or _comparer.Equal) to SQL
         // Cant get another approach. So we put equality check out of EFCore by UniqComparer
@@ -43,7 +43,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 
         if (newItems.Count == 0)
         {
-            return Result.Ok(existingItems, "Все элементы уже существуют в базе данных");
+            return Result.Ok("Все записи уже существуют в базе данных", existingItems, newCount: 0, (uint)existingItems.Count);
         }
 
         _db.AddRange(newItems);
@@ -55,7 +55,11 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
             await transaction.CommitAsync();
 
             var savedItems = existingItems.Concat(newItems).ToList();
-            return Result.Ok(savedItems, $"Добавлено {newItems.Count} новых элементов");
+
+            return Result.Ok($"Добавлено новых элементов {newItems.Count}. Отсеяно дубликатов {existingItems.Count}",
+                            savedItems,
+                            (uint)newItems.Count,
+                            (uint)existingItems.Count);
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
@@ -76,12 +80,20 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
     public class Result
     {
         public string? Message { get; init; }
-        public IReadOnlyList<T>? SavedItems { get; init; }
+        public IReadOnlyList<T>? Items { get; init; }
+        public uint? NewCount { get; init; }
+        public uint? DuplicateCount { get; init; }
         public string? Error { get; init; }
 
         private Result() { }
 
-        public static Result Ok(IReadOnlyList<T> savedItems, string message) => new() { SavedItems = savedItems, Message = message };
+        public static Result Ok(string message, IReadOnlyList<T> items, uint newCount, uint duplicateCount) => new()
+        {
+            Message = message,
+            Items = items,
+            NewCount = newCount,
+            DuplicateCount = duplicateCount
+        };
         public static Result Failed(string error) => new() { Error = error };
     }
 }

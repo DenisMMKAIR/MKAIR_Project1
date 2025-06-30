@@ -4,6 +4,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
+using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 
@@ -43,11 +44,11 @@ public class PendingManometrVerificationsService
             var result = await _addCommand.ExecuteAsync(verifications);
 
             if (result.Error != null) return ServiceResult.Fail(result.Error);
+            if (result.NewCount!.Value == 0) return ServiceResult.Success(result.Message!);
 
-            _logger.LogInformation("{Msg}", result.Message);
             _keeper.Signal(BackgroundEvents.GetDevicesType);
 
-            return ServiceResult.Success($"{result.Message}");
+            return ServiceResult.Success(result.Message!);
         }
         catch (Exception ex)
         {

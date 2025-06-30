@@ -9,11 +9,12 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     public async Task Test1()
     {
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
-        var response = await controller.AddJob(new(2024, 02));
+        var response1 = await controller.AddJob(new(2024, 02));
+        var response2 = await controller.AddJob(new(2024, 02));
         Assert.Multiple(() =>
         {
-            Assert.That(response.Message, Is.EqualTo("Задание добавлено"));
-            Assert.That(response.Error, Is.Null);
+            Assert.That(response1.Message, Is.EqualTo("Задание добавлено"));
+            Assert.That(response2.Error, Is.EqualTo("Задание уже существует"));
         });
     }
 
@@ -30,11 +31,6 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     {
         var controller = ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
         var response = await controller.GetJobs(new());
-        Assert.Multiple(() =>
-        {
-            Assert.That(response.Data, Is.Not.Null);
-            Assert.That(response.Error, Is.Null);
-        });
-        Assert.That(response.Data.Items, Has.Count.EqualTo(1));
+        Assert.That(response.Data!.Items, Has.Count.EqualTo(1));
     }
 }

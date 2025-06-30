@@ -3,6 +3,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Mapping;
+using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 
@@ -25,7 +26,7 @@ public class VerificationMethodsService
 
     public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
     {
-        var existsNames = await _database.VerificationMethods.Select(v => v.Name).Distinct().ToListAsync();
+        var existsNames = await _database.Set<VerificationMethodAlias>().Select(v => v.Name).ToListAsync();
 
         var dtos1 = await _database
             .InitialVerifications
@@ -53,11 +54,6 @@ public class VerificationMethodsService
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
     {
-        if (string.IsNullOrWhiteSpace(verificationMethod.Name) || verificationMethod.Name.Length < 3)
-        {
-            return ServiceResult.Fail("Имя не указано или слишком короткое имя");
-        }
-
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
         {
             return ServiceResult.Fail("Описание не указано или слишком короткое описание");
@@ -75,9 +71,7 @@ public class VerificationMethodsService
 
         var result = await _addCommand.ExecuteAsync(verificationMethod);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
-        var msg = result.Message == "Добавлено 1 новых элементов" ?
-            "Метод поверки добавлен" :
-            "Такой метод поверки уже существует";
-        return ServiceResult.Success(msg);
+        if (result.NewCount!.Value == 0) return ServiceResult.Fail("Такой метод поверки уже существует");
+        return ServiceResult.Success("Метод поверки добавлен");
     }
 }
