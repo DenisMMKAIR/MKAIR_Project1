@@ -15,7 +15,7 @@ public class ProjDatabase : DbContext
     public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
     public DbSet<InitialVerificationFailed> FailedInitialVerifications => Set<InitialVerificationFailed>();
     public DbSet<Protocol> Protocols => Set<Protocol>();
-    //public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
+    public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
 
     public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
 
@@ -24,8 +24,5 @@ public class ProjDatabase : DbContext
         modelBuilder.Entity<InitialVerificationJob>()
             .Property(e => e.Date)
             .HasConversion(new YearMonthConverter());
-
-        // modelBuilder.Entity<VerificationMethod>()
-        //     .OwnsMany(v => v.Checkups);
     }
 }

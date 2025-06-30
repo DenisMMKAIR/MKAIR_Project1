@@ -2,7 +2,6 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
-using ProjApp.Database;
 using ProjApp.Usage;
 using WebAPI.Controllers;
 
@@ -33,14 +32,11 @@ public abstract class ControllersFixture
         services.AddTransient<InitialVerificationJobsController>();
         services.AddTransient<InitialVerificationsController>();
         services.AddTransient<PendingManometrVerificationsController>();
+        services.AddTransient<VerificationMethodsController>();
 
         services.AddSingleton<InitialVerificationBackgroundService>();
 
         ServiceProvider = services.BuildServiceProvider();
-
-        var db = ServiceProvider.GetRequiredService<ProjDatabase>();
-        db.Database.EnsureDeleted();
-        db.Database.EnsureCreated();
     }
 
     [OneTimeTearDown]
