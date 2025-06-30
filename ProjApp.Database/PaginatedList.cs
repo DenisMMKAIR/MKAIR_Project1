@@ -20,7 +20,7 @@ public class PaginatedList<T>
         TotalCount = count;
     }
 
-    public static PaginatedList<T> Create(IQueryable<T> source, int pageIndex, int pageSize)
+    public static PaginatedList<T> Create(IEnumerable<T> source, int pageIndex, int pageSize)
     {
         var count = source.Count();
         var items = source
@@ -43,12 +43,13 @@ public class PaginatedList<T>
 
 public static class PaginatedListExtensions
 {
+    public static PaginatedList<T> ToPaginated<T>(this IEnumerable<T> source, int pageIndex, int pageSize)
+    {
+        return PaginatedList<T>.Create(source, pageIndex, pageSize);
+    }
+
     public static async Task<PaginatedList<T>> ToPaginatedAsync<T>(this IQueryable<T> source, int pageIndex, int pageSize)
     {
         return await PaginatedList<T>.CreateAsync(source, pageIndex, pageSize);
-    }
-    public static PaginatedList<T> ToPaginated<T>(this IQueryable<T> source, int pageIndex, int pageSize)
-    {
-        return PaginatedList<T>.Create(source, pageIndex, pageSize);
     }
 }
