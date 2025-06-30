@@ -4,7 +4,6 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.Database.Commands;
 
-[Obsolete("Wrong logic. throw if any alias already exists")]
 public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<VerificationMethod>
 {
     private readonly AddVerificationMethodAliasCommand AddAliasCommand;
@@ -25,7 +24,8 @@ public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<Verific
 
             var addAliasResult = await AddAliasCommand.ExecuteAsync(item.Aliases);
             if (addAliasResult.Error != null) return Result.Failed(addAliasResult.Error);
-            item.Aliases = addAliasResult.SavedItems!;
+            if (addAliasResult.DuplicateCount! > 0) return Result.Failed("Такой метод поверки уже существует");
+            item.Aliases = addAliasResult.Items!;
         }
         return await base.ExecuteAsync(items);
     }

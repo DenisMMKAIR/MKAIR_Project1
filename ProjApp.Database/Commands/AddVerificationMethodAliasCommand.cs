@@ -8,7 +8,8 @@ public class AddVerificationMethodAliasCommand : AddWithUniqConstraintCommand<Ve
 {
     public AddVerificationMethodAliasCommand(ILogger<VerificationMethodAlias> logger,
          ProjDatabase db) :
-         base(logger, db, new VerificationMethodAliasUniqComparer()) { }
+         base(logger, db, new VerificationMethodAliasUniqComparer())
+    { }
 }
 
 public class VerificationMethodAliasUniqComparer : IEqualityComparer<VerificationMethodAlias>

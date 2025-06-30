@@ -2,15 +2,14 @@ using ProjApp.Database.Entities;
 
 namespace WebAPI.Controllers.Requests;
 
-public record AddVerificationMethodRequest(string Name, string Description, IReadOnlyList<string> Aliases, IReadOnlyList<string> Checkups)
+public record AddVerificationMethodRequest(string Description, IReadOnlyList<string> Aliases, IReadOnlyList<string> Checkups)
 {
     public VerificationMethod MapToVerificationMethod()
     {
         return new()
         {
-            Name = Name,
             Description = Description,
-            Aliases = [new() { Name = Name }],
+            Aliases = [.. Aliases.Select(a => new VerificationMethodAlias { Name = a })],
             Checkups = Checkups
         };
     }
