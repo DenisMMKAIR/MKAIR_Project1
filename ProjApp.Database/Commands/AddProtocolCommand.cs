@@ -19,18 +19,11 @@ public class ProtocolUniqComparer : IEqualityComparer<Protocol>
     {
         if (x == null || y == null) return false;
 
-        return x.DeviceTypeNumber == y.DeviceTypeNumber &&
-               x.VerificationMethods.All(vm => y.VerificationMethods.Contains(vm, new VerificationMethodUniqComparer()));
+        return x.DeviceTypeNumber == y.DeviceTypeNumber;
     }
 
     public int GetHashCode([DisallowNull] Protocol obj)
     {
-        var hashCode = new HashCode();
-        hashCode.Add(obj.DeviceTypeNumber);
-        foreach (var vmethod in obj.VerificationMethods.OrderBy(s => s.Name))
-        {
-            hashCode.Add(vmethod.Name);
-        }
-        return hashCode.ToHashCode();
+        return HashCode.Combine(obj.DeviceTypeNumber);
     }
 }
