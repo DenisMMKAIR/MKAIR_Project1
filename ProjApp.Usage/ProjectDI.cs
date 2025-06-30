@@ -3,6 +3,7 @@ using Infrastructure.Receiver.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
@@ -14,10 +15,10 @@ namespace ProjApp.Usage;
 
 public static class ProjectDI
 {
-    public static void RegisterProjectDI(this IServiceCollection serviceCollection, IConfiguration configuration)
+    public static void RegisterProjectDI(this IServiceCollection serviceCollection, string connectionString)
     {
         serviceCollection.AddDbContext<ProjDatabase>(builder =>
-            builder.UseNpgsql(configuration.GetConnectionString("default"))
+            builder.UseNpgsql(connectionString)
                    .UseSnakeCaseNamingConvention());
 
         serviceCollection.AddTransient<AddPendingManometrCommand>();
@@ -44,5 +45,32 @@ public static class ProjectDI
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
 
         serviceCollection.AddFGISAPI();
+    }
+
+    public static string? RegisterProjectBaseTestsDI(this IServiceCollection serviceCollection)
+    {
+        var configuration = new ConfigurationBuilder()
+            .AddJsonFile("appsettings.Development.json", optional: false)
+            .Build();
+
+        serviceCollection.AddLogging(cfg =>
+        {
+            cfg.AddConfiguration(configuration.GetSection("Logging"));
+            cfg.AddConsole();
+        });
+
+        return configuration.GetConnectionString("test");
+    }
+
+    public static void RegisterProjectTestsDI(this IServiceCollection serviceCollection)
+    {
+        var connectionString = serviceCollection.RegisterProjectBaseTestsDI();
+
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new Exception("Connection string is empty");
+        }
+
+        serviceCollection.RegisterProjectDI(connectionString);
     }
 }

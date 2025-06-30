@@ -14,6 +14,8 @@ else
 }
 
 builder.Configuration.AddUserSecrets<ProjApp.Settings.EmptySettings>(optional: false);
+var connectionString = builder.Configuration.GetConnectionString("default");
+if (string.IsNullOrEmpty(connectionString)) throw new Exception("No connection string found.");
 
 builder.Services.AddLogging(cfg =>
 {
@@ -21,10 +23,11 @@ builder.Services.AddLogging(cfg =>
     cfg.AddConfiguration(builder.Configuration.GetSection("Logging"));
     cfg.AddConsole();
 });
+
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg => cfg.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" }));
-builder.Services.RegisterProjectDI(builder.Configuration);
+builder.Services.RegisterProjectDI(connectionString);
 
 var app = builder.Build();
 

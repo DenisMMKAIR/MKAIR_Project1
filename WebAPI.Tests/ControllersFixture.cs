@@ -1,7 +1,6 @@
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
+using ProjApp.Database;
 using ProjApp.Usage;
 using WebAPI.Controllers;
 
@@ -15,18 +14,8 @@ public abstract class ControllersFixture
     [OneTimeSetUp]
     public void OneTimeSetUp()
     {
-        var configuration = new ConfigurationBuilder()
-            .AddJsonFile("appsettings.Development.json", optional: false)
-            .Build();
-
         var services = new ServiceCollection();
-        services.AddLogging(cfg =>
-        {
-            cfg.AddConfiguration(configuration.GetSection("Logging"));
-            cfg.AddConsole();
-        });
-
-        services.RegisterProjectDI(configuration);
+        services.RegisterProjectTestsDI();
 
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobsController>();
@@ -37,6 +26,11 @@ public abstract class ControllersFixture
         services.AddSingleton<InitialVerificationBackgroundService>();
 
         ServiceProvider = services.BuildServiceProvider();
+
+        using var scope = ServiceProvider.CreateScope();
+        var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
+        db.Database.EnsureDeleted();
+        db.Database.EnsureCreated();
     }
 
     [OneTimeTearDown]
