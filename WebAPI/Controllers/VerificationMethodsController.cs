@@ -24,9 +24,9 @@ public class VerificationMethodsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, string? search)
     {
-        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize);
+        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, search);
     }
 
     [HttpPost]

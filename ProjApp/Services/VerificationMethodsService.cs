@@ -4,6 +4,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Mapping;
+using ProjApp.Normalizers;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -12,6 +13,7 @@ public partial class VerificationMethodsService
 {
     private readonly ProjDatabase _database;
     private readonly AddVerificationMethodCommand _addCommand;
+    [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")] private static partial Regex _invalidFileChars();
 
     public VerificationMethodsService(ProjDatabase database, AddVerificationMethodCommand addCommand)
     {
@@ -28,17 +30,18 @@ public partial class VerificationMethodsService
     public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
     {
         var existsNames = await _database.Set<VerificationMethodAlias>().Select(v => v.Name).ToListAsync();
+        filterByName = filterByName?.Trim().ToUpper() ?? string.Empty;
 
         var dtos1 = await _database
             .InitialVerifications
-            .Where(v => v.VerificationTypeName.Contains(filterByName ?? "", StringComparison.CurrentCultureIgnoreCase))
+            .Where(v => v.VerificationTypeName.ToUpper().Contains(filterByName))
             .Include(v => v.Device)
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
             .ToArrayAsync();
 
         var dtos2 = await _database.FailedInitialVerifications
-            .Where(v => v.VerificationTypeName.Contains(filterByName ?? "", StringComparison.CurrentCultureIgnoreCase))
+            .Where(v => v.VerificationTypeName.ToUpper().Contains(filterByName))
             .Include(v => v.Device)
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
@@ -65,11 +68,18 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Псевдонимы должны быть уникальными");
         }
 
+        var stringNimalizer = new ComplexStringNormalizer();
+        foreach (var alias in verificationMethod.Aliases)
+        {
+            alias.Name = stringNimalizer.Normalize(alias.Name);
+        }
+
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
         {
             return ServiceResult.Fail("Описание не указано или слишком короткое описание");
         }
 
+        verificationMethod.Description = stringNimalizer.Normalize(verificationMethod.Description);
         var sanitazedFileName = SanitizeFileName(verificationMethod.FileName);
 
         if (verificationMethod.FileName.Length < 3)
@@ -88,8 +98,6 @@ public partial class VerificationMethodsService
         return ServiceResult.Success("Метод поверки добавлен");
     }
 
-    [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")]
-    private static partial Regex _invalidFileChars();
     private static string SanitizeFileName(string fileName)
     {
         if (string.IsNullOrEmpty(fileName)) return string.Empty;
