@@ -29,7 +29,6 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerification>>();
         serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerificationFailed>>();
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
-        serviceCollection.AddTransient<AddVerificationMethodAliasCommand>();
         serviceCollection.AddTransient<AddProtocolCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();

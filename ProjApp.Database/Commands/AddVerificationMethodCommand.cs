@@ -6,14 +6,10 @@ namespace ProjApp.Database.Commands;
 
 public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<VerificationMethod>
 {
-    private readonly AddVerificationMethodAliasCommand AddAliasCommand;
-
     public AddVerificationMethodCommand(ILogger<VerificationMethod> logger,
-         ProjDatabase db,
-         AddVerificationMethodAliasCommand addAliasCommand) :
+         ProjDatabase db) :
          base(logger, db, new VerificationMethodUniqComparer())
     {
-        AddAliasCommand = addAliasCommand;
     }
 }
 

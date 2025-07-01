@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using System.Text.RegularExpressions;
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database;
@@ -27,9 +28,13 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethod>.Success(result);
     }
 
-    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
+    public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
     {
-        var existsNames = await _database.Set<VerificationMethodAlias>().Select(v => v.Name).ToListAsync();
+        var existsNames = _database.Set<VerificationMethod>()
+            .SelectMany(v => v.Aliases)
+            .Order()
+            .ToImmutableSortedSet();
+
         var stringNormalizer = new ComplexStringNormalizer();
         filterByName = filterByName != null ? stringNormalizer.Normalize(filterByName) : string.Empty;
 
@@ -39,7 +44,7 @@ public partial class VerificationMethodsService
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
             .AsEnumerable()
-            .Where(v => v.Name.Contains(filterByName) && !existsNames.Contains(v.Name));
+            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _));
 
         var dtos2 = _database
             .FailedInitialVerifications
@@ -47,14 +52,14 @@ public partial class VerificationMethodsService
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
             .AsEnumerable()
-            .Where(v => v.Name.Contains(filterByName) && !existsNames.Contains(v.Name));
+            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _));
 
         var result = dtos1.Concat(dtos2)
             .DistinctBy(v => (v.Name, v.DeviceTypeNumber))
             .OrderBy(v => v.Name)
             .ToPaginated(pageNumber, pageSize);
 
-        return ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result);
+        return Task.FromResult(ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result));
     }
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
@@ -69,15 +74,18 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Псевдонимы должны быть уникальными");
         }
 
-        var stringNimalizer = new ComplexStringNormalizer();
-        verificationMethod.Aliases = [.. verificationMethod.Aliases.Select(stringNimalizer.Normalize)];
+        var stringNormalizer = new ComplexStringNormalizer();
+        verificationMethod.Aliases = verificationMethod.Aliases
+            .Select(stringNormalizer.Normalize)
+            .Order()
+            .ToArray();
 
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
         {
             return ServiceResult.Fail("Описание не указано или слишком короткое описание");
         }
 
-        verificationMethod.Description = stringNimalizer.Normalize(verificationMethod.Description);
+        verificationMethod.Description = stringNormalizer.Normalize(verificationMethod.Description);
         var sanitazedFileName = SanitizeFileName(verificationMethod.FileName);
 
         if (verificationMethod.FileName.Length < 3)
@@ -97,7 +105,7 @@ public partial class VerificationMethodsService
 
         var result = await _addCommand.ExecuteAsync(verificationMethod);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
-        if (result.NewCount!.Value == 0) return ServiceResult.Fail("Такой метод поверки уже существует");
+        if (result.NewCount!.Value == 0) return ServiceResult.Fail("Метод поверки с псевдонимом уже существует");
         return ServiceResult.Success("Метод поверки добавлен");
     }
 

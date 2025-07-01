@@ -101,7 +101,7 @@ public class VerificationMethodsControllerTests : ControllersFixture
         var result1 = await controller.AddVerificationMethod(newVrfMethod);
 
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var alias = await db.Set<VerificationMethodAlias>().SingleOrDefaultAsync(x => x.Name == "TEST4_1");
+        var alias = await db.Set<VerificationMethod>().SelectMany(vm => vm.Aliases).SingleOrDefaultAsync(alias => alias == "TEST4_1");
 
         Assert.Multiple(() =>
         {
