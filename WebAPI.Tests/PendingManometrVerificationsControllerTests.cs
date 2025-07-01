@@ -11,7 +11,7 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
     public async Task Test1()
     {
         var controller = ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
-        var verificationsFile = Samples.Verifications1.ToFormFile();
+        var verificationsFile = Samples.Verifications1.FilePathToFormFile();
         var request = new ExcelVerificationsRequest(verificationsFile, "excel", "A1:P555", DeviceLocation.АнтипинскийНПЗ);
 
         var response1 = await controller.AcceptExcelVerifications(request, CancellationToken.None);

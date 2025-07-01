@@ -1,3 +1,4 @@
+using System.Text;
 using Microsoft.AspNetCore.Http;
 using Moq;
 
@@ -15,7 +16,7 @@ internal static class Tools
         return Path.Combine("Samples".GetProjectDirPath(), fileName);
     }
 
-    public static IFormFile ToFormFile(this string filePath)
+    public static IFormFile FilePathToFormFile(this string filePath)
     {
         var fileName = Path.GetFileName(filePath);
         var content = File.ReadAllBytes(filePath);
@@ -23,13 +24,27 @@ internal static class Tools
         var fileMock = new Mock<IFormFile>();
         fileMock.Setup(_ => _.OpenReadStream()).Returns(stream);
         fileMock.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
-            .Returns((Stream target, CancellationToken token) => MockCopyToAsync(fileMock.Object, target, token));
+            .Returns((Stream target, CancellationToken token) => MockCopyTo(fileMock.Object, target, token));
         fileMock.Setup(_ => _.FileName).Returns(fileName);
         fileMock.Setup(_ => _.Length).Returns(content.Length);
         return fileMock.Object;
     }
 
-    private static Task MockCopyToAsync(IFormFile formFile, Stream target, CancellationToken? token = null)
+    public static IFormFile ContentToFormFile(this string content, string fileName)
+    {
+        var stream = new MemoryStream(Encoding.UTF8.GetBytes(content));
+        var fileMock = new Mock<IFormFile>();
+        fileMock.Setup(_ => _.OpenReadStream()).Returns(stream);
+        fileMock.Setup(_ => _.CopyTo(It.IsAny<Stream>()))
+            .Callback((Stream target) => MockCopyTo(fileMock.Object, target));
+        fileMock.Setup(_ => _.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+            .Returns((Stream target, CancellationToken token) => MockCopyTo(fileMock.Object, target, token));
+        fileMock.Setup(_ => _.FileName).Returns(fileName);
+        fileMock.Setup(_ => _.Length).Returns(content.Length);
+        return fileMock.Object;
+    }
+
+    private static Task MockCopyTo(IFormFile formFile, Stream target, CancellationToken? token = null)
     {
         var fs = formFile.OpenReadStream();
         fs.Position = 0;
