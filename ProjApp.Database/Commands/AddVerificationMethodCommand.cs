@@ -20,11 +20,11 @@ public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<Verific
     {
         foreach (var item in items)
         {
-            if (item.Aliases == null || item.Aliases.Count == 0) return Result.Failed("Пустой список псевдонимов");
+            if (item.Aliases == null || item.Aliases.Count == 0) return Result.Failed($"У метода поверки нет псевдонимов");
 
             var addAliasResult = await AddAliasCommand.ExecuteAsync(item.Aliases);
             if (addAliasResult.Error != null) return Result.Failed(addAliasResult.Error);
-            if (addAliasResult.DuplicateCount! > 0) return Result.Failed("Такой метод поверки уже существует");
+            if (addAliasResult.DuplicateCount! > 0) return Result.Failed("Метод поверки с псевдонимом уже существует");
             item.Aliases = addAliasResult.Items!;
         }
         return await base.ExecuteAsync(items);
@@ -37,20 +37,15 @@ public class VerificationMethodUniqComparer : IEqualityComparer<VerificationMeth
     {
         if (x == null || y == null) return false;
 
-        if (x.Aliases == null || y.Aliases == null || x.Aliases.Count == 0 || y.Aliases.Count == 0)
-        {
-            throw new ArgumentNullException("VerificationMethod aliases can't be null or empty");
-        }
+        x.Aliases.ThrowIfNullOrEmpty("VerificationMethod aliases can't be null or empty");
+        y.Aliases.ThrowIfNullOrEmpty("VerificationMethod aliases can't be null or empty");
 
         return x.Aliases.Any(xa => y.Aliases.Contains(xa));
     }
 
     public int GetHashCode([DisallowNull] VerificationMethod obj)
     {
-        if (obj.Aliases == null || obj.Aliases.Count == 0)
-        {
-            throw new ArgumentNullException("VerificationMethod aliases can't be null or empty");
-        }
+        obj.Aliases.ThrowIfNullOrEmpty("VerificationMethod aliases can't be null or empty");
 
         var hash = new HashCode();
         foreach (var alias in obj.Aliases.OrderBy(a => a.Name))
@@ -58,5 +53,14 @@ public class VerificationMethodUniqComparer : IEqualityComparer<VerificationMeth
             hash.Add(alias.Name);
         }
         return hash.ToHashCode();
+    }
+}
+
+public static class CollectionExtensions
+{
+    public static void ThrowIfNullOrEmpty<T>(this IReadOnlyList<T>? collection, string message)
+    {
+        ArgumentNullException.ThrowIfNull(collection);
+        if (collection.Count == 0) throw new ArgumentException(message);
     }
 }

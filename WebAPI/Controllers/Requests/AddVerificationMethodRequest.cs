@@ -2,7 +2,7 @@ using ProjApp.Database.Entities;
 
 namespace WebAPI.Controllers.Requests;
 
-public record AddVerificationMethodRequest(string Description, IReadOnlyList<string> Aliases, IReadOnlyList<string> Checkups)
+public record AddVerificationMethodRequest(string Description, IReadOnlyList<string> Aliases, string FileName, byte[] FileContent)
 {
     public VerificationMethod MapToVerificationMethod()
     {
@@ -10,7 +10,8 @@ public record AddVerificationMethodRequest(string Description, IReadOnlyList<str
         {
             Description = Description,
             Aliases = [.. Aliases.Select(a => new VerificationMethodAlias { Name = a })],
-            Checkups = Checkups
+            FileName = FileName,
+            FileContent = FileContent
         };
     }
 }
