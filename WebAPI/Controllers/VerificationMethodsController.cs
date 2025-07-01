@@ -32,6 +32,19 @@ public class VerificationMethodsController : ApiControllerBase
     [HttpPost]
     public async Task<ServiceResult> AddVerificationMethod([Required][FromForm] AddVerificationMethodRequest request)
     {
-        return await _service.AddVerificationMethodAsync(request.MapToVerificationMethod());
+        if (request.File.Length > 10 * 1024 * 1024) return ServiceResult.Fail("Не удалось загрузить файл. Лимит 10 МБ");
+
+        using var ms = new MemoryStream();
+        request.File.CopyTo(ms);
+        var fileContent = ms.ToArray();
+
+        var newVerMethod = new VerificationMethod
+        {
+            Aliases = request.Aliases,
+            Description = request.Description,
+            FileName = request.FileName,
+            FileContent = fileContent
+        };
+        return await _service.AddVerificationMethodAsync(newVerMethod);
     }
 }

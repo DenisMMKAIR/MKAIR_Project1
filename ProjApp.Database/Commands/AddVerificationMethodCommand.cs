@@ -15,20 +15,6 @@ public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<Verific
     {
         AddAliasCommand = addAliasCommand;
     }
-
-    public override async Task<Result> ExecuteAsync(params IReadOnlyList<VerificationMethod> items)
-    {
-        foreach (var item in items)
-        {
-            if (item.Aliases == null || item.Aliases.Count == 0) return Result.Failed($"У метода поверки нет псевдонимов");
-
-            var addAliasResult = await AddAliasCommand.ExecuteAsync(item.Aliases);
-            if (addAliasResult.Error != null) return Result.Failed(addAliasResult.Error);
-            if (addAliasResult.DuplicateCount! > 0) return Result.Failed("Метод поверки с псевдонимом уже существует");
-            item.Aliases = addAliasResult.Items!;
-        }
-        return await base.ExecuteAsync(items);
-    }
 }
 
 public class VerificationMethodUniqComparer : IEqualityComparer<VerificationMethod>
@@ -48,9 +34,9 @@ public class VerificationMethodUniqComparer : IEqualityComparer<VerificationMeth
         obj.Aliases.ThrowIfNullOrEmpty("VerificationMethod aliases can't be null or empty");
 
         var hash = new HashCode();
-        foreach (var alias in obj.Aliases.OrderBy(a => a.Name))
+        foreach (var alias in obj.Aliases.Order())
         {
-            hash.Add(alias.Name);
+            hash.Add(alias);
         }
         return hash.ToHashCode();
     }
@@ -60,7 +46,7 @@ public static class CollectionExtensions
 {
     public static void ThrowIfNullOrEmpty<T>(this IReadOnlyList<T>? collection, string message)
     {
-        ArgumentNullException.ThrowIfNull(collection);
+        ArgumentNullException.ThrowIfNull(collection, message);
         if (collection.Count == 0) throw new ArgumentException(message);
     }
 }

@@ -53,7 +53,6 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         {
             var affectedRows = await _db.SaveChangesAsync();
             await transaction.CommitAsync();
-
             var savedItems = existingItems.Concat(newItems).ToList();
 
             return Result.Ok($"Добавлено новых элементов {newItems.Count}. Отсеяно дубликатов {existingItems.Count}",
@@ -68,6 +67,12 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
             _logger.LogError("Не удалось добавить. Обнаружены дубликаты. {Details}. {MessageText}",
                 e.Detail, e.MessageText);
             return Result.Failed("Не удалось добавить. Обнаружены дубликаты");
+        }
+        catch (Exception ex)
+        {
+            await transaction.RollbackAsync();
+            _logger.LogError(ex, "Не удалось добавить. {Message}", ex.Message);
+            return Result.Failed(ex.Message);
         }
     }
 

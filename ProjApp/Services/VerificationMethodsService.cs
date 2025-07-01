@@ -30,25 +30,26 @@ public partial class VerificationMethodsService
     public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
     {
         var existsNames = await _database.Set<VerificationMethodAlias>().Select(v => v.Name).ToListAsync();
-        filterByName = filterByName?.Trim().ToUpper() ?? string.Empty;
+        var stringNormalizer = new ComplexStringNormalizer();
+        filterByName = filterByName != null ? stringNormalizer.Normalize(filterByName) : string.Empty;
 
-        var dtos1 = await _database
+        var dtos1 = _database
             .InitialVerifications
-            .Where(v => v.VerificationTypeName.ToUpper().Contains(filterByName))
             .Include(v => v.Device)
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
-            .ToArrayAsync();
+            .AsEnumerable()
+            .Where(v => v.Name.Contains(filterByName) && !existsNames.Contains(v.Name));
 
-        var dtos2 = await _database.FailedInitialVerifications
-            .Where(v => v.VerificationTypeName.ToUpper().Contains(filterByName))
+        var dtos2 = _database
+            .FailedInitialVerifications
             .Include(v => v.Device)
             .ThenInclude(d => d!.DeviceType)
             .Map(v => PossibleVerificationMethodDTO.MapTo(v))
-            .ToArrayAsync();
+            .AsEnumerable()
+            .Where(v => v.Name.Contains(filterByName) && !existsNames.Contains(v.Name));
 
         var result = dtos1.Concat(dtos2)
-            .Where(v => !existsNames.Contains(v.Name))
             .DistinctBy(v => (v.Name, v.DeviceTypeNumber))
             .OrderBy(v => v.Name)
             .ToPaginated(pageNumber, pageSize);
@@ -63,16 +64,13 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Не указаны псевдонимы");
         }
 
-        if (verificationMethod.Aliases.GroupBy(a => a.Name).Any(g => g.Count() > 1))
+        if (verificationMethod.Aliases.GroupBy(a => a).Any(g => g.Count() > 1))
         {
             return ServiceResult.Fail("Псевдонимы должны быть уникальными");
         }
 
         var stringNimalizer = new ComplexStringNormalizer();
-        foreach (var alias in verificationMethod.Aliases)
-        {
-            alias.Name = stringNimalizer.Normalize(alias.Name);
-        }
+        verificationMethod.Aliases = [.. verificationMethod.Aliases.Select(stringNimalizer.Normalize)];
 
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
         {
@@ -90,6 +88,11 @@ public partial class VerificationMethodsService
         if (verificationMethod.FileContent == null || verificationMethod.FileContent.Length < 3)
         {
             return ServiceResult.Fail("Файл пустой или некорректный");
+        }
+
+        if (verificationMethod.FileContent.Length > 10 * 1024 * 1024)
+        {
+            return ServiceResult.Fail("Не удалось добавить файл. Лимит 10МБ");
         }
 
         var result = await _addCommand.ExecuteAsync(verificationMethod);
