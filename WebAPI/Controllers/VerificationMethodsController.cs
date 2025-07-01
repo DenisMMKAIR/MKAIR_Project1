@@ -18,7 +18,7 @@ public class VerificationMethodsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<VerificationMethod>> GetVerificationMethods([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<VerificationMethodDTO>> GetVerificationMethods([Required][FromQuery] GetPaginatedRequest request)
     {
         return await _service.GetVerificationMethodsAsync(request.PageIndex, request.PageSize);
     }
@@ -27,6 +27,14 @@ public class VerificationMethodsController : ApiControllerBase
     public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, string? search)
     {
         return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, search);
+    }
+
+    [HttpGet]
+    public async Task<IActionResult> DownloadFile([Required][FromQuery] Guid id)
+    {
+        var fileDTO = await _service.DownloadFileAsync(id);
+        if (fileDTO.Error != null) return BadRequest(fileDTO.Error);
+        return File(fileDTO.Item!.FileContent, fileDTO.Item.Mimetype, fileDTO.Item.FileName);
     }
 
     [HttpPost]

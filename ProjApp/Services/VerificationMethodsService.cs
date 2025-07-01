@@ -22,10 +22,13 @@ public partial class VerificationMethodsService
         _addCommand = addCommand;
     }
 
-    public async Task<ServicePaginatedResult<VerificationMethod>> GetVerificationMethodsAsync(int pageNumber, int pageSize)
+    public async Task<ServicePaginatedResult<VerificationMethodDTO>> GetVerificationMethodsAsync(int pageNumber, int pageSize)
     {
-        var result = await _database.VerificationMethods.ToPaginatedAsync(pageNumber, pageSize);
-        return ServicePaginatedResult<VerificationMethod>.Success(result);
+        var result = await _database.VerificationMethods
+            .Map(vm => VerificationMethodDTO.MapTo(vm))
+            .ToPaginatedAsync(pageNumber, pageSize);
+
+        return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
     public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
@@ -60,6 +63,13 @@ public partial class VerificationMethodsService
             .ToPaginated(pageNumber, pageSize);
 
         return Task.FromResult(ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result));
+    }
+
+    public async Task<ServiceItemResult<FileDTO>> DownloadFileAsync(Guid verificationMethodId)
+    {
+        var vm = await _database.VerificationMethods.FirstOrDefaultAsync(v => v.Id == verificationMethodId);
+        if (vm == null) return ServiceItemResult<FileDTO>.Fail("Метод поверки не найден");
+        return ServiceItemResult<FileDTO>.Success(new(vm.FileName, vm.FileContent));
     }
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
