@@ -24,5 +24,8 @@ public class ProjDatabase : DbContext
         modelBuilder.Entity<InitialVerificationJob>()
             .Property(e => e.Date)
             .HasConversion(new YearMonthConverter());
+
+        modelBuilder.Entity<Protocol>()
+            .OwnsMany(p => p.Checkups);
     }
 }
