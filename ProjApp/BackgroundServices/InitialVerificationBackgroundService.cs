@@ -51,9 +51,11 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
             _logger.LogInformation("Загрузка данных за {Date}", job.Date);
             var (vrfGood, vdfFailed) = await _fgisAPI.GetInitialVerifications(job.Date);
 
+            _logger.LogInformation("Сохранение исправных устройств");
             var saveGood = await addGoodVerificationsCommand.ExecuteAsync(vrfGood);
             _logger.LogInformation("Поверки исправных устройств {Msg}", saveGood.Message);
 
+            _logger.LogInformation("Сохранение неисправных устройств");
             var saveFailed = await addFailedVerificationsCommand.ExecuteAsync(vdfFailed);
             _logger.LogInformation("Поверки неисправных устройств {Msg}", saveFailed.Message);
 
