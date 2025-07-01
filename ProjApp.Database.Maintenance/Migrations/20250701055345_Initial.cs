@@ -134,6 +134,26 @@ namespace ProjApp.Database.Maintenance.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "protocol_checkup",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    protocol_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    value = table.Column<string>(type: "text", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_protocol_checkup", x => new { x.protocol_id, x.id });
+                    table.ForeignKey(
+                        name: "fk_protocol_checkup_protocols_protocol_id",
+                        column: x => x.protocol_id,
+                        principalTable: "protocols",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "protocol_verification_method",
                 columns: table => new
                 {
@@ -327,6 +347,9 @@ namespace ProjApp.Database.Maintenance.Migrations
 
             migrationBuilder.DropTable(
                 name: "pending_manometr_verifications");
+
+            migrationBuilder.DropTable(
+                name: "protocol_checkup");
 
             migrationBuilder.DropTable(
                 name: "protocol_verification_method");

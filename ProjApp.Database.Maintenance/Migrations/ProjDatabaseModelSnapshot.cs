@@ -514,6 +514,42 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("ProjApp.Database.Entities.Protocol", b =>
+                {
+                    b.OwnsMany("ProjApp.Database.Entities.ProtocolCheckup", "Checkups", b1 =>
+                        {
+                            b1.Property<Guid>("ProtocolId")
+                                .HasColumnType("uuid")
+                                .HasColumnName("protocol_id");
+
+                            b1.Property<Guid>("Id")
+                                .ValueGeneratedOnAdd()
+                                .HasColumnType("uuid")
+                                .HasColumnName("id");
+
+                            b1.Property<string>("Name")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("name");
+
+                            b1.Property<string>("Value")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("value");
+
+                            b1.HasKey("ProtocolId", "Id")
+                                .HasName("pk_protocol_checkup");
+
+                            b1.ToTable("protocol_checkup", (string)null);
+
+                            b1.WithOwner()
+                                .HasForeignKey("ProtocolId")
+                                .HasConstraintName("fk_protocol_checkup_protocols_protocol_id");
+                        });
+
+                    b.Navigation("Checkups");
+                });
+
             modelBuilder.Entity("ProtocolVerificationMethod", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.Protocol", null)
