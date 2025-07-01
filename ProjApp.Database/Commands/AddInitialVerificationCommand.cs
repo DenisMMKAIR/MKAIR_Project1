@@ -24,23 +24,27 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
 
     public override async Task<Result> ExecuteAsync(IReadOnlyList<T> items)
     {
+        var deviceTypeUniqComparer = new DeviceTypeUniqComparer();
+        IReadOnlyList<DeviceType> uniqDeviceTypes = [.. items.Select(x => x.Device!.DeviceType!).Distinct(deviceTypeUniqComparer)];
+        var savedDevicesTypes = await _addDeviceTypeCommand.ExecuteAsync(uniqDeviceTypes);
+
+        foreach (var device in items.Select(i => i.Device!))
+        {
+            device.DeviceType = savedDevicesTypes.Items!.Single(dt => deviceTypeUniqComparer.Equals(device.DeviceType!, dt));
+        }
+
+        var deviceUniqComparer = new DeviceUniqComparer();
+        IReadOnlyList<Device> uniqDevices = [.. items.Select(x => x.Device!).Distinct(deviceUniqComparer)];
+        var savedDevices = await _addDeviceCommand.ExecuteAsync(uniqDevices);
+
+        var etalonsUniqComparer = new EtalonUniqComparer();
+        IReadOnlyList<Etalon> uniqEtalons = [.. items.SelectMany(x => x.Etalons!).Distinct(etalonsUniqComparer)];
+        var savedEtalons = await _addEtalonCommand.ExecuteAsync(uniqEtalons);
+
         foreach (var item in items)
         {
-            if (item.Device == null) return Result.Failed("Устройство не задано");
-            if (item.Device.DeviceType == null) return Result.Failed("Тип устройства не задан");
-            if (item.Etalons == null) return Result.Failed("Эталоны не заданы");
-
-            var addDeviceTypeResult = await _addDeviceTypeCommand.ExecuteAsync(item.Device.DeviceType);
-            if (addDeviceTypeResult.Error != null) return Result.Failed(addDeviceTypeResult.Error);
-            item.Device.DeviceType = addDeviceTypeResult.Items!.Single();
-
-            var addDeviceResult = await _addDeviceCommand.ExecuteAsync(item.Device);
-            if (addDeviceResult.Error != null) return Result.Failed(addDeviceResult.Error);
-            item.Device = addDeviceResult.Items!.Single();
-
-            var addEtalonResult = await _addEtalonCommand.ExecuteAsync(item.Etalons);
-            if (addEtalonResult.Error != null) return Result.Failed(addEtalonResult.Error);
-            item.Etalons = addEtalonResult.Items!;
+            item.Device = savedDevices.Items!.Single(d => deviceUniqComparer.Equals(item.Device!, d));
+            item.Etalons = [.. item.Etalons!.Select(e => savedEtalons.Items!.Single(e2 => etalonsUniqComparer.Equals(e, e2)))];
         }
         return await base.ExecuteAsync(items);
     }

@@ -51,6 +51,7 @@ public static class ProjectDI
     {
         var configuration = new ConfigurationBuilder()
             .AddJsonFile("appsettings.Development.json", optional: false)
+            .AddUserSecrets<ProjApp.Settings.EmptySettings>(optional: false)
             .Build();
 
         serviceCollection.AddLogging(cfg =>
