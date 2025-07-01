@@ -8,7 +8,8 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     [Test]
     public async Task Test1()
     {
-        var controller = ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
         var response1 = await controller.AddJob(new(2024, 02));
         var response2 = await controller.AddJob(new(2024, 02));
         Assert.Multiple(() =>
@@ -21,7 +22,8 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     [Test]
     public async Task Test2()
     {
-        var controller = ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
         var result = await controller.AddJob(new(2023, 02));
         Assert.That(result.Error, Is.EqualTo("Год от 2024 до текущего"));
     }
@@ -29,7 +31,8 @@ public class InitialVerificationJobControllerTests : ControllersFixture
     [Test]
     public async Task Test3()
     {
-        var controller = ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<InitialVerificationJobsController>();
         var response = await controller.GetJobs(new());
         Assert.That(response.Data!.Items, Has.Count.EqualTo(1));
     }

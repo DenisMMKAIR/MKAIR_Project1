@@ -13,16 +13,17 @@ public class InitialVerificationsControllerTests : ControllersFixture
     [Test]
     public async Task Test1()
     {
+        using var scope = ScopeFactory.CreateScope();
         var job = new InitialVerificationJob { Date = (2024, 02) };
-        var db = ServiceProvider.GetRequiredService<ProjDatabase>();
+        var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         db.InitialVerificationJobs.Add(job);
         db.SaveChanges();
-        var bs = ServiceProvider.GetRequiredService<InitialVerificationBackgroundService>();
+        var bs = scope.ServiceProvider.GetRequiredService<InitialVerificationBackgroundService>();
         var method = typeof(InitialVerificationBackgroundService)
             .GetMethod("ProcessWorkAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
         await (Task)method.Invoke(bs, null)!;
 
-        var controller = ServiceProvider.GetRequiredService<InitialVerificationsController>();
+        var controller = scope.ServiceProvider.GetRequiredService<InitialVerificationsController>();
         var response = await controller.GetVerifications(new());
 
         var deviceTypes = await db.DeviceTypes.CountAsync();

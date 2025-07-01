@@ -8,7 +8,8 @@ public class DeviceTypeControllerTests : ControllersFixture
     [Test]
     public async Task Test1()
     {
-        var controller = ServiceProvider.GetRequiredService<DeviceTypeController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<DeviceTypeController>();
         var response1 = await controller.AddDeviceType(new() { Name = "test", Number = "test", Notation = "test" });
         var response2 = await controller.AddDeviceType(new() { Name = "test", Number = "test", Notation = "test" });
         Assert.Multiple(() =>
@@ -21,7 +22,8 @@ public class DeviceTypeControllerTests : ControllersFixture
     [Test]
     public async Task Test2()
     {
-        var controller = ServiceProvider.GetRequiredService<DeviceTypeController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<DeviceTypeController>();
         var response = await controller.GetDevicesPaginated(new());
         Assert.That(response.Data!.Items, Has.Count.EqualTo(1));
     }

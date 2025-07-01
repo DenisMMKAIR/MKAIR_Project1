@@ -10,7 +10,8 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
     [Test]
     public async Task Test1()
     {
-        var controller = ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
         var verificationsFile = Samples.Verifications1.FilePathToFormFile();
         var request = new ExcelVerificationsRequest(verificationsFile, "excel", "A1:P555", DeviceLocation.АнтипинскийНПЗ);
 
@@ -27,7 +28,8 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
     [Test]
     public async Task Test2()
     {
-        var controller = ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
         var response = await controller.GetPandingVerificationsPaginated(new());
         Assert.That(response.Data!.TotalCount, Is.EqualTo(554));
     }
@@ -35,7 +37,8 @@ public class PendingManometrVerificationsControllerTests : ControllersFixture
     [Test]
     public async Task Test3()
     {
-        var controller = ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<PendingManometrVerificationsController>();
         var response = await controller.GetPandingVerificationsPaginated(new(1, 100));
         Assert.Multiple(() =>
         {

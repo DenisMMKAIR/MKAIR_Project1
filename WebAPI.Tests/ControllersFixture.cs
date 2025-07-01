@@ -9,7 +9,8 @@ namespace WebAPI.Tests;
 [TestFixture]
 public abstract class ControllersFixture
 {
-    public ServiceProvider ServiceProvider { get; set; }
+    private ServiceProvider _serviceProvider;
+    public IServiceScopeFactory ScopeFactory { get; set; }
 
     [OneTimeSetUp]
     public void OneTimeSetUp()
@@ -25,9 +26,10 @@ public abstract class ControllersFixture
 
         services.AddSingleton<InitialVerificationBackgroundService>();
 
-        ServiceProvider = services.BuildServiceProvider();
+        _serviceProvider = services.BuildServiceProvider();
+        ScopeFactory = _serviceProvider.GetRequiredService<IServiceScopeFactory>();
 
-        using var scope = ServiceProvider.CreateScope();
+        using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         db.Database.EnsureDeleted();
         db.Database.EnsureCreated();
@@ -36,6 +38,6 @@ public abstract class ControllersFixture
     [OneTimeTearDown]
     public async Task OneTimeTearDown()
     {
-        await ServiceProvider.DisposeAsync();
+        await _serviceProvider.DisposeAsync();
     }
 }

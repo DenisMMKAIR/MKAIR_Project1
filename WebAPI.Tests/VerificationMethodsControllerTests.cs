@@ -12,7 +12,8 @@ public class VerificationMethodsControllerTests : ControllersFixture
     [Test]
     public async Task Test1()
     {
-        var controller = ServiceProvider.GetRequiredService<VerificationMethodsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
         var fileName = "test_file.txt";
         var file = "test content".ContentToFormFile(fileName);
 
@@ -40,7 +41,8 @@ public class VerificationMethodsControllerTests : ControllersFixture
     [Test]
     public async Task Test2()
     {
-        var controller = ServiceProvider.GetRequiredService<VerificationMethodsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
         var file = "test content".ContentToFormFile("test_file.txt");
 
         var newVrfMethod = new AddVerificationMethodRequest("test desc", [new("test2_1")], "test_file.txt", file);
@@ -63,7 +65,8 @@ public class VerificationMethodsControllerTests : ControllersFixture
     [Test]
     public async Task Test3()
     {
-        var controller = ServiceProvider.GetRequiredService<VerificationMethodsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
         var fileName = "test_file.txt";
 
         var file1 = "test content".ContentToFormFile(fileName);
@@ -89,14 +92,15 @@ public class VerificationMethodsControllerTests : ControllersFixture
     [Test]
     public async Task Test4()
     {
-        var controller = ServiceProvider.GetRequiredService<VerificationMethodsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
         var fileName = "test_file.txt";
         var file = "test content".ContentToFormFile(fileName);
 
         var newVrfMethod = new AddVerificationMethodRequest("test desc", [new("\"«»test4_1")], fileName, file);
         var result1 = await controller.AddVerificationMethod(newVrfMethod);
 
-        var db = ServiceProvider.GetRequiredService<ProjDatabase>();
+        var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var alias = await db.Set<VerificationMethodAlias>().SingleOrDefaultAsync(x => x.Name == "TEST4_1");
 
         Assert.Multiple(() =>
@@ -109,7 +113,8 @@ public class VerificationMethodsControllerTests : ControllersFixture
     [Test]
     public async Task Test5()
     {
-        var controller = ServiceProvider.GetRequiredService<VerificationMethodsController>();
+        using var scope = ScopeFactory.CreateScope();
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
         var result = await controller.GetVerificationMethods(new());
         Assert.That(result.Data!.Items, Has.Count.EqualTo(4));
     }
