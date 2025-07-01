@@ -373,20 +373,20 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.PrimitiveCollection<string[]>("Checkups")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("checkups");
-
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<string>("Name")
+                    b.Property<byte[]>("FileContent")
+                        .IsRequired()
+                        .HasColumnType("bytea")
+                        .HasColumnName("file_content");
+
+                    b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("name");
+                        .HasColumnName("file_name");
 
                     b.HasKey("Id")
                         .HasName("pk_verification_methods");

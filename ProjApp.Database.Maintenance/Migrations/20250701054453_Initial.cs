@@ -104,9 +104,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    name = table.Column<string>(type: "text", nullable: false),
                     description = table.Column<string>(type: "text", nullable: false),
-                    checkups = table.Column<string[]>(type: "text[]", nullable: false)
+                    file_name = table.Column<string>(type: "text", nullable: false),
+                    file_content = table.Column<byte[]>(type: "bytea", nullable: false)
                 },
                 constraints: table =>
                 {
