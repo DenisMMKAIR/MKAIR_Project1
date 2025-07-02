@@ -23,6 +23,7 @@ public abstract class ControllersFixture
         services.AddTransient<InitialVerificationsController>();
         services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<VerificationMethodsController>();
+        services.AddTransient<ProtocolTemplateController>();
 
         services.AddSingleton<InitialVerificationBackgroundService>();
 

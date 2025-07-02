@@ -14,10 +14,12 @@ public class ProjDatabase : DbContext
     public DbSet<Etalon> Etalons => Set<Etalon>();
     public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
     public DbSet<InitialVerificationFailed> FailedInitialVerifications => Set<InitialVerificationFailed>();
-    public DbSet<Protocol> Protocols => Set<Protocol>();
+    public DbSet<ProtocolTemplate> Protocols => Set<ProtocolTemplate>();
     public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
 
     public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
+    public DbSet<CompleteVerificationSuccess> CompleteVerificationSuccesses => Set<CompleteVerificationSuccess>();
+    public DbSet<CompleteVerificationFail> CompleteVerificationFails => Set<CompleteVerificationFail>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -25,7 +27,7 @@ public class ProjDatabase : DbContext
             .Property(e => e.Date)
             .HasConversion(new YearMonthConverter());
 
-        modelBuilder.Entity<Protocol>()
+        modelBuilder.Entity<ProtocolTemplate>()
             .OwnsMany(p => p.Checkups);
     }
 }

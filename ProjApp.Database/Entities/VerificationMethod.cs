@@ -6,5 +6,5 @@ public class VerificationMethod : DatabaseEntity
     public required string Description { get; set; }
     public required string FileName { get; set; }
     public required byte[] FileContent { get; set; }
-    public IReadOnlyList<Protocol>? Protocols { get; set; }
+    public IReadOnlyList<ProtocolTemplate>? ProtocolTemplates { get; set; }
 }
