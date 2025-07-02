@@ -1,5 +1,5 @@
-using ProjApp.Database;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.Receiver.Verifications.PendingManometr;
 

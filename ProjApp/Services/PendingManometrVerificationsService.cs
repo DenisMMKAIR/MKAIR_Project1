@@ -3,6 +3,7 @@ using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Services.ServiceResults;
 

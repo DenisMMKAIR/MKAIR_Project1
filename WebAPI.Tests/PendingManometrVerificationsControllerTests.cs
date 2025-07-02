@@ -1,5 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
-using ProjApp.Database;
+using ProjApp.Database.EntitiesStatic;
 using WebAPI.Controllers;
 using WebAPI.Controllers.Requests;
 

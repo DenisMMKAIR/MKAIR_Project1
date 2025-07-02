@@ -1,7 +1,7 @@
 using Infrastructure.Receiver.Verifications.PendingManometr;
 using Microsoft.Extensions.Logging;
-using ProjApp.Database;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.InfrastructureInterfaces;
 
 namespace Infrastructure.Receiver.Services;

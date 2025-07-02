@@ -1,7 +1,7 @@
 using Microsoft.Extensions.Logging;
 using NPOI.SS.UserModel;
 using NPOI.XSSF.UserModel;
-using ProjApp.Database;
+using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.Receiver;
 

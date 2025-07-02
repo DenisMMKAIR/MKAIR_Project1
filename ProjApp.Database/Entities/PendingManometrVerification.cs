@@ -1,3 +1,5 @@
+using ProjApp.Database.EntitiesStatic;
+
 namespace ProjApp.Database.Entities;
 
 public class PendingManometrVerification : DatabaseEntity

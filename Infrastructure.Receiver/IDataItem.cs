@@ -1,4 +1,4 @@
-using ProjApp.Database;
+using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.Receiver;
 

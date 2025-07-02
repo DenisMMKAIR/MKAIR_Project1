@@ -1,4 +1,4 @@
-using ProjApp.Database;
+using ProjApp.Database.EntitiesStatic;
 
 namespace WebAPI.Controllers.Requests;
 
