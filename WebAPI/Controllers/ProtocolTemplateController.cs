@@ -33,4 +33,9 @@ public class ProtocolTemplateController : ApiControllerBase
         return await _protocolTemplesService.AddProtocolAsync(request.Adapt<ProtocolTemplate>(_mapper.Config));
     }
 
+    [HttpGet]
+    public async Task<ServicePaginatedResult<PossibleTemplateDTO>> GetPossibleTemplates([Required][FromQuery] GetPaginatedRequest request)
+    {
+        return await _protocolTemplesService.GetPossibleTemplatesAsync(request.PageIndex, request.PageSize);
+    }
 }
