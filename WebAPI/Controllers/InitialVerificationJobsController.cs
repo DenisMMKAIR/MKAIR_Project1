@@ -27,6 +27,4 @@ public class InitialVerificationJobsController : ApiControllerBase
     {
         return await _service.AddJob((request.Year, request.Month));
     }
-
-    public record AddJobRequest(int Year, int Month);
 }
