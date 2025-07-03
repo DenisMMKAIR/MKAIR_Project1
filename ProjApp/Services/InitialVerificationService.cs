@@ -1,4 +1,5 @@
-using Microsoft.EntityFrameworkCore;
+using Mapster;
+using MapsterMapper;
 using ProjApp.Database;
 using ProjApp.Mapping;
 using ProjApp.Services.ServiceResults;
@@ -8,19 +9,18 @@ namespace ProjApp.Services;
 public class InitialVerificationService
 {
     private readonly ProjDatabase _database;
+    private readonly IMapper _mapper;
 
-    public InitialVerificationService(ProjDatabase database)
+    public InitialVerificationService(ProjDatabase database, IMapper mapper)
     {
         _database = database;
+        _mapper = mapper;
     }
 
     public async Task<ServicePaginatedResult<InitialVerificationDto>> GetInitialVerifications(int page, int pageSize)
     {
         var result = await _database.InitialVerifications
-            .Include(iv => iv.Device)
-            .ThenInclude(d => d!.DeviceType)
-            .Include(iv => iv.Etalons)
-            .Map(iv => InitialVerificationDto.MapTo(iv))
+            .ProjectToType<InitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
         return ServicePaginatedResult<InitialVerificationDto>.Success(result);
     }
@@ -28,10 +28,7 @@ public class InitialVerificationService
     public async Task<ServicePaginatedResult<FailedInitialVerificationDto>> GetFailedInitialVerifications(int page, int pageSize)
     {
         var result = await _database.FailedInitialVerifications
-            .Include(iv => iv.Device)
-            .ThenInclude(d => d!.DeviceType)
-            .Include(iv => iv.Etalons)
-            .Map(iv => FailedInitialVerificationDto.MapTo(iv))
+            .ProjectToType<FailedInitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
         return ServicePaginatedResult<FailedInitialVerificationDto>.Success(result);
     }

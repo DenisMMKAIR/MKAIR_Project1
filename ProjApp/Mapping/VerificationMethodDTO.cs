@@ -1,19 +1,17 @@
+using Mapster;
 using ProjApp.Database.Entities;
 
 namespace ProjApp.Mapping;
 
-public record VerificationMethodDTO(
-    Guid Id,
-    IReadOnlyList<string> Aliases,
-    string Description,
-    string FileName)
+public record VerificationMethodDTO : IRegister
 {
-    public static VerificationMethodDTO MapTo(VerificationMethod vrf)
+    public required Guid Id { get; init; }
+    public required IReadOnlyList<string> Aliases { get; init; }
+    public required string Description { get; init; }
+    public required string FileName { get; init; }
+
+    public void Register(TypeAdapterConfig config)
     {
-        return new(
-            vrf.Id,
-            vrf.Aliases,
-            vrf.Description,
-            vrf.FileName);
+        config.NewConfig<VerificationMethod, VerificationMethodDTO>();
     }
 }

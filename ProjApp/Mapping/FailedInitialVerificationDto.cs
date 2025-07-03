@@ -1,8 +1,9 @@
+using Mapster;
 using ProjApp.Database.Entities;
 
 namespace ProjApp.Mapping;
 
-public class FailedInitialVerificationDto
+public class FailedInitialVerificationDto : IRegister
 {
     public required string DeviceTypeNumber { get; set; }
     public required string DeviceSerial { get; set; }
@@ -17,17 +18,10 @@ public class FailedInitialVerificationDto
     // Optional
     public string? AdditionalInfo { get; set; }
 
-    public static FailedInitialVerificationDto MapTo(InitialVerificationFailed initialVerification) => new()
+    public void Register(TypeAdapterConfig config)
     {
-        DeviceTypeNumber = initialVerification.DeviceTypeNumber,
-        DeviceSerial = initialVerification.DeviceSerial,
-        VerificationDate = initialVerification.VerificationDate,
-        DeviceTypeInfo = $"{initialVerification.Device!.DeviceType!.Title} {initialVerification.Device!.DeviceType!.Notation}",
-        VerificationTypeName = initialVerification.VerificationTypeName,
-        Owner = initialVerification.Owner,
-        AdditionalInfo = initialVerification.AdditionalInfo,
-        Etalons = [.. initialVerification.Etalons!.Select(e => e.Number)],
-        Id = initialVerification.Id,
-        FailedDocNumber = initialVerification.FailedDocNumber
-    };
+        config.NewConfig<InitialVerificationFailed, FailedInitialVerificationDto>()
+            .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
+            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
+    }
 }

@@ -16,8 +16,16 @@ public abstract class ControllersFixture
     public void OneTimeSetUp()
     {
         var services = new ServiceCollection();
-        services.RegisterProjectTestsDI();
 
+        var assemblies = new string?[]
+            {
+                typeof(ProjApp.Mapping.InitialVerificationDto).Assembly.FullName,
+                typeof(WebAPI.Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
+            }
+            .Select(name => name ?? throw new InvalidOperationException("No assembly name"))
+            .ToArray();
+
+        services.RegisterProjectTestsDI(assemblies);
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobsController>();
         services.AddTransient<InitialVerificationsController>();

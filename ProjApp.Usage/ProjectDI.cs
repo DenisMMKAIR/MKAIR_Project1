@@ -1,5 +1,8 @@
-﻿using Infrastructure.FGISAPI;
+﻿using System.Reflection;
+using Infrastructure.FGISAPI;
 using Infrastructure.Receiver.Services;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -15,7 +18,7 @@ namespace ProjApp.Usage;
 
 public static class ProjectDI
 {
-    public static void RegisterProjectDI(this IServiceCollection serviceCollection, string connectionString)
+    public static void RegisterProjectDI(this IServiceCollection serviceCollection, string connectionString, IReadOnlyList<string> assemblies)
     {
         serviceCollection.AddDbContext<ProjDatabase>(builder =>
             builder.UseNpgsql(connectionString)
@@ -38,6 +41,11 @@ public static class ProjectDI
         serviceCollection.AddScoped<InitialVerificationService>();
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
+
+        var config = TypeAdapterConfig.GlobalSettings;
+        config.Scan([.. assemblies.Select(Assembly.Load)]);
+        serviceCollection.AddSingleton(config);
+        serviceCollection.AddScoped<IMapper, ServiceMapper>();
 
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
@@ -62,7 +70,7 @@ public static class ProjectDI
         return configuration.GetConnectionString("test");
     }
 
-    public static void RegisterProjectTestsDI(this IServiceCollection serviceCollection)
+    public static void RegisterProjectTestsDI(this IServiceCollection serviceCollection, IReadOnlyList<string> assemblies)
     {
         var connectionString = serviceCollection.RegisterProjectBaseTestsDI();
 
@@ -71,6 +79,6 @@ public static class ProjectDI
             throw new Exception("Connection string is empty");
         }
 
-        serviceCollection.RegisterProjectDI(connectionString);
+        serviceCollection.RegisterProjectDI(connectionString, assemblies);
     }
 }

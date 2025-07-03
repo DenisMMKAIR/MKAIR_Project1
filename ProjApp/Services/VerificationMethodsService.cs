@@ -1,5 +1,7 @@
 using System.Collections.Immutable;
 using System.Text.RegularExpressions;
+using Mapster;
+using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
@@ -13,19 +15,21 @@ namespace ProjApp.Services;
 public partial class VerificationMethodsService
 {
     private readonly ProjDatabase _database;
+    private readonly IMapper _mapper;
     private readonly AddVerificationMethodCommand _addCommand;
     [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")] private static partial Regex _invalidFileChars();
 
-    public VerificationMethodsService(ProjDatabase database, AddVerificationMethodCommand addCommand)
+    public VerificationMethodsService(ProjDatabase database, IMapper mapper, AddVerificationMethodCommand addCommand)
     {
         _database = database;
+        _mapper = mapper;
         _addCommand = addCommand;
     }
 
     public async Task<ServicePaginatedResult<VerificationMethodDTO>> GetVerificationMethodsAsync(int pageNumber, int pageSize)
     {
         var result = await _database.VerificationMethods
-            .Map(vm => VerificationMethodDTO.MapTo(vm))
+            .ProjectToType<VerificationMethodDTO>(_mapper.Config)
             .ToPaginatedAsync(pageNumber, pageSize);
 
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
@@ -33,7 +37,7 @@ public partial class VerificationMethodsService
 
     public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
     {
-        var existsNames = _database.Set<VerificationMethod>()
+        var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
             .Order()
             .ToImmutableSortedSet();
@@ -41,23 +45,15 @@ public partial class VerificationMethodsService
         var stringNormalizer = new ComplexStringNormalizer();
         filterByName = filterByName != null ? stringNormalizer.Normalize(filterByName) : string.Empty;
 
-        var dtos1 = _database
+        var result = _database
             .InitialVerifications
-            .Include(v => v.Device)
-            .ThenInclude(d => d!.DeviceType)
-            .Map(v => PossibleVerificationMethodDTO.MapTo(v))
-            .AsEnumerable()
-            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _));
-
-        var dtos2 = _database
+            .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config)
+            .Union(_database
             .FailedInitialVerifications
-            .Include(v => v.Device)
-            .ThenInclude(d => d!.DeviceType)
-            .Map(v => PossibleVerificationMethodDTO.MapTo(v))
+            .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config))
             .AsEnumerable()
-            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _));
-
-        var result = dtos1.Concat(dtos2)
+            .Select(v => { v.Name = stringNormalizer.Normalize(v.Name); return v; }) // TODO: Check and clean. It must be done already
+            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _))
             .DistinctBy(v => (v.Name, v.DeviceTypeNumber))
             .OrderBy(v => v.Name)
             .ToPaginated(pageNumber, pageSize);

@@ -1,13 +1,19 @@
+using Mapster;
 using ProjApp.Database.Entities;
-using ProjApp.Normalizers;
 
 namespace ProjApp.Mapping;
 
-public record PossibleVerificationMethodDTO(string Name, string DeviceTypeNumber, string DeviceTypeTitle)
+public class PossibleVerificationMethodDTO
+    : IRegister
 {
-    private static readonly ComplexStringNormalizer _normalizer = new();
-    public static PossibleVerificationMethodDTO MapTo(IInitialVerification vrf)
+    public required string Name { get; set; }
+    public required string DeviceTypeTitle { get; init; }
+    public required string DeviceTypeNumber { get; init; }
+    
+    public void Register(TypeAdapterConfig config)
     {
-        return new(_normalizer.Normalize(vrf.VerificationTypeName), vrf.DeviceTypeNumber, vrf.Device!.DeviceType!.Title);
+        config.NewConfig<IInitialVerification, PossibleVerificationMethodDTO>()
+            .Map(dest => dest.Name, src => src.VerificationTypeName)
+            .Map(dest => dest.DeviceTypeTitle, src => src.Device!.DeviceType!.Title);
     }
 }

@@ -15,8 +15,18 @@ else
 
 builder.Configuration.AddUserSecrets<ProjApp.Settings.EmptySettings>(optional: false);
 var connectionString = builder.Configuration.GetConnectionString("default");
+
 if (string.IsNullOrEmpty(connectionString)) throw new Exception("No connection string found.");
 
+var assemblies = new string?[]
+    {
+        typeof(ProjApp.Mapping.InitialVerificationDto).Assembly.FullName,
+        typeof(WebAPI.Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
+    }
+    .Select(name => name ?? throw new InvalidOperationException("No assembly name"))
+    .ToArray();
+
+builder.Services.RegisterProjectDI(connectionString, assemblies);
 builder.Services.AddLogging(cfg =>
 {
     cfg.ClearProviders();
@@ -27,7 +37,7 @@ builder.Services.AddLogging(cfg =>
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg => cfg.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" }));
-builder.Services.RegisterProjectDI(connectionString);
+
 
 var app = builder.Build();
 
