@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjApp.Database;
@@ -11,9 +12,11 @@ using ProjApp.Database;
 namespace ProjApp.Database.Maintenance.Migrations
 {
     [DbContext(typeof(ProjDatabase))]
-    partial class ProjDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20250703110355_ChangeProtocolTable")]
+    partial class ChangeProtocolTable
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
