@@ -49,7 +49,7 @@ public partial class VerificationMethodsService
             .InitialVerifications
             .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config)
             .Union(_database
-            .FailedInitialVerifications
+            .InitialVerificationsFailed
             .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config))
             .AsEnumerable()
             .Select(v => { v.Name = stringNormalizer.Normalize(v.Name); return v; }) // TODO: Check and clean. It must be done already

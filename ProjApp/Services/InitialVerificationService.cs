@@ -27,7 +27,7 @@ public class InitialVerificationService
 
     public async Task<ServicePaginatedResult<FailedInitialVerificationDto>> GetFailedInitialVerifications(int page, int pageSize)
     {
-        var result = await _database.FailedInitialVerifications
+        var result = await _database.InitialVerificationsFailed
             .ProjectToType<FailedInitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
         return ServicePaginatedResult<FailedInitialVerificationDto>.Success(result);

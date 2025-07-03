@@ -31,12 +31,12 @@ public class InitialVerificationsControllerTests : ControllersFixture
         var eiv = await db.Etalons.SelectMany(e => e.InitialVerifications!).CountAsync();
         var eivf = await db.Etalons.SelectMany(e => e.InitialVerificationsFailed!).CountAsync();
         var etalons = await db.Etalons.CountAsync();
-        var fiv = await db.FailedInitialVerifications.CountAsync();
+        var fiv = await db.InitialVerificationsFailed.CountAsync();
         var iv = await db.InitialVerifications.CountAsync();
 
         var valid = db.Devices.Count(d => d.DeviceType == null) +
                     db.InitialVerifications.Count(i => i.Device == null) +
-                    db.FailedInitialVerifications.Count(f => f.Device == null) +
+                    db.InitialVerificationsFailed.Count(f => f.Device == null) +
                     db.InitialVerifications.Count(i => i.Etalons!.Count == 0);
 
         Assert.Multiple(() =>
