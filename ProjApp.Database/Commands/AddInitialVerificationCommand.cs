@@ -22,7 +22,7 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         _addEtalonCommand = addEtalonCommand;
     }
 
-    public override async Task<Result> ExecuteAsync(IReadOnlyList<T> items)
+    public override async Task<Result> ExecuteAsync(params IReadOnlyList<T> items)
     {
         var deviceTypeUniqComparer = new DeviceTypeUniqComparer();
         IReadOnlyList<DeviceType> uniqDeviceTypes = [.. items.Select(x => x.Device!.DeviceType!).Distinct(deviceTypeUniqComparer)];
