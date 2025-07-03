@@ -6,6 +6,8 @@ public class Etalon : DatabaseEntity
     public required DateOnly Date { get; set; }
     public required DateOnly ToDate { get; set; }
     public required string FullInfo { get; set; }
-    public IReadOnlyList<InitialVerification>? InitialVerifications { get; set; }
-    public IReadOnlyList<InitialVerificationFailed>? InitialVerificationsFailed { get; set; }
+
+    // Navigation properties
+    public ICollection<InitialVerification>? InitialVerifications { get; set; }
+    public ICollection<InitialVerificationFailed>? InitialVerificationsFailed { get; set; }
 }

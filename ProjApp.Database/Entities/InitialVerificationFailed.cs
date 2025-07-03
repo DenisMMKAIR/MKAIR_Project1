@@ -8,9 +8,11 @@ public class InitialVerificationFailed : DatabaseEntity, IInitialVerification
     public required string VerificationTypeName { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required string FailedDocNumber { get; set; }
-    public Device? Device { get; set; }
-    public IReadOnlyList<Etalon>? Etalons { get; set; }
 
     // Optional
     public string? AdditionalInfo { get; set; }
+
+    // Navigation properties
+    public Device? Device { get; set; }
+    public ICollection<Etalon>? Etalons { get; set; }
 }

@@ -312,7 +312,7 @@ public partial class FGISAPIClient
                 VerificationDate = v.VriInfo.VrfDate,
                 VerifiedUntilDate = v.VriInfo.ValidDate!.Value,
                 Device = device,
-                Etalons = etalons,
+                Etalons = [.. etalons],
             };
         }
 
@@ -327,7 +327,7 @@ public partial class FGISAPIClient
                 VerificationTypeName = v.VriInfo.DocTitle,
                 VerificationDate = v.VriInfo.VrfDate,
                 Device = device,
-                Etalons = etalons,
+                Etalons = [.. etalons],
                 FailedDocNumber = v.VriInfo.Inapplicable!.NoticeNum,
             };
         }
