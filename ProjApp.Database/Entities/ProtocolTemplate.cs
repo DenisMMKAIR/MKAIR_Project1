@@ -5,17 +5,13 @@ public class ProtocolTemplate : DatabaseEntity
 {
     public required string DeviceTypeNumber { get; set; }
     public required string Group { get; set; }
-    public required IReadOnlyList<ProtocolCheckup> Checkups { get; set; }
+    public required IDictionary<string, string> Checkups { get; set; }
     public required IDictionary<string, object> Values { get; set; }
-    public IReadOnlyList<VerificationMethod>? VerificationMethods { get; set; }
-    public IReadOnlyList<CompleteVerificationSuccess>? CompleteSuccessVerifications { get; set; }
-    public IReadOnlyList<CompleteVerificationFail>? CompleteFailVerifications { get; set; }
-}
 
-public class ProtocolCheckup : DatabaseEntity
-{
-    public required string Name { get; set; }
-    public required string Value { get; set; }
+    // Navigation properties
+    public ICollection<VerificationMethod>? VerificationMethods { get; set; }
+    public ICollection<CompleteVerificationSuccess>? CompleteSuccessVerifications { get; set; }
+    public ICollection<CompleteVerificationFail>? CompleteFailVerifications { get; set; }
 }
 
 public interface ICompleteVerification

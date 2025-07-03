@@ -1,34 +1,32 @@
+using Mapster;
 using ProjApp.Database.Entities;
 
 namespace ProjApp.Mapping;
 
-public record ProtocolTemplateDTO(
-    Guid Id,
-    string DeviceTypeNumber,
-    string Group,
-    IReadOnlyList<ProtocolCheckup> Checkups,
-    IDictionary<string, object> Values,
-    IReadOnlyList<ProtocolVerificationMethodDTO> VerificationMethods)
+public class ProtocolTemplateDTO : IRegister
 {
-    public static ProtocolTemplateDTO MapTo(ProtocolTemplate pt)
+    public required Guid Id { get; init; }
+    public required string DeviceTypeNumber { get; init; }
+    public required string Group { get; init; }
+    public required IDictionary<string, string> Checkups { get; init; }
+    public required IDictionary<string, object> Values { get; init; }
+    public required IReadOnlyList<ProtocolVerificationMethodDTO> VerificationMethods { get; init; }
+
+    public void Register(TypeAdapterConfig config)
     {
-        return new(
-            pt.Id,
-            pt.DeviceTypeNumber,
-            pt.Group,
-            pt.Checkups,
-            pt.Values,
-            [.. pt.VerificationMethods!.Select(ProtocolVerificationMethodDTO.MapTo)]);
+        config.NewConfig<ProtocolTemplate, ProtocolTemplateDTO>()
+            .Map(dest => dest.VerificationMethods,
+                 src => src.VerificationMethods.Adapt<IReadOnlyList<ProtocolVerificationMethodDTO>>());
     }
 }
 
-public record ProtocolVerificationMethodDTO(
-    Guid Id,
-    string Description
-)
+public record ProtocolVerificationMethodDTO : IRegister
 {
-    public static ProtocolVerificationMethodDTO MapTo(VerificationMethod vrf)
+    public required Guid Id { get; init; }
+    public required string Description { get; init; }
+
+    public void Register(TypeAdapterConfig config)
     {
-        throw new NotImplementedException();
+        config.NewConfig<VerificationMethod, ProtocolVerificationMethodDTO>();
     }
 }

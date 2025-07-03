@@ -1,7 +1,5 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProjApp.Database;
-using ProjApp.Database.Commands;
-using ProjApp.Database.Entities;
 using WebAPI.Controllers;
 using WebAPI.Controllers.Requests;
 
@@ -15,15 +13,29 @@ public class ProtocolTemplateControllerTests : ControllersFixture
         var scope = ScopeFactory.CreateScope();
         var controller = scope.ServiceProvider.GetRequiredService<ProtocolTemplateController>();
         var vmController = scope.ServiceProvider.GetRequiredService<VerificationMethodsController>();
-        var result = await vmController.AddVerificationMethod(new("Test1",["Test1"],));
-        var request = new AddProtocolTemplateRequest(
-            "deviceTypeNumber1",
-            "Манометр",
-            [new() { Name = "Checkup1", Value = "Checkup1Result", }, new() { Name = "Checkup2", Value = "Checkup2Result" }],
-            new Dictionary<string, object>() { { "ForwardValues", new double[] { 5, 6, 7 } }, { "BackwardValues", new double[] { 1, 2, 3 } } },
-            []);
-        var result = await controller.AddTemplate(request);
-        Assert.That(result.Message, Is.EqualTo("Протокол добавлен"));
+        var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
+
+        var fileName = "123.txt";
+        var file = "file content".ContentToFormFile(fileName);
+        var addVMResult = await vmController.AddVerificationMethod(new("Test1Desc", ["Test1"], fileName, file));
+        var aliases = db.VerificationMethods.First().Aliases;
+
+        var request = new AddProtocolTemplateRequest
+        {
+            DeviceTypeNumber = "deviceTypeNumber1",
+            Group = "Манометр",
+            Checkups = new Dictionary<string, string>() { { "Checkup1", "Checkup1Result" }, { "Checkup2", "Checkup2Result" } },
+            Values = new Dictionary<string, object>() { { "ForwardValues", new double[] { 5, 6, 7 } }, { "BackwardValues", new double[] { 1, 2, 3 } } },
+            VerificationMethodsAliases = [aliases]
+        };
+
+        var addTemplateResult = await controller.AddTemplate(request);
+
+        Assert.Multiple(() =>
+        {
+            Assert.That(addVMResult.Message, Is.EqualTo("Метод поверки добавлен"));
+            Assert.That(addTemplateResult.Message, Is.EqualTo("Протокол добавлен"));
+        });
     }
 
     [Test]

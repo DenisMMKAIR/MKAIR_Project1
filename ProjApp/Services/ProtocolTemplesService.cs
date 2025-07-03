@@ -1,3 +1,5 @@
+using Mapster;
+using MapsterMapper;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
@@ -9,18 +11,20 @@ namespace ProjApp.Services;
 public class ProtocolTemplesService
 {
     private readonly ProjDatabase _database;
+    private readonly IMapper _mapper;
     private readonly AddProtocolTemplateCommand _addCommand;
 
-    public ProtocolTemplesService(ProjDatabase database, AddProtocolTemplateCommand addCommand)
+    public ProtocolTemplesService(ProjDatabase database, IMapper mapper, AddProtocolTemplateCommand addCommand)
     {
         _database = database;
+        _mapper = mapper;
         _addCommand = addCommand;
     }
 
     public async Task<ServicePaginatedResult<ProtocolTemplateDTO>> GetProtocolsAsync(int pageNumber, int pageSize)
     {
-        var result = await _database.Protocols
-            .Map(pt => ProtocolTemplateDTO.MapTo(pt))
+        var result = await _database.ProtocolTemplates
+            .ProjectToType<ProtocolTemplateDTO>(_mapper.Config)
             .ToPaginatedAsync(pageNumber, pageSize);
 
         return ServicePaginatedResult<ProtocolTemplateDTO>.Success(result);

@@ -1,5 +1,8 @@
 using System.ComponentModel.DataAnnotations;
+using Mapster;
+using MapsterMapper;
 using Microsoft.AspNetCore.Mvc;
+using ProjApp.Database.Entities;
 using ProjApp.Mapping;
 using ProjApp.Services;
 using ProjApp.Services.ServiceResults;
@@ -10,10 +13,12 @@ namespace WebAPI.Controllers;
 public class ProtocolTemplateController : ApiControllerBase
 {
     private readonly ProtocolTemplesService _protocolTemplesService;
+    private readonly IMapper _mapper;
 
-    public ProtocolTemplateController(ProtocolTemplesService protocolTemplesService)
+    public ProtocolTemplateController(ProtocolTemplesService protocolTemplesService, IMapper mapper)
     {
         _protocolTemplesService = protocolTemplesService;
+        _mapper = mapper;
     }
 
     [HttpGet]
@@ -25,7 +30,7 @@ public class ProtocolTemplateController : ApiControllerBase
     [HttpPost]
     public async Task<ServiceResult> AddTemplate([Required][FromForm] AddProtocolTemplateRequest request)
     {
-        return await _protocolTemplesService.AddProtocolAsync(AddProtocolTemplateRequest.ToProtocolTemplate(request));
+        return await _protocolTemplesService.AddProtocolAsync(request.Adapt<ProtocolTemplate>(_mapper.Config));
     }
 
 }

@@ -1,24 +1,27 @@
+using Mapster;
 using ProjApp.Database.Entities;
 
 namespace WebAPI.Controllers.Requests;
 
-public record AddProtocolTemplateRequest(
-    string DeviceTypeNumber,
-    string Group,
-    IReadOnlyList<ProtocolCheckup> Checkups,
-    IDictionary<string, object> Values,
-    IReadOnlyList<VerificationMethod> VerificationMethods
-)
+public class AddProtocolTemplateRequest : IRegister
 {
-    public static ProtocolTemplate ToProtocolTemplate(AddProtocolTemplateRequest request)
+    public required string DeviceTypeNumber { get; init; }
+    public required string Group { get; init; }
+    public required IDictionary<string, string> Checkups { get; init; }
+    public required IDictionary<string, object> Values { get; init; }
+    public required IReadOnlyList<IReadOnlyList<string>> VerificationMethodsAliases { get; init; }
+
+    public void Register(TypeAdapterConfig config)
     {
-        return new ProtocolTemplate
-        {
-            DeviceTypeNumber = request.DeviceTypeNumber,
-            Group = request.Group,
-            Checkups = request.Checkups,
-            Values = request.Values,
-            VerificationMethods = request.VerificationMethods
-        };
+        config.NewConfig<AddProtocolTemplateRequest, ProtocolTemplate>()
+            .Map(dest => dest.VerificationMethods, src => src.VerificationMethodsAliases.Select(ToVerificationMethod));
     }
+
+    private static VerificationMethod ToVerificationMethod(IReadOnlyList<string> aliases) => new()
+    {
+        Aliases = aliases,
+        Description = "",
+        FileContent = [],
+        FileName = "",
+    };
 }
