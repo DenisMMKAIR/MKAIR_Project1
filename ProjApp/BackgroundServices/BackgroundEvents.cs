@@ -6,4 +6,5 @@ public enum BackgroundEvents
     GetDeviceTypeDone,
     NewInitialVerificationJob,
     DoneInitialVerificationJob,
+    NewProtocolTemplate,
 }

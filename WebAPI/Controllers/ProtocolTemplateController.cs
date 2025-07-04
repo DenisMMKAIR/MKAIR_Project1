@@ -28,14 +28,20 @@ public class ProtocolTemplateController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ServiceResult> AddTemplate([Required][FromForm] AddProtocolTemplateRequest request)
+    public async Task<ServiceResult> AddTemplate([Required][FromBody] AddProtocolTemplateRequest request)
     {
         return await _protocolTemplesService.AddProtocolAsync(request.Adapt<ProtocolTemplate>(_mapper.Config));
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<PossibleTemplateDTO>> GetPossibleTemplates([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<PossibleProtocolTemplateResultDTO>> GetPossibleTemplates([Required][FromQuery] GetPaginatedRequest request)
     {
         return await _protocolTemplesService.GetPossibleTemplatesAsync(request.PageIndex, request.PageSize);
+    }
+
+    [HttpDelete]
+    public async Task<ServiceResult> DeleteTemplate([Required][FromQuery] int id)
+    {
+        return await _protocolTemplesService.DeleteProtocolAsync(id);
     }
 }

@@ -6,7 +6,7 @@ namespace ProjApp.Mapping;
 public class ProtocolTemplateDTO : IRegister
 {
     public required Guid Id { get; init; }
-    public required string DeviceTypeNumber { get; init; }
+    public required IReadOnlyList<string> DeviceTypeNumbers { get; init; }
     public required string Group { get; init; }
     public required IDictionary<string, string> Checkups { get; init; }
     public required IDictionary<string, object> Values { get; init; }

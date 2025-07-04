@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace ProjApp.Normalizers;
+namespace ProjApp.Database.Normalizers;
 
 public partial class SpaceNormalizer : IStringNormalizer
 {

@@ -9,7 +9,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 {
     private readonly ProjDatabase _db;
     private readonly ILogger _logger;
-    private readonly IEqualityComparer<T> _comparer;
+    private readonly IEqualityComparer<T> _uniqComparer;
 
     public AddWithUniqConstraintCommand(ILogger logger,
                                         ProjDatabase db,
@@ -17,7 +17,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
     {
         _logger = logger;
         _db = db;
-        _comparer = uniqComparer;
+        _uniqComparer = uniqComparer;
     }
 
     public virtual async Task<Result> ExecuteAsync(params IReadOnlyList<T> items)
@@ -28,7 +28,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         // Cant get another approach. So we put equality check out of EFCore by UniqComparer
         var dbItems = _db.Set<T>()
             .AsEnumerable()
-            .Where(e => items.Contains(e, _comparer))
+            .Where(e => items.Contains(e, _uniqComparer))
             .ToList();
 
         var existingItems = new List<T>();
@@ -36,7 +36,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 
         foreach (var item in items)
         {
-            var existingItem = dbItems.FirstOrDefault(dbItem => _comparer.Equals(item, dbItem));
+            var existingItem = dbItems.FirstOrDefault(dbItem => _uniqComparer.Equals(item, dbItem));
             if (existingItem != null) existingItems.Add(existingItem);
             else newItems.Add(item);
         }

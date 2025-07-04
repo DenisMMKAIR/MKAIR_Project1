@@ -9,19 +9,19 @@ public class AddProtocolTemplateRequest : IRegister
     public required string Group { get; init; }
     public required IDictionary<string, string> Checkups { get; init; }
     public required IDictionary<string, object> Values { get; init; }
-    public required IReadOnlyList<IReadOnlyList<string>> VerificationMethodsAliases { get; init; }
+    public required IReadOnlyList<Guid> VerificationMethodsIds { get; init; }
 
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<AddProtocolTemplateRequest, ProtocolTemplate>()
-            .Map(dest => dest.VerificationMethods, src => src.VerificationMethodsAliases.Select(ToVerificationMethod));
+            .Map(dest => dest.VerificationMethods, src => src.VerificationMethodsIds.Select(ToVerificationMethod))
+            .Map(dest => dest.DeviceTypeNumbers, src => new string[] { src.DeviceTypeNumber });
     }
 
-    private static VerificationMethod ToVerificationMethod(IReadOnlyList<string> aliases) => new()
+    private static VerificationMethod ToVerificationMethod(Guid id) => new()
     {
-        Aliases = aliases,
+        Id = id,
+        Aliases = [],
         Description = "",
-        FileContent = [],
-        FileName = "",
     };
 }

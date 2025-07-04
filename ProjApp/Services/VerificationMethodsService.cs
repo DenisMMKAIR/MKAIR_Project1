@@ -6,8 +6,9 @@ using Microsoft.EntityFrameworkCore;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
+using ProjApp.Database.Normalizers;
+using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
-using ProjApp.Normalizers;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -35,37 +36,46 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
-    public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? filterByName = null)
+    public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
     {
         var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
-            .Order()
             .ToImmutableSortedSet();
 
         var stringNormalizer = new ComplexStringNormalizer();
-        filterByName = filterByName != null ? stringNormalizer.Normalize(filterByName) : string.Empty;
+        verificationNameFilter = verificationNameFilter != null ? stringNormalizer.Normalize(verificationNameFilter) : string.Empty;
+        deviceTypeInfoFilter = deviceTypeInfoFilter != null ? stringNormalizer.Normalize(deviceTypeInfoFilter) : string.Empty;
 
-        var result = _database
+        var query = _database
             .InitialVerifications
-            .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config)
+            .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
             .Union(_database
             .InitialVerificationsFailed
-            .ProjectToType<PossibleVerificationMethodDTO>(_mapper.Config))
+            .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
             .AsEnumerable()
-            .Select(v => { v.Name = stringNormalizer.Normalize(v.Name); return v; }) // TODO: Check and clean. It must be done already
-            .Where(v => v.Name.Contains(filterByName) && !existsNames.TryGetValue(v.Name, out _))
-            .DistinctBy(v => (v.Name, v.DeviceTypeNumber))
-            .OrderBy(v => v.Name)
+            .GroupBy(dto => dto.DeviceTypeNumber)
+            .Select(g => g.Adapt<PossibleVerificationMethodDTO>(_mapper.Config));
+        // .Where(dto => dto.VerificationTypeNames.Count > 1)
+
+        if (yearMonthFilter != null)
+        {
+            query = query.Where(dto => dto.Dates.Any(d => d == yearMonthFilter));
+        }
+
+        var result = query
+            .Where(dto => stringNormalizer.Normalize(dto.DeviceTypeInfo).Contains(deviceTypeInfoFilter))
+            .Where(dto => dto.VerificationTypeNames.Any(name => name.Contains(verificationNameFilter)))
+            .Where(dto => dto.VerificationTypeNames.All(vn => !existsNames.TryGetValue(vn, out _)))
             .ToPaginated(pageNumber, pageSize);
 
         return Task.FromResult(ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result));
     }
 
-    public async Task<ServiceItemResult<FileDTO>> DownloadFileAsync(Guid verificationMethodId)
+    public async Task<ServiceItemResult<VerificationMethodFile>> DownloadFileAsync(Guid fileId)
     {
-        var vm = await _database.VerificationMethods.FirstOrDefaultAsync(v => v.Id == verificationMethodId);
-        if (vm == null) return ServiceItemResult<FileDTO>.Fail("Метод поверки не найден");
-        return ServiceItemResult<FileDTO>.Success(new(vm.FileName, vm.FileContent));
+        var file = await _database.VerificationMethodFiles.FirstOrDefaultAsync(f => f.Id == fileId);
+        if (file == null) return ServiceItemResult<VerificationMethodFile>.Fail("Файл не найден");
+        return ServiceItemResult<VerificationMethodFile>.Success(file);
     }
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
@@ -92,21 +102,25 @@ public partial class VerificationMethodsService
         }
 
         verificationMethod.Description = stringNormalizer.Normalize(verificationMethod.Description);
-        var sanitazedFileName = SanitizeFileName(verificationMethod.FileName);
 
-        if (verificationMethod.FileName.Length < 3)
-        {
-            return ServiceResult.Fail("Некорректное имя файла");
-        }
-
-        if (verificationMethod.FileContent == null || verificationMethod.FileContent.Length < 3)
+        if (verificationMethod.VerificationMethodFiles == null || verificationMethod.VerificationMethodFiles.Any(fc => fc.Content.Length < 10))
         {
             return ServiceResult.Fail("Файл пустой или некорректный");
         }
 
-        if (verificationMethod.FileContent.Length > 10 * 1024 * 1024)
+        if (verificationMethod.VerificationMethodFiles.Any(fc => fc.Content.Length > 10 * 1024 * 1024))
         {
             return ServiceResult.Fail("Не удалось добавить файл. Лимит 10МБ");
+        }
+
+        foreach (var file in verificationMethod.VerificationMethodFiles!)
+        {
+            file.FileName = SanitizeFileName(file.FileName);
+
+            if (file.FileName.Length < 5)
+            {
+                return ServiceResult.Fail("Некорректное имя файла");
+            }
         }
 
         var result = await _addCommand.ExecuteAsync(verificationMethod);

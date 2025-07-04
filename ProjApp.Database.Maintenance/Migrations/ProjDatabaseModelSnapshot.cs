@@ -60,46 +60,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.ToTable("etalon_initial_verification_failed", (string)null);
                 });
 
-            modelBuilder.Entity("ProjApp.Database.Entities.CompleteVerificationFail", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid?>("ProtocolTemplateId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("protocol_template_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_complete_verification_fails");
-
-                    b.HasIndex("ProtocolTemplateId")
-                        .HasDatabaseName("ix_complete_verification_fails_protocol_template_id");
-
-                    b.ToTable("complete_verification_fails", (string)null);
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.CompleteVerificationSuccess", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<Guid?>("ProtocolTemplateId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("protocol_template_id");
-
-                    b.HasKey("Id")
-                        .HasName("pk_complete_verification_successes");
-
-                    b.HasIndex("ProtocolTemplateId")
-                        .HasDatabaseName("ix_complete_verification_successes_protocol_template_id");
-
-                    b.ToTable("complete_verification_successes", (string)null);
-                });
-
             modelBuilder.Entity("ProjApp.Database.Entities.Device", b =>
                 {
                     b.Property<Guid>("Id")
@@ -119,6 +79,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<long>("ManufacturedYear")
                         .HasColumnType("bigint")
                         .HasColumnName("manufactured_year");
+
+                    b.Property<string>("Modification")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("modification");
 
                     b.Property<string>("Serial")
                         .IsRequired()
@@ -223,26 +188,33 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
+                    b.Property<Guid?>("ProtocolTemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("protocol_template_id");
+
                     b.Property<DateOnly>("VerificationDate")
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.Property<string>("VerificationTypeName")
+                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_type_name");
+                        .HasColumnType("text[]")
+                        .HasColumnName("verification_type_names");
 
                     b.Property<DateOnly>("VerifiedUntilDate")
                         .HasColumnType("date")
                         .HasColumnName("verified_until_date");
 
                     b.HasKey("Id")
-                        .HasName("pk_initial_verifications");
+                        .HasName("pk_initial_verification");
 
                     b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_initial_verifications_device_id");
+                        .HasDatabaseName("ix_initial_verification_device_id");
 
-                    b.ToTable("initial_verifications", (string)null);
+                    b.HasIndex("ProtocolTemplateId")
+                        .HasDatabaseName("ix_initial_verification_protocol_template_id");
+
+                    b.ToTable("initial_verification", (string)null);
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.InitialVerificationFailed", b =>
@@ -280,22 +252,29 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
+                    b.Property<Guid?>("ProtocolTemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("protocol_template_id");
+
                     b.Property<DateOnly>("VerificationDate")
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.Property<string>("VerificationTypeName")
+                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_type_name");
+                        .HasColumnType("text[]")
+                        .HasColumnName("verification_type_names");
 
                     b.HasKey("Id")
-                        .HasName("pk_failed_initial_verifications");
+                        .HasName("pk_initial_verification_failed");
 
                     b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_failed_initial_verifications_device_id");
+                        .HasDatabaseName("ix_initial_verification_failed_device_id");
 
-                    b.ToTable("failed_initial_verifications", (string)null);
+                    b.HasIndex("ProtocolTemplateId")
+                        .HasDatabaseName("ix_initial_verification_failed_protocol_template_id");
+
+                    b.ToTable("initial_verification_failed", (string)null);
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.InitialVerificationJob", b =>
@@ -395,10 +374,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("checkups");
 
-                    b.Property<string>("DeviceTypeNumber")
+                    b.PrimitiveCollection<string[]>("DeviceTypeNumbers")
                         .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_type_number");
+                        .HasColumnType("text[]")
+                        .HasColumnName("device_type_numbers");
 
                     b.Property<string>("Group")
                         .IsRequired()
@@ -433,20 +412,45 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("description");
 
-                    b.Property<byte[]>("FileContent")
+                    b.HasKey("Id")
+                        .HasName("pk_verification_methods");
+
+                    b.ToTable("verification_methods", (string)null);
+                });
+
+            modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethodFile", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<byte[]>("Content")
                         .IsRequired()
                         .HasColumnType("bytea")
-                        .HasColumnName("file_content");
+                        .HasColumnName("content");
 
                     b.Property<string>("FileName")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("file_name");
 
-                    b.HasKey("Id")
-                        .HasName("pk_verification_methods");
+                    b.Property<string>("Mimetype")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("mimetype");
 
-                    b.ToTable("verification_methods", (string)null);
+                    b.Property<Guid?>("VerificationMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verification_method_id");
+
+                    b.HasKey("Id")
+                        .HasName("pk_verification_method_files");
+
+                    b.HasIndex("VerificationMethodId")
+                        .HasDatabaseName("ix_verification_method_files_verification_method_id");
+
+                    b.ToTable("verification_method_files", (string)null);
                 });
 
             modelBuilder.Entity("ProtocolTemplateVerificationMethod", b =>
@@ -482,7 +486,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasForeignKey("InitialVerificationsId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_etalon_initial_verification_initial_verifications_initial_v");
+                        .HasConstraintName("fk_etalon_initial_verification_initial_verification_initial_ve");
                 });
 
             modelBuilder.Entity("EtalonInitialVerificationFailed", b =>
@@ -499,23 +503,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasForeignKey("InitialVerificationsFailedId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
-                        .HasConstraintName("fk_etalon_initial_verification_failed_failed_initial_verificat");
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.CompleteVerificationFail", b =>
-                {
-                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
-                        .WithMany("CompleteFailVerifications")
-                        .HasForeignKey("ProtocolTemplateId")
-                        .HasConstraintName("fk_complete_verification_fails_protocol_templates_protocol_tem");
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.CompleteVerificationSuccess", b =>
-                {
-                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
-                        .WithMany("CompleteSuccessVerifications")
-                        .HasForeignKey("ProtocolTemplateId")
-                        .HasConstraintName("fk_complete_verification_successes_protocol_templates_protocol");
+                        .HasConstraintName("fk_etalon_initial_verification_failed_initial_verification_fai");
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.Device", b =>
@@ -533,7 +521,12 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.HasOne("ProjApp.Database.Entities.Device", "Device")
                         .WithMany()
                         .HasForeignKey("DeviceId")
-                        .HasConstraintName("fk_initial_verifications_devices_device_id");
+                        .HasConstraintName("fk_initial_verification_devices_device_id");
+
+                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
+                        .WithMany("CompleteSuccessVerifications")
+                        .HasForeignKey("ProtocolTemplateId")
+                        .HasConstraintName("fk_initial_verification_protocol_templates_protocol_template_id");
 
                     b.Navigation("Device");
                 });
@@ -543,9 +536,23 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.HasOne("ProjApp.Database.Entities.Device", "Device")
                         .WithMany()
                         .HasForeignKey("DeviceId")
-                        .HasConstraintName("fk_failed_initial_verifications_devices_device_id");
+                        .HasConstraintName("fk_initial_verification_failed_devices_device_id");
+
+                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
+                        .WithMany("CompleteFailVerifications")
+                        .HasForeignKey("ProtocolTemplateId")
+                        .HasConstraintName("fk_initial_verification_failed_protocol_templates_protocol_tem");
 
                     b.Navigation("Device");
+                });
+
+            modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethodFile", b =>
+                {
+                    b.HasOne("ProjApp.Database.Entities.VerificationMethod", null)
+                        .WithMany("VerificationMethodFiles")
+                        .HasForeignKey("VerificationMethodId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .HasConstraintName("fk_verification_method_files_verification_methods_verification");
                 });
 
             modelBuilder.Entity("ProtocolTemplateVerificationMethod", b =>
@@ -570,6 +577,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Navigation("CompleteFailVerifications");
 
                     b.Navigation("CompleteSuccessVerifications");
+                });
+
+            modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethod", b =>
+                {
+                    b.Navigation("VerificationMethodFiles");
                 });
 #pragma warning restore 612, 618
         }

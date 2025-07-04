@@ -1,6 +1,7 @@
 using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
+using ProjApp.Database.Normalizers;
 
 namespace ProjApp.Database.Commands;
 
@@ -41,8 +42,11 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         IReadOnlyList<Etalon> uniqEtalons = [.. items.SelectMany(x => x.Etalons!).Distinct(etalonsUniqComparer)];
         var savedEtalons = await _addEtalonCommand.ExecuteAsync(uniqEtalons);
 
+        var nameNormalizer = new ComplexStringNormalizer();
+
         foreach (var item in items)
         {
+            item.VerificationTypeNames = [.. item.VerificationTypeNames.Select(nameNormalizer.Normalize)];
             item.Device = savedDevices.Items!.Single(d => deviceUniqComparer.Equals(item.Device!, d));
             item.Etalons = [.. item.Etalons!.Select(e => savedEtalons.Items!.Single(e2 => etalonsUniqComparer.Equals(e, e2)))];
         }

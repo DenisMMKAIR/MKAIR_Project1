@@ -1,6 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
 using ProjApp.Database.Entities;
+using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
 using ProjApp.Services;
 using ProjApp.Services.ServiceResults;
@@ -24,17 +25,24 @@ public class VerificationMethodsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, string? search)
+    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
     {
-        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, search);
+        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, query.VerificationNameFilter, query.DeviceTypeInfoFilter, YearMonth.Parse(query.YearMonthFilter));
+    }
+
+    public class PossibleVerificationMethodRequest
+    {
+        public string? VerificationNameFilter { get; init; }
+        public string? DeviceTypeInfoFilter { get; init; }
+        public string? YearMonthFilter { get; init; }
     }
 
     [HttpGet]
-    public async Task<IActionResult> DownloadFile([Required][FromQuery] Guid id)
+    public async Task<IActionResult> DownloadFile([Required][FromQuery] Guid fileId)
     {
-        var fileDTO = await _service.DownloadFileAsync(id);
-        if (fileDTO.Error != null) return BadRequest(fileDTO.Error);
-        return File(fileDTO.Item!.FileContent, fileDTO.Item.Mimetype, fileDTO.Item.FileName);
+        var fileResult = await _service.DownloadFileAsync(fileId);
+        if (fileResult.Error != null) return BadRequest(fileResult.Error);
+        return File(fileResult.Item!.Content, fileResult.Item.Mimetype, fileResult.Item.FileName);
     }
 
     [HttpPost]
@@ -50,9 +58,19 @@ public class VerificationMethodsController : ApiControllerBase
         {
             Aliases = request.Aliases,
             Description = request.Description,
-            FileName = request.FileName,
-            FileContent = fileContent
+            VerificationMethodFiles = [new() { FileName = request.FileName, Mimetype = SetMimetype(request.FileName), Content = fileContent }]
         };
         return await _service.AddVerificationMethodAsync(newVerMethod);
+    }
+
+    private static readonly Dictionary<string, string> _mimetypes = new(){
+        { ".pdf", "application/pdf" }
+    };
+    private static string SetMimetype(string fileName)
+    {
+        var fileExt = Path.GetExtension(fileName);
+        return _mimetypes.TryGetValue(fileExt, out var mimeType)
+            ? mimeType
+            : "application/octet-stream";
     }
 }

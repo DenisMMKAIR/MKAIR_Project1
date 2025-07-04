@@ -16,12 +16,13 @@ public class ProjDatabase : DbContext
     public DbSet<Etalon> Etalons => Set<Etalon>();
     public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
     public DbSet<InitialVerificationFailed> InitialVerificationsFailed => Set<InitialVerificationFailed>();
+    public DbSet<InitialVerification> CompleteVerifications => Set<InitialVerification>();
+    public DbSet<InitialVerificationFailed> CompleteVerificationsFails => Set<InitialVerificationFailed>();
     public DbSet<ProtocolTemplate> ProtocolTemplates => Set<ProtocolTemplate>();
     public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
+    public DbSet<VerificationMethodFile> VerificationMethodFiles => Set<VerificationMethodFile>();
 
     public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
-    public DbSet<CompleteVerificationSuccess> CompleteVerificationSuccesses => Set<CompleteVerificationSuccess>();
-    public DbSet<CompleteVerificationFail> CompleteVerificationFails => Set<CompleteVerificationFail>();
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new();
     protected override void OnModelCreating(ModelBuilder modelBuilder)
@@ -29,6 +30,11 @@ public class ProjDatabase : DbContext
         modelBuilder.Entity<InitialVerificationJob>()
             .Property(e => e.Date)
             .HasConversion(new YearMonthConverter());
+
+        modelBuilder.Entity<VerificationMethod>()
+            .HasMany(e => e.VerificationMethodFiles)
+            .WithOne()
+            .OnDelete(DeleteBehavior.Cascade);
 
         modelBuilder.Entity<ProtocolTemplate>()
         .Property(e => e.Checkups)

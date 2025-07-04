@@ -10,7 +10,7 @@ public class InitialVerificationDto : IRegister
     public required DateOnly VerificationDate { get; set; }
     public required string DeviceTypeInfo { get; set; }
     public required DateOnly VerifiedUntilDate { get; set; }
-    public required string VerificationTypeName { get; set; }
+    public required IReadOnlyList<string> VerificationTypeNames { get; set; }
     public required string Owner { get; set; }
     public required IReadOnlyList<string> Etalons { get; set; }
     public required Guid Id { get; set; }
