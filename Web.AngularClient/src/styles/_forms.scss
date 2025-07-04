@@ -1,0 +1,14 @@
+input[type="number"] {
+  padding: var(--spacing-xs);
+  background: var(--bg-white);
+  color: var(--text-primary);
+  font-size: var(--text-normal);
+  border: 1px solid var(--border-medium);
+  border-radius: var(--border-radius-sm);
+}
+
+input[type="number"]:focus {
+  border-color: var(--primary-color);
+  box-shadow: 0 0 0 2px var(--primary-light);
+  outline: none;
+}

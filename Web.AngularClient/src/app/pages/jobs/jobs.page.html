@@ -1,0 +1,122 @@
+<div *ngIf="loading" class="loading-message">Загрузка заданий...</div>
+<div *ngIf="error" class="error-message">{{ error }}</div>
+<div *ngIf="deleteError" class="error-message">{{ deleteError }}</div>
+
+<div *ngIf="!loading && !error" class="table-container">
+  <!-- Page size selector -->
+  <div class="pagination-controls">
+    <div class="selector-form">
+      <label for="pageSize">Записей на странице:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pagination.pageSize"
+        (change)="pagination.onPageSizeChange()"
+      >
+        <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+
+    <form (ngSubmit)="addJob()" #jobForm="ngForm">
+      <label>
+        Год:
+        <input
+          type="number"
+          [(ngModel)]="newYear"
+          name="year"
+          required
+          min="2000"
+          max="2100"
+        />
+      </label>
+      <label>
+        Месяц:
+        <input
+          type="number"
+          [(ngModel)]="newMonth"
+          name="month"
+          required
+          min="1"
+          max="12"
+        />
+      </label>
+      <button [disabled]="addLoading || !jobForm.form.valid">
+        Добавить задание
+      </button>
+      <button (click)="loadJobs()" [disabled]="loading">Обновить</button>
+      <span *ngIf="addLoading" class="loading-message">Добавление...</span>
+      <span *ngIf="addError" class="error-message">{{ addError }}</span>
+    </form>
+
+    <div class="pagination-info">
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
+      + 1 }} из {{ pagination.totalCount }} записей
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Дата</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let job of jobs">
+        <td>{{ job.id }}</td>
+        <td>{{ job.date?.year }}.{{ job.date?.month }}</td>
+        <td><button (click)="deleteJob(job.id)">Удалить</button></td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination navigation -->
+  <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.canActivateFirst"
+      (click)="pagination.goToFirstPage()"
+      title="Первая страница"
+    >
+      «
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.hasPreviousPage"
+      (click)="pagination.goToPreviousPage()"
+      title="Предыдущая страница"
+    >
+      ‹
+    </button>
+
+    <button
+      *ngFor="let page of pagination.getPageNumbers()"
+      class="pagination-btn page-number"
+      [class.active]="page === pagination.currentPage"
+      (click)="pagination.goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.hasNextPage"
+      (click)="pagination.goToNextPage()"
+      title="Следующая страница"
+    >
+      ›
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.canActivateLast"
+      (click)="pagination.goToLastPage()"
+      title="Последняя страница"
+    >
+      »
+    </button>
+  </div>
+</div>

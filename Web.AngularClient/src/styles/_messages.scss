@@ -1,0 +1,17 @@
+.loading-message,
+.error-message {
+  padding: var(--spacing-sm);
+  text-align: center;
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+}
+
+.error-message {
+  background-color: var(--error-color);
+  color: var(--text-white);
+}
+
+.loading-message {
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}

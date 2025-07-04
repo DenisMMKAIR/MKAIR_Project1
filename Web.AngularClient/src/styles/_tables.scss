@@ -1,0 +1,20 @@
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-xl);
+  background: var(--bg-white);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px var(--shadow-light);
+  overflow: hidden;
+}
+
+th,
+td {
+  border: 1px solid var(--border-light);
+  padding: var(--spacing-sm);
+}
+
+th {
+  background: var(--bg-light);
+  font-weight: 600;
+}

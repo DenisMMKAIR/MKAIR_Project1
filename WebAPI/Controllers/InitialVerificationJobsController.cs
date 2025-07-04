@@ -27,4 +27,10 @@ public class InitialVerificationJobsController : ApiControllerBase
     {
         return await _service.AddJob((request.Year, request.Month));
     }
+
+    [HttpDelete]
+    public async Task<ServiceResult> DeleteJob([Required][FromQuery] Guid id)
+    {
+        return await _service.DeleteJob(id);
+    }
 }

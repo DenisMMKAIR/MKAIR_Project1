@@ -1,0 +1,25 @@
+<div class="app-layout">
+  <nav>
+    <ul class="main-menu-list">
+      <li><a routerLink="/jobs" routerLinkActive="active-link">Задачи загрузки</a></li>
+      <li>
+        <a routerLink="/verifications" routerLinkActive="active-link"
+          >Незаполненные поверки</a
+        >
+      </li>
+      <li>
+        <a routerLink="/verification-methods" routerLinkActive="active-link"
+          >Методы поверки</a
+        >
+      </li>
+      <li>
+        <a routerLink="/protocol-templates" routerLinkActive="active-link"
+          >Шаблоны протоколов</a
+        >
+      </li>
+    </ul>
+  </nav>
+  <main>
+    <router-outlet></router-outlet>
+  </main>
+</div>

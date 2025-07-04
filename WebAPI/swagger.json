@@ -1,0 +1,1440 @@
+{
+  "x-generator": "NSwag v14.4.0.0 (NJsonSchema v11.3.2.0 (Newtonsoft.Json v13.0.0.0))",
+  "openapi": "3.0.0",
+  "info": {
+    "title": "My Title",
+    "version": "1.0.0"
+  },
+  "paths": {
+    "/api/DeviceType/GetDevicesPaginated": {
+      "get": {
+        "tags": [
+          "DeviceType"
+        ],
+        "operationId": "DeviceType_GetDevicesPaginated",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfDeviceType"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/DeviceType/AddDeviceType": {
+      "post": {
+        "tags": [
+          "DeviceType"
+        ],
+        "operationId": "DeviceType_AddDeviceType",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "Number": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Name": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Notation": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InitialVerificationJobs/GetJobs": {
+      "get": {
+        "tags": [
+          "InitialVerificationJobs"
+        ],
+        "operationId": "InitialVerificationJobs_GetJobs",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfInitialVerificationJob"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InitialVerificationJobs/AddJob": {
+      "post": {
+        "tags": [
+          "InitialVerificationJobs"
+        ],
+        "operationId": "InitialVerificationJobs_AddJob",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "Year": {
+                    "type": "integer",
+                    "format": "int32"
+                  },
+                  "Month": {
+                    "type": "integer",
+                    "format": "int32"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InitialVerificationJobs/DeleteJob": {
+      "delete": {
+        "tags": [
+          "InitialVerificationJobs"
+        ],
+        "operationId": "InitialVerificationJobs_DeleteJob",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InitialVerifications/GetVerifications": {
+      "get": {
+        "tags": [
+          "InitialVerifications"
+        ],
+        "operationId": "InitialVerifications_GetVerifications",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "VerificationYearMonth",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfInitialVerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PendingManometrVerifications/AcceptExcelVerifications": {
+      "post": {
+        "tags": [
+          "PendingManometrVerifications"
+        ],
+        "operationId": "PendingManometrVerifications_AcceptExcelVerifications",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "SheetName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "DataRange": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "DeviceLocation": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/PendingManometrVerifications/GetPandingVerificationsPaginated": {
+      "get": {
+        "tags": [
+          "PendingManometrVerifications"
+        ],
+        "operationId": "PendingManometrVerifications_GetPandingVerificationsPaginated",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPendingManometrVerification"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/GetTemplates": {
+      "get": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_GetTemplates",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfProtocolTemplateDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/AddTemplate": {
+      "post": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_AddTemplate",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddProtocolTemplateRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/GetPossibleTemplates": {
+      "get": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_GetPossibleTemplates",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleProtocolTemplateResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/DeleteTemplate": {
+      "delete": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_DeleteTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/GetVerificationMethods": {
+      "get": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_GetVerificationMethods",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfVerificationMethodDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/GetPossibleVerificationMethods": {
+      "get": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_GetPossibleVerificationMethods",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "VerificationNameFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "DeviceTypeInfoFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "YearMonthFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleVerificationMethodDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/DownloadFile": {
+      "get": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_DownloadFile",
+        "parameters": [
+          {
+            "name": "fileId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/octet-stream": {
+                "schema": {
+                  "type": "string",
+                  "format": "binary"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/AddVerificationMethod": {
+      "post": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_AddVerificationMethod",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Aliases": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "FileName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "ServicePaginatedResultOfDeviceType": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfDeviceType"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfDeviceType": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/DeviceType"
+            }
+          }
+        }
+      },
+      "DeviceType": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number": {
+                "type": "string"
+              },
+              "title": {
+                "type": "string"
+              },
+              "notation": {
+                "type": "string"
+              }
+            }
+          }
+        ]
+      },
+      "DatabaseEntity": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          }
+        }
+      },
+      "ServiceResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ServicePaginatedResultOfInitialVerificationJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfInitialVerificationJob"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfInitialVerificationJob": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InitialVerificationJob"
+            }
+          }
+        }
+      },
+      "InitialVerificationJob": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "date": {
+                "$ref": "#/components/schemas/YearMonth"
+              }
+            }
+          }
+        ]
+      },
+      "YearMonth": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "year": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "month": {
+            "type": "integer",
+            "format": "int32"
+          }
+        }
+      },
+      "ServicePaginatedResultOfInitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfInitialVerificationDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfInitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/InitialVerificationDto"
+            }
+          }
+        }
+      },
+      "InitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceSerial": {
+            "type": "string"
+          },
+          "verificationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "deviceTypeInfo": {
+            "type": "string"
+          },
+          "verifiedUntilDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "verificationTypeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "owner": {
+            "type": "string"
+          },
+          "etalons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "additionalInfo": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
+      "ServicePaginatedResultOfPendingManometrVerification": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfPendingManometrVerification"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfPendingManometrVerification": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PendingManometrVerification"
+            }
+          }
+        }
+      },
+      "PendingManometrVerification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "verificationMethods": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "etalonsNumbers": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "ownerName": {
+                "type": "string"
+              },
+              "workerName": {
+                "type": "string"
+              },
+              "temperature": {
+                "type": "number",
+                "format": "double"
+              },
+              "pressure": {
+                "type": "string"
+              },
+              "hummidity": {
+                "type": "number",
+                "format": "double"
+              },
+              "accuracy": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "location": {
+                "$ref": "#/components/schemas/DeviceLocation"
+              }
+            }
+          }
+        ]
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ]
+      },
+      "ServicePaginatedResultOfProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfProtocolTemplateDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtocolTemplateDTO"
+            }
+          }
+        }
+      },
+      "ProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "deviceTypeNumbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "group": {
+            "type": "string"
+          },
+          "checkups": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "verificationMethods": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtocolVerificationMethodDTO"
+            }
+          }
+        }
+      },
+      "ProtocolVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "description": {
+            "type": "string"
+          }
+        }
+      },
+      "AddProtocolTemplateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "group": {
+            "type": "string"
+          },
+          "checkups": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "verificationMethodsIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "ServicePaginatedResultOfPossibleProtocolTemplateResultDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfPossibleProtocolTemplateResultDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfPossibleProtocolTemplateResultDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PossibleProtocolTemplateResultDTO"
+            }
+          }
+        }
+      },
+      "PossibleProtocolTemplateResultDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "verificationTypeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "deviceTypeInfo": {
+            "type": "string"
+          },
+          "verificationMethodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "ServicePaginatedResultOfVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfVerificationMethodDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/VerificationMethodDTO"
+            }
+          }
+        }
+      },
+      "VerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "description": {
+            "type": "string"
+          },
+          "fileName": {
+            "type": "string"
+          }
+        }
+      },
+      "ServicePaginatedResultOfPossibleVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfPossibleVerificationMethodDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfPossibleVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PossibleVerificationMethodDTO"
+            }
+          }
+        }
+      },
+      "PossibleVerificationMethodDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceTypeInfo": {
+            "type": "string"
+          },
+          "deviceModifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verificationTypeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "dates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/YearMonth"
+            }
+          }
+        }
+      }
+    }
+  }
+}

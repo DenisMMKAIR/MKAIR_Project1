@@ -1,0 +1,118 @@
+<div *ngIf="loading" class="loading-message">Загрузка поверок...</div>
+<div *ngIf="error" class="error-message">{{ error }}</div>
+
+<div *ngIf="!loading && !error" class="table-container">
+  <!-- Page size selector -->
+  <div class="pagination-controls">
+    <div class="selector-form">
+      <label for="pageSize">Записей на странице:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pagination.pageSize"
+        (change)="pagination.onPageSizeChange()"
+      >
+        <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+
+    <div class="selector-form">
+      <label for="yearMonthFilter">Фильтр по году/месяцу:</label>
+      <select
+        id="yearMonthFilter"
+        [(ngModel)]="yearMonthFilter"
+        (change)="onYearMonthFilterChange()"
+      >
+        <option
+          *ngFor="let option of yearMonthOptions"
+          [value]="option === 'Все' ? 'all' : option"
+        >
+          {{ option }}
+        </option>
+      </select>
+    </div>
+
+    <div class="pagination-info">
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
+      + 1 }} из {{ pagination.totalCount }} записей
+    </div>
+  </div>
+
+  <table>
+    <thead>
+      <tr>
+        <th>Номер типа</th>
+        <th>Инфо типа</th>
+        <th>Серийный</th>
+        <th>Дата поверки</th>
+        <th>До</th>
+        <th>Типы поверки</th>
+        <th>Доп. информация</th>
+        <th>Владелец</th>
+        <th>Эталоны</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let v of verifications">
+        <td>{{ v.deviceTypeNumber }}</td>
+        <td>{{ v.deviceTypeInfo }}</td>
+        <td>{{ v.deviceSerial }}</td>
+        <td>{{ v.verificationDate | date:'yyyy-MM-dd' }}</td>
+        <td>{{ v.verifiedUntilDate | date:'yyyy-MM-dd' }}</td>
+        <td>{{ v.verificationTypeNames?.join(', ') }}</td>
+        <td>{{ v.additionalInfo }}</td>
+        <td>{{ v.owner }}</td>
+        <td>{{v.etalons?.join(', ')}}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- Pagination navigation -->
+  <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.canActivateFirst"
+      (click)="pagination.goToFirstPage()"
+      title="Первая страница"
+    >
+      «
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.hasPreviousPage"
+      (click)="pagination.goToPreviousPage()"
+      title="Предыдущая страница"
+    >
+      ‹
+    </button>
+
+    <button
+      *ngFor="let page of pagination.getPageNumbers()"
+      class="pagination-btn page-number"
+      [class.active]="page === pagination.currentPage"
+      (click)="pagination.goToPage(page)"
+    >
+      {{ page }}
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.hasNextPage"
+      (click)="pagination.goToNextPage()"
+      title="Следующая страница"
+    >
+      ›
+    </button>
+
+    <button
+      class="pagination-btn"
+      [disabled]="!pagination.canActivateLast"
+      (click)="pagination.goToLastPage()"
+      title="Последняя страница"
+    >
+      »
+    </button>
+  </div>
+</div>

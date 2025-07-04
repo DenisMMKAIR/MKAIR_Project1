@@ -56,4 +56,13 @@ public class InitialVerificationJobsService
         _eventKeeper.Signal(BackgroundEvents.NewInitialVerificationJob);
         return ServiceResult.Success("Задание добавлено");
     }
+
+    public async Task<ServiceResult> DeleteJob(Guid id)
+    {
+        var job = await _database.InitialVerificationJobs.FindAsync(id);
+        if (job == null) return ServiceResult.Fail("Задание не найдено");
+        _database.InitialVerificationJobs.Remove(job);
+        await _database.SaveChangesAsync();
+        return ServiceResult.Success("Задание удалено");
+    }
 }

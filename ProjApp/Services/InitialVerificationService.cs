@@ -3,6 +3,7 @@ using MapsterMapper;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
+using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
 using ProjApp.Services.ServiceResults;
 
@@ -24,9 +25,16 @@ public class InitialVerificationService
         _addInitialVerificationCommand = addInitialVerificationCommand;
     }
 
-    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetInitialVerifications(int page, int pageSize)
+    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetInitialVerifications(int page, int pageSize, YearMonth? yearMonthFilter)
     {
-        var result = await _database.InitialVerifications
+        var query = _database.InitialVerifications.AsQueryable();
+
+        if (yearMonthFilter != null)
+        {
+            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year && iv.VerificationDate.Month == yearMonthFilter.Value.Month);
+        }
+
+        var result = await query
             .ProjectToType<InitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
         return ServicePaginatedResult<InitialVerificationDto>.Success(result);

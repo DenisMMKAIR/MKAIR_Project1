@@ -1,0 +1,20 @@
+button {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--secondary-color);
+  color: var(--text-primary);
+  font-size: var(--text-normal);
+  border: 1px solid var(--secondary-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+}
+
+button:hover:not(:disabled) {
+  background: var(--secondary-hover);
+  border-color: var(--secondary-border-hover);
+}
+
+button:disabled {
+  background: var(--secondary-color);
+  color: var(--text-disabled);
+  cursor: not-allowed;
+}
