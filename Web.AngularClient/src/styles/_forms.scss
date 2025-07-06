@@ -1,14 +1,27 @@
-input[type="number"] {
-  padding: var(--spacing-xs);
-  background: var(--bg-white);
-  color: var(--text-primary);
-  font-size: var(--text-normal);
-  border: 1px solid var(--border-medium);
-  border-radius: var(--border-radius-sm);
-}
+form {
+  display: flex;
+  align-items: flex-end;
+  flex-wrap: wrap;
+  gap: 0.25rem;
 
-input[type="number"]:focus {
-  border-color: var(--primary-color);
-  box-shadow: 0 0 0 2px var(--primary-light);
-  outline: none;
+  label {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  input {
+    padding: var(--spacing-xs);
+    background: var(--bg-white);
+    color: var(--text-primary);
+    font-size: var(--text-normal);
+    border: 1px solid var(--border-medium);
+    border-radius: var(--border-radius-sm);
+  }
+
+  input:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 2px var(--primary-light);
+    outline: none;
+  }
 }

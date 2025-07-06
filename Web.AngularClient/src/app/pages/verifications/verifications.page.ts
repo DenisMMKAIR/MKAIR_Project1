@@ -2,7 +2,7 @@ import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { InitialVerificationsClient, InitialVerificationDto, PaginatedListOfInitialVerificationDto } from '../../api-client';
+import { InitialVerificationsClient, InitialVerificationDto, PaginatedListOfInitialVerificationDto, DeviceLocation } from '../../api-client';
 import { VerificationsService } from '../../services/verifications.service';
 
 @Component({
@@ -33,7 +33,21 @@ export class VerificationsPage implements OnInit {
       ? null 
       : this.yearMonthFilter;
     
-    this.verificationsClient.getVerifications(this.pagination.currentPage, this.pagination.pageSize, yearMonthFilter).subscribe({
+    const typeInfoFilter = this.typeInfoFilter === null || this.typeInfoFilter === '' || this.typeInfoFilter === 'all'
+      ? null 
+      : this.typeInfoFilter;
+    
+    const locationFilter = this.locationFilter === null || this.locationFilter === 'all'
+      ? null 
+      : this.locationFilter as DeviceLocation;
+    
+    this.verificationsClient.getVerifications(
+      this.pagination.currentPage, 
+      this.pagination.pageSize, 
+      yearMonthFilter,
+      typeInfoFilter,
+      locationFilter
+    ).subscribe({
       next: (result) => {
         if (result.data) {
           this.verifications = result.data.items ?? [];
@@ -56,6 +70,10 @@ export class VerificationsPage implements OnInit {
     this.verificationsService.resetToFirstPage();
   }
 
+  public onLocationFilterChange(): void {
+    this.verificationsService.resetToFirstPage();
+  }
+
   public get pagination() {
     return this.verificationsService.getPagination();
   }
@@ -70,5 +88,21 @@ export class VerificationsPage implements OnInit {
 
   public get yearMonthOptions() {
     return this.verificationsService.getYearMonthOptions();
+  }
+
+  public get typeInfoFilter() {
+    return this.verificationsService.getTypeInfoFilter();
+  }
+
+  public set typeInfoFilter(value: string | null) {
+    this.verificationsService.setTypeInfoFilter(value);
+  }
+
+  public get locationFilter() {
+    return this.verificationsService.getLocationFilter();
+  }
+
+  public set locationFilter(value: string | null) {
+    this.verificationsService.setLocationFilter(value);
   }
 }

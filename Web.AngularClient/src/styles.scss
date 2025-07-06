@@ -44,6 +44,6 @@ select {
 
 .selector-form {
   display: flex;
-  align-items: center;
-  gap: var(--spacing-sm);
+  flex-direction: column;
+  gap: 0.25rem;
 }

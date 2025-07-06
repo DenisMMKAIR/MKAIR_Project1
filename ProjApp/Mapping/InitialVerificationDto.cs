@@ -1,5 +1,6 @@
 using Mapster;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Mapping;
 
@@ -16,7 +17,14 @@ public class InitialVerificationDto : IRegister
     public required Guid Id { get; set; }
 
     // Optional
+    public string? VerificationTypeNum { get; set; }
+    public uint? OwnerInn { get; set; }
+    public string? Worker { get; set; }
+    public DeviceLocation? Location { get; set; }
     public string? AdditionalInfo { get; set; }
+    public string? Pressure { get; set; }
+    public double? Temperature { get; set; }
+    public double? Humidity { get; set; }
 
     public void Register(TypeAdapterConfig config)
     {

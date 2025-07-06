@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
 using ProjApp.Services;
@@ -18,45 +19,34 @@ public class InitialVerificationsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] GetVerificationsRequest? query)
+    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] GetVerificationsFilters? filters)
     {
-        return await _service.GetInitialVerifications(request.PageIndex, request.PageSize, YearMonth.Parse(query?.VerificationYearMonth));
+        YearMonth? yearMonthFilter;
+        try
+        {
+            yearMonthFilter = YearMonth.Parse(filters?.YearMonth);
+        }
+        catch (Exception e)
+        {
+            return ServicePaginatedResult<InitialVerificationDto>.Fail(e.Message);
+        }
+
+        return await _service.GetInitialVerifications(request.PageIndex, request.PageSize, yearMonthFilter, filters?.TypeInfo, filters?.Location);
     }
 
     [HttpPatch]
-    public Task<ServiceResult> AddValues([Required][FromForm] AddValuesRequest request)
+    public Task<ServiceResult> SetValues([Required] IFormFile excelFile, [Required][FromForm] SetValuesRequest request)
     {
-
-        throw new NotImplementedException();
-    }
-
-    public class AddValuesRequest
-    {
-        public required IFormFile ExcelFile { get; init; }
-        public bool VerificationTypeNum { get; init; }
-        public bool OwnerInn { get; init; }
-        public bool Worker { get; init; }
-        public bool Location { get; init; }
-        public bool AdditionalInfo { get; init; }
-        public bool Pressure { get; init; }
-        public bool Temperature { get; init; }
-        public bool Humidity { get; init; }
-    }
-
-    public class GetVerificationsRequest
-    {
-        public string? VerificationYearMonth { get; set; }
+        var mem = new MemoryStream();
+        excelFile.CopyTo(mem);
+        mem.Position = 0;
+        return _service.SetValues(mem, request);
     }
 }
 
-/*
-
-    public string?  { get; set; }
-    public uint? OwnerInn { get; set; }
-    public string? Worker { get; set; }
-    public DeviceLocation? Location { get; set; }
-    public string? AdditionalInfo { get; set; }
-    public string? Pressure { get; set; }
-    public double? Temperature { get; set; }
-    public double? Humidity { get; set; }
-    */
+public class GetVerificationsFilters
+{
+    public string? YearMonth { get; init; }
+    public string? TypeInfo { get; init; }
+    public DeviceLocation? Location { get; init; }
+}

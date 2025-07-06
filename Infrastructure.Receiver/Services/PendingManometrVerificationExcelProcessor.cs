@@ -12,11 +12,11 @@ public class PendingManometrVerificationExcelProcessor : IPendingManometrVerific
 
     public PendingManometrVerificationExcelProcessor(ILogger<PendingManometrVerificationExcelProcessor> logger)
     {
-        _excelProcessor = new(logger, new PendingManometrVerificationsColumnsSetup());
+        _excelProcessor = new(logger);
     }
 
     public IReadOnlyList<PendingManometrVerification> ReadVerificationFile(Stream fileStream, string fileName, string sheetName, string dataRange, DeviceLocation location)
     {
-        return _excelProcessor.ReadVerificationFile(fileStream, fileName, sheetName, dataRange, location);
+        return _excelProcessor.ReadVerificationFile(fileStream, fileName, sheetName, dataRange, new PendingManometrVerificationsColumnsSetup(), location);
     }
 }

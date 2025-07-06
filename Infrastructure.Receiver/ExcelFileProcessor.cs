@@ -8,12 +8,11 @@ namespace Infrastructure.Receiver;
 internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData : IDataItem<TResultData>, new()
 {
     private static readonly Type _itemProperties = typeof(TProcessData);
-    private readonly IColumnsSetup _columnsSetup;
     private readonly ILogger _logger;
 
-    public ExcelFileProcessor(ILogger logger, IColumnsSetup columnsSetup) => (_logger, _columnsSetup) = (logger, columnsSetup);
+    public ExcelFileProcessor(ILogger logger) => _logger = logger;
 
-    public IReadOnlyList<TResultData> ReadVerificationFile(Stream fileStream, string fileName, string sheetName, string dataRange, DeviceLocation location)
+    public IReadOnlyList<TResultData> ReadVerificationFile(Stream fileStream, string fileName, string sheetName, string dataRange, IColumnsSetup columnsSetup, DeviceLocation location)
     {
         using var wb = new XSSFWorkbook(fileStream);
 
@@ -37,9 +36,9 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
         var headerRow = sheet.GetRow(startRowIndex) ??
             throw new Exception($"Файл '{fileName}'. Строка с заголовками не найдена.");
 
-        SetupColumnIndices(startColumnIndex, endColumnIndex, headerRow, fileName);
+        SetupColumnIndices(columnsSetup, startColumnIndex, endColumnIndex, headerRow, fileName);
 
-        var processedItems = new List<TResultData>(endRowIndex);
+        var processedItems = new List<TResultData>(endRowIndex - startRowIndex);
 
         for (var rowNum = startRowIndex + 1; rowNum <= endRowIndex; rowNum++)
         {
@@ -47,7 +46,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
             if (row == null) continue;
 
             var item = new TProcessData();
-            FillItem(row, item, fileName);
+            FillItem(columnsSetup, row, item, fileName);
             var newResultItem = item.PostProcess(fileName, rowNum, location);
             processedItems.Add(newResultItem);
         }
@@ -94,7 +93,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
         return (startRowIndex, startColumnIndex, endRowIndex, endColumnIndex);
     }
 
-    private void SetupColumnIndices(int startColumnIndex, int lastColumnIndex, IRow headerRow, string fileName)
+    private void SetupColumnIndices(IColumnsSetup columnsSetup, int startColumnIndex, int lastColumnIndex, IRow headerRow, string fileName)
     {
         var processedColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
@@ -108,7 +107,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
 
             if (string.IsNullOrWhiteSpace(cellValue)) continue;
 
-            foreach (var column in _columnsSetup.Columns)
+            foreach (var column in columnsSetup.Columns)
             {
                 if (column.IncomingNames.Contains(cellValue, StringComparer.OrdinalIgnoreCase))
                 {
@@ -119,7 +118,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
             }
         }
 
-        var missingColumns = _columnsSetup.Columns
+        var missingColumns = columnsSetup.Columns
             .Where(c => !processedColumns.Contains(c.InternalName))
             .Select(c => string.Join('|', c.IncomingNames))
             .ToList();
@@ -130,25 +129,35 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
         }
     }
 
-    private void FillItem(IRow row, TProcessData item, string fileName)
+    private void FillItem(IColumnsSetup columnsSetup, IRow row, TProcessData item, string fileName)
     {
-        foreach (var column in _columnsSetup.Columns)
+        foreach (var column in columnsSetup.Columns)
         {
             var cell = row.GetCell((int)column.ColumnIndex);
+
             string genErrorMsg(string msg) => $"Файл '{fileName}', столбец '{string.Join(",", column.IncomingNames)}', строка {row.RowNum + 1}. {msg}";
 
-            var cellValue = cell?.ToString()?.Trim();
+            string? cellValue;
 
-            if (cellValue == null)
+            if (cell.CellType == CellType.Formula)
             {
-                _logger.LogWarning(genErrorMsg("Ячейка пуста"));
-                continue;
+                cellValue = cell.StringCellValue;
+            }
+            else
+            {
+                cellValue = cell.ToString()?.Trim();
             }
 
-            foreach (var verifier in _columnsSetup.AllColumnsVerifiers)
+            if (string.IsNullOrWhiteSpace(cellValue))
+            {
+                throw new Exception(genErrorMsg("Пустое значение"));
+            }
+
+            foreach (var verifier in columnsSetup.AllColumnsVerifiers)
             {
                 if (!verifier.Verify(cellValue))
                 {
+                    // return genErrorMsg(verifier.ErrorMessage);
                     throw new Exception(genErrorMsg(verifier.ErrorMessage));
                 }
             }
@@ -157,6 +166,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
             {
                 if (!verifier.Verify(cellValue))
                 {
+                    // return genErrorMsg(verifier.ErrorMessage);
                     throw new Exception(genErrorMsg(verifier.ErrorMessage));
                 }
             }
@@ -168,7 +178,8 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
 
             var property = _itemProperties.GetProperty(column.InternalName)!;
 
-            if (property.PropertyType == typeof(uint?))
+            if (property.PropertyType == typeof(uint?) ||
+                property.PropertyType == typeof(uint))
             {
                 try
                 {
@@ -176,10 +187,12 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
                 }
                 catch (FormatException)
                 {
+                    // return genErrorMsg($"Неверный формат числа '{cellValue}'");
                     throw new FormatException(genErrorMsg($"Неверный формат числа '{cellValue}'"));
                 }
             }
-            else if (property.PropertyType == typeof(DateOnly?))
+            else if (property.PropertyType == typeof(DateOnly?) ||
+                     property.PropertyType == typeof(DateOnly))
             {
                 try
                 {
@@ -188,10 +201,12 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
                 }
                 catch (FormatException)
                 {
+                    // return genErrorMsg($"Неверный формат даты '{cellValue}'");
                     throw new FormatException(genErrorMsg($"Неверный формат даты '{cellValue}'"));
                 }
             }
-            else if (property.PropertyType == typeof(double?))
+            else if (property.PropertyType == typeof(double?) ||
+                     property.PropertyType == typeof(double))
             {
                 try
                 {
@@ -200,6 +215,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
                 }
                 catch (FormatException)
                 {
+                    // return genErrorMsg($"Неверный формат числа '{cellValue}'");
                     throw new FormatException(genErrorMsg($"Неверный формат числа '{cellValue}'"));
                 }
             }
@@ -212,6 +228,7 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
                 }
                 catch (ArgumentException)
                 {
+                    // return genErrorMsg($"Неверное значение перечисления '{cellValue}'");
                     throw new ArgumentException(genErrorMsg($"Неверное значение перечисления '{cellValue}'"));
                 }
             }

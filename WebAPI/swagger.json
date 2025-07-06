@@ -223,13 +223,35 @@
             "x-position": 2
           },
           {
-            "name": "VerificationYearMonth",
+            "name": "YearMonth",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 3
+          },
+          {
+            "name": "TypeInfo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/DeviceLocation"
+                }
+              ]
+            },
+            "x-position": 5
           }
         ],
         "responses": {
@@ -239,6 +261,78 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServicePaginatedResultOfInitialVerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/InitialVerifications/SetValues": {
+      "patch": {
+        "tags": [
+          "InitialVerifications"
+        ],
+        "operationId": "InitialVerifications_SetValues",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "excelFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "SheetName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "DataRange": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Location": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "VerificationTypeNum": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Worker": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "AdditionalInfo": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Pressure": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Temperature": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Humidity": {
+                    "type": "boolean",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
                 }
               }
             }
@@ -943,11 +1037,57 @@
             "type": "string",
             "format": "guid"
           },
+          "verificationTypeNum": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerInn": {
+            "type": "integer",
+            "nullable": true
+          },
+          "worker": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DeviceLocation"
+              }
+            ]
+          },
           "additionalInfo": {
             "type": "string",
             "nullable": true
+          },
+          "pressure": {
+            "type": "string",
+            "nullable": true
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         }
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ]
       },
       "ServicePaginatedResultOfPendingManometrVerification": {
         "type": "object",
@@ -1059,18 +1199,6 @@
               }
             }
           }
-        ]
-      },
-      "DeviceLocation": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ],
-        "enum": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
         ]
       },
       "ServicePaginatedResultOfProtocolTemplateDTO": {

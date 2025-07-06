@@ -35,6 +35,8 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddProtocolTemplateCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
+        serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
+
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
         serviceCollection.AddScoped<InitialVerificationJobsService>();
@@ -50,6 +52,7 @@ public static class ProjectDI
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
+        serviceCollection.AddHostedService<OwnersBackgroundService>();
 
         serviceCollection.AddFGISAPI();
     }

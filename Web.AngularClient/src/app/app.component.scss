@@ -4,6 +4,7 @@
 }
 
 nav {
+  flex-shrink: 0;
   width: 160px;
   border-right: 1px solid var(--border-medium);
   padding: var(--spacing-md);

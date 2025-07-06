@@ -6,7 +6,7 @@ public abstract class EventSubscriberBase : IDisposable
 {
     private readonly ILogger _logger;
     private int _state; // 0=idle, 1=processing, 2=processing_with_pending
-    private IDisposable? _subscription;
+    private readonly List<IDisposable> _subscriptions = [];
     private bool _disposed;
 
     public EventSubscriberBase(ILogger logger) => _logger = logger;
@@ -15,14 +15,16 @@ public abstract class EventSubscriberBase : IDisposable
     {
         if (_disposed) return;
         _disposed = true;
-        _subscription?.Dispose();
+        foreach (var subscription in _subscriptions)
+        {
+            subscription.Dispose();
+        }
         GC.SuppressFinalize(this);
     }
 
     protected void SubscribeTo(EventKeeper keeper, BackgroundEvents eventName)
     {
-        _subscription?.Dispose();
-        _subscription = keeper.Subscribe(eventName, OnEventTriggered);
+        _subscriptions.Add(keeper.Subscribe(eventName, OnEventTriggered));
     }
 
     protected void OnEventTriggered()

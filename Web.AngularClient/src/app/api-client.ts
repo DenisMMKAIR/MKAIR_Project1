@@ -330,7 +330,7 @@ export class InitialVerificationsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, verificationYearMonth: string | null | undefined): Observable<ServicePaginatedResultOfInitialVerificationDto> {
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfInitialVerificationDto> {
         let url_ = this.baseUrl + "/api/InitialVerifications/GetVerifications?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -340,8 +340,12 @@ export class InitialVerificationsClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (verificationYearMonth !== undefined && verificationYearMonth !== null)
-            url_ += "VerificationYearMonth=" + encodeURIComponent("" + verificationYearMonth) + "&";
+        if (yearMonth !== undefined && yearMonth !== null)
+            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
+        if (typeInfo !== undefined && typeInfo !== null)
+            url_ += "TypeInfo=" + encodeURIComponent("" + typeInfo) + "&";
+        if (location !== undefined && location !== null)
+            url_ += "Location=" + encodeURIComponent("" + location) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -378,6 +382,77 @@ export class InitialVerificationsClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = ServicePaginatedResultOfInitialVerificationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, additionalInfo: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/InitialVerifications/SetValues";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (excelFile !== null && excelFile !== undefined)
+            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
+        if (sheetName !== null && sheetName !== undefined)
+            content_.append("SheetName", sheetName.toString());
+        if (dataRange !== null && dataRange !== undefined)
+            content_.append("DataRange", dataRange.toString());
+        if (location !== null && location !== undefined)
+            content_.append("Location", location.toString());
+        if (verificationTypeNum !== null && verificationTypeNum !== undefined)
+            content_.append("VerificationTypeNum", verificationTypeNum.toString());
+        if (worker !== null && worker !== undefined)
+            content_.append("Worker", worker.toString());
+        if (additionalInfo !== null && additionalInfo !== undefined)
+            content_.append("AdditionalInfo", additionalInfo.toString());
+        if (pressure !== null && pressure !== undefined)
+            content_.append("Pressure", pressure.toString());
+        if (temperature !== null && temperature !== undefined)
+            content_.append("Temperature", temperature.toString());
+        if (humidity !== null && humidity !== undefined)
+            content_.append("Humidity", humidity.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetValues(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetValues(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processSetValues(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -990,9 +1065,9 @@ export class VerificationMethodsClient {
 }
 
 export class ServicePaginatedResultOfDeviceType implements IServicePaginatedResultOfDeviceType {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfDeviceType | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfDeviceType | null;
 
     constructor(data?: IServicePaginatedResultOfDeviceType) {
         if (data) {
@@ -1005,9 +1080,9 @@ export class ServicePaginatedResultOfDeviceType implements IServicePaginatedResu
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfDeviceType.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfDeviceType.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -1020,17 +1095,17 @@ export class ServicePaginatedResultOfDeviceType implements IServicePaginatedResu
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfDeviceType {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfDeviceType | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfDeviceType | null;
 }
 
 export class PaginatedListOfDeviceType implements IPaginatedListOfDeviceType {
@@ -1052,15 +1127,18 @@ export class PaginatedListOfDeviceType implements IPaginatedListOfDeviceType {
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(DeviceType.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -1074,15 +1152,15 @@ export class PaginatedListOfDeviceType implements IPaginatedListOfDeviceType {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -1111,7 +1189,7 @@ export abstract class DatabaseEntity implements IDatabaseEntity {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
         }
     }
 
@@ -1122,7 +1200,7 @@ export abstract class DatabaseEntity implements IDatabaseEntity {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
+        data["id"] = this.id !== undefined ? this.id : <any>null;
         return data;
     }
 }
@@ -1143,9 +1221,9 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
     override init(_data?: any) {
         super.init(_data);
         if (_data) {
-            this.number = _data["number"];
-            this.title = _data["title"];
-            this.notation = _data["notation"];
+            this.number = _data["number"] !== undefined ? _data["number"] : <any>null;
+            this.title = _data["title"] !== undefined ? _data["title"] : <any>null;
+            this.notation = _data["notation"] !== undefined ? _data["notation"] : <any>null;
         }
     }
 
@@ -1158,9 +1236,9 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["number"] = this.number;
-        data["title"] = this.title;
-        data["notation"] = this.notation;
+        data["number"] = this.number !== undefined ? this.number : <any>null;
+        data["title"] = this.title !== undefined ? this.title : <any>null;
+        data["notation"] = this.notation !== undefined ? this.notation : <any>null;
         super.toJSON(data);
         return data;
     }
@@ -1173,8 +1251,8 @@ export interface IDeviceType extends IDatabaseEntity {
 }
 
 export class ServiceResult implements IServiceResult {
-    message?: string | undefined;
-    error?: string | undefined;
+    message?: string | null;
+    error?: string | null;
 
     constructor(data?: IServiceResult) {
         if (data) {
@@ -1187,8 +1265,8 @@ export class ServiceResult implements IServiceResult {
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
         }
     }
 
@@ -1201,21 +1279,21 @@ export class ServiceResult implements IServiceResult {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
         return data;
     }
 }
 
 export interface IServiceResult {
-    message?: string | undefined;
-    error?: string | undefined;
+    message?: string | null;
+    error?: string | null;
 }
 
 export class ServicePaginatedResultOfInitialVerificationJob implements IServicePaginatedResultOfInitialVerificationJob {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfInitialVerificationJob | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfInitialVerificationJob | null;
 
     constructor(data?: IServicePaginatedResultOfInitialVerificationJob) {
         if (data) {
@@ -1228,9 +1306,9 @@ export class ServicePaginatedResultOfInitialVerificationJob implements IServiceP
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfInitialVerificationJob.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfInitialVerificationJob.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -1243,17 +1321,17 @@ export class ServicePaginatedResultOfInitialVerificationJob implements IServiceP
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfInitialVerificationJob {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfInitialVerificationJob | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfInitialVerificationJob | null;
 }
 
 export class PaginatedListOfInitialVerificationJob implements IPaginatedListOfInitialVerificationJob {
@@ -1275,15 +1353,18 @@ export class PaginatedListOfInitialVerificationJob implements IPaginatedListOfIn
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(InitialVerificationJob.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -1297,15 +1378,15 @@ export class PaginatedListOfInitialVerificationJob implements IPaginatedListOfIn
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -1330,7 +1411,7 @@ export class InitialVerificationJob extends DatabaseEntity implements IInitialVe
     override init(_data?: any) {
         super.init(_data);
         if (_data) {
-            this.date = _data["date"] ? YearMonth.fromJS(_data["date"]) : <any>undefined;
+            this.date = _data["date"] ? YearMonth.fromJS(_data["date"]) : <any>null;
         }
     }
 
@@ -1343,7 +1424,7 @@ export class InitialVerificationJob extends DatabaseEntity implements IInitialVe
 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["date"] = this.date ? this.date.toJSON() : <any>undefined;
+        data["date"] = this.date ? this.date.toJSON() : <any>null;
         super.toJSON(data);
         return data;
     }
@@ -1368,8 +1449,8 @@ export class YearMonth implements IYearMonth {
 
     init(_data?: any) {
         if (_data) {
-            this.year = _data["year"];
-            this.month = _data["month"];
+            this.year = _data["year"] !== undefined ? _data["year"] : <any>null;
+            this.month = _data["month"] !== undefined ? _data["month"] : <any>null;
         }
     }
 
@@ -1382,8 +1463,8 @@ export class YearMonth implements IYearMonth {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["year"] = this.year;
-        data["month"] = this.month;
+        data["year"] = this.year !== undefined ? this.year : <any>null;
+        data["month"] = this.month !== undefined ? this.month : <any>null;
         return data;
     }
 }
@@ -1394,9 +1475,9 @@ export interface IYearMonth {
 }
 
 export class ServicePaginatedResultOfInitialVerificationDto implements IServicePaginatedResultOfInitialVerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfInitialVerificationDto | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfInitialVerificationDto | null;
 
     constructor(data?: IServicePaginatedResultOfInitialVerificationDto) {
         if (data) {
@@ -1409,9 +1490,9 @@ export class ServicePaginatedResultOfInitialVerificationDto implements IServiceP
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfInitialVerificationDto.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfInitialVerificationDto.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -1424,17 +1505,17 @@ export class ServicePaginatedResultOfInitialVerificationDto implements IServiceP
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfInitialVerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfInitialVerificationDto | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfInitialVerificationDto | null;
 }
 
 export class PaginatedListOfInitialVerificationDto implements IPaginatedListOfInitialVerificationDto {
@@ -1456,15 +1537,18 @@ export class PaginatedListOfInitialVerificationDto implements IPaginatedListOfIn
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(InitialVerificationDto.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -1478,15 +1562,15 @@ export class PaginatedListOfInitialVerificationDto implements IPaginatedListOfIn
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -1511,7 +1595,14 @@ export class InitialVerificationDto implements IInitialVerificationDto {
     owner?: string;
     etalons?: string[];
     id?: string;
-    additionalInfo?: string | undefined;
+    verificationTypeNum?: string | null;
+    ownerInn?: number | null;
+    worker?: string | null;
+    location?: DeviceLocation | null;
+    additionalInfo?: string | null;
+    pressure?: string | null;
+    temperature?: number | null;
+    humidity?: number | null;
 
     constructor(data?: IInitialVerificationDto) {
         if (data) {
@@ -1524,24 +1615,37 @@ export class InitialVerificationDto implements IInitialVerificationDto {
 
     init(_data?: any) {
         if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceSerial = _data["deviceSerial"];
-            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
-            this.deviceTypeInfo = _data["deviceTypeInfo"];
-            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.deviceSerial = _data["deviceSerial"] !== undefined ? _data["deviceSerial"] : <any>null;
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>null;
+            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>null;
             if (Array.isArray(_data["verificationTypeNames"])) {
                 this.verificationTypeNames = [] as any;
                 for (let item of _data["verificationTypeNames"])
                     this.verificationTypeNames!.push(item);
             }
-            this.owner = _data["owner"];
+            else {
+                this.verificationTypeNames = <any>null;
+            }
+            this.owner = _data["owner"] !== undefined ? _data["owner"] : <any>null;
             if (Array.isArray(_data["etalons"])) {
                 this.etalons = [] as any;
                 for (let item of _data["etalons"])
                     this.etalons!.push(item);
             }
-            this.id = _data["id"];
-            this.additionalInfo = _data["additionalInfo"];
+            else {
+                this.etalons = <any>null;
+            }
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.verificationTypeNum = _data["verificationTypeNum"] !== undefined ? _data["verificationTypeNum"] : <any>null;
+            this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
+            this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
+            this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
+            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
+            this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
+            this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
+            this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
         }
     }
 
@@ -1554,24 +1658,31 @@ export class InitialVerificationDto implements IInitialVerificationDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceSerial"] = this.deviceSerial;
-        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
-        data["deviceTypeInfo"] = this.deviceTypeInfo;
-        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["deviceSerial"] = this.deviceSerial !== undefined ? this.deviceSerial : <any>null;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>null;
+        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>null;
         if (Array.isArray(this.verificationTypeNames)) {
             data["verificationTypeNames"] = [];
             for (let item of this.verificationTypeNames)
                 data["verificationTypeNames"].push(item);
         }
-        data["owner"] = this.owner;
+        data["owner"] = this.owner !== undefined ? this.owner : <any>null;
         if (Array.isArray(this.etalons)) {
             data["etalons"] = [];
             for (let item of this.etalons)
                 data["etalons"].push(item);
         }
-        data["id"] = this.id;
-        data["additionalInfo"] = this.additionalInfo;
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["verificationTypeNum"] = this.verificationTypeNum !== undefined ? this.verificationTypeNum : <any>null;
+        data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
+        data["worker"] = this.worker !== undefined ? this.worker : <any>null;
+        data["location"] = this.location !== undefined ? this.location : <any>null;
+        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
+        data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
+        data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
+        data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
         return data;
     }
 }
@@ -1586,13 +1697,25 @@ export interface IInitialVerificationDto {
     owner?: string;
     etalons?: string[];
     id?: string;
-    additionalInfo?: string | undefined;
+    verificationTypeNum?: string | null;
+    ownerInn?: number | null;
+    worker?: string | null;
+    location?: DeviceLocation | null;
+    additionalInfo?: string | null;
+    pressure?: string | null;
+    temperature?: number | null;
+    humidity?: number | null;
+}
+
+export enum DeviceLocation {
+    АнтипинскийНПЗ = "АнтипинскийНПЗ",
+    ГПНЯмал = "ГПНЯмал",
 }
 
 export class ServicePaginatedResultOfPendingManometrVerification implements IServicePaginatedResultOfPendingManometrVerification {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPendingManometrVerification | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPendingManometrVerification | null;
 
     constructor(data?: IServicePaginatedResultOfPendingManometrVerification) {
         if (data) {
@@ -1605,9 +1728,9 @@ export class ServicePaginatedResultOfPendingManometrVerification implements ISer
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfPendingManometrVerification.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfPendingManometrVerification.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -1620,17 +1743,17 @@ export class ServicePaginatedResultOfPendingManometrVerification implements ISer
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfPendingManometrVerification {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPendingManometrVerification | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPendingManometrVerification | null;
 }
 
 export class PaginatedListOfPendingManometrVerification implements IPaginatedListOfPendingManometrVerification {
@@ -1652,15 +1775,18 @@ export class PaginatedListOfPendingManometrVerification implements IPaginatedLis
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(PendingManometrVerification.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -1674,15 +1800,15 @@ export class PaginatedListOfPendingManometrVerification implements IPaginatedLis
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -1708,7 +1834,7 @@ export class PendingManometrVerification extends DatabaseEntity implements IPend
     temperature?: number;
     pressure?: string;
     hummidity?: number;
-    accuracy?: number | undefined;
+    accuracy?: number | null;
     location?: DeviceLocation;
 
     constructor(data?: IPendingManometrVerification) {
@@ -1718,26 +1844,32 @@ export class PendingManometrVerification extends DatabaseEntity implements IPend
     override init(_data?: any) {
         super.init(_data);
         if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceSerial = _data["deviceSerial"];
-            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.deviceSerial = _data["deviceSerial"] !== undefined ? _data["deviceSerial"] : <any>null;
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>null;
             if (Array.isArray(_data["verificationMethods"])) {
                 this.verificationMethods = [] as any;
                 for (let item of _data["verificationMethods"])
                     this.verificationMethods!.push(item);
+            }
+            else {
+                this.verificationMethods = <any>null;
             }
             if (Array.isArray(_data["etalonsNumbers"])) {
                 this.etalonsNumbers = [] as any;
                 for (let item of _data["etalonsNumbers"])
                     this.etalonsNumbers!.push(item);
             }
-            this.ownerName = _data["ownerName"];
-            this.workerName = _data["workerName"];
-            this.temperature = _data["temperature"];
-            this.pressure = _data["pressure"];
-            this.hummidity = _data["hummidity"];
-            this.accuracy = _data["accuracy"];
-            this.location = _data["location"];
+            else {
+                this.etalonsNumbers = <any>null;
+            }
+            this.ownerName = _data["ownerName"] !== undefined ? _data["ownerName"] : <any>null;
+            this.workerName = _data["workerName"] !== undefined ? _data["workerName"] : <any>null;
+            this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
+            this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
+            this.hummidity = _data["hummidity"] !== undefined ? _data["hummidity"] : <any>null;
+            this.accuracy = _data["accuracy"] !== undefined ? _data["accuracy"] : <any>null;
+            this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
         }
     }
 
@@ -1750,9 +1882,9 @@ export class PendingManometrVerification extends DatabaseEntity implements IPend
 
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceSerial"] = this.deviceSerial;
-        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["deviceSerial"] = this.deviceSerial !== undefined ? this.deviceSerial : <any>null;
+        data["date"] = this.date ? formatDate(this.date) : <any>null;
         if (Array.isArray(this.verificationMethods)) {
             data["verificationMethods"] = [];
             for (let item of this.verificationMethods)
@@ -1763,13 +1895,13 @@ export class PendingManometrVerification extends DatabaseEntity implements IPend
             for (let item of this.etalonsNumbers)
                 data["etalonsNumbers"].push(item);
         }
-        data["ownerName"] = this.ownerName;
-        data["workerName"] = this.workerName;
-        data["temperature"] = this.temperature;
-        data["pressure"] = this.pressure;
-        data["hummidity"] = this.hummidity;
-        data["accuracy"] = this.accuracy;
-        data["location"] = this.location;
+        data["ownerName"] = this.ownerName !== undefined ? this.ownerName : <any>null;
+        data["workerName"] = this.workerName !== undefined ? this.workerName : <any>null;
+        data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
+        data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
+        data["hummidity"] = this.hummidity !== undefined ? this.hummidity : <any>null;
+        data["accuracy"] = this.accuracy !== undefined ? this.accuracy : <any>null;
+        data["location"] = this.location !== undefined ? this.location : <any>null;
         super.toJSON(data);
         return data;
     }
@@ -1786,19 +1918,14 @@ export interface IPendingManometrVerification extends IDatabaseEntity {
     temperature?: number;
     pressure?: string;
     hummidity?: number;
-    accuracy?: number | undefined;
+    accuracy?: number | null;
     location?: DeviceLocation;
 }
 
-export enum DeviceLocation {
-    АнтипинскийНПЗ = "АнтипинскийНПЗ",
-    ГПНЯмал = "ГПНЯмал",
-}
-
 export class ServicePaginatedResultOfProtocolTemplateDTO implements IServicePaginatedResultOfProtocolTemplateDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfProtocolTemplateDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfProtocolTemplateDTO | null;
 
     constructor(data?: IServicePaginatedResultOfProtocolTemplateDTO) {
         if (data) {
@@ -1811,9 +1938,9 @@ export class ServicePaginatedResultOfProtocolTemplateDTO implements IServicePagi
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfProtocolTemplateDTO.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfProtocolTemplateDTO.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -1826,17 +1953,17 @@ export class ServicePaginatedResultOfProtocolTemplateDTO implements IServicePagi
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfProtocolTemplateDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfProtocolTemplateDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfProtocolTemplateDTO | null;
 }
 
 export class PaginatedListOfProtocolTemplateDTO implements IPaginatedListOfProtocolTemplateDTO {
@@ -1858,15 +1985,18 @@ export class PaginatedListOfProtocolTemplateDTO implements IPaginatedListOfProto
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(ProtocolTemplateDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -1880,15 +2010,15 @@ export class PaginatedListOfProtocolTemplateDTO implements IPaginatedListOfProto
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -1922,31 +2052,43 @@ export class ProtocolTemplateDTO implements IProtocolTemplateDTO {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
             if (Array.isArray(_data["deviceTypeNumbers"])) {
                 this.deviceTypeNumbers = [] as any;
                 for (let item of _data["deviceTypeNumbers"])
                     this.deviceTypeNumbers!.push(item);
             }
-            this.group = _data["group"];
+            else {
+                this.deviceTypeNumbers = <any>null;
+            }
+            this.group = _data["group"] !== undefined ? _data["group"] : <any>null;
             if (_data["checkups"]) {
                 this.checkups = {} as any;
                 for (let key in _data["checkups"]) {
                     if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
+                        (<any>this.checkups)![key] = _data["checkups"][key] !== undefined ? _data["checkups"][key] : <any>null;
                 }
+            }
+            else {
+                this.checkups = <any>null;
             }
             if (_data["values"]) {
                 this.values = {} as any;
                 for (let key in _data["values"]) {
                     if (_data["values"].hasOwnProperty(key))
-                        (<any>this.values)![key] = _data["values"][key];
+                        (<any>this.values)![key] = _data["values"][key] !== undefined ? _data["values"][key] : <any>null;
                 }
+            }
+            else {
+                this.values = <any>null;
             }
             if (Array.isArray(_data["verificationMethods"])) {
                 this.verificationMethods = [] as any;
                 for (let item of _data["verificationMethods"])
                     this.verificationMethods!.push(ProtocolVerificationMethodDTO.fromJS(item));
+            }
+            else {
+                this.verificationMethods = <any>null;
             }
         }
     }
@@ -1960,31 +2102,31 @@ export class ProtocolTemplateDTO implements IProtocolTemplateDTO {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
+        data["id"] = this.id !== undefined ? this.id : <any>null;
         if (Array.isArray(this.deviceTypeNumbers)) {
             data["deviceTypeNumbers"] = [];
             for (let item of this.deviceTypeNumbers)
                 data["deviceTypeNumbers"].push(item);
         }
-        data["group"] = this.group;
+        data["group"] = this.group !== undefined ? this.group : <any>null;
         if (this.checkups) {
             data["checkups"] = {};
             for (let key in this.checkups) {
                 if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+                    (<any>data["checkups"])[key] = this.checkups[key] !== undefined ? this.checkups[key] : <any>null;
             }
         }
         if (this.values) {
             data["values"] = {};
             for (let key in this.values) {
                 if (this.values.hasOwnProperty(key))
-                    (<any>data["values"])[key] = (<any>this.values)[key];
+                    (<any>data["values"])[key] = this.values[key] !== undefined ? this.values[key] : <any>null;
             }
         }
         if (Array.isArray(this.verificationMethods)) {
             data["verificationMethods"] = [];
             for (let item of this.verificationMethods)
-                data["verificationMethods"].push(item ? item.toJSON() : <any>undefined);
+                data["verificationMethods"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -2014,8 +2156,8 @@ export class ProtocolVerificationMethodDTO implements IProtocolVerificationMetho
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
-            this.description = _data["description"];
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
         }
     }
 
@@ -2028,8 +2170,8 @@ export class ProtocolVerificationMethodDTO implements IProtocolVerificationMetho
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["description"] = this.description;
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
         return data;
     }
 }
@@ -2057,26 +2199,35 @@ export class AddProtocolTemplateRequest implements IAddProtocolTemplateRequest {
 
     init(_data?: any) {
         if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.group = _data["group"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.group = _data["group"] !== undefined ? _data["group"] : <any>null;
             if (_data["checkups"]) {
                 this.checkups = {} as any;
                 for (let key in _data["checkups"]) {
                     if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
+                        (<any>this.checkups)![key] = _data["checkups"][key] !== undefined ? _data["checkups"][key] : <any>null;
                 }
+            }
+            else {
+                this.checkups = <any>null;
             }
             if (_data["values"]) {
                 this.values = {} as any;
                 for (let key in _data["values"]) {
                     if (_data["values"].hasOwnProperty(key))
-                        (<any>this.values)![key] = _data["values"][key];
+                        (<any>this.values)![key] = _data["values"][key] !== undefined ? _data["values"][key] : <any>null;
                 }
+            }
+            else {
+                this.values = <any>null;
             }
             if (Array.isArray(_data["verificationMethodsIds"])) {
                 this.verificationMethodsIds = [] as any;
                 for (let item of _data["verificationMethodsIds"])
                     this.verificationMethodsIds!.push(item);
+            }
+            else {
+                this.verificationMethodsIds = <any>null;
             }
         }
     }
@@ -2090,20 +2241,20 @@ export class AddProtocolTemplateRequest implements IAddProtocolTemplateRequest {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["group"] = this.group;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["group"] = this.group !== undefined ? this.group : <any>null;
         if (this.checkups) {
             data["checkups"] = {};
             for (let key in this.checkups) {
                 if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+                    (<any>data["checkups"])[key] = this.checkups[key] !== undefined ? this.checkups[key] : <any>null;
             }
         }
         if (this.values) {
             data["values"] = {};
             for (let key in this.values) {
                 if (this.values.hasOwnProperty(key))
-                    (<any>data["values"])[key] = (<any>this.values)[key];
+                    (<any>data["values"])[key] = this.values[key] !== undefined ? this.values[key] : <any>null;
             }
         }
         if (Array.isArray(this.verificationMethodsIds)) {
@@ -2124,9 +2275,9 @@ export interface IAddProtocolTemplateRequest {
 }
 
 export class ServicePaginatedResultOfPossibleProtocolTemplateResultDTO implements IServicePaginatedResultOfPossibleProtocolTemplateResultDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPossibleProtocolTemplateResultDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleProtocolTemplateResultDTO | null;
 
     constructor(data?: IServicePaginatedResultOfPossibleProtocolTemplateResultDTO) {
         if (data) {
@@ -2139,9 +2290,9 @@ export class ServicePaginatedResultOfPossibleProtocolTemplateResultDTO implement
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfPossibleProtocolTemplateResultDTO.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfPossibleProtocolTemplateResultDTO.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -2154,17 +2305,17 @@ export class ServicePaginatedResultOfPossibleProtocolTemplateResultDTO implement
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfPossibleProtocolTemplateResultDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPossibleProtocolTemplateResultDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleProtocolTemplateResultDTO | null;
 }
 
 export class PaginatedListOfPossibleProtocolTemplateResultDTO implements IPaginatedListOfPossibleProtocolTemplateResultDTO {
@@ -2186,15 +2337,18 @@ export class PaginatedListOfPossibleProtocolTemplateResultDTO implements IPagina
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(PossibleProtocolTemplateResultDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -2208,15 +2362,15 @@ export class PaginatedListOfPossibleProtocolTemplateResultDTO implements IPagina
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -2248,17 +2402,23 @@ export class PossibleProtocolTemplateResultDTO implements IPossibleProtocolTempl
 
     init(_data?: any) {
         if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
             if (Array.isArray(_data["verificationTypeNames"])) {
                 this.verificationTypeNames = [] as any;
                 for (let item of _data["verificationTypeNames"])
                     this.verificationTypeNames!.push(item);
             }
-            this.deviceTypeInfo = _data["deviceTypeInfo"];
+            else {
+                this.verificationTypeNames = <any>null;
+            }
+            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
             if (Array.isArray(_data["verificationMethodIds"])) {
                 this.verificationMethodIds = [] as any;
                 for (let item of _data["verificationMethodIds"])
                     this.verificationMethodIds!.push(item);
+            }
+            else {
+                this.verificationMethodIds = <any>null;
             }
         }
     }
@@ -2272,13 +2432,13 @@ export class PossibleProtocolTemplateResultDTO implements IPossibleProtocolTempl
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
         if (Array.isArray(this.verificationTypeNames)) {
             data["verificationTypeNames"] = [];
             for (let item of this.verificationTypeNames)
                 data["verificationTypeNames"].push(item);
         }
-        data["deviceTypeInfo"] = this.deviceTypeInfo;
+        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
         if (Array.isArray(this.verificationMethodIds)) {
             data["verificationMethodIds"] = [];
             for (let item of this.verificationMethodIds)
@@ -2296,9 +2456,9 @@ export interface IPossibleProtocolTemplateResultDTO {
 }
 
 export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePaginatedResultOfVerificationMethodDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfVerificationMethodDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfVerificationMethodDTO | null;
 
     constructor(data?: IServicePaginatedResultOfVerificationMethodDTO) {
         if (data) {
@@ -2311,9 +2471,9 @@ export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePa
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfVerificationMethodDTO.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfVerificationMethodDTO.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -2326,17 +2486,17 @@ export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePa
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfVerificationMethodDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfVerificationMethodDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfVerificationMethodDTO | null;
 }
 
 export class PaginatedListOfVerificationMethodDTO implements IPaginatedListOfVerificationMethodDTO {
@@ -2358,15 +2518,18 @@ export class PaginatedListOfVerificationMethodDTO implements IPaginatedListOfVer
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(VerificationMethodDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -2380,15 +2543,15 @@ export class PaginatedListOfVerificationMethodDTO implements IPaginatedListOfVer
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -2420,14 +2583,17 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
 
     init(_data?: any) {
         if (_data) {
-            this.id = _data["id"];
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
             if (Array.isArray(_data["aliases"])) {
                 this.aliases = [] as any;
                 for (let item of _data["aliases"])
                     this.aliases!.push(item);
             }
-            this.description = _data["description"];
-            this.fileName = _data["fileName"];
+            else {
+                this.aliases = <any>null;
+            }
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            this.fileName = _data["fileName"] !== undefined ? _data["fileName"] : <any>null;
         }
     }
 
@@ -2440,14 +2606,14 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
+        data["id"] = this.id !== undefined ? this.id : <any>null;
         if (Array.isArray(this.aliases)) {
             data["aliases"] = [];
             for (let item of this.aliases)
                 data["aliases"].push(item);
         }
-        data["description"] = this.description;
-        data["fileName"] = this.fileName;
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        data["fileName"] = this.fileName !== undefined ? this.fileName : <any>null;
         return data;
     }
 }
@@ -2460,9 +2626,9 @@ export interface IVerificationMethodDTO {
 }
 
 export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IServicePaginatedResultOfPossibleVerificationMethodDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPossibleVerificationMethodDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleVerificationMethodDTO | null;
 
     constructor(data?: IServicePaginatedResultOfPossibleVerificationMethodDTO) {
         if (data) {
@@ -2475,9 +2641,9 @@ export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IS
 
     init(_data?: any) {
         if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfPossibleVerificationMethodDTO.fromJS(_data["data"]) : <any>undefined;
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfPossibleVerificationMethodDTO.fromJS(_data["data"]) : <any>null;
         }
     }
 
@@ -2490,17 +2656,17 @@ export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IS
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
         return data;
     }
 }
 
 export interface IServicePaginatedResultOfPossibleVerificationMethodDTO {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfPossibleVerificationMethodDTO | undefined;
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleVerificationMethodDTO | null;
 }
 
 export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedListOfPossibleVerificationMethodDTO {
@@ -2522,15 +2688,18 @@ export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedL
 
     init(_data?: any) {
         if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
                     this.items!.push(PossibleVerificationMethodDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
             }
         }
     }
@@ -2544,15 +2713,15 @@ export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedL
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
         if (Array.isArray(this.items)) {
             data["items"] = [];
             for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
+                data["items"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
@@ -2585,22 +2754,31 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
 
     init(_data?: any) {
         if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceTypeInfo = _data["deviceTypeInfo"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
             if (Array.isArray(_data["deviceModifications"])) {
                 this.deviceModifications = [] as any;
                 for (let item of _data["deviceModifications"])
                     this.deviceModifications!.push(item);
+            }
+            else {
+                this.deviceModifications = <any>null;
             }
             if (Array.isArray(_data["verificationTypeNames"])) {
                 this.verificationTypeNames = [] as any;
                 for (let item of _data["verificationTypeNames"])
                     this.verificationTypeNames!.push(item);
             }
+            else {
+                this.verificationTypeNames = <any>null;
+            }
             if (Array.isArray(_data["dates"])) {
                 this.dates = [] as any;
                 for (let item of _data["dates"])
                     this.dates!.push(YearMonth.fromJS(item));
+            }
+            else {
+                this.dates = <any>null;
             }
         }
     }
@@ -2614,8 +2792,8 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceTypeInfo"] = this.deviceTypeInfo;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
         if (Array.isArray(this.deviceModifications)) {
             data["deviceModifications"] = [];
             for (let item of this.deviceModifications)
@@ -2629,7 +2807,7 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
         if (Array.isArray(this.dates)) {
             data["dates"] = [];
             for (let item of this.dates)
-                data["dates"].push(item ? item.toJSON() : <any>undefined);
+                data["dates"].push(item ? item.toJSON() : <any>null);
         }
         return data;
     }
