@@ -7,4 +7,5 @@ public enum BackgroundEvents
     NewInitialVerificationJob,
     DoneInitialVerificationJob,
     NewProtocolTemplate,
+    ChangedOwner,
 }

@@ -14,6 +14,7 @@ public class ProjDatabase : DbContext
     public DbSet<DeviceType> DeviceTypes => Set<DeviceType>();
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<Etalon> Etalons => Set<Etalon>();
+    public DbSet<Owner> Owners => Set<Owner>();
     public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
     public DbSet<InitialVerificationFailed> InitialVerificationsFailed => Set<InitialVerificationFailed>();
     public DbSet<InitialVerification> CompleteVerifications => Set<InitialVerification>();
