@@ -25,7 +25,7 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
         _serviceScopeFactory = serviceScopeFactory;
         _fgisAPI = fGISAPI;
         _keeper = eventKeeper;
-        eventKeeper.Subscribe(BackgroundEvents.NewInitialVerificationJob, OnEventTriggered);
+        SubscribeTo(_keeper, BackgroundEvents.NewInitialVerificationJob);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)

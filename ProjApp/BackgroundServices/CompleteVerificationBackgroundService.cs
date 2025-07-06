@@ -21,7 +21,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         _logger = logger;
         _serviceScopeFactory = serviceScopeFactory;
         _keeper = eventKeeper;
-        eventKeeper.Subscribe(BackgroundEvents.NewProtocolTemplate, OnEventTriggered);
+        SubscribeTo(_keeper, BackgroundEvents.NewProtocolTemplate);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
