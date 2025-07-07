@@ -33,6 +33,7 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerificationFailed>>();
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
         serviceCollection.AddTransient<AddProtocolTemplateCommand>();
+        serviceCollection.AddTransient<AddOwnerCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
@@ -43,6 +44,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<InitialVerificationService>();
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
+        serviceCollection.AddScoped<OwnersService>();
 
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan([.. assemblies.Select(Assembly.Load)]);

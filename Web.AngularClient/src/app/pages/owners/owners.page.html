@@ -1,0 +1,103 @@
+<div class="owners-container">
+  <div *ngIf="loading" class="loading-message">Загрузка владельцев...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="addError" class="error-message">{{ addError }}</div>
+  <div *ngIf="!loading && !error">
+    <div class="pagination-controls">
+      <div class="selector-form">
+        <label for="pageSize">Записей на странице:</label>
+        <select
+          id="pageSize"
+          [(ngModel)]="pagination.pageSize"
+          (change)="pagination.onPageSizeChange()"
+        >
+          <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+            {{ size }}
+          </option>
+        </select>
+      </div>
+      <form (ngSubmit)="addOwner()" #addOwnerForm="ngForm" class="add-owner-form">
+        <label>
+          Имя:
+          <input type="text" [(ngModel)]="newOwnerName" name="name" required />
+        </label>
+        <label>
+          ИНН:
+          <input type="number" [(ngModel)]="newOwnerINN" name="inn" required min="1" />
+        </label>
+        <button [disabled]="addLoading || !addOwnerForm.form.valid">Добавить владельца</button>
+        <span *ngIf="addLoading" class="loading-message">Добавление...</span>
+      </form>
+      <div class="pagination-info">
+        Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex() + 1 }} из {{ pagination.totalCount }} владельцев
+      </div>
+    </div>
+    <table>
+      <thead>
+        <tr>
+          <th>Имя</th>
+          <th>ИНН</th>
+          <th>Действия</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let owner of owners">
+          <td>{{ owner.name }}</td>
+          <td *ngIf="editOwnerId !== owner.id">{{ owner.inn }}</td>
+          <td *ngIf="editOwnerId === owner.id">
+            <input type="number" [(ngModel)]="editOwnerINN" name="editInn{{owner.id}}" required min="1" />
+          </td>
+          <td>
+            <button *ngIf="editOwnerId !== owner.id" (click)="startEditOwnerINN(owner)">Изменить ИНН</button>
+            <button *ngIf="editOwnerId === owner.id" (click)="saveEditOwnerINN(owner)" [disabled]="editLoading">Сохранить</button>
+            <button *ngIf="editOwnerId === owner.id" (click)="cancelEditOwnerINN()" [disabled]="editLoading">Отмена</button>
+            <span *ngIf="editOwnerId === owner.id && editLoading" class="loading-message">Сохранение...</span>
+            <span *ngIf="editOwnerId === owner.id && editError" class="error-message">{{ editError }}</span>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateFirst"
+        (click)="pagination.goToFirstPage()"
+        title="Первая страница"
+      >
+        «
+      </button>
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasPreviousPage"
+        (click)="pagination.goToPreviousPage()"
+        title="Предыдущая страница"
+      >
+        ‹
+      </button>
+      <button
+        *ngFor="let page of pagination.getPageNumbers()"
+        class="pagination-btn page-number"
+        [class.active]="page === pagination.currentPage"
+        (click)="pagination.goToPage(page)"
+      >
+        {{ page }}
+      </button>
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasNextPage"
+        (click)="pagination.goToNextPage()"
+        title="Следующая страница"
+      >
+        ›
+      </button>
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateLast"
+        (click)="pagination.goToLastPage()"
+        title="Последняя страница"
+      >
+        »
+      </button>
+    </div>
+  </div>
+</div> 

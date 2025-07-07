@@ -340,6 +340,172 @@
         }
       }
     },
+    "/api/InitialVerifications/SetVerificationNum": {
+      "patch": {
+        "tags": [
+          "InitialVerifications"
+        ],
+        "operationId": "InitialVerifications_SetVerificationNum",
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "excelFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "dataRange": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Owners/GetOwners": {
+      "get": {
+        "tags": [
+          "Owners"
+        ],
+        "operationId": "Owners_GetOwners",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfOwner"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Owners/AddOwner": {
+      "post": {
+        "tags": [
+          "Owners"
+        ],
+        "operationId": "Owners_AddOwner",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "Name": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "INN": {
+                    "type": "integer",
+                    "format": "uint64"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Owners/SetOwnerINN": {
+      "patch": {
+        "tags": [
+          "Owners"
+        ],
+        "operationId": "Owners_SetOwnerINN",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "Id": {
+                    "type": "string",
+                    "format": "guid"
+                  },
+                  "INN": {
+                    "type": "integer",
+                    "format": "uint64"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/PendingManometrVerifications/AcceptExcelVerifications": {
       "post": {
         "tags": [
@@ -1087,6 +1253,78 @@
         "enum": [
           "АнтипинскийНПЗ",
           "ГПНЯмал"
+        ]
+      },
+      "ServicePaginatedResultOfOwner": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfOwner"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfOwner": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Owner"
+            }
+          }
+        }
+      },
+      "Owner": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string"
+              },
+              "inn": {
+                "type": "integer",
+                "format": "uint64"
+              }
+            }
+          }
         ]
       },
       "ServicePaginatedResultOfPendingManometrVerification": {

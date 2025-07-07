@@ -14,9 +14,14 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'owners',
+    loadComponent: () =>
+      import('./pages/owners/owners.page').then((m) => m.OwnersPage),
+  },
+  {
     path: 'add-values',
     loadComponent: () =>
-      import('./pages/add-values.page').then((m) => m.AddValuesPage),
+      import('./pages/add-values/add-values.page').then((m) => m.AddValuesPage),
   },
   {
     path: 'verification-methods',

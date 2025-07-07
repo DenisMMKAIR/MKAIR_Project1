@@ -13,7 +13,7 @@ public class InitialVerification : DatabaseEntity, IInitialVerification
 
     // Optional
     public string? VerificationTypeNum { get; set; }
-    public uint? OwnerInn { get; set; }
+    public ulong? OwnerInn { get; set; }
     public string? Worker { get; set; }
     public DeviceLocation? Location { get; set; }
     public string? AdditionalInfo { get; set; }
@@ -36,7 +36,7 @@ public interface IInitialVerification
 
     // Optional
     public string? VerificationTypeNum { get; set; }
-    public uint? OwnerInn { get; set; }
+    public ulong? OwnerInn { get; set; }
     public string? Worker { get; set; }
     public DeviceLocation? Location { get; set; }
     public string? AdditionalInfo { get; set; }

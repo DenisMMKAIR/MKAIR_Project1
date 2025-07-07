@@ -56,7 +56,7 @@ public class OwnersService
         return ServiceResult.Success("Владелец добавлен");
     }
 
-    public async Task<ServiceResult> SetOwnerINN(Guid id, uint inn)
+    public async Task<ServiceResult> SetOwnerINN(Guid id, ulong inn)
     {
         if (inn == 0)
         {
