@@ -46,7 +46,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             if (request.Humidity is true) columns.Add(new HumidityColumn());
 
             Columns = columns;
-            AllColumnsVerifiers = [];
+            AllColumnsVerifiers = [new NotEmptyColumnVerifier()];
         }
 
         private class DeviceTypeNumberColumn : IColumn
@@ -54,9 +54,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["обозначение си", "рег. номер типа си"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.DeviceTypeNumber);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -65,9 +63,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["заводской номер", "заводской №/ буквенно-цифровое обозначение"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.DeviceSerial);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -76,9 +72,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["дата поверки"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.VerificationDate);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -87,9 +81,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["номер_протокола"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.VerificationTypeNum);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -99,7 +91,6 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public string InternalName { get; } = nameof(InitialVerificationDataItem.Worker);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
             public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier(),
                 new NameVerifier(),
             ];
             public uint ColumnIndex { get; set; }
@@ -110,9 +101,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["класс точности", "другие параметры"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.AdditionalInfo);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -121,9 +110,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyCollection<string> IncomingNames { get; } = ["давление"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.Pressure);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -134,9 +121,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
                 new SingleFloatDigitColumnNormalizer(),
             ];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
 
@@ -147,9 +132,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
                 new SingleFloatDigitColumnNormalizer(),
             ];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new NotEmptyColumnVerifier()
-            ];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
         }
     }
