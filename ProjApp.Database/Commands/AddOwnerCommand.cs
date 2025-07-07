@@ -18,11 +18,11 @@ public class OwnerUniqComparer : IEqualityComparer<Owner>
     {
         if (x == null || y == null) return false;
 
-        return x.INN == y.INN;
+        return x.Name == y.Name;
     }
 
     public int GetHashCode([DisallowNull] Owner obj)
     {
-        return obj.INN.GetHashCode();
+        return obj.Name.GetHashCode();
     }
 }
