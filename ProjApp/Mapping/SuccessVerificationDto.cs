@@ -4,8 +4,9 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Mapping;
 
-public class SuccessInitialVerificationDto : IRegister
+public class SuccessVerificationDto : IRegister
 {
+    public required Guid Id { get; set; }
     public required string DeviceTypeNumber { get; set; }
     public required string DeviceSerial { get; set; }
     public required DateOnly VerificationDate { get; set; }
@@ -14,21 +15,18 @@ public class SuccessInitialVerificationDto : IRegister
     public required IReadOnlyList<string> VerificationTypeNames { get; set; }
     public required string Owner { get; set; }
     public required IReadOnlyList<string> Etalons { get; set; }
-    public required Guid Id { get; set; }
-
-    // Optional
-    public string? VerificationTypeNum { get; set; }
-    public ulong? OwnerInn { get; set; }
-    public string? Worker { get; set; }
-    public DeviceLocation? Location { get; set; }
-    public string? AdditionalInfo { get; set; }
-    public string? Pressure { get; set; }
-    public double? Temperature { get; set; }
-    public double? Humidity { get; set; }
+    public required string VerificationTypeNum { get; set; }
+    public required ulong OwnerInn { get; set; }
+    public required string Worker { get; set; }
+    public required DeviceLocation Location { get; set; }
+    public required string AdditionalInfo { get; set; }
+    public required string Pressure { get; set; }
+    public required double Temperature { get; set; }
+    public required double Humidity { get; set; }
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<SuccessInitialVerification, SuccessInitialVerificationDto>()
+        config.NewConfig<SuccessVerification, SuccessVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
             .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
     }

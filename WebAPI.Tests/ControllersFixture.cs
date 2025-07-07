@@ -19,7 +19,7 @@ public abstract class ControllersFixture
 
         var assemblies = new string?[]
             {
-                typeof(ProjApp.Mapping.InitialVerificationDto).Assembly.FullName,
+                typeof(ProjApp.Mapping.SuccessInitialVerificationDto).Assembly.FullName,
                 typeof(WebAPI.Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
             }
             .Select(name => name ?? throw new InvalidOperationException("No assembly name"))
@@ -28,7 +28,7 @@ public abstract class ControllersFixture
         services.RegisterProjectTestsDI(assemblies);
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobsController>();
-        services.AddTransient<InitialVerificationsController>();
+        services.AddTransient<VerificationsController>();
         services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<VerificationMethodsController>();
         services.AddTransient<ProtocolTemplateController>();

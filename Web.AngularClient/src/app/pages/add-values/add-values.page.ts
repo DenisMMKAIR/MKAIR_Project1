@@ -1,7 +1,7 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { InitialVerificationsClient, ServiceResult, FileParameter } from '../../api-client';
+import { VerificationsClient, ServiceResult, FileParameter } from '../../api-client';
 
 @Component({
   selector: 'app-add-values',
@@ -9,10 +9,10 @@ import { InitialVerificationsClient, ServiceResult, FileParameter } from '../../
   imports: [CommonModule, FormsModule],
   templateUrl: './add-values.page.html',
   styleUrls: ['./add-values.page.scss'],
-  providers: [InitialVerificationsClient],
+  providers: [VerificationsClient],
 })
 export class AddValuesPage {
-  private readonly api = inject(InitialVerificationsClient);
+  private readonly api = inject(VerificationsClient);
 
   public mode: 'setValues' | 'setVerificationNum' = 'setValues';
 

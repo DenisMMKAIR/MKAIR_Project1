@@ -1,22 +1,22 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { VerificationsClient, SuccessInitialVerificationDto, DeviceLocation } from '../../api-client';
+import { VerificationsClient, SuccessVerificationDto, DeviceLocation } from '../../api-client';
 import { VerificationsService } from '../../services/verifications.service';
 
 @Component({
-  selector: 'app-verifications-page',
+  selector: 'app-filled-verifications-page',
   standalone: true,
-  templateUrl: './verifications.page.html',
-  styleUrls: ['./verifications.page.scss'],
+  templateUrl: './filled-verifications.page.html',
+  styleUrls: ['./filled-verifications.page.scss'],
   imports: [NgFor, NgIf, DatePipe, FormsModule],
   providers: [VerificationsClient],
 })
-export class VerificationsPage implements OnInit {
+export class FilledVerificationsPage implements OnInit {
   private readonly verificationsClient = inject(VerificationsClient);
   private readonly verificationsService = inject(VerificationsService);
 
-  public verifications: SuccessInitialVerificationDto[] = [];
+  public verifications: SuccessVerificationDto[] = [];
   public loading = false;
   public error: string | null = null;
 
@@ -40,7 +40,7 @@ export class VerificationsPage implements OnInit {
       ? null 
       : this.locationFilter as DeviceLocation;
     
-    this.verificationsClient.getInitialVerifications(
+    this.verificationsClient.getVerifications(
       this.pagination.currentPage, 
       this.pagination.pageSize, 
       yearMonthFilter,
@@ -104,4 +104,4 @@ export class VerificationsPage implements OnInit {
   public set locationFilter(value: string | null) {
     this.verificationsService.setLocationFilter(value);
   }
-}
+} 

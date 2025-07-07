@@ -9,17 +9,17 @@ using WebAPI.Controllers.Requests;
 
 namespace WebAPI.Controllers;
 
-public class InitialVerificationsController : ApiControllerBase
+public class VerificationsController : ApiControllerBase
     {
-        private readonly InitialVerificationService _service;
+        private readonly VerificationsService _service;
 
-        public InitialVerificationsController(InitialVerificationService service)
+        public VerificationsController(VerificationsService service)
         {
             _service = service;
         }
 
         [HttpGet]
-        public async Task<ServicePaginatedResult<InitialVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] GetVerificationsFilters? filters)
+        public async Task<ServicePaginatedResult<SuccessInitialVerificationDto>> GetInitialVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] GetVerificationsFilters? filters)
         {
             YearMonth? yearMonthFilter;
             try
@@ -28,10 +28,26 @@ public class InitialVerificationsController : ApiControllerBase
             }
             catch (Exception e)
             {
-                return ServicePaginatedResult<InitialVerificationDto>.Fail(e.Message);
+                return ServicePaginatedResult<SuccessInitialVerificationDto>.Fail(e.Message);
             }
 
             return await _service.GetInitialVerifications(request.PageIndex, request.PageSize, yearMonthFilter, filters?.TypeInfo, filters?.Location);
+        }
+
+        [HttpGet]
+        public async Task<ServicePaginatedResult<SuccessVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] GetVerificationsFilters? filters)
+        {
+            YearMonth? yearMonthFilter;
+            try
+            {
+                yearMonthFilter = YearMonth.Parse(filters?.YearMonth);
+            }
+            catch (Exception e)
+            {
+                return ServicePaginatedResult<SuccessVerificationDto>.Fail(e.Message);
+            }
+
+            return await _service.GetVerifications(request.PageIndex, request.PageSize, yearMonthFilter, filters?.TypeInfo, filters?.Location);
         }
 
         [HttpPatch]

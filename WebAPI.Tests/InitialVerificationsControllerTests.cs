@@ -23,8 +23,8 @@ public class InitialVerificationsControllerTests : ControllersFixture
             .GetMethod("ProcessWorkAsync", BindingFlags.NonPublic | BindingFlags.Instance)!;
         await (Task)method.Invoke(bs, null)!;
 
-        var controller = scope.ServiceProvider.GetRequiredService<InitialVerificationsController>();
-        var response = await controller.GetVerifications(new(), null);
+        var controller = scope.ServiceProvider.GetRequiredService<VerificationsController>();
+        var response = await controller.GetInitialVerifications(new(), null);
 
         var deviceTypes = await db.DeviceTypes.CountAsync();
         var devices = await db.Devices.CountAsync();

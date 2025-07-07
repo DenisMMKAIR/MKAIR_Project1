@@ -31,7 +31,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         return Task.CompletedTask;
     }
 
-    protected override async Task ProcessWorkAsync()
+    protected override Task ProcessWorkAsync()
     {
         /*
         using var scope = _serviceScopeFactory.CreateScope();

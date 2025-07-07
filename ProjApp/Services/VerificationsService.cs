@@ -1,6 +1,7 @@
 using Mapster;
 using MapsterMapper;
 using Microsoft.Extensions.Logging;
+using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
@@ -12,29 +13,32 @@ using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
 
-public class InitialVerificationService
+public class VerificationsService
 {
     private readonly ProjDatabase _database;
     private readonly IMapper _mapper;
     private readonly AddInitialVerificationCommand<SuccessInitialVerification> _addInitialVerificationCommand;
     private readonly IIVSetValuesProcessor _ivAddValuesProcessor;
-    private readonly ILogger<InitialVerificationService> _logger;
+    private readonly ILogger<VerificationsService> _logger;
+    private readonly EventKeeper _eventKeeper;
 
-    public InitialVerificationService(
+    public VerificationsService(
         ProjDatabase database,
         IMapper mapper,
         AddInitialVerificationCommand<SuccessInitialVerification> addInitialVerificationCommand,
         IIVSetValuesProcessor ivAddValuesProcessor,
-        ILogger<InitialVerificationService> logger)
+        ILogger<VerificationsService> logger,
+        EventKeeper eventKeeper)
     {
         _database = database;
         _mapper = mapper;
         _addInitialVerificationCommand = addInitialVerificationCommand;
         _ivAddValuesProcessor = ivAddValuesProcessor;
         _logger = logger;
+        _eventKeeper = eventKeeper;
     }
 
-    public async Task<ServicePaginatedResult<InitialVerificationDto>> GetInitialVerifications(
+    public async Task<ServicePaginatedResult<SuccessInitialVerificationDto>> GetInitialVerifications(
         int page,
         int pageSize,
         YearMonth? yearMonthFilter,
@@ -45,7 +49,8 @@ public class InitialVerificationService
 
         if (yearMonthFilter != null)
         {
-            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year && iv.VerificationDate.Month == yearMonthFilter.Value.Month);
+            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year &&
+                                      iv.VerificationDate.Month == yearMonthFilter.Value.Month);
         }
 
         if (typeInfoFilter != null)
@@ -61,9 +66,44 @@ public class InitialVerificationService
         var result = await query
             .OrderBy(iv => iv.VerificationDate)
             .ThenBy(iv => iv.DeviceTypeNumber)
-            .ProjectToType<InitialVerificationDto>(_mapper.Config)
+            .ProjectToType<SuccessInitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
-        return ServicePaginatedResult<InitialVerificationDto>.Success(result);
+
+        return ServicePaginatedResult<SuccessInitialVerificationDto>.Success(result);
+    }
+
+    public async Task<ServicePaginatedResult<SuccessVerificationDto>> GetVerifications(
+        int page,
+        int pageSize,
+        YearMonth? yearMonthFilter,
+        string? typeInfoFilter,
+        DeviceLocation? locationFilter)
+    {
+        var query = _database.VerificationsSuccess.AsQueryable();
+
+        if (yearMonthFilter != null)
+        {
+            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year &&
+                                      iv.VerificationDate.Month == yearMonthFilter.Value.Month);
+        }
+
+        if (typeInfoFilter != null)
+        {
+            query = query.Where(iv => iv.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
+        }
+
+        if (locationFilter != null)
+        {
+            query = query.Where(iv => iv.Location == locationFilter);
+        }
+
+        var result = await query
+            .OrderBy(iv => iv.VerificationDate)
+            .ThenBy(iv => iv.DeviceTypeNumber)
+            .ProjectToType<SuccessVerificationDto>(_mapper.Config)
+            .ToPaginatedAsync(page, pageSize);
+
+        return ServicePaginatedResult<SuccessVerificationDto>.Success(result);
     }
 
     public async Task<ServiceResult> AddInitialVerification(SuccessInitialVerification iv)
@@ -76,14 +116,17 @@ public class InitialVerificationService
 
     public async Task<ServiceResult> SetValues(MemoryStream file, SetValuesRequest request)
     {
-        return await SetValuesBaseAsync(file, request, true);
+        var result = await SetValuesBaseAsync(file, request, true);
+        _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
+        return result;
     }
 
     public async Task<ServiceResult> SetVerificationNum(MemoryStream file, string sheetName, string dataRange)
     {
         var request = new SetValuesRequest { DataRange = dataRange, SheetName = sheetName, VerificationTypeNum = true, Location = DeviceLocation.АнтипинскийНПЗ };
-
-        return await SetValuesBaseAsync(file, request, false);
+        var result = await SetValuesBaseAsync(file, request, false);
+        _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
+        return result;
     }
 
     private async Task<ServiceResult> SetValuesBaseAsync(MemoryStream file, SetValuesRequest request, bool setLocation)

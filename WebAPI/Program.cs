@@ -20,7 +20,7 @@ if (string.IsNullOrEmpty(connectionString)) throw new Exception("No connection s
 
 var assemblies = new string?[]
     {
-        typeof(ProjApp.Mapping.InitialVerificationDto).Assembly.FullName,
+        typeof(ProjApp.Mapping.SuccessInitialVerificationDto).Assembly.FullName,
         typeof(WebAPI.Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
     }
     .Select(name => name ?? throw new InvalidOperationException("No assembly name"))

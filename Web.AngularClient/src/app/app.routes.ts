@@ -37,4 +37,11 @@ export const routes: Routes = [
         (m) => m.ProtocolTemplatesPage
       ),
   },
+  {
+    path: 'filled-verifications',
+    loadComponent: () =>
+      import('./pages/filled-verifications/filled-verifications.page').then(
+        (m) => m.FilledVerificationsPage
+      ),
+  },
 ];

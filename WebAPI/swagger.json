@@ -197,199 +197,6 @@
         }
       }
     },
-    "/api/InitialVerifications/GetVerifications": {
-      "get": {
-        "tags": [
-          "InitialVerifications"
-        ],
-        "operationId": "InitialVerifications_GetVerifications",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "YearMonth",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "TypeInfo",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 4
-          },
-          {
-            "name": "Location",
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/DeviceLocation"
-                }
-              ]
-            },
-            "x-position": 5
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfInitialVerificationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/InitialVerifications/SetValues": {
-      "patch": {
-        "tags": [
-          "InitialVerifications"
-        ],
-        "operationId": "InitialVerifications_SetValues",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "excelFile": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  },
-                  "SheetName": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "DataRange": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "Location": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "VerificationTypeNum": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
-                  "Worker": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
-                  "AdditionalInfo": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
-                  "Pressure": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
-                  "Temperature": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
-                  "Humidity": {
-                    "type": "boolean",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/InitialVerifications/SetVerificationNum": {
-      "patch": {
-        "tags": [
-          "InitialVerifications"
-        ],
-        "operationId": "InitialVerifications_SetVerificationNum",
-        "parameters": [
-          {
-            "name": "sheetName",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "excelFile": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  },
-                  "dataRange": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Owners/GetOwners": {
       "get": {
         "tags": [
@@ -926,6 +733,270 @@
           }
         }
       }
+    },
+    "/api/Verifications/GetInitialVerifications": {
+      "get": {
+        "tags": [
+          "Verifications"
+        ],
+        "operationId": "Verifications_GetInitialVerifications",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "YearMonth",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "TypeInfo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/DeviceLocation"
+                }
+              ]
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfSuccessInitialVerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Verifications/GetVerifications": {
+      "get": {
+        "tags": [
+          "Verifications"
+        ],
+        "operationId": "Verifications_GetVerifications",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "YearMonth",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "TypeInfo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/DeviceLocation"
+                }
+              ]
+            },
+            "x-position": 5
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfSuccessVerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Verifications/SetValues": {
+      "patch": {
+        "tags": [
+          "Verifications"
+        ],
+        "operationId": "Verifications_SetValues",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "excelFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "SheetName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "DataRange": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Location": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "VerificationTypeNum": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Worker": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "AdditionalInfo": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Pressure": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Temperature": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Humidity": {
+                    "type": "boolean",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Verifications/SetVerificationNum": {
+      "patch": {
+        "tags": [
+          "Verifications"
+        ],
+        "operationId": "Verifications_SetVerificationNum",
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "excelFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "dataRange": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
     }
   },
   "components": {
@@ -1111,150 +1182,6 @@
           }
         }
       },
-      "ServicePaginatedResultOfInitialVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfInitialVerificationDto"
-              }
-            ]
-          }
-        }
-      },
-      "PaginatedListOfInitialVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/InitialVerificationDto"
-            }
-          }
-        }
-      },
-      "InitialVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "deviceTypeNumber": {
-            "type": "string"
-          },
-          "deviceSerial": {
-            "type": "string"
-          },
-          "verificationDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "deviceTypeInfo": {
-            "type": "string"
-          },
-          "verifiedUntilDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "verificationTypeNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "owner": {
-            "type": "string"
-          },
-          "etalons": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "verificationTypeNum": {
-            "type": "string",
-            "nullable": true
-          },
-          "ownerInn": {
-            "type": "integer",
-            "nullable": true
-          },
-          "worker": {
-            "type": "string",
-            "nullable": true
-          },
-          "location": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/DeviceLocation"
-              }
-            ]
-          },
-          "additionalInfo": {
-            "type": "string",
-            "nullable": true
-          },
-          "pressure": {
-            "type": "string",
-            "nullable": true
-          },
-          "temperature": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          },
-          "humidity": {
-            "type": "number",
-            "format": "double",
-            "nullable": true
-          }
-        }
-      },
-      "DeviceLocation": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ],
-        "enum": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ]
-      },
       "ServicePaginatedResultOfOwner": {
         "type": "object",
         "additionalProperties": false,
@@ -1437,6 +1364,18 @@
               }
             }
           }
+        ]
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
         ]
       },
       "ServicePaginatedResultOfProtocolTemplateDTO": {
@@ -1798,6 +1737,260 @@
             "items": {
               "$ref": "#/components/schemas/YearMonth"
             }
+          }
+        }
+      },
+      "ServicePaginatedResultOfSuccessInitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfSuccessInitialVerificationDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfSuccessInitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuccessInitialVerificationDto"
+            }
+          }
+        }
+      },
+      "SuccessInitialVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceSerial": {
+            "type": "string"
+          },
+          "verificationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "deviceTypeInfo": {
+            "type": "string"
+          },
+          "verifiedUntilDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "verificationTypeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "owner": {
+            "type": "string"
+          },
+          "etalons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "verificationTypeNum": {
+            "type": "string",
+            "nullable": true
+          },
+          "ownerInn": {
+            "type": "integer",
+            "format": "uint64",
+            "nullable": true
+          },
+          "worker": {
+            "type": "string",
+            "nullable": true
+          },
+          "location": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/DeviceLocation"
+              }
+            ]
+          },
+          "additionalInfo": {
+            "type": "string",
+            "nullable": true
+          },
+          "pressure": {
+            "type": "string",
+            "nullable": true
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          }
+        }
+      },
+      "ServicePaginatedResultOfSuccessVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfSuccessVerificationDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfSuccessVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/SuccessVerificationDto"
+            }
+          }
+        }
+      },
+      "SuccessVerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceSerial": {
+            "type": "string"
+          },
+          "verificationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "deviceTypeInfo": {
+            "type": "string"
+          },
+          "verifiedUntilDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "verificationTypeNames": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "owner": {
+            "type": "string"
+          },
+          "etalons": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "verificationTypeNum": {
+            "type": "string"
+          },
+          "ownerInn": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DeviceLocation"
+          },
+          "additionalInfo": {
+            "type": "string"
+          },
+          "pressure": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double"
           }
         }
       }

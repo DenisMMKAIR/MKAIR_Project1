@@ -320,210 +320,6 @@ export class InitialVerificationJobsClient {
 }
 
 @Injectable()
-export class InitialVerificationsClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfInitialVerificationDto> {
-        let url_ = this.baseUrl + "/api/InitialVerifications/GetVerifications?";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (yearMonth !== undefined && yearMonth !== null)
-            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
-        if (typeInfo !== undefined && typeInfo !== null)
-            url_ += "TypeInfo=" + encodeURIComponent("" + typeInfo) + "&";
-        if (location !== undefined && location !== null)
-            url_ += "Location=" + encodeURIComponent("" + location) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetVerifications(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetVerifications(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfInitialVerificationDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfInitialVerificationDto>;
-        }));
-    }
-
-    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfInitialVerificationDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServicePaginatedResultOfInitialVerificationDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, additionalInfo: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/InitialVerifications/SetValues";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (excelFile !== null && excelFile !== undefined)
-            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
-        if (sheetName !== null && sheetName !== undefined)
-            content_.append("SheetName", sheetName.toString());
-        if (dataRange !== null && dataRange !== undefined)
-            content_.append("DataRange", dataRange.toString());
-        if (location !== null && location !== undefined)
-            content_.append("Location", location.toString());
-        if (verificationTypeNum !== null && verificationTypeNum !== undefined)
-            content_.append("VerificationTypeNum", verificationTypeNum.toString());
-        if (worker !== null && worker !== undefined)
-            content_.append("Worker", worker.toString());
-        if (additionalInfo !== null && additionalInfo !== undefined)
-            content_.append("AdditionalInfo", additionalInfo.toString());
-        if (pressure !== null && pressure !== undefined)
-            content_.append("Pressure", pressure.toString());
-        if (temperature !== null && temperature !== undefined)
-            content_.append("Temperature", temperature.toString());
-        if (humidity !== null && humidity !== undefined)
-            content_.append("Humidity", humidity.toString());
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSetValues(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSetValues(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processSetValues(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    setVerificationNum(sheetName: string | undefined, excelFile: FileParameter | null | undefined, dataRange: string | null | undefined): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/InitialVerifications/SetVerificationNum?";
-        if (sheetName === null)
-            throw new Error("The parameter 'sheetName' cannot be null.");
-        else if (sheetName !== undefined)
-            url_ += "sheetName=" + encodeURIComponent("" + sheetName) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (excelFile !== null && excelFile !== undefined)
-            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
-        if (dataRange !== null && dataRange !== undefined)
-            content_.append("dataRange", dataRange.toString());
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processSetVerificationNum(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processSetVerificationNum(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processSetVerificationNum(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
-@Injectable()
 export class OwnersClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -1307,6 +1103,272 @@ export class VerificationMethodsClient {
     }
 }
 
+@Injectable()
+export class VerificationsClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getInitialVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessInitialVerificationDto> {
+        let url_ = this.baseUrl + "/api/Verifications/GetInitialVerifications?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (yearMonth !== undefined && yearMonth !== null)
+            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
+        if (typeInfo !== undefined && typeInfo !== null)
+            url_ += "TypeInfo=" + encodeURIComponent("" + typeInfo) + "&";
+        if (location !== undefined && location !== null)
+            url_ += "Location=" + encodeURIComponent("" + location) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetInitialVerifications(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetInitialVerifications(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfSuccessInitialVerificationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfSuccessInitialVerificationDto>;
+        }));
+    }
+
+    protected processGetInitialVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfSuccessInitialVerificationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfSuccessInitialVerificationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
+        let url_ = this.baseUrl + "/api/Verifications/GetVerifications?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (yearMonth !== undefined && yearMonth !== null)
+            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
+        if (typeInfo !== undefined && typeInfo !== null)
+            url_ += "TypeInfo=" + encodeURIComponent("" + typeInfo) + "&";
+        if (location !== undefined && location !== null)
+            url_ += "Location=" + encodeURIComponent("" + location) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetVerifications(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVerifications(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfSuccessVerificationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfSuccessVerificationDto>;
+        }));
+    }
+
+    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfSuccessVerificationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, additionalInfo: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Verifications/SetValues";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (excelFile !== null && excelFile !== undefined)
+            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
+        if (sheetName !== null && sheetName !== undefined)
+            content_.append("SheetName", sheetName.toString());
+        if (dataRange !== null && dataRange !== undefined)
+            content_.append("DataRange", dataRange.toString());
+        if (location !== null && location !== undefined)
+            content_.append("Location", location.toString());
+        if (verificationTypeNum !== null && verificationTypeNum !== undefined)
+            content_.append("VerificationTypeNum", verificationTypeNum.toString());
+        if (worker !== null && worker !== undefined)
+            content_.append("Worker", worker.toString());
+        if (additionalInfo !== null && additionalInfo !== undefined)
+            content_.append("AdditionalInfo", additionalInfo.toString());
+        if (pressure !== null && pressure !== undefined)
+            content_.append("Pressure", pressure.toString());
+        if (temperature !== null && temperature !== undefined)
+            content_.append("Temperature", temperature.toString());
+        if (humidity !== null && humidity !== undefined)
+            content_.append("Humidity", humidity.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetValues(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetValues(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processSetValues(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    setVerificationNum(sheetName: string | undefined, excelFile: FileParameter | null | undefined, dataRange: string | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Verifications/SetVerificationNum?";
+        if (sheetName === null)
+            throw new Error("The parameter 'sheetName' cannot be null.");
+        else if (sheetName !== undefined)
+            url_ += "sheetName=" + encodeURIComponent("" + sheetName) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (excelFile !== null && excelFile !== undefined)
+            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
+        if (dataRange !== null && dataRange !== undefined)
+            content_.append("dataRange", dataRange.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processSetVerificationNum(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processSetVerificationNum(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processSetVerificationNum(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
 export class ServicePaginatedResultOfDeviceType implements IServicePaginatedResultOfDeviceType {
     message?: string | null;
     error?: string | null;
@@ -1717,244 +1779,6 @@ export interface IYearMonth {
     month?: number;
 }
 
-export class ServicePaginatedResultOfInitialVerificationDto implements IServicePaginatedResultOfInitialVerificationDto {
-    message?: string | null;
-    error?: string | null;
-    data?: PaginatedListOfInitialVerificationDto | null;
-
-    constructor(data?: IServicePaginatedResultOfInitialVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
-            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
-            this.data = _data["data"] ? PaginatedListOfInitialVerificationDto.fromJS(_data["data"]) : <any>null;
-        }
-    }
-
-    static fromJS(data: any): ServicePaginatedResultOfInitialVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ServicePaginatedResultOfInitialVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["message"] = this.message !== undefined ? this.message : <any>null;
-        data["error"] = this.error !== undefined ? this.error : <any>null;
-        data["data"] = this.data ? this.data.toJSON() : <any>null;
-        return data;
-    }
-}
-
-export interface IServicePaginatedResultOfInitialVerificationDto {
-    message?: string | null;
-    error?: string | null;
-    data?: PaginatedListOfInitialVerificationDto | null;
-}
-
-export class PaginatedListOfInitialVerificationDto implements IPaginatedListOfInitialVerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: InitialVerificationDto[];
-
-    constructor(data?: IPaginatedListOfInitialVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
-            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
-            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
-            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
-            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(InitialVerificationDto.fromJS(item));
-            }
-            else {
-                this.items = <any>null;
-            }
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfInitialVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfInitialVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
-        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
-        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
-        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
-        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>null);
-        }
-        return data;
-    }
-}
-
-export interface IPaginatedListOfInitialVerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: InitialVerificationDto[];
-}
-
-export class InitialVerificationDto implements IInitialVerificationDto {
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    verificationDate?: Date;
-    deviceTypeInfo?: string;
-    verifiedUntilDate?: Date;
-    verificationTypeNames?: string[];
-    owner?: string;
-    etalons?: string[];
-    id?: string;
-    verificationTypeNum?: string | null;
-    ownerInn?: number | null;
-    worker?: string | null;
-    location?: DeviceLocation | null;
-    additionalInfo?: string | null;
-    pressure?: string | null;
-    temperature?: number | null;
-    humidity?: number | null;
-
-    constructor(data?: IInitialVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
-            this.deviceSerial = _data["deviceSerial"] !== undefined ? _data["deviceSerial"] : <any>null;
-            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>null;
-            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
-            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>null;
-            if (Array.isArray(_data["verificationTypeNames"])) {
-                this.verificationTypeNames = [] as any;
-                for (let item of _data["verificationTypeNames"])
-                    this.verificationTypeNames!.push(item);
-            }
-            else {
-                this.verificationTypeNames = <any>null;
-            }
-            this.owner = _data["owner"] !== undefined ? _data["owner"] : <any>null;
-            if (Array.isArray(_data["etalons"])) {
-                this.etalons = [] as any;
-                for (let item of _data["etalons"])
-                    this.etalons!.push(item);
-            }
-            else {
-                this.etalons = <any>null;
-            }
-            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
-            this.verificationTypeNum = _data["verificationTypeNum"] !== undefined ? _data["verificationTypeNum"] : <any>null;
-            this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
-            this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
-            this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
-            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
-            this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
-            this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
-            this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
-        }
-    }
-
-    static fromJS(data: any): InitialVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new InitialVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
-        data["deviceSerial"] = this.deviceSerial !== undefined ? this.deviceSerial : <any>null;
-        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>null;
-        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
-        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>null;
-        if (Array.isArray(this.verificationTypeNames)) {
-            data["verificationTypeNames"] = [];
-            for (let item of this.verificationTypeNames)
-                data["verificationTypeNames"].push(item);
-        }
-        data["owner"] = this.owner !== undefined ? this.owner : <any>null;
-        if (Array.isArray(this.etalons)) {
-            data["etalons"] = [];
-            for (let item of this.etalons)
-                data["etalons"].push(item);
-        }
-        data["id"] = this.id !== undefined ? this.id : <any>null;
-        data["verificationTypeNum"] = this.verificationTypeNum !== undefined ? this.verificationTypeNum : <any>null;
-        data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
-        data["worker"] = this.worker !== undefined ? this.worker : <any>null;
-        data["location"] = this.location !== undefined ? this.location : <any>null;
-        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
-        data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
-        data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
-        data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
-        return data;
-    }
-}
-
-export interface IInitialVerificationDto {
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    verificationDate?: Date;
-    deviceTypeInfo?: string;
-    verifiedUntilDate?: Date;
-    verificationTypeNames?: string[];
-    owner?: string;
-    etalons?: string[];
-    id?: string;
-    verificationTypeNum?: string | null;
-    ownerInn?: number | null;
-    worker?: string | null;
-    location?: DeviceLocation | null;
-    additionalInfo?: string | null;
-    pressure?: string | null;
-    temperature?: number | null;
-    humidity?: number | null;
-}
-
-export enum DeviceLocation {
-    АнтипинскийНПЗ = "АнтипинскийНПЗ",
-    ГПНЯмал = "ГПНЯмал",
-}
-
 export class ServicePaginatedResultOfOwner implements IServicePaginatedResultOfOwner {
     message?: string | null;
     error?: string | null;
@@ -2311,6 +2135,11 @@ export interface IPendingManometrVerification extends IDatabaseEntity {
     hummidity?: number;
     accuracy?: number | null;
     location?: DeviceLocation;
+}
+
+export enum DeviceLocation {
+    АнтипинскийНПЗ = "АнтипинскийНПЗ",
+    ГПНЯмал = "ГПНЯмал",
 }
 
 export class ServicePaginatedResultOfProtocolTemplateDTO implements IServicePaginatedResultOfProtocolTemplateDTO {
@@ -3210,6 +3039,472 @@ export interface IPossibleVerificationMethodDTO {
     deviceModifications?: string[];
     verificationTypeNames?: string[];
     dates?: YearMonth[];
+}
+
+export class ServicePaginatedResultOfSuccessInitialVerificationDto implements IServicePaginatedResultOfSuccessInitialVerificationDto {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfSuccessInitialVerificationDto | null;
+
+    constructor(data?: IServicePaginatedResultOfSuccessInitialVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfSuccessInitialVerificationDto.fromJS(_data["data"]) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfSuccessInitialVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfSuccessInitialVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfSuccessInitialVerificationDto {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfSuccessInitialVerificationDto | null;
+}
+
+export class PaginatedListOfSuccessInitialVerificationDto implements IPaginatedListOfSuccessInitialVerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: SuccessInitialVerificationDto[];
+
+    constructor(data?: IPaginatedListOfSuccessInitialVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SuccessInitialVerificationDto.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfSuccessInitialVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfSuccessInitialVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>null);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfSuccessInitialVerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: SuccessInitialVerificationDto[];
+}
+
+export class SuccessInitialVerificationDto implements ISuccessInitialVerificationDto {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationDate?: Date;
+    deviceTypeInfo?: string;
+    verifiedUntilDate?: Date;
+    verificationTypeNames?: string[];
+    owner?: string;
+    etalons?: string[];
+    id?: string;
+    verificationTypeNum?: string | null;
+    ownerInn?: number | null;
+    worker?: string | null;
+    location?: DeviceLocation | null;
+    additionalInfo?: string | null;
+    pressure?: string | null;
+    temperature?: number | null;
+    humidity?: number | null;
+
+    constructor(data?: ISuccessInitialVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.deviceSerial = _data["deviceSerial"] !== undefined ? _data["deviceSerial"] : <any>null;
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>null;
+            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>null;
+            if (Array.isArray(_data["verificationTypeNames"])) {
+                this.verificationTypeNames = [] as any;
+                for (let item of _data["verificationTypeNames"])
+                    this.verificationTypeNames!.push(item);
+            }
+            else {
+                this.verificationTypeNames = <any>null;
+            }
+            this.owner = _data["owner"] !== undefined ? _data["owner"] : <any>null;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(item);
+            }
+            else {
+                this.etalons = <any>null;
+            }
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.verificationTypeNum = _data["verificationTypeNum"] !== undefined ? _data["verificationTypeNum"] : <any>null;
+            this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
+            this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
+            this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
+            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
+            this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
+            this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
+            this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): SuccessInitialVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuccessInitialVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["deviceSerial"] = this.deviceSerial !== undefined ? this.deviceSerial : <any>null;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>null;
+        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>null;
+        if (Array.isArray(this.verificationTypeNames)) {
+            data["verificationTypeNames"] = [];
+            for (let item of this.verificationTypeNames)
+                data["verificationTypeNames"].push(item);
+        }
+        data["owner"] = this.owner !== undefined ? this.owner : <any>null;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item);
+        }
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["verificationTypeNum"] = this.verificationTypeNum !== undefined ? this.verificationTypeNum : <any>null;
+        data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
+        data["worker"] = this.worker !== undefined ? this.worker : <any>null;
+        data["location"] = this.location !== undefined ? this.location : <any>null;
+        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
+        data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
+        data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
+        data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
+        return data;
+    }
+}
+
+export interface ISuccessInitialVerificationDto {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationDate?: Date;
+    deviceTypeInfo?: string;
+    verifiedUntilDate?: Date;
+    verificationTypeNames?: string[];
+    owner?: string;
+    etalons?: string[];
+    id?: string;
+    verificationTypeNum?: string | null;
+    ownerInn?: number | null;
+    worker?: string | null;
+    location?: DeviceLocation | null;
+    additionalInfo?: string | null;
+    pressure?: string | null;
+    temperature?: number | null;
+    humidity?: number | null;
+}
+
+export class ServicePaginatedResultOfSuccessVerificationDto implements IServicePaginatedResultOfSuccessVerificationDto {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfSuccessVerificationDto | null;
+
+    constructor(data?: IServicePaginatedResultOfSuccessVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfSuccessVerificationDto.fromJS(_data["data"]) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfSuccessVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfSuccessVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfSuccessVerificationDto {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfSuccessVerificationDto | null;
+}
+
+export class PaginatedListOfSuccessVerificationDto implements IPaginatedListOfSuccessVerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: SuccessVerificationDto[];
+
+    constructor(data?: IPaginatedListOfSuccessVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(SuccessVerificationDto.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfSuccessVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfSuccessVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>null);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfSuccessVerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: SuccessVerificationDto[];
+}
+
+export class SuccessVerificationDto implements ISuccessVerificationDto {
+    id?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationDate?: Date;
+    deviceTypeInfo?: string;
+    verifiedUntilDate?: Date;
+    verificationTypeNames?: string[];
+    owner?: string;
+    etalons?: string[];
+    verificationTypeNum?: string;
+    ownerInn?: number;
+    worker?: string;
+    location?: DeviceLocation;
+    additionalInfo?: string;
+    pressure?: string;
+    temperature?: number;
+    humidity?: number;
+
+    constructor(data?: ISuccessVerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.deviceSerial = _data["deviceSerial"] !== undefined ? _data["deviceSerial"] : <any>null;
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>null;
+            this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>null;
+            if (Array.isArray(_data["verificationTypeNames"])) {
+                this.verificationTypeNames = [] as any;
+                for (let item of _data["verificationTypeNames"])
+                    this.verificationTypeNames!.push(item);
+            }
+            else {
+                this.verificationTypeNames = <any>null;
+            }
+            this.owner = _data["owner"] !== undefined ? _data["owner"] : <any>null;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(item);
+            }
+            else {
+                this.etalons = <any>null;
+            }
+            this.verificationTypeNum = _data["verificationTypeNum"] !== undefined ? _data["verificationTypeNum"] : <any>null;
+            this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
+            this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
+            this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
+            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
+            this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
+            this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
+            this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
+        }
+    }
+
+    static fromJS(data: any): SuccessVerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuccessVerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["deviceSerial"] = this.deviceSerial !== undefined ? this.deviceSerial : <any>null;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>null;
+        data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>null;
+        if (Array.isArray(this.verificationTypeNames)) {
+            data["verificationTypeNames"] = [];
+            for (let item of this.verificationTypeNames)
+                data["verificationTypeNames"].push(item);
+        }
+        data["owner"] = this.owner !== undefined ? this.owner : <any>null;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item);
+        }
+        data["verificationTypeNum"] = this.verificationTypeNum !== undefined ? this.verificationTypeNum : <any>null;
+        data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
+        data["worker"] = this.worker !== undefined ? this.worker : <any>null;
+        data["location"] = this.location !== undefined ? this.location : <any>null;
+        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
+        data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
+        data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
+        data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
+        return data;
+    }
+}
+
+export interface ISuccessVerificationDto {
+    id?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationDate?: Date;
+    deviceTypeInfo?: string;
+    verifiedUntilDate?: Date;
+    verificationTypeNames?: string[];
+    owner?: string;
+    etalons?: string[];
+    verificationTypeNum?: string;
+    ownerInn?: number;
+    worker?: string;
+    location?: DeviceLocation;
+    additionalInfo?: string;
+    pressure?: string;
+    temperature?: number;
+    humidity?: number;
 }
 
 function formatDate(d: Date) {

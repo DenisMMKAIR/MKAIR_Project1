@@ -34,6 +34,8 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
         serviceCollection.AddTransient<AddProtocolTemplateCommand>();
         serviceCollection.AddTransient<AddOwnerCommand>();
+        serviceCollection.AddTransient<AddVerificationCommand<SuccessVerification>>();
+        serviceCollection.AddTransient<AddVerificationCommand<FailedVerification>>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
@@ -41,7 +43,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<PendingManometrVerificationsService>();
         serviceCollection.AddScoped<DeviceTypeService>();
         serviceCollection.AddScoped<InitialVerificationJobsService>();
-        serviceCollection.AddScoped<InitialVerificationService>();
+        serviceCollection.AddScoped<VerificationsService>();
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
         serviceCollection.AddScoped<OwnersService>();
@@ -55,6 +57,7 @@ public static class ProjectDI
         serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         serviceCollection.AddHostedService<OwnersBackgroundService>();
+        serviceCollection.AddHostedService<VerificationBackgroundService>();
 
         serviceCollection.AddFGISAPI();
     }
