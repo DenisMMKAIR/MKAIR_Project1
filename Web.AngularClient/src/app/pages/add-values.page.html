@@ -1,0 +1,37 @@
+<div class="add-values-container">
+  <form (ngSubmit)="submit()" #addValuesForm="ngForm" class="form-row">
+    <div class="form-field">
+      <label for="excelFile">Excel файл:</label>
+      <input type="file" id="excelFile" (change)="onFileChange($event)" accept=".xls,.xlsx" required />
+    </div>
+    <div class="form-field">
+      <label for="sheetName">Имя листа:</label>
+      <input type="text" id="sheetName" [(ngModel)]="sheetName" name="sheetName" required />
+    </div>
+    <div class="form-field">
+      <label for="dataRange">Диапазон:</label>
+      <input type="text" id="dataRange" [(ngModel)]="dataRange" name="dataRange" required />
+    </div>
+    <div class="form-field">
+      <label for="location">Местоположение:</label>
+      <select id="location" [(ngModel)]="location" name="location" required>
+        <option value="АнтипинскийНПЗ" selected>Антипинский НПЗ</option>
+        <option value="ГПНЯмал">ГПН Ямал</option>
+      </select>
+    </div>
+    <div class="form-field options">
+      <label><input type="checkbox" [(ngModel)]="verificationTypeNum" name="verificationTypeNum" /> Номер типа поверки</label>
+      <label><input type="checkbox" [(ngModel)]="worker" name="worker" /> Работник</label>
+      <label><input type="checkbox" [(ngModel)]="additionalInfo" name="additionalInfo" /> Доп. информация</label>
+      <label><input type="checkbox" [(ngModel)]="pressure" name="pressure" /> Давление</label>
+      <label><input type="checkbox" [(ngModel)]="temperature" name="temperature" /> Температура</label>
+      <label><input type="checkbox" [(ngModel)]="humidity" name="humidity" /> Влажность</label>
+    </div>
+    <button type="submit" [disabled]="loading">Добавить</button>
+  </form>
+
+  <div *ngIf="loading" class="loading-message">Загрузка...</div>
+  <div *ngIf="error" class="error-message">{{ error }}</div>
+  <div *ngIf="result && result.message" class="success-message">{{ result.message }}</div>
+  <div *ngIf="result && result.error" class="error-message">{{ result.error }}</div>
+</div> 

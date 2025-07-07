@@ -1,17 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
+import { FormsModule } from '@angular/forms';
 import {
   InitialVerificationJobsClient,
   InitialVerificationJob,
 } from '../../api-client';
-import { FormsModule } from '@angular/forms';
 import { JobsService } from '../../services/jobs.service';
 
 @Component({
   selector: 'app-jobs-page',
   standalone: true,
-  imports: [NgFor, NgIf, FormsModule, HttpClientModule],
+  imports: [NgFor, NgIf, FormsModule],
   templateUrl: './jobs.page.html',
   styleUrls: ['./jobs.page.scss'],
   providers: [InitialVerificationJobsClient],

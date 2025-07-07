@@ -14,6 +14,11 @@ export const routes: Routes = [
       ),
   },
   {
+    path: 'add-values',
+    loadComponent: () =>
+      import('./pages/add-values.page').then((m) => m.AddValuesPage),
+  },
+  {
     path: 'verification-methods',
     loadComponent: () =>
       import('./pages/verification-methods/verification-methods.page').then(

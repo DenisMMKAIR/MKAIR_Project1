@@ -1,8 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe } from '@angular/common';
-import { HttpClientModule } from '@angular/common/http';
 import { FormsModule } from '@angular/forms';
-import { InitialVerificationsClient, InitialVerificationDto, PaginatedListOfInitialVerificationDto, DeviceLocation } from '../../api-client';
+import { InitialVerificationsClient, InitialVerificationDto, DeviceLocation } from '../../api-client';
 import { VerificationsService } from '../../services/verifications.service';
 
 @Component({
@@ -10,7 +9,7 @@ import { VerificationsService } from '../../services/verifications.service';
   standalone: true,
   templateUrl: './verifications.page.html',
   styleUrls: ['./verifications.page.scss'],
-  imports: [NgFor, NgIf, HttpClientModule, DatePipe, FormsModule],
+  imports: [NgFor, NgIf, DatePipe, FormsModule],
   providers: [InitialVerificationsClient],
 })
 export class VerificationsPage implements OnInit {
