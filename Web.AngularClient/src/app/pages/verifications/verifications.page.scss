@@ -56,14 +56,3 @@ form {
     text-align: center;
   }
 }
-
-.loading-message,
-.error-message {
-  text-align: center;
-  padding: var(--spacing-lg);
-  font-size: 1rem;
-}
-
-.error-message {
-  color: var(--error-color);
-}
