@@ -1,10 +1,6 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
-using ProjApp.Database;
-using ProjApp.Database.Commands;
-using ProjApp.Database.Entities;
 
 namespace ProjApp.BackgroundServices;
 
@@ -37,6 +33,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
 
     protected override async Task ProcessWorkAsync()
     {
+        /*
         using var scope = _serviceScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
 
@@ -50,7 +47,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         {
             var aliases = pt.VerificationMethods!.SelectMany(vm => vm.Aliases).ToArray();
 
-            var ivs = db.InitialVerifications
+            var ivs = db.InitialVerificationsSuccess
                 .Where(iv => aliases.All(a => iv.VerificationTypeNames.Contains(a)))
                 .Where(iv => pt.DeviceTypeNumbers.Contains(iv.DeviceTypeNumber))
                 .ToArray();
@@ -59,12 +56,12 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
 
             try
             {
-                db.InitialVerifications.RemoveRange(ivs);
+                db.InitialVerificationsSuccess.RemoveRange(ivs);
                 var cvs = ivs.Select(iv => { iv.Id = new Guid(); return iv; }).ToArray();
-                db.CompleteVerifications.AddRange(ivs);
+                db.VerificationsSuccess.AddRange(ivs);
 
-                cvs = db.CompleteVerifications
-                        .Where(cv => cvs.Contains(cv, new InitialVerificationUniqComparer<InitialVerification>()))
+                cvs = db.VerificationsSuccess
+                        .Where(cv => cvs.Contains(cv, new InitialVerificationUniqComparer<SuccessInitialVerification>()))
                         .ToArray();
 
                 pt.CompleteSuccessVerifications = pt.CompleteSuccessVerifications!.Concat(cvs).ToList();
@@ -80,7 +77,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
             //TODO: implement
             throw new NotImplementedException();
         }
-
+        */
         //TODO: implement
         throw new NotImplementedException();
     }

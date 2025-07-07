@@ -16,7 +16,7 @@ public class FreeTests : RealDBTests
     {
         using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var ivs = await db.InitialVerifications
+        var ivs = await db.InitialVerificationsSuccess
             .Where(iv => iv.VerificationDate.Year == 2025 && iv.VerificationDate.Month == 2)
             .GroupBy(iv => iv.Device!.DeviceType!.Title.Substring(0, iv.Device.DeviceType.Title.IndexOf(" ")))
             .Select(g => new { g.Key, Titles = g.Select(iv => iv.Device!.DeviceType!.Title).Distinct().Order().ToArray() })

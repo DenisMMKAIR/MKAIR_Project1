@@ -43,8 +43,8 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
     {
         using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var addGoodVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<InitialVerification>>();
-        var addFailedVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<InitialVerificationFailed>>();
+        var addGoodVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<SuccessInitialVerification>>();
+        var addFailedVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<FailedInitialVerification>>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
         foreach (var job in jobs)
         {

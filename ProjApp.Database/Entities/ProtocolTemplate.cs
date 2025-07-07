@@ -10,6 +10,6 @@ public class ProtocolTemplate : DatabaseEntity
 
     // Navigation properties
     public ICollection<VerificationMethod>? VerificationMethods { get; set; }
-    public ICollection<InitialVerification>? CompleteSuccessVerifications { get; set; }
-    public ICollection<InitialVerificationFailed>? CompleteFailVerifications { get; set; }
+    public ICollection<SuccessInitialVerification>? CompleteSuccessVerifications { get; set; }
+    public ICollection<FailedInitialVerification>? CompleteFailVerifications { get; set; }
 }

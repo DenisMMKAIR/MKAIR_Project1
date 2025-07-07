@@ -43,7 +43,7 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var norm = new SpaceNormalizer();
 
-        var ownersName = db.InitialVerifications
+        var ownersName = db.InitialVerificationsSuccess
             .Select(iv => iv.Owner)
             .Union(db.InitialVerificationsFailed
                      .Select(iv => iv.Owner))
@@ -56,7 +56,7 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
             .Where(o => o.INN != 0 && ownersName.Contains(o.Name))
             .ToArrayAsync();
 
-        var ivc = db.InitialVerifications
+        var ivc = db.InitialVerificationsSuccess
             .AsEnumerable()
             .Where(iv => dbOwners.Any(dbo => dbo.Name.Contains(Normalize(iv.Owner, norm))))
             .ToArray();

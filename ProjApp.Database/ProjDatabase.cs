@@ -15,10 +15,10 @@ public class ProjDatabase : DbContext
     public DbSet<Device> Devices => Set<Device>();
     public DbSet<Etalon> Etalons => Set<Etalon>();
     public DbSet<Owner> Owners => Set<Owner>();
-    public DbSet<InitialVerification> InitialVerifications => Set<InitialVerification>();
-    public DbSet<InitialVerificationFailed> InitialVerificationsFailed => Set<InitialVerificationFailed>();
-    public DbSet<InitialVerification> CompleteVerifications => Set<InitialVerification>();
-    public DbSet<InitialVerificationFailed> CompleteVerificationsFails => Set<InitialVerificationFailed>();
+    public DbSet<SuccessInitialVerification> InitialVerificationsSuccess => Set<SuccessInitialVerification>();
+    public DbSet<FailedInitialVerification> InitialVerificationsFailed => Set<FailedInitialVerification>();
+    public DbSet<SuccessVerification> VerificationsSuccess => Set<SuccessVerification>();
+    public DbSet<FailedVerification> VerificationsFailed => Set<FailedVerification>();
     public DbSet<ProtocolTemplate> ProtocolTemplates => Set<ProtocolTemplate>();
     public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
     public DbSet<VerificationMethodFile> VerificationMethodFiles => Set<VerificationMethodFile>();

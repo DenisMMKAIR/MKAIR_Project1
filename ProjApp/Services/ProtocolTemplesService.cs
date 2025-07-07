@@ -60,7 +60,7 @@ public class ProtocolTemplesService
             .Select(vm => new { vm.Id, vm.Aliases })
             .ToListAsync();
 
-        var result = _database.InitialVerifications
+        var result = _database.InitialVerificationsSuccess
             .ProjectToType<PossibleTemplatePreDTO>(_mapper.Config)
             .AsEnumerable()
             .Where(dto => existsVerificationMethods.Any(evm => evm.Aliases.Any(evma => dto.VerificationTypeNames.Contains(evma))))
@@ -100,7 +100,7 @@ public class PossibleTemplatePreDTO : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.ForType<InitialVerification, PossibleTemplatePreDTO>()
+        config.ForType<SuccessInitialVerification, PossibleTemplatePreDTO>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device!.DeviceType!.Notation}");
     }
 }

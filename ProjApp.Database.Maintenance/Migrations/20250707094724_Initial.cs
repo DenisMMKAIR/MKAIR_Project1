@@ -25,21 +25,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "etalons",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    number = table.Column<string>(type: "text", nullable: false),
-                    date = table.Column<DateOnly>(type: "date", nullable: false),
-                    to_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    full_info = table.Column<string>(type: "text", nullable: false)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_etalons", x => x.id);
-                });
-
-            migrationBuilder.CreateTable(
                 name: "initial_verification_jobs",
                 columns: table => new
                 {
@@ -49,6 +34,19 @@ namespace ProjApp.Database.Maintenance.Migrations
                 constraints: table =>
                 {
                     table.PrimaryKey("pk_initial_verification_jobs", x => x.id);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "owners",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    name = table.Column<string>(type: "text", nullable: false),
+                    inn = table.Column<decimal>(type: "numeric(20,0)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_owners", x => x.id);
                 });
 
             migrationBuilder.CreateTable(
@@ -107,9 +105,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
                     serial = table.Column<string>(type: "text", nullable: false),
                     manufactured_year = table.Column<long>(type: "bigint", nullable: false),
-                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    modification = table.Column<string>(type: "text", nullable: false),
                     device_type_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -163,41 +162,12 @@ namespace ProjApp.Database.Maintenance.Migrations
                         name: "fk_verification_method_files_verification_methods_verification",
                         column: x => x.verification_method_id,
                         principalTable: "verification_methods",
-                        principalColumn: "id");
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
                 });
 
             migrationBuilder.CreateTable(
-                name: "initial_verification",
-                columns: table => new
-                {
-                    id = table.Column<Guid>(type: "uuid", nullable: false),
-                    device_type_number = table.Column<string>(type: "text", nullable: false),
-                    device_serial = table.Column<string>(type: "text", nullable: false),
-                    owner = table.Column<string>(type: "text", nullable: false),
-                    verification_type_names = table.Column<string[]>(type: "text[]", nullable: false),
-                    verification_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    additional_info = table.Column<string>(type: "text", nullable: true),
-                    device_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    protocol_template_id = table.Column<Guid>(type: "uuid", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("pk_initial_verification", x => x.id);
-                    table.ForeignKey(
-                        name: "fk_initial_verification_devices_device_id",
-                        column: x => x.device_id,
-                        principalTable: "devices",
-                        principalColumn: "id");
-                    table.ForeignKey(
-                        name: "fk_initial_verification_protocol_templates_protocol_template_id",
-                        column: x => x.protocol_template_id,
-                        principalTable: "protocol_templates",
-                        principalColumn: "id");
-                });
-
-            migrationBuilder.CreateTable(
-                name: "initial_verification_failed",
+                name: "initial_verifications_failed",
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -207,51 +177,160 @@ namespace ProjApp.Database.Maintenance.Migrations
                     verification_type_names = table.Column<string[]>(type: "text[]", nullable: false),
                     verification_date = table.Column<DateOnly>(type: "date", nullable: false),
                     failed_doc_number = table.Column<string>(type: "text", nullable: false),
+                    verification_type_num = table.Column<string>(type: "text", nullable: true),
+                    owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
+                    worker = table.Column<string>(type: "text", nullable: true),
+                    location = table.Column<int>(type: "integer", nullable: true),
                     additional_info = table.Column<string>(type: "text", nullable: true),
+                    pressure = table.Column<string>(type: "text", nullable: true),
+                    temperature = table.Column<double>(type: "double precision", nullable: true),
+                    humidity = table.Column<double>(type: "double precision", nullable: true),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true),
                     protocol_template_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_initial_verification_failed", x => x.id);
+                    table.PrimaryKey("pk_initial_verifications_failed", x => x.id);
                     table.ForeignKey(
-                        name: "fk_initial_verification_failed_devices_device_id",
+                        name: "fk_initial_verifications_failed_devices_device_id",
                         column: x => x.device_id,
                         principalTable: "devices",
                         principalColumn: "id");
                     table.ForeignKey(
-                        name: "fk_initial_verification_failed_protocol_templates_protocol_tem",
+                        name: "fk_initial_verifications_failed_protocol_templates_protocol_te",
                         column: x => x.protocol_template_id,
                         principalTable: "protocol_templates",
                         principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "etalon_initial_verification",
+                name: "initial_verifications_success",
                 columns: table => new
                 {
-                    etalons_id = table.Column<Guid>(type: "uuid", nullable: false),
-                    initial_verifications_id = table.Column<Guid>(type: "uuid", nullable: false)
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    device_serial = table.Column<string>(type: "text", nullable: false),
+                    owner = table.Column<string>(type: "text", nullable: false),
+                    verification_type_names = table.Column<string[]>(type: "text[]", nullable: false),
+                    verification_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verification_type_num = table.Column<string>(type: "text", nullable: true),
+                    owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
+                    worker = table.Column<string>(type: "text", nullable: true),
+                    location = table.Column<int>(type: "integer", nullable: true),
+                    additional_info = table.Column<string>(type: "text", nullable: true),
+                    pressure = table.Column<string>(type: "text", nullable: true),
+                    temperature = table.Column<double>(type: "double precision", nullable: true),
+                    humidity = table.Column<double>(type: "double precision", nullable: true),
+                    device_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    protocol_template_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_etalon_initial_verification", x => new { x.etalons_id, x.initial_verifications_id });
+                    table.PrimaryKey("pk_initial_verifications_success", x => x.id);
                     table.ForeignKey(
-                        name: "fk_etalon_initial_verification_etalons_etalons_id",
-                        column: x => x.etalons_id,
-                        principalTable: "etalons",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "fk_initial_verifications_success_devices_device_id",
+                        column: x => x.device_id,
+                        principalTable: "devices",
+                        principalColumn: "id");
                     table.ForeignKey(
-                        name: "fk_etalon_initial_verification_initial_verification_initial_ve",
-                        column: x => x.initial_verifications_id,
-                        principalTable: "initial_verification",
-                        principalColumn: "id",
-                        onDelete: ReferentialAction.Cascade);
+                        name: "fk_initial_verifications_success_protocol_templates_protocol_t",
+                        column: x => x.protocol_template_id,
+                        principalTable: "protocol_templates",
+                        principalColumn: "id");
                 });
 
             migrationBuilder.CreateTable(
-                name: "etalon_initial_verification_failed",
+                name: "verifications_failed",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    device_serial = table.Column<string>(type: "text", nullable: false),
+                    owner = table.Column<string>(type: "text", nullable: false),
+                    verification_type_names = table.Column<string[]>(type: "text[]", nullable: false),
+                    verification_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    failed_doc_number = table.Column<string>(type: "text", nullable: false),
+                    verification_type_num = table.Column<string>(type: "text", nullable: false),
+                    owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    worker = table.Column<string>(type: "text", nullable: false),
+                    location = table.Column<int>(type: "integer", nullable: false),
+                    additional_info = table.Column<string>(type: "text", nullable: false),
+                    pressure = table.Column<string>(type: "text", nullable: false),
+                    temperature = table.Column<double>(type: "double precision", nullable: false),
+                    humidity = table.Column<double>(type: "double precision", nullable: false),
+                    device_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_verifications_failed", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_verifications_failed_devices_device_id",
+                        column: x => x.device_id,
+                        principalTable: "devices",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "verifications_success",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    device_serial = table.Column<string>(type: "text", nullable: false),
+                    owner = table.Column<string>(type: "text", nullable: false),
+                    verification_type_names = table.Column<string[]>(type: "text[]", nullable: false),
+                    verification_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verification_type_num = table.Column<string>(type: "text", nullable: false),
+                    owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
+                    worker = table.Column<string>(type: "text", nullable: false),
+                    location = table.Column<int>(type: "integer", nullable: false),
+                    additional_info = table.Column<string>(type: "text", nullable: false),
+                    pressure = table.Column<string>(type: "text", nullable: false),
+                    temperature = table.Column<double>(type: "double precision", nullable: false),
+                    humidity = table.Column<double>(type: "double precision", nullable: false),
+                    device_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_verifications_success", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_verifications_success_devices_device_id",
+                        column: x => x.device_id,
+                        principalTable: "devices",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "etalons",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    number = table.Column<string>(type: "text", nullable: false),
+                    date = table.Column<DateOnly>(type: "date", nullable: false),
+                    to_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    full_info = table.Column<string>(type: "text", nullable: false),
+                    failed_verification_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    success_verification_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_etalons", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_etalons_verifications_failed_failed_verification_id",
+                        column: x => x.failed_verification_id,
+                        principalTable: "verifications_failed",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_etalons_verifications_success_success_verification_id",
+                        column: x => x.success_verification_id,
+                        principalTable: "verifications_success",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
+                name: "etalon_failed_initial_verification",
                 columns: table => new
                 {
                     etalons_id = table.Column<Guid>(type: "uuid", nullable: false),
@@ -259,17 +338,41 @@ namespace ProjApp.Database.Maintenance.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("pk_etalon_initial_verification_failed", x => new { x.etalons_id, x.initial_verifications_failed_id });
+                    table.PrimaryKey("pk_etalon_failed_initial_verification", x => new { x.etalons_id, x.initial_verifications_failed_id });
                     table.ForeignKey(
-                        name: "fk_etalon_initial_verification_failed_etalons_etalons_id",
+                        name: "fk_etalon_failed_initial_verification_etalons_etalons_id",
                         column: x => x.etalons_id,
                         principalTable: "etalons",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "fk_etalon_initial_verification_failed_initial_verification_fai",
+                        name: "fk_etalon_failed_initial_verification_initial_verifications_fa",
                         column: x => x.initial_verifications_failed_id,
-                        principalTable: "initial_verification_failed",
+                        principalTable: "initial_verifications_failed",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "etalon_success_initial_verification",
+                columns: table => new
+                {
+                    etalons_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    initial_verifications_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_etalon_success_initial_verification", x => new { x.etalons_id, x.initial_verifications_id });
+                    table.ForeignKey(
+                        name: "fk_etalon_success_initial_verification_etalons_etalons_id",
+                        column: x => x.etalons_id,
+                        principalTable: "etalons",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_etalon_success_initial_verification_initial_verifications_s",
+                        column: x => x.initial_verifications_id,
+                        principalTable: "initial_verifications_success",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -280,33 +383,43 @@ namespace ProjApp.Database.Maintenance.Migrations
                 column: "device_type_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_etalon_initial_verification_initial_verifications_id",
-                table: "etalon_initial_verification",
-                column: "initial_verifications_id");
-
-            migrationBuilder.CreateIndex(
-                name: "ix_etalon_initial_verification_failed_initial_verifications_fa",
-                table: "etalon_initial_verification_failed",
+                name: "ix_etalon_failed_initial_verification_initial_verifications_fa",
+                table: "etalon_failed_initial_verification",
                 column: "initial_verifications_failed_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_initial_verification_device_id",
-                table: "initial_verification",
+                name: "ix_etalon_success_initial_verification_initial_verifications_id",
+                table: "etalon_success_initial_verification",
+                column: "initial_verifications_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_etalons_failed_verification_id",
+                table: "etalons",
+                column: "failed_verification_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_etalons_success_verification_id",
+                table: "etalons",
+                column: "success_verification_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_initial_verifications_failed_device_id",
+                table: "initial_verifications_failed",
                 column: "device_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_initial_verification_protocol_template_id",
-                table: "initial_verification",
+                name: "ix_initial_verifications_failed_protocol_template_id",
+                table: "initial_verifications_failed",
                 column: "protocol_template_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_initial_verification_failed_device_id",
-                table: "initial_verification_failed",
+                name: "ix_initial_verifications_success_device_id",
+                table: "initial_verifications_success",
                 column: "device_id");
 
             migrationBuilder.CreateIndex(
-                name: "ix_initial_verification_failed_protocol_template_id",
-                table: "initial_verification_failed",
+                name: "ix_initial_verifications_success_protocol_template_id",
+                table: "initial_verifications_success",
                 column: "protocol_template_id");
 
             migrationBuilder.CreateIndex(
@@ -318,19 +431,32 @@ namespace ProjApp.Database.Maintenance.Migrations
                 name: "ix_verification_method_files_verification_method_id",
                 table: "verification_method_files",
                 column: "verification_method_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_verifications_failed_device_id",
+                table: "verifications_failed",
+                column: "device_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_verifications_success_device_id",
+                table: "verifications_success",
+                column: "device_id");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "etalon_initial_verification");
+                name: "etalon_failed_initial_verification");
 
             migrationBuilder.DropTable(
-                name: "etalon_initial_verification_failed");
+                name: "etalon_success_initial_verification");
 
             migrationBuilder.DropTable(
                 name: "initial_verification_jobs");
+
+            migrationBuilder.DropTable(
+                name: "owners");
 
             migrationBuilder.DropTable(
                 name: "pending_manometr_verifications");
@@ -342,22 +468,28 @@ namespace ProjApp.Database.Maintenance.Migrations
                 name: "verification_method_files");
 
             migrationBuilder.DropTable(
-                name: "initial_verification");
+                name: "initial_verifications_failed");
 
             migrationBuilder.DropTable(
                 name: "etalons");
 
             migrationBuilder.DropTable(
-                name: "initial_verification_failed");
+                name: "initial_verifications_success");
 
             migrationBuilder.DropTable(
                 name: "verification_methods");
 
             migrationBuilder.DropTable(
-                name: "devices");
+                name: "verifications_failed");
+
+            migrationBuilder.DropTable(
+                name: "verifications_success");
 
             migrationBuilder.DropTable(
                 name: "protocol_templates");
+
+            migrationBuilder.DropTable(
+                name: "devices");
 
             migrationBuilder.DropTable(
                 name: "device_types");

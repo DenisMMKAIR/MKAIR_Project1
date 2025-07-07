@@ -15,7 +15,7 @@ namespace Infrastructure.FGISAPI.Client;
 
 public partial class FGISAPIClient
 {
-    public async Task<(IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>)> GetInitialVerifications(YearMonth requestDate)
+    public async Task<(IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>)> GetInitialVerifications(YearMonth requestDate)
     {
         using var scope = _scopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
@@ -267,7 +267,7 @@ public partial class FGISAPIClient
         return verificationIds;
     }
 
-    private async Task<(IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>)> GetFromCache(FGISDatabase db, MonthResult monthResult)
+    private async Task<(IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>)> GetFromCache(FGISDatabase db, MonthResult monthResult)
     {
         _logger.LogInformation("Данные на {Date} возвращены из кэша", monthResult.Date);
 
@@ -287,7 +287,7 @@ public partial class FGISAPIClient
         return MapAllVerifications(fgisVerification, fgisEtalons);
     }
 
-    private static (IReadOnlyList<InitialVerification>, IReadOnlyList<InitialVerificationFailed>) MapAllVerifications(
+    private static (IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>) MapAllVerifications(
         IReadOnlyList<Verification> fgisVerification,
         IReadOnlyList<FIGSEtalon> fgisEtalons)
     {
@@ -300,9 +300,9 @@ public partial class FGISAPIClient
             .Where(v => v.VriInfo.Inapplicable != null)
             .ToList();
 
-        static InitialVerification MapGood(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        static SuccessInitialVerification MapGood(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
         {
-            return new InitialVerification
+            return new SuccessInitialVerification
             {
                 DeviceTypeNumber = deviceType.Number,
                 DeviceSerial = device.Serial,
@@ -316,9 +316,9 @@ public partial class FGISAPIClient
             };
         }
 
-        static InitialVerificationFailed MapFailed(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        static FailedInitialVerification MapFailed(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
         {
-            return new InitialVerificationFailed
+            return new FailedInitialVerification
             {
                 DeviceTypeNumber = deviceType.Number,
                 DeviceSerial = device.Serial,

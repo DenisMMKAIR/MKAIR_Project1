@@ -16,14 +16,14 @@ public class InitialVerificationService
 {
     private readonly ProjDatabase _database;
     private readonly IMapper _mapper;
-    private readonly AddInitialVerificationCommand<InitialVerification> _addInitialVerificationCommand;
+    private readonly AddInitialVerificationCommand<SuccessInitialVerification> _addInitialVerificationCommand;
     private readonly IIVSetValuesProcessor _ivAddValuesProcessor;
     private readonly ILogger<InitialVerificationService> _logger;
 
     public InitialVerificationService(
         ProjDatabase database,
         IMapper mapper,
-        AddInitialVerificationCommand<InitialVerification> addInitialVerificationCommand,
+        AddInitialVerificationCommand<SuccessInitialVerification> addInitialVerificationCommand,
         IIVSetValuesProcessor ivAddValuesProcessor,
         ILogger<InitialVerificationService> logger)
     {
@@ -41,7 +41,7 @@ public class InitialVerificationService
         string? typeInfoFilter,
         DeviceLocation? locationFilter)
     {
-        var query = _database.InitialVerifications.AsQueryable();
+        var query = _database.InitialVerificationsSuccess.AsQueryable();
 
         if (yearMonthFilter != null)
         {
@@ -66,7 +66,7 @@ public class InitialVerificationService
         return ServicePaginatedResult<InitialVerificationDto>.Success(result);
     }
 
-    public async Task<ServiceResult> AddInitialVerification(InitialVerification iv)
+    public async Task<ServiceResult> AddInitialVerification(SuccessInitialVerification iv)
     {
         var result = await _addInitialVerificationCommand.ExecuteAsync(iv);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
@@ -102,7 +102,7 @@ public class InitialVerificationService
 
         var uniqComparer = new InitialVerificationUniqComparer<IInitialVerification>();
 
-        var dbIvs = _database.InitialVerifications
+        var dbIvs = _database.InitialVerificationsSuccess
             .AsEnumerable()
             .Where(iv => resultIvs.Contains(iv, uniqComparer))
             .ToArray();

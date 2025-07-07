@@ -28,7 +28,7 @@ public class InitialVerificationDto : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<InitialVerification, InitialVerificationDto>()
+        config.NewConfig<SuccessInitialVerification, InitialVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
             .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
     }

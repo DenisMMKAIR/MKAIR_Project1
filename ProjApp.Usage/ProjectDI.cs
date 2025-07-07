@@ -29,8 +29,8 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddDeviceCommand>();
         serviceCollection.AddTransient<AddDeviceTypeCommand>();
         serviceCollection.AddTransient<AddInitialVerificationJobCommand>();
-        serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerification>>();
-        serviceCollection.AddTransient<AddInitialVerificationCommand<InitialVerificationFailed>>();
+        serviceCollection.AddTransient<AddInitialVerificationCommand<SuccessInitialVerification>>();
+        serviceCollection.AddTransient<AddInitialVerificationCommand<FailedInitialVerification>>();
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
         serviceCollection.AddTransient<AddProtocolTemplateCommand>();
         serviceCollection.AddTransient<AddOwnerCommand>();

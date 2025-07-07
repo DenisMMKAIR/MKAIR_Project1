@@ -151,7 +151,7 @@ public class InitialVerificationSetValuesProcessor : IIVSetValuesProcessor
 
         public IInitialVerification PostProcess(string fileName, int rowNumber, DeviceLocation location)
         {
-            return new InitialVerification()
+            return new SuccessInitialVerification()
             {
                 DeviceTypeNumber = DeviceTypeNumber,
                 DeviceSerial = DeviceSerial,

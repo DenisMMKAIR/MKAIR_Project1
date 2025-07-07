@@ -20,7 +20,7 @@ public class FailedInitialVerificationDto : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<InitialVerificationFailed, FailedInitialVerificationDto>()
+        config.NewConfig<FailedInitialVerification, FailedInitialVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
             .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
     }

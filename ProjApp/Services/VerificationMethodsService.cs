@@ -47,7 +47,7 @@ public partial class VerificationMethodsService
         deviceTypeInfoFilter = deviceTypeInfoFilter != null ? stringNormalizer.Normalize(deviceTypeInfoFilter) : string.Empty;
 
         var query = _database
-            .InitialVerifications
+            .InitialVerificationsSuccess
             .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
             .Union(_database
             .InitialVerificationsFailed
