@@ -50,7 +50,7 @@ public class InitialVerificationService
 
         if (typeInfoFilter != null)
         {
-            query = query.Where(iv => iv.Device!.DeviceType!.Title.Contains(typeInfoFilter));
+            query = query.Where(iv => iv.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
         }
 
         if (locationFilter != null)
@@ -59,6 +59,8 @@ public class InitialVerificationService
         }
 
         var result = await query
+            .OrderBy(iv => iv.VerificationDate)
+            .ThenBy(iv => iv.DeviceTypeNumber)
             .ProjectToType<InitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
         return ServicePaginatedResult<InitialVerificationDto>.Success(result);
@@ -73,6 +75,18 @@ public class InitialVerificationService
     }
 
     public async Task<ServiceResult> SetValues(MemoryStream file, SetValuesRequest request)
+    {
+        return await SetValuesBaseAsync(file, request, true);
+    }
+
+    public async Task<ServiceResult> SetVerificationNum(MemoryStream file, string sheetName, string dataRange)
+    {
+        var request = new SetValuesRequest { DataRange = dataRange, SheetName = sheetName, VerificationTypeNum = true, Location = DeviceLocation.АнтипинскийНПЗ };
+
+        return await SetValuesBaseAsync(file, request, false);
+    }
+
+    private async Task<ServiceResult> SetValuesBaseAsync(MemoryStream file, SetValuesRequest request, bool setLocation)
     {
         IReadOnlyList<IInitialVerification> resultIvs;
 
@@ -93,22 +107,51 @@ public class InitialVerificationService
             .Where(iv => resultIvs.Contains(iv, uniqComparer))
             .ToArray();
 
-        using var transaction = _database.Database.BeginTransaction();
+        var setAny = false;
 
         foreach (var dbIv in dbIvs)
         {
             var resultIv = resultIvs.First(iv => uniqComparer.Equals(iv, dbIv));
-            dbIv.Location = request.Location;
-
-            if (request.VerificationTypeNum is true) dbIv.VerificationTypeNum = resultIv.VerificationTypeNum;
-            if (request.Worker is true) dbIv.Worker = resultIv.Worker;
-            if (request.AdditionalInfo is true) dbIv.AdditionalInfo = resultIv.AdditionalInfo;
-            if (request.Pressure is true) dbIv.Pressure = resultIv.Pressure;
-            if (request.Temperature is true) dbIv.Temperature = resultIv.Temperature;
-            if (request.Humidity is true) dbIv.Humidity = resultIv.Humidity;
+            if (setLocation && dbIv.Location != request.Location)
+            {
+                dbIv.Location = request.Location;
+                setAny = true;
+            }
+            if (request.VerificationTypeNum is true && dbIv.VerificationTypeNum != resultIv.VerificationTypeNum)
+            {
+                dbIv.VerificationTypeNum = resultIv.VerificationTypeNum;
+                setAny = true;
+            }
+            if (request.Worker is true && dbIv.Worker != resultIv.Worker)
+            {
+                dbIv.Worker = resultIv.Worker;
+                setAny = true;
+            }
+            if (request.AdditionalInfo is true && dbIv.AdditionalInfo != resultIv.AdditionalInfo)
+            {
+                dbIv.AdditionalInfo = resultIv.AdditionalInfo;
+                setAny = true;
+            }
+            if (request.Pressure is true && dbIv.Pressure != resultIv.Pressure)
+            {
+                dbIv.Pressure = resultIv.Pressure;
+                setAny = true;
+            }
+            if (request.Temperature is true && dbIv.Temperature != resultIv.Temperature)
+            {
+                dbIv.Temperature = resultIv.Temperature;
+                setAny = true;
+            }
+            if (request.Humidity is true && dbIv.Humidity != resultIv.Humidity)
+            {
+                dbIv.Humidity = resultIv.Humidity;
+                setAny = true;
+            }
         }
 
-        throw new NotImplementedException();
+        if (!setAny) return ServiceResult.Success("Нет изменений");
+
+        using var transaction = _database.Database.BeginTransaction();
 
         try
         {

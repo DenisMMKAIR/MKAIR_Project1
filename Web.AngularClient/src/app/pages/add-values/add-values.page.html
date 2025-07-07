@@ -1,8 +1,13 @@
 <div class="add-values-container">
-  <form (ngSubmit)="submit()" #addValuesForm="ngForm" class="form-row">
+  <div class="mode-switch">
+    <button type="button" [class.active]="mode === 'setValues'" (click)="switchMode('setValues')">Добавить значения</button>
+    <button type="button" [class.active]="mode === 'setVerificationNum'" (click)="switchMode('setVerificationNum')">Добавить номер поверки</button>
+  </div>
+
+  <form (ngSubmit)="submit()" #addForm="ngForm" class="form-row">
     <div class="form-field">
       <label for="excelFile">Excel файл:</label>
-      <input type="file" id="excelFile" (change)="onFileChange($event)" accept=".xls,.xlsx" required />
+      <input type="file" id="excelFile" (change)="onFileChange($event)" accept=".xls,.xlsx,.xlsm" required />
     </div>
     <div class="form-field">
       <label for="sheetName">Имя листа:</label>
@@ -12,14 +17,15 @@
       <label for="dataRange">Диапазон:</label>
       <input type="text" id="dataRange" [(ngModel)]="dataRange" name="dataRange" required />
     </div>
-    <div class="form-field">
+    <div *ngIf="mode === 'setValues'" class="form-field">
       <label for="location">Местоположение:</label>
       <select id="location" [(ngModel)]="location" name="location" required>
-        <option value="АнтипинскийНПЗ" selected>Антипинский НПЗ</option>
+        <option value="" selected>Выберите местоположение</option>
+        <option value="АнтипинскийНПЗ">Антипинский НПЗ</option>
         <option value="ГПНЯмал">ГПН Ямал</option>
       </select>
     </div>
-    <div class="form-field options">
+    <div *ngIf="mode === 'setValues'" class="form-field options">
       <label><input type="checkbox" [(ngModel)]="verificationTypeNum" name="verificationTypeNum" /> Номер типа поверки</label>
       <label><input type="checkbox" [(ngModel)]="worker" name="worker" /> Работник</label>
       <label><input type="checkbox" [(ngModel)]="additionalInfo" name="additionalInfo" /> Доп. информация</label>
