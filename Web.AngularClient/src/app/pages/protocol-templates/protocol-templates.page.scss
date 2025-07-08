@@ -1,1 +1,28 @@
- 
+.table-container {
+  margin: 24px auto;
+  max-width: 1200px;
+}
+
+.pagination-controls {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  margin-bottom: 12px;
+}
+
+.selector-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.pagination-info {
+  margin-left: auto;
+  color: #757575;
+}
+
+.pagination-navigation {
+  display: flex;
+  gap: 4px;
+  justify-content: flex-end;
+} 

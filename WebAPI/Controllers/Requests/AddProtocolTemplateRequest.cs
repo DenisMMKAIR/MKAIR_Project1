@@ -1,12 +1,14 @@
 using Mapster;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 
 namespace WebAPI.Controllers.Requests;
 
 public class AddProtocolTemplateRequest : IRegister
 {
     public required string DeviceTypeNumber { get; init; }
-    public required string Group { get; init; }
+    public required ProtocolGroup Group { get; init; }
+    public required bool VerificationSuccess { get; init; }
     public required IDictionary<string, string> Checkups { get; init; }
     public required IDictionary<string, object> Values { get; init; }
     public required IReadOnlyList<Guid> VerificationMethodsIds { get; init; }

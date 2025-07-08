@@ -1,1 +1,76 @@
-<h1>Protocol Templates</h1> 
+<h1>Protocol Templates</h1>
+
+<div *ngIf="error" class="error-message">{{ error }}</div>
+<div class="table-container">
+  <div class="pagination-controls">
+    <div class="selector-form">
+      <label for="pageSize">Записей на странице:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pagination.pageSize"
+        (change)="pagination.onPageSizeChange()"
+      >
+        <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+    <div class="pagination-info">
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex() + 1 }} из {{ pagination.totalCount }} записей
+    </div>
+  </div>
+  <div *ngIf="loading" class="loading-message">Загрузка шаблонов...</div>
+  <div *ngIf="!loading && !error">
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Типы устройств</th>
+          <th>Группа</th>
+          <th>Проверки</th>
+          <th>Значения</th>
+          <th>Методы поверки</th>
+          <th></th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let t of protocolTemplates">
+          <td>{{ t.id }}</td>
+          <td>{{ t.deviceTypeNumbers?.join(', ') }}</td>
+          <td>{{ t.group }}</td>
+          <td>
+            <div *ngIf="t.checkups">
+              <div *ngFor="let key of (t.checkups | keyvalue)">
+                {{ key.key }}: {{ key.value }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="t.values">
+              <div *ngFor="let key of (t.values | keyvalue)">
+                {{ key.key }}: {{ key.value }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <div *ngIf="t.verificationMethods">
+              <div *ngFor="let m of t.verificationMethods">
+                {{ m.description }}
+              </div>
+            </div>
+          </td>
+          <td>
+            <button (click)="deleteTemplate(t.id)">Удалить</button>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+      <button class="pagination-btn" [disabled]="!pagination.canActivateFirst" (click)="pagination.goToFirstPage()" title="Первая страница">«</button>
+      <button class="pagination-btn" [disabled]="!pagination.hasPreviousPage" (click)="pagination.goToPreviousPage()" title="Предыдущая страница">‹</button>
+      <button *ngFor="let page of pagination.getPageNumbers()" class="pagination-btn page-number" [class.active]="page === pagination.currentPage" (click)="pagination.goToPage(page)">{{ page }}</button>
+      <button class="pagination-btn" [disabled]="!pagination.hasNextPage" (click)="pagination.goToNextPage()" title="Следующая страница">›</button>
+      <button class="pagination-btn" [disabled]="!pagination.canActivateLast" (click)="pagination.goToLastPage()" title="Последняя страница">»</button>
+    </div>
+  </div>
+</div> 

@@ -697,6 +697,66 @@ export class ProtocolTemplateClient {
         return _observableOf(null as any);
     }
 
+    getPossibleTemplates(pageIndex: number | undefined, pageSize: number | undefined, success: boolean | undefined): Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO> {
+        let url_ = this.baseUrl + "/api/ProtocolTemplate/GetPossibleTemplates?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (success === null)
+            throw new Error("The parameter 'success' cannot be null.");
+        else if (success !== undefined)
+            url_ += "success=" + encodeURIComponent("" + success) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPossibleTemplates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPossibleTemplates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO>;
+        }));
+    }
+
+    protected processGetPossibleTemplates(response: HttpResponseBase): Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfPossibleProtocolTemplateResultDTO.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     addTemplate(request: AddProtocolTemplateRequest): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/ProtocolTemplate/AddTemplate";
         url_ = url_.replace(/[?&]$/, "");
@@ -739,62 +799,6 @@ export class ProtocolTemplateClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    getPossibleTemplates(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO> {
-        let url_ = this.baseUrl + "/api/ProtocolTemplate/GetPossibleTemplates?";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetPossibleTemplates(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetPossibleTemplates(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO>;
-        }));
-    }
-
-    protected processGetPossibleTemplates(response: HttpResponseBase): Observable<ServicePaginatedResultOfPossibleProtocolTemplateResultDTO> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServicePaginatedResultOfPossibleProtocolTemplateResultDTO.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2407,99 +2411,6 @@ export interface IProtocolVerificationMethodDTO {
     description?: string;
 }
 
-export class AddProtocolTemplateRequest implements IAddProtocolTemplateRequest {
-    deviceTypeNumber?: string;
-    group?: string;
-    checkups?: { [key: string]: string; };
-    values?: { [key: string]: any; };
-    verificationMethodsIds?: string[];
-
-    constructor(data?: IAddProtocolTemplateRequest) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
-            this.group = _data["group"] !== undefined ? _data["group"] : <any>null;
-            if (_data["checkups"]) {
-                this.checkups = {} as any;
-                for (let key in _data["checkups"]) {
-                    if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key] !== undefined ? _data["checkups"][key] : <any>null;
-                }
-            }
-            else {
-                this.checkups = <any>null;
-            }
-            if (_data["values"]) {
-                this.values = {} as any;
-                for (let key in _data["values"]) {
-                    if (_data["values"].hasOwnProperty(key))
-                        (<any>this.values)![key] = _data["values"][key] !== undefined ? _data["values"][key] : <any>null;
-                }
-            }
-            else {
-                this.values = <any>null;
-            }
-            if (Array.isArray(_data["verificationMethodsIds"])) {
-                this.verificationMethodsIds = [] as any;
-                for (let item of _data["verificationMethodsIds"])
-                    this.verificationMethodsIds!.push(item);
-            }
-            else {
-                this.verificationMethodsIds = <any>null;
-            }
-        }
-    }
-
-    static fromJS(data: any): AddProtocolTemplateRequest {
-        data = typeof data === 'object' ? data : {};
-        let result = new AddProtocolTemplateRequest();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
-        data["group"] = this.group !== undefined ? this.group : <any>null;
-        if (this.checkups) {
-            data["checkups"] = {};
-            for (let key in this.checkups) {
-                if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = this.checkups[key] !== undefined ? this.checkups[key] : <any>null;
-            }
-        }
-        if (this.values) {
-            data["values"] = {};
-            for (let key in this.values) {
-                if (this.values.hasOwnProperty(key))
-                    (<any>data["values"])[key] = this.values[key] !== undefined ? this.values[key] : <any>null;
-            }
-        }
-        if (Array.isArray(this.verificationMethodsIds)) {
-            data["verificationMethodsIds"] = [];
-            for (let item of this.verificationMethodsIds)
-                data["verificationMethodsIds"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IAddProtocolTemplateRequest {
-    deviceTypeNumber?: string;
-    group?: string;
-    checkups?: { [key: string]: string; };
-    values?: { [key: string]: any; };
-    verificationMethodsIds?: string[];
-}
-
 export class ServicePaginatedResultOfPossibleProtocolTemplateResultDTO implements IServicePaginatedResultOfPossibleProtocolTemplateResultDTO {
     message?: string | null;
     error?: string | null;
@@ -2679,6 +2590,109 @@ export interface IPossibleProtocolTemplateResultDTO {
     verificationTypeNames?: string[];
     deviceTypeInfo?: string;
     verificationMethodIds?: string[];
+}
+
+export class AddProtocolTemplateRequest implements IAddProtocolTemplateRequest {
+    deviceTypeNumber?: string;
+    group?: ProtocolGroup;
+    verificationSuccess?: boolean;
+    checkups?: { [key: string]: string; };
+    values?: { [key: string]: any; };
+    verificationMethodsIds?: string[];
+
+    constructor(data?: IAddProtocolTemplateRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
+            this.group = _data["group"] !== undefined ? _data["group"] : <any>null;
+            this.verificationSuccess = _data["verificationSuccess"] !== undefined ? _data["verificationSuccess"] : <any>null;
+            if (_data["checkups"]) {
+                this.checkups = {} as any;
+                for (let key in _data["checkups"]) {
+                    if (_data["checkups"].hasOwnProperty(key))
+                        (<any>this.checkups)![key] = _data["checkups"][key] !== undefined ? _data["checkups"][key] : <any>null;
+                }
+            }
+            else {
+                this.checkups = <any>null;
+            }
+            if (_data["values"]) {
+                this.values = {} as any;
+                for (let key in _data["values"]) {
+                    if (_data["values"].hasOwnProperty(key))
+                        (<any>this.values)![key] = _data["values"][key] !== undefined ? _data["values"][key] : <any>null;
+                }
+            }
+            else {
+                this.values = <any>null;
+            }
+            if (Array.isArray(_data["verificationMethodsIds"])) {
+                this.verificationMethodsIds = [] as any;
+                for (let item of _data["verificationMethodsIds"])
+                    this.verificationMethodsIds!.push(item);
+            }
+            else {
+                this.verificationMethodsIds = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): AddProtocolTemplateRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddProtocolTemplateRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
+        data["group"] = this.group !== undefined ? this.group : <any>null;
+        data["verificationSuccess"] = this.verificationSuccess !== undefined ? this.verificationSuccess : <any>null;
+        if (this.checkups) {
+            data["checkups"] = {};
+            for (let key in this.checkups) {
+                if (this.checkups.hasOwnProperty(key))
+                    (<any>data["checkups"])[key] = this.checkups[key] !== undefined ? this.checkups[key] : <any>null;
+            }
+        }
+        if (this.values) {
+            data["values"] = {};
+            for (let key in this.values) {
+                if (this.values.hasOwnProperty(key))
+                    (<any>data["values"])[key] = this.values[key] !== undefined ? this.values[key] : <any>null;
+            }
+        }
+        if (Array.isArray(this.verificationMethodsIds)) {
+            data["verificationMethodsIds"] = [];
+            for (let item of this.verificationMethodsIds)
+                data["verificationMethodsIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IAddProtocolTemplateRequest {
+    deviceTypeNumber?: string;
+    group?: ProtocolGroup;
+    verificationSuccess?: boolean;
+    checkups?: { [key: string]: string; };
+    values?: { [key: string]: any; };
+    verificationMethodsIds?: string[];
+}
+
+export enum ProtocolGroup {
+    Манометры = "Манометры",
+    Датчики_давления = "Датчики_давления",
+    Термометры_биметаллические = "Термометры_биметаллические",
 }
 
 export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePaginatedResultOfVerificationMethodDTO {

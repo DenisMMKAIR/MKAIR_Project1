@@ -25,7 +25,6 @@ public class AddProtocolTemplateCommand : AddWithUniqConstraintCommand<ProtocolT
 
         foreach (var item in items)
         {
-            // TODO: Possible large file upload. Add by id only
             item.VerificationMethods = item.VerificationMethods!
                 .SelectMany(vm => dbVerificationMethods.Where(dbVM => vm.Id == dbVM.Id))
                 .ToList();

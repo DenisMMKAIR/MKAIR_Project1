@@ -441,6 +441,54 @@
         }
       }
     },
+    "/api/ProtocolTemplate/GetPossibleTemplates": {
+      "get": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_GetPossibleTemplates",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "success",
+            "in": "query",
+            "schema": {
+              "type": "boolean"
+            },
+            "x-position": 3
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleProtocolTemplateResultDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/ProtocolTemplate/AddTemplate": {
       "post": {
         "tags": [
@@ -466,46 +514,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ProtocolTemplate/GetPossibleTemplates": {
-      "get": {
-        "tags": [
-          "ProtocolTemplate"
-        ],
-        "operationId": "ProtocolTemplate_GetPossibleTemplates",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleProtocolTemplateResultDTO"
                 }
               }
             }
@@ -1505,35 +1513,6 @@
           }
         }
       },
-      "AddProtocolTemplateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "deviceTypeNumber": {
-            "type": "string"
-          },
-          "group": {
-            "type": "string"
-          },
-          "checkups": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "values": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "verificationMethodsIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
-          }
-        }
-      },
       "ServicePaginatedResultOfPossibleProtocolTemplateResultDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -1610,6 +1589,52 @@
             }
           }
         }
+      },
+      "AddProtocolTemplateRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "group": {
+            "$ref": "#/components/schemas/ProtocolGroup"
+          },
+          "verificationSuccess": {
+            "type": "boolean"
+          },
+          "checkups": {
+            "type": "object",
+            "additionalProperties": {
+              "type": "string"
+            }
+          },
+          "values": {
+            "type": "object",
+            "additionalProperties": {}
+          },
+          "verificationMethodsIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "ProtocolGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
       },
       "ServicePaginatedResultOfVerificationMethodDTO": {
         "type": "object",

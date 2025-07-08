@@ -1,5 +1,6 @@
 using Microsoft.Extensions.DependencyInjection;
 using ProjApp.Database;
+using ProjApp.Database.EntitiesStatic;
 using WebAPI.Controllers;
 using WebAPI.Controllers.Requests;
 
@@ -48,8 +49,9 @@ public class ProtocolTemplateControllerTests : ControllersFixture
     {
         VerificationMethodsIds = vmIds,
         DeviceTypeNumber = "deviceTypeNumber1",
-        Group = "Манометр",
+        Group = ProtocolGroup.Манометры,
         Checkups = new Dictionary<string, string>() { { "Checkup1", "Checkup1Result" }, { "Checkup2", "Checkup2Result" } },
         Values = new Dictionary<string, object>() { { "ForwardValues", new double[] { 5, 6, 7 } }, { "BackwardValues", new double[] { 1, 2, 3 } } },
+        VerificationSuccess = true,
     };
 }

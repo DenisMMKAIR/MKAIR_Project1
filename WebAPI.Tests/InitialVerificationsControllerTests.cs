@@ -24,7 +24,7 @@ public class InitialVerificationsControllerTests : ControllersFixture
         await (Task)method.Invoke(bs, null)!;
 
         var controller = scope.ServiceProvider.GetRequiredService<VerificationsController>();
-        var response = await controller.GetInitialVerifications(new(), null);
+        var response = await controller.GetInitialVerifications(new(), new());
 
         var deviceTypes = await db.DeviceTypes.CountAsync();
         var devices = await db.Devices.CountAsync();

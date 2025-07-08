@@ -46,7 +46,7 @@ public class ProtocolTemplesService
         return ServiceResult.Success("Протокол добавлен");
     }
 
-    public async Task<ServicePaginatedResult<PossibleProtocolTemplateResultDTO>> GetPossibleTemplatesAsync(int pageIndex, int pageSize)
+    public async Task<ServicePaginatedResult<PossibleProtocolTemplateResultDTO>> GetPossibleTemplatesAsync(int pageIndex, int pageSize, bool isSuccess)
     {
         var existsTemplates = await _database.ProtocolTemplates
             .Select(x => new
@@ -60,12 +60,17 @@ public class ProtocolTemplesService
             .Select(vm => new { vm.Id, vm.Aliases })
             .ToListAsync();
 
-        var result = _database.SuccessInitialVerifications
+        IQueryable<IVerification> query;
+
+        if (isSuccess) query = _database.SuccessVerifications;
+        else query = _database.FailedVerifications;
+
+        var result = query
             .ProjectToType<PossibleTemplatePreDTO>(_mapper.Config)
             .AsEnumerable()
             .Where(dto => existsVerificationMethods.Any(evm => evm.Aliases.Any(evma => dto.VerificationTypeNames.Contains(evma))))
-            .Where(dto => existsTemplates.All(pair => !pair.DeviceTypeNumbers.Contains(dto.DeviceTypeNumber) &&
-                                                      !pair.Aliases.Any(pa => dto.VerificationTypeNames.Contains(pa))))
+            // .Where(dto => existsTemplates.All(pair => !pair.DeviceTypeNumbers.Contains(dto.DeviceTypeNumber) &&
+            //                                           !pair.Aliases.Any(pa => dto.VerificationTypeNames.Contains(pa))))
             .Select(dto => new PossibleProtocolTemplateResultDTO
             {
                 DeviceTypeInfo = dto.DeviceTypeInfo,
