@@ -5,4 +5,8 @@ public interface IVerificationBase
     string DeviceTypeNumber { get; set; }
     string DeviceSerial { get; set; }
     DateOnly VerificationDate { get; set; }
+
+    // Navigation properties
+    Device? Device { get; set; }
+    ICollection<Etalon>? Etalons { get; set; }
 }

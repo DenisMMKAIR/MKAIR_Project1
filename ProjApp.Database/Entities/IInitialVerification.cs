@@ -21,8 +21,8 @@ public interface IInitialVerification : IVerificationBase
     public double? Humidity { get; set; }
 
     // Navigation properties
-    public Device? Device { get; set; }
-    public ICollection<Etalon>? Etalons { get; set; }
+    // public Device? Device { get; set; } - inherited
+    // public ICollection<Etalon>? Etalons { get; set; } - inherited
 }
 
 public class SuccessInitialVerification : DatabaseEntity, IInitialVerification

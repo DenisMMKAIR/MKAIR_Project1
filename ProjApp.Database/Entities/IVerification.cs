@@ -19,8 +19,8 @@ public interface IVerification : IVerificationBase
     double Humidity { get; set; }
 
     // Navigation properties
-    Device? Device { get; set; }
-    ICollection<Etalon>? Etalons { get; set; }
+    // Device? Device { get; set; } - inherited
+    // ICollection<Etalon>? Etalons { get; set; } - inherited
 }
 
 public class SuccessVerification : DatabaseEntity, IVerification
