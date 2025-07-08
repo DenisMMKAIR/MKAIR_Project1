@@ -81,9 +81,12 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
                     miss++;
                     continue;
                 }
+                if (iv.OwnerInn == owner.INN) continue;
                 iv.OwnerInn = owner.INN;
                 set++;
             }
+
+            if (set == 0 && miss == 0) return;
 
             await db.SaveChangesAsync();
             await transaction.CommitAsync();
