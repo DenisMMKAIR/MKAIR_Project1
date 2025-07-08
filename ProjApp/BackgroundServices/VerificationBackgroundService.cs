@@ -45,6 +45,8 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
         var addFVCommand = scope.ServiceProvider.GetRequiredService<AddVerificationCommand<FailedVerification>>();
 
         var initialVS = await db.InitialVerificationsSuccess
+            .Include(v => v.Device)
+                .ThenInclude(d => d!.DeviceType)
             .Where(v => v.VerificationTypeNum != null &&
                         v.OwnerInn != null &&
                         v.Worker != null &&
@@ -56,6 +58,8 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
             .ToArrayAsync();
 
         var initialVF = await db.InitialVerificationsFailed
+            .Include(v => v.Device)
+                .ThenInclude(d => d!.DeviceType)
             .Where(v => v.VerificationTypeNum != null &&
                         v.OwnerInn != null &&
                         v.Worker != null &&
