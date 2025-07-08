@@ -47,6 +47,7 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
         var initialVS = await db.InitialVerificationsSuccess
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
+            .Include(v => v.Etalons)
             .Where(v => v.VerificationTypeNum != null &&
                         v.OwnerInn != null &&
                         v.Worker != null &&
@@ -60,6 +61,7 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
         var initialVF = await db.InitialVerificationsFailed
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
+            .Include(v => v.Etalons)
             .Where(v => v.VerificationTypeNum != null &&
                         v.OwnerInn != null &&
                         v.Worker != null &&
