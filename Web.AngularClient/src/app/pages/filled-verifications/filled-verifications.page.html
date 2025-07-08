@@ -14,22 +14,25 @@
       </select>
     </div>
     <div class="selector-form">
-      <label for="yearMonthFilter">Фильтр по году/месяцу:</label>
-      <select
-        id="yearMonthFilter"
-        [(ngModel)]="yearMonthFilter"
+      <app-dates-filter
+        [label]="'Фильтр по году/месяцу:'"
+        [(model)]="yearMonthFilter"
         (change)="onYearMonthFilterChange()"
-      >
-        <option
-          *ngFor="let option of yearMonthOptions"
-          [value]="option === 'Все' ? 'all' : option"
-        >
-          {{ option }}
-        </option>
-      </select>
+      ></app-dates-filter>
     </div>
-    <form (submit)="$event.preventDefault()">
-      <label for="typeInfoFilter">Фильтр по типу устройства:</label>
+    <div class="selector-form">
+      <label for="deviceTypeNumberFilter">Номер типа:</label>
+      <input
+        id="deviceTypeNumberFilter"
+        name="deviceTypeNumberFilter"
+        type="text"
+        [(ngModel)]="deviceTypeNumberFilter"
+        placeholder="Введите номер типа"
+        autocomplete="off"
+      />
+    </div>
+    <div class="selector-form">
+      <label for="typeInfoFilter">Тип устройства:</label>
       <input
         id="typeInfoFilter"
         name="typeInfoFilter"
@@ -38,15 +41,15 @@
         placeholder="Введите тип устройства"
         autocomplete="off"
       />
-    </form>
+    </div>
     <div class="selector-form">
-      <label for="locationFilter">Фильтр по местоположению:</label>
+      <label for="locationFilter">Местоположение:</label>
       <select
         id="locationFilter"
         [(ngModel)]="locationFilter"
         (change)="onLocationFilterChange()"
       >
-        <option value="all">Все местоположения</option>
+        <option value="all">Все</option>
         <option value="АнтипинскийНПЗ">Антипинский НПЗ</option>
         <option value="ГПНЯмал">ГПН Ямал</option>
       </select>
@@ -93,7 +96,7 @@
           <td>{{ v.additionalInfo || '-' }}</td>
           <td>{{ v.pressure || '-' }}</td>
           <td>{{ v.temperature != null ? v.temperature + '°C' : '-' }}</td>
-          <td>{{ v.humidity != null ? v.humidity + '%' : '-' }}</td>
+          <td>{{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</td>
           <td>{{ v.owner }}</td>
           <td>{{v.etalons?.join(', ')}}</td>
         </tr>

@@ -36,13 +36,14 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
-    public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
+    public Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
     {
         var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
             .ToImmutableSortedSet();
 
         var stringNormalizer = new ComplexStringNormalizer();
+        deviceTypeNumberFilter = deviceTypeNumberFilter != null ? stringNormalizer.Normalize(deviceTypeNumberFilter) : string.Empty;
         verificationNameFilter = verificationNameFilter != null ? stringNormalizer.Normalize(verificationNameFilter) : string.Empty;
         deviceTypeInfoFilter = deviceTypeInfoFilter != null ? stringNormalizer.Normalize(deviceTypeInfoFilter) : string.Empty;
 
@@ -51,6 +52,12 @@ public partial class VerificationMethodsService
             .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
             .Union(_database
             .FailedInitialVerifications
+            .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
+            .Union(_database
+            .SuccessVerifications
+            .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
+            .Union(_database
+            .FailedVerifications
             .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
             .AsEnumerable()
             .GroupBy(dto => dto.DeviceTypeNumber)
@@ -63,9 +70,13 @@ public partial class VerificationMethodsService
         }
 
         var result = query
+            .Where(dto => stringNormalizer.Normalize(dto.DeviceTypeNumber).Contains(deviceTypeNumberFilter))
             .Where(dto => stringNormalizer.Normalize(dto.DeviceTypeInfo).Contains(deviceTypeInfoFilter))
             .Where(dto => dto.VerificationTypeNames.Any(name => name.Contains(verificationNameFilter)))
             .Where(dto => dto.VerificationTypeNames.All(vn => !existsNames.TryGetValue(vn, out _)))
+            .OrderByDescending(dto => dto.VerificationTypeNames.Count)
+            .ThenBy(dto => dto.DeviceTypeNumber)
+            .ThenBy(dto => dto.Dates[0])
             .ToPaginated(pageNumber, pageSize);
 
         return Task.FromResult(ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result));

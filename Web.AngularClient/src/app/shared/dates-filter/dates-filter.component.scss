@@ -1,0 +1,21 @@
+.dates-filter {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  align-items: flex-start;
+}
+
+.dates-filter label {
+  width: 100%;
+  font-weight: 500;
+  margin-right: 0.5rem;
+}
+
+.dates-filter select {
+  width: 100%;
+  box-sizing: border-box;
+  margin-left: 0.5rem;
+  padding: 0.2rem 0.5rem;
+  border-radius: 4px;
+  border: 1px solid #ccc;
+} 

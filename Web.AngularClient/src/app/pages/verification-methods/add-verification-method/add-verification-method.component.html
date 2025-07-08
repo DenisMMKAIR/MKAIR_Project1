@@ -1,0 +1,25 @@
+<form [formGroup]="form" (ngSubmit)="submit()">
+  <label>
+    Описание
+    <input id="description" type="text" formControlName="description" autocomplete="off" />
+  </label>
+  <label>
+    Псевдонимы
+    <div style="display: flex; gap: var(--spacing-xs); align-items: flex-end;">
+      <input type="text" [(ngModel)]="aliasInput" [ngModelOptions]="{standalone: true}" name="aliasInput" placeholder="Введите псевдоним" autocomplete="off" (keyup.enter)="addAlias()" />
+      <button type="button" (click)="addAlias()" [disabled]="!aliasInput.trim()">Добавить</button>
+    </div>
+    <div *ngIf="aliases.length" style="margin-top: var(--spacing-xs); display: flex; flex-wrap: wrap; gap: var(--spacing-xs);">
+      <span *ngFor="let alias of aliases" style="background: var(--secondary-color); border-radius: var(--border-radius-sm); padding: 0 var(--spacing-xs); display: flex; align-items: center;">
+        {{ alias }}
+        <button type="button" (click)="removeAlias(alias)" style="margin-left: 0.25em; background: none; border: none; color: var(--error-color); cursor: pointer; font-size: 1em;">×</button>
+      </span>
+    </div>
+  </label>
+  <label>
+    Файл (PDF)
+    <input id="file" type="file" (change)="onFileChange($event)" accept="application/pdf" />
+  </label>
+  <button type="submit" [disabled]="form.invalid || loading">Добавить метод</button>
+  <div class="result-message" [ngClass]="{'success': result === 'Метод успешно добавлен', 'error': result && result !== 'Метод успешно добавлен'}" *ngIf="result">{{ result }}</div>
+</form> 

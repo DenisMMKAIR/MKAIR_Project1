@@ -925,7 +925,7 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
-    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO> {
+    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO> {
         let url_ = this.baseUrl + "/api/VerificationMethods/GetPossibleVerificationMethods?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -935,6 +935,8 @@ export class VerificationMethodsClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (deviceTypeNumberFilter !== undefined && deviceTypeNumberFilter !== null)
+            url_ += "DeviceTypeNumberFilter=" + encodeURIComponent("" + deviceTypeNumberFilter) + "&";
         if (verificationNameFilter !== undefined && verificationNameFilter !== null)
             url_ += "VerificationNameFilter=" + encodeURIComponent("" + verificationNameFilter) + "&";
         if (deviceTypeInfoFilter !== undefined && deviceTypeInfoFilter !== null)
@@ -1114,7 +1116,7 @@ export class VerificationsClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getInitialVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessInitialVerificationDto> {
+    getInitialVerifications(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumber: string | null | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessInitialVerificationDto> {
         let url_ = this.baseUrl + "/api/Verifications/GetInitialVerifications?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -1124,6 +1126,8 @@ export class VerificationsClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (deviceTypeNumber !== undefined && deviceTypeNumber !== null)
+            url_ += "DeviceTypeNumber=" + encodeURIComponent("" + deviceTypeNumber) + "&";
         if (yearMonth !== undefined && yearMonth !== null)
             url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
         if (typeInfo !== undefined && typeInfo !== null)
@@ -1176,7 +1180,7 @@ export class VerificationsClient {
         return _observableOf(null as any);
     }
 
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumber: string | null | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
         let url_ = this.baseUrl + "/api/Verifications/GetVerifications?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -1186,6 +1190,8 @@ export class VerificationsClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (deviceTypeNumber !== undefined && deviceTypeNumber !== null)
+            url_ += "DeviceTypeNumber=" + encodeURIComponent("" + deviceTypeNumber) + "&";
         if (yearMonth !== undefined && yearMonth !== null)
             url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
         if (typeInfo !== undefined && typeInfo !== null)
@@ -2790,7 +2796,7 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
     id?: string;
     aliases?: string[];
     description?: string;
-    fileName?: string;
+    files?: string[];
 
     constructor(data?: IVerificationMethodDTO) {
         if (data) {
@@ -2813,7 +2819,14 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
                 this.aliases = <any>null;
             }
             this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
-            this.fileName = _data["fileName"] !== undefined ? _data["fileName"] : <any>null;
+            if (Array.isArray(_data["files"])) {
+                this.files = [] as any;
+                for (let item of _data["files"])
+                    this.files!.push(item);
+            }
+            else {
+                this.files = <any>null;
+            }
         }
     }
 
@@ -2833,7 +2846,11 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
                 data["aliases"].push(item);
         }
         data["description"] = this.description !== undefined ? this.description : <any>null;
-        data["fileName"] = this.fileName !== undefined ? this.fileName : <any>null;
+        if (Array.isArray(this.files)) {
+            data["files"] = [];
+            for (let item of this.files)
+                data["files"].push(item);
+        }
         return data;
     }
 }
@@ -2842,7 +2859,7 @@ export interface IVerificationMethodDTO {
     id?: string;
     aliases?: string[];
     description?: string;
-    fileName?: string;
+    files?: string[];
 }
 
 export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IServicePaginatedResultOfPossibleVerificationMethodDTO {

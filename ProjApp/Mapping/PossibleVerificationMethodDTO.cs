@@ -33,7 +33,7 @@ public class PossibleVerificationMethodPreSelectDTO : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<IInitialVerification, PossibleVerificationMethodPreSelectDTO>()
+        config.NewConfig<IVerificationBase, PossibleVerificationMethodPreSelectDTO>()
             .Map(dest => dest.DeviceTypeInfo, src => src.Device!.DeviceType!.Title + " " + src.Device!.DeviceType!.Notation)
             .Map(dest => dest.DeviceModification, src => src.Device!.Modification);
     }

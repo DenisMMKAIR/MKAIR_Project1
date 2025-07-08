@@ -610,7 +610,7 @@
             "x-position": 2
           },
           {
-            "name": "VerificationNameFilter",
+            "name": "DeviceTypeNumberFilter",
             "in": "query",
             "schema": {
               "type": "string",
@@ -619,7 +619,7 @@
             "x-position": 3
           },
           {
-            "name": "DeviceTypeInfoFilter",
+            "name": "VerificationNameFilter",
             "in": "query",
             "schema": {
               "type": "string",
@@ -628,13 +628,22 @@
             "x-position": 4
           },
           {
-            "name": "YearMonthFilter",
+            "name": "DeviceTypeInfoFilter",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 5
+          },
+          {
+            "name": "YearMonthFilter",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 6
           }
         ],
         "responses": {
@@ -760,7 +769,7 @@
             "x-position": 2
           },
           {
-            "name": "YearMonth",
+            "name": "DeviceTypeNumber",
             "in": "query",
             "schema": {
               "type": "string",
@@ -769,13 +778,22 @@
             "x-position": 3
           },
           {
-            "name": "TypeInfo",
+            "name": "YearMonth",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 4
+          },
+          {
+            "name": "TypeInfo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
           },
           {
             "name": "Location",
@@ -788,7 +806,7 @@
                 }
               ]
             },
-            "x-position": 5
+            "x-position": 6
           }
         ],
         "responses": {
@@ -831,7 +849,7 @@
             "x-position": 2
           },
           {
-            "name": "YearMonth",
+            "name": "DeviceTypeNumber",
             "in": "query",
             "schema": {
               "type": "string",
@@ -840,13 +858,22 @@
             "x-position": 3
           },
           {
-            "name": "TypeInfo",
+            "name": "YearMonth",
             "in": "query",
             "schema": {
               "type": "string",
               "nullable": true
             },
             "x-position": 4
+          },
+          {
+            "name": "TypeInfo",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
           },
           {
             "name": "Location",
@@ -859,7 +886,7 @@
                 }
               ]
             },
-            "x-position": 5
+            "x-position": 6
           }
         ],
         "responses": {
@@ -1653,8 +1680,11 @@
           "description": {
             "type": "string"
           },
-          "fileName": {
-            "type": "string"
+          "files": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },

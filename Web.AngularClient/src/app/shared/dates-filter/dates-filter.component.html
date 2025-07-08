@@ -1,0 +1,6 @@
+<div class="selector-form">
+  <label>{{ label }}</label>
+  <select [ngModel]="model" (ngModelChange)="onModelChange($event)">
+    <option *ngFor="let option of options" [value]="option === allLabel ? '' : option">{{ option }}</option>
+  </select>
+</div> 

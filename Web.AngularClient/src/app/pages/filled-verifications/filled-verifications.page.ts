@@ -1,15 +1,16 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { NgFor, NgIf, DatePipe } from '@angular/common';
+import { NgFor, NgIf, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VerificationsClient, SuccessVerificationDto, DeviceLocation } from '../../api-client';
 import { VerificationsService } from '../../services/verifications.service';
+import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.component';
 
 @Component({
   selector: 'app-filled-verifications-page',
   standalone: true,
   templateUrl: './filled-verifications.page.html',
   styleUrls: ['./filled-verifications.page.scss'],
-  imports: [NgFor, NgIf, DatePipe, FormsModule],
+  imports: [NgFor, NgIf, DatePipe, FormsModule, DatesFilterComponent, DecimalPipe],
   providers: [VerificationsClient],
 })
 export class FilledVerificationsPage implements OnInit {
@@ -28,21 +29,22 @@ export class FilledVerificationsPage implements OnInit {
   public loadVerifications(): void {
     this.loading = true;
     this.error = null;
+    const deviceTypeNumberFilter = this.deviceTypeNumberFilter === null || this.deviceTypeNumberFilter === '' || this.deviceTypeNumberFilter === 'all'
+      ? null
+      : this.deviceTypeNumberFilter;
     const yearMonthFilter = this.yearMonthFilter === null || this.yearMonthFilter === 'all'
       ? null 
       : this.yearMonthFilter;
-    
     const typeInfoFilter = this.typeInfoFilter === null || this.typeInfoFilter === '' || this.typeInfoFilter === 'all'
       ? null 
       : this.typeInfoFilter;
-    
     const locationFilter = this.locationFilter === null || this.locationFilter === 'all'
       ? null 
       : this.locationFilter as DeviceLocation;
-    
     this.verificationsClient.getVerifications(
       this.pagination.currentPage, 
       this.pagination.pageSize, 
+      deviceTypeNumberFilter,
       yearMonthFilter,
       typeInfoFilter,
       locationFilter
@@ -85,10 +87,6 @@ export class FilledVerificationsPage implements OnInit {
     this.verificationsService.setYearMonthFilter(value);
   }
 
-  public get yearMonthOptions() {
-    return this.verificationsService.getYearMonthOptions();
-  }
-
   public get typeInfoFilter() {
     return this.verificationsService.getTypeInfoFilter();
   }
@@ -103,5 +101,13 @@ export class FilledVerificationsPage implements OnInit {
 
   public set locationFilter(value: string | null) {
     this.verificationsService.setLocationFilter(value);
+  }
+
+  public get deviceTypeNumberFilter() {
+    return this.verificationsService.getDeviceTypeNumberFilter();
+  }
+
+  public set deviceTypeNumberFilter(value: string | null) {
+    this.verificationsService.setDeviceTypeNumberFilter(value);
   }
 } 

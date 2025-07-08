@@ -41,31 +41,36 @@ public class VerificationsService
     public async Task<ServicePaginatedResult<SuccessInitialVerificationDto>> GetInitialVerifications(
         int page,
         int pageSize,
+        string? deviceTypeNumberFilter,
         YearMonth? yearMonthFilter,
         string? typeInfoFilter,
         DeviceLocation? locationFilter)
     {
         var query = _database.SuccessInitialVerifications.AsQueryable();
 
+        if (deviceTypeNumberFilter != null)
+        {
+            query = query.Where(v => v.DeviceTypeNumber == deviceTypeNumberFilter);
+        }
+
         if (yearMonthFilter != null)
         {
-            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year &&
-                                      iv.VerificationDate.Month == yearMonthFilter.Value.Month);
+            query = query.Where(v => v.VerificationDate.Year == yearMonthFilter.Value.Year &&
+                                      v.VerificationDate.Month == yearMonthFilter.Value.Month);
         }
 
         if (typeInfoFilter != null)
         {
-            query = query.Where(iv => iv.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
+            query = query.Where(v => v.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
         }
 
         if (locationFilter != null)
         {
-            query = query.Where(iv => iv.Location == locationFilter);
+            query = query.Where(v => v.Location == locationFilter);
         }
 
         var result = await query
-            .OrderBy(iv => iv.VerificationDate)
-            .ThenBy(iv => iv.DeviceTypeNumber)
+            .OrderBy(v => v.DeviceTypeNumber)
             .ProjectToType<SuccessInitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
 
@@ -75,31 +80,37 @@ public class VerificationsService
     public async Task<ServicePaginatedResult<SuccessVerificationDto>> GetVerifications(
         int page,
         int pageSize,
+        string? deviceTypeNumberFilter,
         YearMonth? yearMonthFilter,
         string? typeInfoFilter,
         DeviceLocation? locationFilter)
     {
         var query = _database.SuccessVerifications.AsQueryable();
 
-        if (yearMonthFilter != null)
+        if (deviceTypeNumberFilter != null)
         {
-            query = query.Where(iv => iv.VerificationDate.Year == yearMonthFilter.Value.Year &&
-                                      iv.VerificationDate.Month == yearMonthFilter.Value.Month);
+            query = query.Where(v => v.DeviceTypeNumber == deviceTypeNumberFilter);
         }
+
+        if (yearMonthFilter != null)
+            {
+                query = query.Where(v => v.VerificationDate.Year == yearMonthFilter.Value.Year &&
+                                         v.VerificationDate.Month == yearMonthFilter.Value.Month);
+            }
 
         if (typeInfoFilter != null)
         {
-            query = query.Where(iv => iv.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
+            query = query.Where(v => v.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
         }
 
         if (locationFilter != null)
         {
-            query = query.Where(iv => iv.Location == locationFilter);
+            query = query.Where(v => v.Location == locationFilter);
         }
 
         var result = await query
-            .OrderBy(iv => iv.VerificationDate)
-            .ThenBy(iv => iv.DeviceTypeNumber)
+            .OrderBy(v => v.VerificationDate)
+            .ThenBy(v => v.DeviceTypeNumber)
             .ProjectToType<SuccessVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
 

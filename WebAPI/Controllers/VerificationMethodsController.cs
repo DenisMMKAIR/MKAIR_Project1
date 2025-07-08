@@ -27,11 +27,21 @@ public class VerificationMethodsController : ApiControllerBase
     [HttpGet]
     public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
     {
-        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, query.VerificationNameFilter, query.DeviceTypeInfoFilter, YearMonth.Parse(query.YearMonthFilter));
+        YearMonth? yearMonth;
+        try
+        {
+            yearMonth = YearMonth.Parse(query.YearMonthFilter);
+        }
+        catch (Exception e)
+        {
+            return ServicePaginatedResult<PossibleVerificationMethodDTO>.Fail(e.Message);
+        }
+        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth);
     }
 
     public class PossibleVerificationMethodRequest
     {
+        public string? DeviceTypeNumberFilter { get; init; }
         public string? VerificationNameFilter { get; init; }
         public string? DeviceTypeInfoFilter { get; init; }
         public string? YearMonthFilter { get; init; }
@@ -48,17 +58,21 @@ public class VerificationMethodsController : ApiControllerBase
     [HttpPost]
     public async Task<ServiceResult> AddVerificationMethod([Required][FromForm] AddVerificationMethodRequest request)
     {
+        // TODO: Setup filesize at web config instead
         if (request.File.Length > 10 * 1024 * 1024) return ServiceResult.Fail("Не удалось загрузить файл. Лимит 10 МБ");
 
         using var ms = new MemoryStream();
         request.File.CopyTo(ms);
         var fileContent = ms.ToArray();
 
+        var mimeType = SetMimetype(request.FileName);
+        if (string.IsNullOrWhiteSpace(mimeType)) return ServiceResult.Fail("Не удалось определить тип файла");
+
         var newVerMethod = new VerificationMethod
         {
             Aliases = request.Aliases,
             Description = request.Description,
-            VerificationMethodFiles = [new() { FileName = request.FileName, Mimetype = SetMimetype(request.FileName), Content = fileContent }]
+            VerificationMethodFiles = [new() { FileName = request.FileName, Mimetype = mimeType, Content = fileContent }]
         };
         return await _service.AddVerificationMethodAsync(newVerMethod);
     }
