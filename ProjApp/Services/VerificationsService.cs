@@ -45,7 +45,7 @@ public class VerificationsService
         string? typeInfoFilter,
         DeviceLocation? locationFilter)
     {
-        var query = _database.InitialVerificationsSuccess.AsQueryable();
+        var query = _database.SuccessInitialVerifications.AsQueryable();
 
         if (yearMonthFilter != null)
         {
@@ -79,7 +79,7 @@ public class VerificationsService
         string? typeInfoFilter,
         DeviceLocation? locationFilter)
     {
-        var query = _database.VerificationsSuccess.AsQueryable();
+        var query = _database.SuccessVerifications.AsQueryable();
 
         if (yearMonthFilter != null)
         {
@@ -145,7 +145,7 @@ public class VerificationsService
 
         var uniqComparer = new InitialVerificationUniqComparer<IInitialVerification>();
 
-        var dbIvs = _database.InitialVerificationsSuccess
+        var dbIvs = _database.SuccessInitialVerifications
             .AsEnumerable()
             .Where(iv => resultIvs.Contains(iv, uniqComparer))
             .ToArray();

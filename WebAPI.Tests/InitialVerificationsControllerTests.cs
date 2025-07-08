@@ -28,16 +28,16 @@ public class InitialVerificationsControllerTests : ControllersFixture
 
         var deviceTypes = await db.DeviceTypes.CountAsync();
         var devices = await db.Devices.CountAsync();
-        var eiv = await db.Etalons.SelectMany(e => e.InitialVerifications!).CountAsync();
-        var eivf = await db.Etalons.SelectMany(e => e.InitialVerificationsFailed!).CountAsync();
+        var eiv = await db.Etalons.SelectMany(e => e.SuccessInitialVerifications!).CountAsync();
+        var eivf = await db.Etalons.SelectMany(e => e.FailedInitialVerifications!).CountAsync();
         var etalons = await db.Etalons.CountAsync();
-        var fiv = await db.InitialVerificationsFailed.CountAsync();
-        var iv = await db.InitialVerificationsSuccess.CountAsync();
+        var fiv = await db.FailedInitialVerifications.CountAsync();
+        var iv = await db.SuccessInitialVerifications.CountAsync();
 
         var valid = db.Devices.Count(d => d.DeviceType == null) +
-                    db.InitialVerificationsSuccess.Count(i => i.Device == null) +
-                    db.InitialVerificationsFailed.Count(f => f.Device == null) +
-                    db.InitialVerificationsSuccess.Count(i => i.Etalons!.Count == 0);
+                    db.SuccessInitialVerifications.Count(i => i.Device == null) +
+                    db.FailedInitialVerifications.Count(f => f.Device == null) +
+                    db.SuccessInitialVerifications.Count(i => i.Etalons!.Count == 0);
 
         Assert.Multiple(() =>
         {

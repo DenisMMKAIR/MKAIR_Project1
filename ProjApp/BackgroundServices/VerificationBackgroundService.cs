@@ -44,7 +44,7 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
         var addSVCommand = scope.ServiceProvider.GetRequiredService<AddVerificationCommand<SuccessVerification>>();
         var addFVCommand = scope.ServiceProvider.GetRequiredService<AddVerificationCommand<FailedVerification>>();
 
-        var initialVS = await db.InitialVerificationsSuccess
+        var initialVS = await db.SuccessInitialVerifications
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
             .Include(v => v.Etalons)
@@ -58,7 +58,7 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
                         v.Humidity != null)
             .ToArrayAsync();
 
-        var initialVF = await db.InitialVerificationsFailed
+        var initialVF = await db.FailedInitialVerifications
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
             .Include(v => v.Etalons)

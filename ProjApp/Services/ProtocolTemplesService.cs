@@ -60,7 +60,7 @@ public class ProtocolTemplesService
             .Select(vm => new { vm.Id, vm.Aliases })
             .ToListAsync();
 
-        var result = _database.InitialVerificationsSuccess
+        var result = _database.SuccessInitialVerifications
             .ProjectToType<PossibleTemplatePreDTO>(_mapper.Config)
             .AsEnumerable()
             .Where(dto => existsVerificationMethods.Any(evm => evm.Aliases.Any(evma => dto.VerificationTypeNames.Contains(evma))))

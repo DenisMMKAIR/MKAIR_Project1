@@ -8,6 +8,8 @@ public class Etalon : DatabaseEntity
     public required string FullInfo { get; set; }
 
     // Navigation properties
-    public ICollection<SuccessInitialVerification>? InitialVerifications { get; set; }
-    public ICollection<FailedInitialVerification>? InitialVerificationsFailed { get; set; }
+    public ICollection<SuccessInitialVerification>? SuccessInitialVerifications { get; set; }
+    public ICollection<FailedInitialVerification>? FailedInitialVerifications { get; set; }
+    public ICollection<SuccessVerification>? SuccessVerifications { get; set; }
+    public ICollection<FailedVerification>? FailedVerifications { get; set; }
 }
