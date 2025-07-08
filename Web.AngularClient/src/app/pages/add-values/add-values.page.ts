@@ -20,7 +20,6 @@ export class AddValuesPage {
   public sheetName: string = '';
   public dataRange: string = '';
   public location: string = '';
-  public verificationTypeNum: boolean = false;
   public worker: boolean = false;
   public additionalInfo: boolean = false;
   public pressure: boolean = false;
@@ -47,7 +46,6 @@ export class AddValuesPage {
     this.sheetName = '';
     this.dataRange = '';
     this.location = '';
-    this.verificationTypeNum = false;
     this.worker = false;
     this.additionalInfo = false;
     this.pressure = false;
@@ -104,7 +102,7 @@ export class AddValuesPage {
         this.sheetName.trim(),
         this.dataRange.trim(),
         this.location,
-        this.verificationTypeNum,
+        false, // verificationTypeNum
         this.worker,
         this.additionalInfo,
         this.pressure,
