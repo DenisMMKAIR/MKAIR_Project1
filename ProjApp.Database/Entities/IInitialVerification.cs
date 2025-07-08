@@ -2,11 +2,11 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-public interface IInitialVerification
+public interface IInitialVerification : IVerificationBase
 {
-    public string DeviceTypeNumber { get; set; }
-    public string DeviceSerial { get; set; }
-    public DateOnly VerificationDate { get; set; }
+    // public string DeviceTypeNumber { get; set; } - inherited
+    // public string DeviceSerial { get; set; } - inherited
+    // public DateOnly VerificationDate { get; set; } - inherited
     public IReadOnlyList<string> VerificationTypeNames { get; set; }
     public string Owner { get; set; }
 

@@ -2,13 +2,13 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-public interface IVerification
+public interface IVerification : IVerificationBase
 {
-    string DeviceTypeNumber { get; set; }
-    string DeviceSerial { get; set; }
+    // string DeviceTypeNumber { get; set; } - inherited
+    // string DeviceSerial { get; set; } - inherited
     string Owner { get; set; }
     IReadOnlyList<string> VerificationTypeNames { get; set; }
-    DateOnly VerificationDate { get; set; }
+    // DateOnly VerificationDate { get; set; } - inherited
     string VerificationTypeNum { get; set; }
     ulong OwnerInn { get; set; }
     string Worker { get; set; }
