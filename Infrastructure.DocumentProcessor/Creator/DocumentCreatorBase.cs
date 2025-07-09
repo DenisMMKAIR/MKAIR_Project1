@@ -8,7 +8,7 @@ namespace Infrastructure.DocumentProcessor.Creator;
 
 // TODO: Replace reflection with the source generator
 // TODO: Cache Sings
-public abstract class DocumentCreatorBase<T> where T : IDocumentData
+internal abstract class DocumentCreatorBase<T> where T : IDocumentData
 {
     private readonly string _fileContent;
     private readonly string _signsDirPath;

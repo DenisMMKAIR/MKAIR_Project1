@@ -1,6 +1,6 @@
 namespace Project1Tests.DocumentProcessor;
 
-public class CombinedTests : CombinedFixture
+internal class CombinedTests : CombinedFixture
 {
     [Test]
     public async Task Success_PDF_Manometr1Ver1Eta()

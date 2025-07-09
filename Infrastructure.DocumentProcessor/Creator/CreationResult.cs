@@ -1,6 +1,6 @@
 namespace Infrastructure.DocumentProcessor.Creator;
 
-public class CreationResult
+internal class CreationResult
 {
     public string? HTMLContent { get; init; }
     public string? Error { get; init; }

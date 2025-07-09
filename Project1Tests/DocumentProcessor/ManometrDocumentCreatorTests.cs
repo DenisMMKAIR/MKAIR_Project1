@@ -1,6 +1,6 @@
 namespace Project1Tests.DocumentProcessor;
 
-public class ManometrDocumentCreatorTests : CombinedFixture
+internal class ManometrDocumentCreatorTests : CombinedFixture
 {
     [Test]
     public async Task Test1()

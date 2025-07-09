@@ -4,7 +4,7 @@ using Infrastructure.DocumentProcessor.Creator;
 namespace Project1Tests.DocumentProcessor;
 
 [TestFixture]
-public abstract class CombinedFixture
+internal abstract class CombinedFixture
 {
     protected ManometrDocumentCreator ManometrCreator { get; set; }
     protected PDFExporter PdfExporter { get; set; }

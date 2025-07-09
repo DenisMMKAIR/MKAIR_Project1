@@ -2,7 +2,7 @@ using PuppeteerSharp;
 
 namespace Infrastructure.DocumentProcessor;
 
-public class PDFExporter : IAsyncDisposable
+internal class PDFExporter : IAsyncDisposable
 {
     private readonly Task _setup;
     private IBrowser _browser = null!;

@@ -4,7 +4,7 @@ using System.Reflection;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
-public class ManometrDocumentCreator : DocumentCreatorBase<ManometrData>
+internal class ManometrDocumentCreator : DocumentCreatorBase<ManometrData>
 {
     protected override IReadOnlyList<PropertyInfo> TypeProps { get; init; } = typeof(ManometrData).GetProperties();
     protected override int VerificationLineLength { get; init; } = 75;
