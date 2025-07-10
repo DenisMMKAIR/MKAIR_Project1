@@ -68,8 +68,9 @@
           <th>Серийный</th>
           <th>Дата поверки</th>
           <th>До</th>
-          <th>Типы поверки</th>
-          <th>Номер типа поверки</th>
+          <th>Тип поверки</th>
+          <th>Группа поверки</th>
+          <th>Номер протокола</th>
           <th>ИНН владельца</th>
           <th>Работник</th>
           <th>Местоположение</th>
@@ -88,8 +89,9 @@
           <td>{{ v.deviceSerial }}</td>
           <td>{{ v.verificationDate | date:'yyyy-MM-dd' }}</td>
           <td>{{ v.verifiedUntilDate | date:'yyyy-MM-dd' }}</td>
-          <td>{{ v.verificationTypeNames?.join(', ') }}</td>
-          <td>{{ v.verificationTypeNum || '-' }}</td>
+          <td>{{ v.verificationTypeName || '-' }}</td>
+          <td>{{ v.verificationGroup || '-' }}</td>
+          <td>{{ v.protocolNumber || '-' }}</td>
           <td>{{ v.ownerInn || '-' }}</td>
           <td>{{ v.worker || '-' }}</td>
           <td>{{ v.location || '-' }}</td>

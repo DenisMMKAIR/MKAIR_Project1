@@ -313,245 +313,6 @@
         }
       }
     },
-    "/api/PendingManometrVerifications/AcceptExcelVerifications": {
-      "post": {
-        "tags": [
-          "PendingManometrVerifications"
-        ],
-        "operationId": "PendingManometrVerifications_AcceptExcelVerifications",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "File": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  },
-                  "SheetName": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "DataRange": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "DeviceLocation": {
-                    "type": "string",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/PendingManometrVerifications/GetPandingVerificationsPaginated": {
-      "get": {
-        "tags": [
-          "PendingManometrVerifications"
-        ],
-        "operationId": "PendingManometrVerifications_GetPandingVerificationsPaginated",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfPendingManometrVerification"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ProtocolTemplate/GetTemplates": {
-      "get": {
-        "tags": [
-          "ProtocolTemplate"
-        ],
-        "operationId": "ProtocolTemplate_GetTemplates",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfProtocolTemplateDTO"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ProtocolTemplate/GetPossibleTemplates": {
-      "get": {
-        "tags": [
-          "ProtocolTemplate"
-        ],
-        "operationId": "ProtocolTemplate_GetPossibleTemplates",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "success",
-            "in": "query",
-            "schema": {
-              "type": "boolean"
-            },
-            "x-position": 3
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleProtocolTemplateResultDTO"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ProtocolTemplate/AddTemplate": {
-      "post": {
-        "tags": [
-          "ProtocolTemplate"
-        ],
-        "operationId": "ProtocolTemplate_AddTemplate",
-        "requestBody": {
-          "x-name": "request",
-          "content": {
-            "application/json": {
-              "schema": {
-                "$ref": "#/components/schemas/AddProtocolTemplateRequest"
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/ProtocolTemplate/DeleteTemplate": {
-      "delete": {
-        "tags": [
-          "ProtocolTemplate"
-        ],
-        "operationId": "ProtocolTemplate_DeleteTemplate",
-        "parameters": [
-          {
-            "name": "id",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/VerificationMethods/GetVerificationMethods": {
       "get": {
         "tags": [
@@ -720,6 +481,13 @@
                     "type": "array",
                     "nullable": true,
                     "items": {
+                      "type": "string"
+                    }
+                  },
+                  "Checkups": {
+                    "type": "object",
+                    "nullable": true,
+                    "additionalProperties": {
                       "type": "string"
                     }
                   },
@@ -948,10 +716,6 @@
                     "type": "boolean",
                     "nullable": true
                   },
-                  "AdditionalInfo": {
-                    "type": "boolean",
-                    "nullable": true
-                  },
                   "Pressure": {
                     "type": "boolean",
                     "nullable": true
@@ -961,6 +725,14 @@
                     "nullable": true
                   },
                   "Humidity": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "MeasurementRange": {
+                    "type": "boolean",
+                    "nullable": true
+                  },
+                  "Accuracy": {
                     "type": "boolean",
                     "nullable": true
                   }
@@ -1289,353 +1061,6 @@
           }
         ]
       },
-      "ServicePaginatedResultOfPendingManometrVerification": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfPendingManometrVerification"
-              }
-            ]
-          }
-        }
-      },
-      "PaginatedListOfPendingManometrVerification": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PendingManometrVerification"
-            }
-          }
-        }
-      },
-      "PendingManometrVerification": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DatabaseEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "deviceTypeNumber": {
-                "type": "string"
-              },
-              "deviceSerial": {
-                "type": "string"
-              },
-              "date": {
-                "type": "string",
-                "format": "date"
-              },
-              "verificationMethods": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "etalonsNumbers": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                }
-              },
-              "ownerName": {
-                "type": "string"
-              },
-              "workerName": {
-                "type": "string"
-              },
-              "temperature": {
-                "type": "number",
-                "format": "double"
-              },
-              "pressure": {
-                "type": "string"
-              },
-              "hummidity": {
-                "type": "number",
-                "format": "double"
-              },
-              "accuracy": {
-                "type": "number",
-                "format": "double",
-                "nullable": true
-              },
-              "location": {
-                "$ref": "#/components/schemas/DeviceLocation"
-              }
-            }
-          }
-        ]
-      },
-      "DeviceLocation": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ],
-        "enum": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ]
-      },
-      "ServicePaginatedResultOfProtocolTemplateDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfProtocolTemplateDTO"
-              }
-            ]
-          }
-        }
-      },
-      "PaginatedListOfProtocolTemplateDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProtocolTemplateDTO"
-            }
-          }
-        }
-      },
-      "ProtocolTemplateDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "deviceTypeNumbers": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "group": {
-            "type": "string"
-          },
-          "checkups": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "values": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "verificationMethods": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/ProtocolVerificationMethodDTO"
-            }
-          }
-        }
-      },
-      "ProtocolVerificationMethodDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "description": {
-            "type": "string"
-          }
-        }
-      },
-      "ServicePaginatedResultOfPossibleProtocolTemplateResultDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfPossibleProtocolTemplateResultDTO"
-              }
-            ]
-          }
-        }
-      },
-      "PaginatedListOfPossibleProtocolTemplateResultDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/PossibleProtocolTemplateResultDTO"
-            }
-          }
-        }
-      },
-      "PossibleProtocolTemplateResultDTO": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "deviceTypeNumber": {
-            "type": "string"
-          },
-          "verificationTypeNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "deviceTypeInfo": {
-            "type": "string"
-          },
-          "verificationMethodIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
-          }
-        }
-      },
-      "AddProtocolTemplateRequest": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "deviceTypeNumber": {
-            "type": "string"
-          },
-          "group": {
-            "$ref": "#/components/schemas/ProtocolGroup"
-          },
-          "verificationSuccess": {
-            "type": "boolean"
-          },
-          "checkups": {
-            "type": "object",
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
-          "values": {
-            "type": "object",
-            "additionalProperties": {}
-          },
-          "verificationMethodsIds": {
-            "type": "array",
-            "items": {
-              "type": "string",
-              "format": "guid"
-            }
-          }
-        }
-      },
-      "ProtocolGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ],
-        "enum": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ]
-      },
       "ServicePaginatedResultOfVerificationMethodDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -1861,20 +1286,21 @@
             "type": "string",
             "format": "date"
           },
-          "deviceTypeInfo": {
-            "type": "string"
-          },
           "verifiedUntilDate": {
             "type": "string",
             "format": "date"
           },
-          "verificationTypeNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "verificationTypeName": {
+            "type": "string"
           },
           "owner": {
+            "type": "string"
+          },
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "deviceTypeInfo": {
             "type": "string"
           },
           "etalons": {
@@ -1883,11 +1309,18 @@
               "type": "string"
             }
           },
-          "id": {
-            "type": "string",
-            "format": "guid"
+          "additionalInfo": {
+            "type": "string"
           },
-          "verificationTypeNum": {
+          "verificationGroup": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/VerificationGroup"
+              }
+            ]
+          },
+          "protocolNumber": {
             "type": "string",
             "nullable": true
           },
@@ -1908,10 +1341,6 @@
               }
             ]
           },
-          "additionalInfo": {
-            "type": "string",
-            "nullable": true
-          },
           "pressure": {
             "type": "string",
             "nullable": true
@@ -1927,6 +1356,32 @@
             "nullable": true
           }
         }
+      },
+      "VerificationGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ]
       },
       "ServicePaginatedResultOfSuccessVerificationDto": {
         "type": "object",
@@ -1998,6 +1453,9 @@
             "type": "string",
             "format": "date"
           },
+          "verificationGroup": {
+            "$ref": "#/components/schemas/VerificationGroup"
+          },
           "deviceTypeInfo": {
             "type": "string"
           },
@@ -2005,11 +1463,8 @@
             "type": "string",
             "format": "date"
           },
-          "verificationTypeNames": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
+          "verificationTypeName": {
+            "type": "string"
           },
           "owner": {
             "type": "string"
@@ -2020,7 +1475,7 @@
               "type": "string"
             }
           },
-          "verificationTypeNum": {
+          "protocolNumber": {
             "type": "string"
           },
           "ownerInn": {

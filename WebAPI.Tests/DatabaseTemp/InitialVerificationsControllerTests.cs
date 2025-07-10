@@ -5,7 +5,6 @@ using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Entities;
 using WebAPI.Controllers;
-using WebAPI.Tests.DatabaseTemp;
 
 namespace WebAPI.Tests.DatabaseTemp;
 

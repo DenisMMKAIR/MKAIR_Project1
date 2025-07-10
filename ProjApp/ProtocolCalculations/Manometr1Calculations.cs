@@ -13,7 +13,6 @@ internal static class Manometr1Calculations
 
         var newVrf = new Manometr1Verification
         {
-            VerificationGroup = v.VerificationGroup,
             Address = MKAIRInfo.GetAddress(v.VerificationDate),
             ProtocolNumber = v.ProtocolNumber,
             DeviceTypeName = v.DeviceTypeNumber,
@@ -35,6 +34,7 @@ internal static class Manometr1Calculations
             Worker = v.Worker,
 
             // Support properties
+            VerificationGroup = v.VerificationGroup,
             Location = v.Location,
             VerifiedUntilDate = v.VerifiedUntilDate,
 

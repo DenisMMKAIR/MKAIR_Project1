@@ -6,7 +6,7 @@
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
     <RunPostBuildEvent>OnBuildSuccess</RunPostBuildEvent>
-    <RunNSwag>false</RunNSwag>
+    <RunNSwag>true</RunNSwag>
   </PropertyGroup>
 
   <ItemGroup>

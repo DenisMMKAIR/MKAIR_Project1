@@ -26,13 +26,13 @@ public interface IVerification : IVerificationBase
 
 public class SuccessVerification : DatabaseEntity, IVerification
 {
-    public required VerificationGroup VerificationGroup { get; set; }
     public required string DeviceTypeNumber { get; set; }
     public required string DeviceSerial { get; set; }
-    public required string Owner { get; set; }
-    public required string VerificationTypeName { get; set; }
     public required DateOnly VerificationDate { get; set; }
+    public required VerificationGroup VerificationGroup { get; set; }
     public required DateOnly VerifiedUntilDate { get; set; }
+    public required string VerificationTypeName { get; set; }
+    public required string Owner { get; set; }
     public required string ProtocolNumber { get; set; }
     public required ulong OwnerINN { get; set; }
     public required string Worker { get; set; }

@@ -12,7 +12,7 @@ using ProjApp.Database;
 namespace ProjApp.Database.Maintenance.Migrations
 {
     [DbContext(typeof(ProjDatabase))]
-    [Migration("20250709112008_Initial")]
+    [Migration("20250710213031_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -61,6 +61,25 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasDatabaseName("ix_etalon_failed_verification_failed_verifications_id");
 
                     b.ToTable("etalon_failed_verification", (string)null);
+                });
+
+            modelBuilder.Entity("EtalonManometr1Verification", b =>
+                {
+                    b.Property<Guid>("EtalonsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("etalons_id");
+
+                    b.Property<Guid>("Manometr1VerificationsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("manometr1verifications_id");
+
+                    b.HasKey("EtalonsId", "Manometr1VerificationsId")
+                        .HasName("pk_etalon_manometr1verification");
+
+                    b.HasIndex("Manometr1VerificationsId")
+                        .HasDatabaseName("ix_etalon_manometr1verification_manometr1verifications_id");
+
+                    b.ToTable("etalon_manometr1verification", (string)null);
                 });
 
             modelBuilder.Entity("EtalonSuccessInitialVerification", b =>
@@ -179,10 +198,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("date")
                         .HasColumnName("date");
 
-                    b.Property<Guid?>("FailedCompleteVerificationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("failed_complete_verification_id");
-
                     b.Property<string>("FullInfo")
                         .IsRequired()
                         .HasColumnType("text")
@@ -193,10 +208,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("number");
 
-                    b.Property<Guid?>("SuccessCompleteVerificationId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("success_complete_verification_id");
-
                     b.Property<DateOnly>("ToDate")
                         .HasColumnType("date")
                         .HasColumnName("to_date");
@@ -204,115 +215,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.HasKey("Id")
                         .HasName("pk_etalons");
 
-                    b.HasIndex("FailedCompleteVerificationId")
-                        .HasDatabaseName("ix_etalons_failed_complete_verification_id");
-
-                    b.HasIndex("SuccessCompleteVerificationId")
-                        .HasDatabaseName("ix_etalons_success_complete_verification_id");
-
                     b.ToTable("etalons", (string)null);
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.FailedCompleteVerification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
-
-                    b.Property<Guid?>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_id");
-
-                    b.Property<string>("DeviceSerial")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_serial");
-
-                    b.Property<string>("DeviceTypeNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_type_number");
-
-                    b.Property<string>("FailedDocNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("failed_doc_number");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
-
-                    b.Property<double>("Humidity")
-                        .HasColumnType("double precision")
-                        .HasColumnName("humidity");
-
-                    b.Property<int>("Location")
-                        .HasColumnType("integer")
-                        .HasColumnName("location");
-
-                    b.Property<string>("Owner")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("owner");
-
-                    b.Property<decimal>("OwnerInn")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("owner_inn");
-
-                    b.Property<string>("Pressure")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("pressure");
-
-                    b.Property<Guid?>("ProtocolTemplateId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("protocol_template_id");
-
-                    b.Property<double>("Temperature")
-                        .HasColumnType("double precision")
-                        .HasColumnName("temperature");
-
-                    b.Property<string>("Values")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("values");
-
-                    b.Property<DateOnly>("VerificationDate")
-                        .HasColumnType("date")
-                        .HasColumnName("verification_date");
-
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
-
-                    b.Property<string>("VerificationTypeNum")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
-
-                    b.Property<string>("Worker")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("worker");
-
-                    b.HasKey("Id")
-                        .HasName("pk_failed_complete_verifications");
-
-                    b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_failed_complete_verifications_device_id");
-
-                    b.HasIndex("ProtocolTemplateId")
-                        .HasDatabaseName("ix_failed_complete_verifications_protocol_template_id");
-
-                    b.ToTable("failed_complete_verifications", (string)null);
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.FailedInitialVerification", b =>
@@ -323,6 +226,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnName("id");
 
                     b.Property<string>("AdditionalInfo")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("additional_info");
 
@@ -358,13 +262,17 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
-                    b.Property<decimal?>("OwnerInn")
+                    b.Property<decimal?>("OwnerINN")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("owner_inn");
 
                     b.Property<string>("Pressure")
                         .HasColumnType("text")
                         .HasColumnName("pressure");
+
+                    b.Property<string>("ProtocolNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
 
                     b.Property<double?>("Temperature")
                         .HasColumnType("double precision")
@@ -374,14 +282,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
+                    b.Property<int?>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
 
-                    b.Property<string>("VerificationTypeNum")
+                    b.Property<string>("VerificationTypeName")
+                        .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
+                        .HasColumnName("verification_type_name");
 
                     b.Property<string>("Worker")
                         .HasColumnType("text")
@@ -440,7 +348,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
-                    b.Property<decimal>("OwnerInn")
+                    b.Property<decimal>("OwnerINN")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("owner_inn");
 
@@ -448,6 +356,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("pressure");
+
+                    b.Property<string>("ProtocolNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
 
                     b.Property<double>("Temperature")
                         .HasColumnType("double precision")
@@ -457,15 +370,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
+                    b.Property<int>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
 
-                    b.Property<string>("VerificationTypeNum")
+                    b.Property<string>("VerificationTypeName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
+                        .HasColumnName("verification_type_name");
 
                     b.Property<string>("Worker")
                         .IsRequired()
@@ -498,6 +410,172 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.ToTable("initial_verification_jobs", (string)null);
                 });
 
+            modelBuilder.Entity("ProjApp.Database.Entities.Manometr1Verification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActualError")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("actual_error");
+
+                    b.PrimitiveCollection<double[]>("ActualVariation")
+                        .IsRequired()
+                        .HasColumnType("double precision[]")
+                        .HasColumnName("actual_variation");
+
+                    b.Property<string>("Address")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("address");
+
+                    b.Property<Guid?>("DeviceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("DeviceModification")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_modification");
+
+                    b.Property<string>("DeviceSerial")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_serial");
+
+                    b.Property<string>("DeviceTypeName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_type_name");
+
+                    b.Property<string>("DeviceTypeNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_type_number");
+
+                    b.Property<string>("DeviceValues")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_values");
+
+                    b.Property<string>("EtalonValues")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("etalon_values");
+
+                    b.Property<string>("EtalonsInfo")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("etalons_info");
+
+                    b.Property<double>("Humidity")
+                        .HasColumnType("double precision")
+                        .HasColumnName("humidity");
+
+                    b.Property<int>("Location")
+                        .HasColumnType("integer")
+                        .HasColumnName("location");
+
+                    b.Property<long>("ManufactureYear")
+                        .HasColumnType("bigint")
+                        .HasColumnName("manufacture_year");
+
+                    b.Property<double>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
+
+                    b.Property<string>("Owner")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner");
+
+                    b.Property<decimal>("OwnerINN")
+                        .HasColumnType("numeric(20,0)")
+                        .HasColumnName("owner_inn");
+
+                    b.Property<string>("Pressure")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("pressure");
+
+                    b.Property<string>("ProtocolNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
+
+                    b.Property<double>("Temperature")
+                        .HasColumnType("double precision")
+                        .HasColumnName("temperature");
+
+                    b.Property<double>("ValidError")
+                        .HasColumnType("double precision")
+                        .HasColumnName("valid_error");
+
+                    b.Property<string>("VerificationAccuracyCheckup")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("verification_accuracy_checkup");
+
+                    b.Property<DateOnly>("VerificationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("verification_date");
+
+                    b.Property<int>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
+
+                    b.Property<Guid?>("VerificationMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verification_method_id");
+
+                    b.Property<string>("VerificationResultCheckup")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("verification_result_checkup");
+
+                    b.Property<string>("VerificationVisualCheckup")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("verification_visual_checkup");
+
+                    b.Property<string>("VerificationsInfo")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("verifications_info");
+
+                    b.Property<DateOnly>("VerifiedUntilDate")
+                        .HasColumnType("date")
+                        .HasColumnName("verified_until_date");
+
+                    b.Property<string>("Worker")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("worker");
+
+                    b.HasKey("Id")
+                        .HasName("pk_manometr1verifications");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("ix_manometr1verifications_device_id");
+
+                    b.HasIndex("VerificationMethodId")
+                        .HasDatabaseName("ix_manometr1verifications_verification_method_id");
+
+                    b.ToTable("manometr1verifications", (string)null);
+                });
+
             modelBuilder.Entity("ProjApp.Database.Entities.Owner", b =>
                 {
                     b.Property<Guid>("Id")
@@ -520,74 +598,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.ToTable("owners", (string)null);
                 });
 
-            modelBuilder.Entity("ProjApp.Database.Entities.PendingManometrVerification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<double?>("Accuracy")
-                        .HasColumnType("double precision")
-                        .HasColumnName("accuracy");
-
-                    b.Property<DateOnly>("Date")
-                        .HasColumnType("date")
-                        .HasColumnName("date");
-
-                    b.Property<string>("DeviceSerial")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_serial");
-
-                    b.Property<string>("DeviceTypeNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_type_number");
-
-                    b.PrimitiveCollection<string[]>("EtalonsNumbers")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("etalons_numbers");
-
-                    b.Property<double>("Hummidity")
-                        .HasColumnType("double precision")
-                        .HasColumnName("hummidity");
-
-                    b.Property<int>("Location")
-                        .HasColumnType("integer")
-                        .HasColumnName("location");
-
-                    b.Property<string>("OwnerName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("owner_name");
-
-                    b.Property<string>("Pressure")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("pressure");
-
-                    b.Property<double>("Temperature")
-                        .HasColumnType("double precision")
-                        .HasColumnName("temperature");
-
-                    b.PrimitiveCollection<string[]>("VerificationMethods")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_methods");
-
-                    b.Property<string>("WorkerName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("worker_name");
-
-                    b.HasKey("Id")
-                        .HasName("pk_pending_manometr_verifications");
-
-                    b.ToTable("pending_manometr_verifications", (string)null);
-                });
-
             modelBuilder.Entity("ProjApp.Database.Entities.ProtocolTemplate", b =>
                 {
                     b.Property<Guid>("Id")
@@ -595,139 +605,18 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("Checkups")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("checkups");
-
-                    b.PrimitiveCollection<string[]>("DeviceTypeNumbers")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("device_type_numbers");
-
-                    b.Property<int>("Group")
+                    b.Property<int>("ProtocolGroup")
                         .HasColumnType("integer")
-                        .HasColumnName("group");
+                        .HasColumnName("protocol_group");
 
-                    b.Property<string>("ProtocolForm")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("protocol_form");
-
-                    b.Property<string>("Values")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("values");
-
-                    b.Property<bool>("VerificationSucces")
-                        .HasColumnType("boolean")
-                        .HasColumnName("verification_succes");
+                    b.Property<int>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
 
                     b.HasKey("Id")
                         .HasName("pk_protocol_templates");
 
                     b.ToTable("protocol_templates", (string)null);
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.SuccessCompleteVerification", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid")
-                        .HasColumnName("id");
-
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
-
-                    b.Property<Guid?>("DeviceId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("device_id");
-
-                    b.Property<string>("DeviceSerial")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_serial");
-
-                    b.Property<string>("DeviceTypeNumber")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_type_number");
-
-                    b.Property<string>("FilePath")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("file_path");
-
-                    b.Property<double>("Humidity")
-                        .HasColumnType("double precision")
-                        .HasColumnName("humidity");
-
-                    b.Property<int>("Location")
-                        .HasColumnType("integer")
-                        .HasColumnName("location");
-
-                    b.Property<string>("Owner")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("owner");
-
-                    b.Property<decimal>("OwnerInn")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("owner_inn");
-
-                    b.Property<string>("Pressure")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("pressure");
-
-                    b.Property<Guid?>("ProtocolTemplateId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("protocol_template_id");
-
-                    b.Property<double>("Temperature")
-                        .HasColumnType("double precision")
-                        .HasColumnName("temperature");
-
-                    b.Property<string>("Values")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("values");
-
-                    b.Property<DateOnly>("VerificationDate")
-                        .HasColumnType("date")
-                        .HasColumnName("verification_date");
-
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
-
-                    b.Property<string>("VerificationTypeNum")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
-
-                    b.Property<DateOnly>("VerifiedUntilDate")
-                        .HasColumnType("date")
-                        .HasColumnName("verified_until_date");
-
-                    b.Property<string>("Worker")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("worker");
-
-                    b.HasKey("Id")
-                        .HasName("pk_success_complete_verifications");
-
-                    b.HasIndex("DeviceId")
-                        .HasDatabaseName("ix_success_complete_verifications_device_id");
-
-                    b.HasIndex("ProtocolTemplateId")
-                        .HasDatabaseName("ix_success_complete_verifications_protocol_template_id");
-
-                    b.ToTable("success_complete_verifications", (string)null);
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.SuccessInitialVerification", b =>
@@ -738,6 +627,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnName("id");
 
                     b.Property<string>("AdditionalInfo")
+                        .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("additional_info");
 
@@ -768,13 +658,17 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
-                    b.Property<decimal?>("OwnerInn")
+                    b.Property<decimal?>("OwnerINN")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("owner_inn");
 
                     b.Property<string>("Pressure")
                         .HasColumnType("text")
                         .HasColumnName("pressure");
+
+                    b.Property<string>("ProtocolNumber")
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
 
                     b.Property<double?>("Temperature")
                         .HasColumnType("double precision")
@@ -784,14 +678,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
+                    b.Property<int?>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
 
-                    b.Property<string>("VerificationTypeNum")
+                    b.Property<string>("VerificationTypeName")
+                        .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
+                        .HasColumnName("verification_type_name");
 
                     b.Property<DateOnly>("VerifiedUntilDate")
                         .HasColumnType("date")
@@ -849,7 +743,7 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("owner");
 
-                    b.Property<decimal>("OwnerInn")
+                    b.Property<decimal>("OwnerINN")
                         .HasColumnType("numeric(20,0)")
                         .HasColumnName("owner_inn");
 
@@ -857,6 +751,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("pressure");
+
+                    b.Property<string>("ProtocolNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
 
                     b.Property<double>("Temperature")
                         .HasColumnType("double precision")
@@ -866,15 +765,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
 
-                    b.PrimitiveCollection<string[]>("VerificationTypeNames")
-                        .IsRequired()
-                        .HasColumnType("text[]")
-                        .HasColumnName("verification_type_names");
+                    b.Property<int>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
 
-                    b.Property<string>("VerificationTypeNum")
+                    b.Property<string>("VerificationTypeName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("verification_type_num");
+                        .HasColumnName("verification_type_name");
 
                     b.Property<DateOnly>("VerifiedUntilDate")
                         .HasColumnType("date")
@@ -906,13 +804,25 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text[]")
                         .HasColumnName("aliases");
 
+                    b.Property<string>("Checkups")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("checkups");
+
                     b.Property<string>("Description")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("description");
 
+                    b.Property<Guid?>("ProtocolTemplateId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("protocol_template_id");
+
                     b.HasKey("Id")
                         .HasName("pk_verification_methods");
+
+                    b.HasIndex("ProtocolTemplateId")
+                        .HasDatabaseName("ix_verification_methods_protocol_template_id");
 
                     b.ToTable("verification_methods", (string)null);
                 });
@@ -952,25 +862,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.ToTable("verification_method_files", (string)null);
                 });
 
-            modelBuilder.Entity("ProtocolTemplateVerificationMethod", b =>
-                {
-                    b.Property<Guid>("ProtocolTemplatesId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("protocol_templates_id");
-
-                    b.Property<Guid>("VerificationMethodsId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("verification_methods_id");
-
-                    b.HasKey("ProtocolTemplatesId", "VerificationMethodsId")
-                        .HasName("pk_protocol_template_verification_method");
-
-                    b.HasIndex("VerificationMethodsId")
-                        .HasDatabaseName("ix_protocol_template_verification_method_verification_methods_");
-
-                    b.ToTable("protocol_template_verification_method", (string)null);
-                });
-
             modelBuilder.Entity("EtalonFailedInitialVerification", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.Etalon", null)
@@ -1003,6 +894,23 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired()
                         .HasConstraintName("fk_etalon_failed_verification_failed_verifications_failed_veri");
+                });
+
+            modelBuilder.Entity("EtalonManometr1Verification", b =>
+                {
+                    b.HasOne("ProjApp.Database.Entities.Etalon", null)
+                        .WithMany()
+                        .HasForeignKey("EtalonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_etalon_manometr1verification_etalons_etalons_id");
+
+                    b.HasOne("ProjApp.Database.Entities.Manometr1Verification", null)
+                        .WithMany()
+                        .HasForeignKey("Manometr1VerificationsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_etalon_manometr1verification_manometr1verifications_manomet");
                 });
 
             modelBuilder.Entity("EtalonSuccessInitialVerification", b =>
@@ -1049,36 +957,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Navigation("DeviceType");
                 });
 
-            modelBuilder.Entity("ProjApp.Database.Entities.Etalon", b =>
-                {
-                    b.HasOne("ProjApp.Database.Entities.FailedCompleteVerification", null)
-                        .WithMany("Etalons")
-                        .HasForeignKey("FailedCompleteVerificationId")
-                        .HasConstraintName("fk_etalons_failed_complete_verifications_failed_complete_verif");
-
-                    b.HasOne("ProjApp.Database.Entities.SuccessCompleteVerification", null)
-                        .WithMany("Etalons")
-                        .HasForeignKey("SuccessCompleteVerificationId")
-                        .HasConstraintName("fk_etalons_success_complete_verifications_success_complete_ver");
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.FailedCompleteVerification", b =>
-                {
-                    b.HasOne("ProjApp.Database.Entities.Device", "Device")
-                        .WithMany()
-                        .HasForeignKey("DeviceId")
-                        .HasConstraintName("fk_failed_complete_verifications_devices_device_id");
-
-                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", "ProtocolTemplate")
-                        .WithMany("FauiledCompleteVerifications")
-                        .HasForeignKey("ProtocolTemplateId")
-                        .HasConstraintName("fk_failed_complete_verifications_protocol_templates_protocol_t");
-
-                    b.Navigation("Device");
-
-                    b.Navigation("ProtocolTemplate");
-                });
-
             modelBuilder.Entity("ProjApp.Database.Entities.FailedInitialVerification", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.Device", "Device")
@@ -1099,21 +977,21 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Navigation("Device");
                 });
 
-            modelBuilder.Entity("ProjApp.Database.Entities.SuccessCompleteVerification", b =>
+            modelBuilder.Entity("ProjApp.Database.Entities.Manometr1Verification", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.Device", "Device")
                         .WithMany()
                         .HasForeignKey("DeviceId")
-                        .HasConstraintName("fk_success_complete_verifications_devices_device_id");
+                        .HasConstraintName("fk_manometr1verifications_devices_device_id");
 
-                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", "ProtocolTemplate")
-                        .WithMany("SuccessCompleteVerifications")
-                        .HasForeignKey("ProtocolTemplateId")
-                        .HasConstraintName("fk_success_complete_verifications_protocol_templates_protocol_");
+                    b.HasOne("ProjApp.Database.Entities.VerificationMethod", "VerificationMethod")
+                        .WithMany()
+                        .HasForeignKey("VerificationMethodId")
+                        .HasConstraintName("fk_manometr1verifications_verification_methods_verification_me");
 
                     b.Navigation("Device");
 
-                    b.Navigation("ProtocolTemplate");
+                    b.Navigation("VerificationMethod");
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.SuccessInitialVerification", b =>
@@ -1136,6 +1014,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Navigation("Device");
                 });
 
+            modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethod", b =>
+                {
+                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
+                        .WithMany("VerificationMethods")
+                        .HasForeignKey("ProtocolTemplateId")
+                        .HasConstraintName("fk_verification_methods_protocol_templates_protocol_template_id");
+                });
+
             modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethodFile", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.VerificationMethod", null)
@@ -1145,38 +1031,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasConstraintName("fk_verification_method_files_verification_methods_verification");
                 });
 
-            modelBuilder.Entity("ProtocolTemplateVerificationMethod", b =>
-                {
-                    b.HasOne("ProjApp.Database.Entities.ProtocolTemplate", null)
-                        .WithMany()
-                        .HasForeignKey("ProtocolTemplatesId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_protocol_template_verification_method_protocol_templates_pr");
-
-                    b.HasOne("ProjApp.Database.Entities.VerificationMethod", null)
-                        .WithMany()
-                        .HasForeignKey("VerificationMethodsId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired()
-                        .HasConstraintName("fk_protocol_template_verification_method_verification_methods_");
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.FailedCompleteVerification", b =>
-                {
-                    b.Navigation("Etalons");
-                });
-
             modelBuilder.Entity("ProjApp.Database.Entities.ProtocolTemplate", b =>
                 {
-                    b.Navigation("FauiledCompleteVerifications");
-
-                    b.Navigation("SuccessCompleteVerifications");
-                });
-
-            modelBuilder.Entity("ProjApp.Database.Entities.SuccessCompleteVerification", b =>
-                {
-                    b.Navigation("Etalons");
+                    b.Navigation("VerificationMethods");
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethod", b =>

@@ -1,5 +1,4 @@
 using Infrastructure.DocumentProcessor.Creator;
-using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
 using IAppConfig = Microsoft.Extensions.Configuration.IConfiguration;

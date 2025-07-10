@@ -62,9 +62,10 @@ export class AddVerificationMethodComponent {
     this.result = null;
     const description = this.form.value.description;
     const aliases = this.aliases.length ? this.aliases : null;
+    const checkups = null; // No checkups functionality in current implementation
     const fileName = this.file.name;
     const fileParam = { data: this.file, fileName: this.file.name };
-    this.client.addVerificationMethod(description, aliases, fileName, fileParam).subscribe({
+    this.client.addVerificationMethod(description, aliases, checkups, fileName, fileParam).subscribe({
       next: res => {
         if (res && !res.error) {
           this.result = 'Метод успешно добавлен';

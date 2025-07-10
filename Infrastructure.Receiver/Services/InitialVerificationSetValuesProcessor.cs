@@ -135,6 +135,7 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             public string InternalName { get; } = nameof(InitialVerificationDataItem.MeasurementRange);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
                 new AllSpacesRemoverColumnNormalizer(),
+                new DotToCommaNormalizer(),
             ];
             public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
             public uint ColumnIndex { get; set; }
@@ -176,9 +177,17 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
                 {
                     throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать диапазон измерений. Введенная строка {MeasurementRange}");
                 }
-                additionalInfo["min"] = int.Parse(measurementMatch.Groups[1].Value);
-                additionalInfo["max"] = int.Parse(measurementMatch.Groups[2].Value);
-                additionalInfo["unit"] = int.Parse(measurementMatch.Groups[3].Value);
+                if (!double.TryParse(measurementMatch.Groups[1].Value, out var min))
+                {
+                    throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать минимальное значение диапазона измерений. Введенная строка {MeasurementRange}");
+                }
+                if (!double.TryParse(measurementMatch.Groups[2].Value, out var max))
+                {
+                    throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать максимальное значение диапазона измерений. Введенная строка {MeasurementRange}");
+                }
+                additionalInfo["min"] = min;
+                additionalInfo["max"] = max;
+                additionalInfo["unit"] = measurementMatch.Groups[3].Value;
             }
 
             if (Accuracy! != null)
@@ -209,7 +218,7 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             };
         }
 
-        [GeneratedRegex(@"\(([+-]*\d+)-([+-]*\d+)\)(.+)")]
+        [GeneratedRegex(@"\(([+-]*\d*[\.,]?\d+)-([+-]*\d*[\.,]?\d+)\)(.+)")]
         private static partial Regex MeasurementRegex();
     }
 }

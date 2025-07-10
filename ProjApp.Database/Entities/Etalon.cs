@@ -12,4 +12,5 @@ public class Etalon : DatabaseEntity
     public ICollection<FailedInitialVerification>? FailedInitialVerifications { get; set; }
     public ICollection<SuccessVerification>? SuccessVerifications { get; set; }
     public ICollection<FailedVerification>? FailedVerifications { get; set; }
+    public ICollection<Manometr1Verification>? Manometr1Verifications { get; set; }
 }

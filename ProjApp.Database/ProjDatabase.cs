@@ -18,30 +18,23 @@ public class ProjDatabase : DbContext
     public DbSet<VerificationMethod> VerificationMethods => Set<VerificationMethod>();
     public DbSet<VerificationMethodFile> VerificationMethodFiles => Set<VerificationMethodFile>();
     public DbSet<ProtocolTemplate> ProtocolTemplates => Set<ProtocolTemplate>();
-    
+
     public DbSet<SuccessInitialVerification> SuccessInitialVerifications => Set<SuccessInitialVerification>();
     public DbSet<FailedInitialVerification> FailedInitialVerifications => Set<FailedInitialVerification>();
     public DbSet<SuccessVerification> SuccessVerifications => Set<SuccessVerification>();
     public DbSet<FailedVerification> FailedVerifications => Set<FailedVerification>();
-    
+
     public DbSet<Manometr1Verification> Manometr1Verifications => Set<Manometr1Verification>();
 
-
-    // public DbSet<SuccessCompleteVerification> SuccessCompleteVerifications => Set<SuccessCompleteVerification>();
-    // public DbSet<FailedCompleteVerification> FailedCompleteVerifications => Set<FailedCompleteVerification>();
-    // public DbSet<ProtocolTemplate> ProtocolTemplates => Set<ProtocolTemplate>();
-    // public DbSet<PendingManometrVerification> PendingManometrVerifications => Set<PendingManometrVerification>();
-
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new();
+
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
         ConfigureInitialVerificationJob(modelBuilder);
         ConfigureVerificationMethod(modelBuilder);
-
-
-        // ConfigureProtocolTemplate(modelBuilder);
-        // ConfigureSuccessCompleteVerification(modelBuilder);
-        // ConfigureFailedCompleteVerification(modelBuilder);
+        ConfigureInitialVerifications(modelBuilder);
+        ConfigureVerifications(modelBuilder);
+        ConfigureManometr1Verifications(modelBuilder);
     }
 
     private static void ConfigureInitialVerificationJob(ModelBuilder modelBuilder)
@@ -66,23 +59,101 @@ public class ProjDatabase : DbContext
                     new Dictionary<string, string>()));
     }
 
-    private static void ConfigureSuccessCompleteVerification(ModelBuilder modelBuilder)
+    private static void ConfigureInitialVerifications(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SuccessCompleteVerification>()
-            .Property(e => e.Values)
+        modelBuilder.Entity<SuccessInitialVerification>()
+            .Property(e => e.AdditionalInfo)
             .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, _jsonSerializerOptions) ??
-                    new Dictionary<string, object>()));
+                v => DeserializeDict(v)));
+
+        modelBuilder.Entity<FailedInitialVerification>()
+            .Property(e => e.AdditionalInfo)
+            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => DeserializeDict(v)));
     }
 
-    private static void ConfigureFailedCompleteVerification(ModelBuilder modelBuilder)
+    private static void ConfigureVerifications(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<FailedCompleteVerification>()
-            .Property(e => e.Values)
+        modelBuilder.Entity<SuccessVerification>()
+            .Property(e => e.AdditionalInfo)
             .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, object>>(v, _jsonSerializerOptions) ??
-                    new Dictionary<string, object>()));
+                v => DeserializeDict(v)));
+
+        modelBuilder.Entity<FailedVerification>()
+            .Property(e => e.AdditionalInfo)
+            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => DeserializeDict(v)));
+    }
+
+    private static void ConfigureManometr1Verifications(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Manometr1Verification>()
+            .Property(e => e.DeviceValues)
+            .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
+                    new List<IReadOnlyList<double>>()));
+
+        modelBuilder.Entity<Manometr1Verification>()
+            .Property(e => e.EtalonValues)
+            .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
+                    new List<IReadOnlyList<double>>()));
+
+        modelBuilder.Entity<Manometr1Verification>()
+            .Property(e => e.ActualError)
+            .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
+                    new List<IReadOnlyList<double>>()));
+    }
+
+    private static Dictionary<string, object> DeserializeDict(string serializedDict)
+    {
+        var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(serializedDict, _jsonSerializerOptions);
+        if (dict == null)
+            return new Dictionary<string, object>();
+
+        var result = new Dictionary<string, object>();
+        foreach (var kvp in dict)
+        {
+            var value = ConvertJsonElementToObject(kvp.Value);
+            ArgumentNullException.ThrowIfNull(value);
+            result[kvp.Key] = value;
+        }
+        return result;
+    }
+
+    private static object? ConvertJsonElementToObject(JsonElement jsonElement)
+    {
+        switch (jsonElement.ValueKind)
+        {
+            case JsonValueKind.Number:
+                double rawValue = jsonElement.GetDouble();
+                if (rawValue == Math.Truncate(rawValue))
+                {
+                    if (rawValue >= int.MinValue && rawValue <= int.MaxValue)
+                        return (int)rawValue;
+                    else
+                        return (long)rawValue;
+                }
+                else
+                    return rawValue;
+            case JsonValueKind.String:
+                return jsonElement.GetString();
+            case JsonValueKind.True:
+                return true;
+            case JsonValueKind.False:
+                return false;
+            case JsonValueKind.Null:
+                return null;
+            default:
+                throw new InvalidOperationException($"Unsupported JSON value kind: {jsonElement.ValueKind}");
+        }
     }
 }

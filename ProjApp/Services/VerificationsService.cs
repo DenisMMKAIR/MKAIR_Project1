@@ -50,7 +50,7 @@ public class VerificationsService
 
         if (deviceTypeNumberFilter != null)
         {
-            query = query.Where(v => v.DeviceTypeNumber == deviceTypeNumberFilter);
+            query = query.Where(v => v.DeviceTypeNumber.Contains(deviceTypeNumberFilter));
         }
 
         if (yearMonthFilter != null)
@@ -89,7 +89,7 @@ public class VerificationsService
 
         if (deviceTypeNumberFilter != null)
         {
-            query = query.Where(v => v.DeviceTypeNumber == deviceTypeNumberFilter);
+            query = query.Where(v => v.DeviceTypeNumber.Contains(deviceTypeNumberFilter));
         }
 
         if (yearMonthFilter != null)
@@ -197,35 +197,41 @@ public class VerificationsService
                 dbIv.Humidity = resultIv.Humidity;
                 setAny = true;
             }
+
+            string? SetKey(string key)
+            {
+                var newValue = resultIv.AdditionalInfo[key];
+
+                if (dbIv.AdditionalInfo.TryGetValue(key, out var value))
+                {
+                    if (!EqualityComparer<object>.Default.Equals(value, newValue))
+                    {
+                        dbIv.AdditionalInfo[key] = newValue;
+                        _database.Entry(dbIv).Property(x => x.AdditionalInfo).IsModified = true;
+                        setAny = true;
+                    }
+                }
+                else
+                {
+                    dbIv.AdditionalInfo.Add(key, newValue);
+                    _database.Entry(dbIv).Property(x => x.AdditionalInfo).IsModified = true;
+                    setAny = true;
+                }
+                return null;
+            }
             if (request.MeasurementRange is true)
             {
-                var key = "min";
-                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
-                {
-                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
-                    setAny = true;
-                }
-                key = "max";
-                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
-                {
-                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
-                    setAny = true;
-                }
-                key = "unit";
-                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
-                {
-                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
-                    setAny = true;
-                }
+                var result = SetKey("min");
+                if (result != null) return ServiceResult.Fail(result);
+                result = SetKey("max");
+                if (result != null) return ServiceResult.Fail(result);
+                result = SetKey("unit");
+                if (result != null) return ServiceResult.Fail(result);
             }
             if (request.Accuracy is true)
             {
-                var key = "accuracy";
-                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
-                {
-                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
-                    setAny = true;
-                }
+                var result = SetKey("accuracy");
+                if (result != null) return ServiceResult.Fail(result);
             }
         }
 

@@ -25,6 +25,8 @@ export class AddValuesPage {
   public pressure: boolean = false;
   public temperature: boolean = false;
   public humidity: boolean = false;
+  public measurementRange: boolean = false;
+  public accuracy: boolean = false;
   public loading = false;
   public error: string | null = null;
   public result: ServiceResult | null = null;
@@ -51,6 +53,8 @@ export class AddValuesPage {
     this.pressure = false;
     this.temperature = false;
     this.humidity = false;
+    this.measurementRange = false;
+    this.accuracy = false;
     this.loading = false;
     this.error = null;
     this.result = null;
@@ -104,10 +108,11 @@ export class AddValuesPage {
         this.location,
         false, // verificationTypeNum
         this.worker,
-        this.additionalInfo,
         this.pressure,
         this.temperature,
-        this.humidity
+        this.humidity,
+        this.measurementRange,
+        this.accuracy
       ).subscribe({
         next: (res: any) => {
           this.result = res;
