@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace Infrastructure.Receiver.ColumnsVerifiers;
 
-public partial class NameVerifier : IColumnVerifier
+public partial class WorkerNameVerifier : IColumnVerifier
 {
     public string ErrorMessage => "Имя имеет недопустимый формат";
     [GeneratedRegex(@"^[А-Яа-я]+ [А-Яа-я]\.[А-Яа-я]\.$")]

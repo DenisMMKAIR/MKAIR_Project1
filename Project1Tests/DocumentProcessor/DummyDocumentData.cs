@@ -1,9 +1,8 @@
-using Infrastructure.SharedCode;
-
 namespace Project1Tests.DocumentProcessor;
 
 public static class DummyDocumentData
 {
+    /*
     public static ManometrData ManometrData1Ver1Eta()
     {
         var verDate = new DateOnly(2024, 05, 06);
@@ -77,4 +76,5 @@ public static class DummyDocumentData
 
         return data;
     }
+    */
 }

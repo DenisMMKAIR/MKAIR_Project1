@@ -1,4 +1,5 @@
 ﻿using System.Reflection;
+using Infrastructure.DocumentProcessor.Services;
 using Infrastructure.FGISAPI;
 using Infrastructure.Receiver.Services;
 using Mapster;
@@ -32,7 +33,6 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddInitialVerificationCommand<SuccessInitialVerification>>();
         serviceCollection.AddTransient<AddInitialVerificationCommand<FailedInitialVerification>>();
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
-        serviceCollection.AddTransient<AddProtocolTemplateCommand>();
         serviceCollection.AddTransient<AddOwnerCommand>();
         serviceCollection.AddTransient<AddVerificationCommand<SuccessVerification>>();
         serviceCollection.AddTransient<AddVerificationCommand<FailedVerification>>();
@@ -40,12 +40,12 @@ public static class ProjectDI
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
 
-        serviceCollection.AddScoped<PendingManometrVerificationsService>();
+        serviceCollection.AddScoped<ITemplateProcessor, TemplateProcessor>();
+
         serviceCollection.AddScoped<DeviceTypeService>();
         serviceCollection.AddScoped<InitialVerificationJobsService>();
         serviceCollection.AddScoped<VerificationsService>();
         serviceCollection.AddScoped<VerificationMethodsService>();
-        serviceCollection.AddScoped<ProtocolTemplesService>();
         serviceCollection.AddScoped<OwnersService>();
 
         var config = TypeAdapterConfig.GlobalSettings;
@@ -54,10 +54,10 @@ public static class ProjectDI
         serviceCollection.AddScoped<IMapper, ServiceMapper>();
 
         serviceCollection.AddSingleton<EventKeeper>();
-        serviceCollection.AddHostedService<DeviceTypeBackgroundService>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         serviceCollection.AddHostedService<OwnersBackgroundService>();
         serviceCollection.AddHostedService<VerificationBackgroundService>();
+        serviceCollection.AddHostedService<CompleteVerificationBackgroundService>();
 
         serviceCollection.AddFGISAPI();
     }

@@ -1,27 +1,30 @@
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using Infrastructure.SharedCode;
 using System.Reflection;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
 // TODO: Replace reflection with the source generator
 // TODO: Cache Sings
-internal abstract class DocumentCreatorBase<T> where T : IDocumentData
+internal abstract class DocumentCreatorBase<T>
 {
     private readonly string _fileContent;
+    private readonly Dictionary<string, string> _signsCache;
     private readonly string _signsDirPath;
-    private readonly IDictionary<string, string> _signsCache = new Dictionary<string, string>();
     protected abstract IReadOnlyList<PropertyInfo> TypeProps { get; init; }
     protected abstract int VerificationLineLength { get; init; }
     protected abstract int EtalonLineLength { get; init; }
     protected abstract int AdditionalLineLength { get; init; }
 
-    public DocumentCreatorBase(string signDirPath, string filePath)
-        => (_signsDirPath, _fileContent) = (signDirPath, File.ReadAllText(filePath));
+    public DocumentCreatorBase(Dictionary<string, string> signsCache, string signsDirPath, string formPath)
+    {
+        _signsCache = signsCache;
+        _signsDirPath = signsDirPath;
+        _fileContent = File.ReadAllText(formPath);
+    }
 
-    public async Task<CreationResult> CreateAsync(T data)
+    public async Task<HTMLCreationResult> CreateAsync(T data)
     {
         var config = Configuration.Default.WithDefaultLoader();
         using var context = BrowsingContext.New(config);
@@ -31,23 +34,23 @@ internal abstract class DocumentCreatorBase<T> where T : IDocumentData
         {
             var id = idValueElement.Id!["setValue_".Length..].ToLower();
             var prop = TypeProps.FirstOrDefault(t => t.Name.Equals(id, StringComparison.OrdinalIgnoreCase));
-            if (prop == null) return CreationResult.Failure($"Data property {id} not found");
+            if (prop == null) return HTMLCreationResult.Failure($"Data property {id} not found");
             idValueElement.InnerHtml = prop.GetValue(data)!.ToString()!;
         }
 
         var result = SetVerification(document, data);
-        if (result != null) return CreationResult.Failure(result);
+        if (result != null) return HTMLCreationResult.Failure(result);
 
         result = SetEtalons(document, data);
-        if (result != null) return CreationResult.Failure(result);
+        if (result != null) return HTMLCreationResult.Failure(result);
 
         result = await SetSignAsync(document, data);
-        if (result != null) return CreationResult.Failure(result);
+        if (result != null) return HTMLCreationResult.Failure(result);
 
         var specifiResult = await SetSpecificAsync(document, data);
-        if (specifiResult != null) return CreationResult.Failure(specifiResult);
+        if (specifiResult != null) return HTMLCreationResult.Failure(specifiResult);
 
-        return CreationResult.Success(document.DocumentElement.OuterHtml);
+        return HTMLCreationResult.Success(document.DocumentElement.OuterHtml);
     }
 
     protected abstract Task<string?> SetSpecificAsync(IDocument document, T data);
@@ -137,28 +140,30 @@ internal abstract class DocumentCreatorBase<T> where T : IDocumentData
     {
         var worker = (string)TypeProps.First(p => p.Name == "Worker").GetValue(data)!;
         worker = worker.ToLower();
-        var signsCount = Directory.EnumerateFiles(_signsDirPath, $"{worker}*.png").Count();
 
-        if (signsCount == 0) return "Сотрудник не найден в списке подписей.";
-
-        var randomSignIndex = Random.Shared.Next(1, signsCount);
-        randomSignIndex = 1;
-        var key = $"{worker} {randomSignIndex}";
-
-        if (!_signsCache.TryGetValue(key, out var signBase64))
+        if (!_signsCache.TryGetValue(worker, out var _))
         {
-            var filePath = $"{_signsDirPath}\\{key}.png";
+            var signFilesPaths = Directory.GetFiles(_signsDirPath, $"{worker}*.png");
 
-            if (!File.Exists(filePath)) return $"Файл подписи {key}.png не найден.";
+            if (signFilesPaths.Length < 12) return $"Подпись сотрудника {worker} не найдена. Или вариантов меньше 12";
 
-            var bytes = await File.ReadAllBytesAsync(filePath);
-            var base64 = Convert.ToBase64String(bytes);
-            signBase64 = $"data:image/png;base64,{base64}";
-            _signsCache[key] = signBase64;
+            foreach (var filePath in signFilesPaths)
+            {
+                var bytes = await File.ReadAllBytesAsync(filePath);
+                var base64 = Convert.ToBase64String(bytes);
+                var signBase64 = $"data:image/png;base64,{base64}";
+                var cacheKey = Path.GetFileNameWithoutExtension(filePath);
+                _signsCache[cacheKey] = signBase64;
+            }
         }
 
+        var signsCount = _signsCache.Where(s => s.Key == worker).Count();
+        var randomSignIndex = Random.Shared.Next(1, signsCount);
+        var key = $"{worker} {randomSignIndex}";
+        var _ = _signsCache.TryGetValue(key, out var sign);
+
         var imgElement = document.QuerySelector<IHtmlImageElement>("#sign")!;
-        imgElement.Source = signBase64;
+        imgElement.Source = sign;
 
         return null;
     }

@@ -20,7 +20,6 @@
 	</ItemGroup>
 
 	<ItemGroup>
-	  <ProjectReference Include="..\Infrastructure.SharedCode\Infrastructure.SharedCode.csproj" />
 	  <ProjectReference Include="..\ProjApp\ProjApp.csproj" />
 	</ItemGroup>
 

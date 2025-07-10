@@ -72,8 +72,10 @@ public class VerificationMethodsController : ApiControllerBase
         {
             Aliases = request.Aliases,
             Description = request.Description,
+            Checkups = request.Checkups,
             VerificationMethodFiles = [new() { FileName = request.FileName, Mimetype = mimeType, Content = fileContent }]
         };
+
         return await _service.AddVerificationMethodAsync(newVerMethod);
     }
 

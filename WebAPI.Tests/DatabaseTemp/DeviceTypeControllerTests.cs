@@ -1,7 +1,8 @@
 using Microsoft.Extensions.DependencyInjection;
 using WebAPI.Controllers;
+using WebAPI.Tests.DatabaseTemp;
 
-namespace WebAPI.Tests;
+namespace WebAPI.Tests.DatabaseTemp;
 
 public class DeviceTypeControllerTests : ControllersFixture
 {

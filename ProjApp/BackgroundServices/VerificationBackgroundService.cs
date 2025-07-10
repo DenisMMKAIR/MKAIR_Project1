@@ -48,8 +48,8 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
             .Include(v => v.Etalons)
-            .Where(v => v.VerificationTypeNum != null &&
-                        v.OwnerInn != null &&
+            .Where(v => v.ProtocolNumber != null &&
+                        v.OwnerINN != null &&
                         v.Worker != null &&
                         v.Location != null &&
                         v.AdditionalInfo != null &&
@@ -62,8 +62,8 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
             .Include(v => v.Etalons)
-            .Where(v => v.VerificationTypeNum != null &&
-                        v.OwnerInn != null &&
+            .Where(v => v.ProtocolNumber != null &&
+                        v.OwnerINN != null &&
                         v.Worker != null &&
                         v.Location != null &&
                         v.AdditionalInfo != null &&
@@ -105,17 +105,18 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
             DeviceTypeNumber = v.DeviceTypeNumber,
             DeviceSerial = v.DeviceSerial,
             Owner = v.Owner,
-            VerificationTypeNames = v.VerificationTypeNames,
+            VerificationTypeName = v.VerificationTypeName,
             VerificationDate = v.VerificationDate,
             VerifiedUntilDate = v.VerifiedUntilDate,
-            VerificationTypeNum = v.VerificationTypeNum!,
-            OwnerInn = v.OwnerInn!.Value,
+            ProtocolNumber = v.ProtocolNumber!,
+            OwnerINN = v.OwnerINN!.Value,
             Worker = v.Worker!,
             Location = v.Location!.Value,
             AdditionalInfo = v.AdditionalInfo!,
             Pressure = v.Pressure!,
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
+            VerificationGroup = v.VerificationGroup!.Value,
 
             Device = v.Device,
             Etalons = v.Etalons
@@ -129,17 +130,19 @@ public class VerificationBackgroundService : EventSubscriberBase, IHostedService
             DeviceTypeNumber = v.DeviceTypeNumber,
             DeviceSerial = v.DeviceSerial,
             Owner = v.Owner,
-            VerificationTypeNames = v.VerificationTypeNames,
+            VerificationTypeName = v.VerificationTypeName,
             VerificationDate = v.VerificationDate,
             FailedDocNumber = v.FailedDocNumber,
-            VerificationTypeNum = v.VerificationTypeNum!,
-            OwnerInn = v.OwnerInn!.Value,
+            ProtocolNumber = v.ProtocolNumber!,
+            OwnerINN = v.OwnerINN!.Value,
             Worker = v.Worker!,
             Location = v.Location!.Value,
             AdditionalInfo = v.AdditionalInfo!,
             Pressure = v.Pressure!,
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
+            VerificationGroup = v.VerificationGroup!.Value,
+
             Device = v.Device,
             Etalons = v.Etalons
         };

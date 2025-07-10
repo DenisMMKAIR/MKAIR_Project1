@@ -4,7 +4,7 @@ using ProjApp.Database;
 using ProjApp.Usage;
 using WebAPI.Controllers;
 
-namespace WebAPI.Tests;
+namespace WebAPI.Tests.DatabaseTemp;
 
 [TestFixture]
 public abstract class ControllersFixture
@@ -20,7 +20,7 @@ public abstract class ControllersFixture
         var assemblies = new string?[]
             {
                 typeof(ProjApp.Mapping.SuccessInitialVerificationDto).Assembly.FullName,
-                typeof(WebAPI.Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
+                typeof(Controllers.Requests.AddDeviceTypeRequest).Assembly.FullName
             }
             .Select(name => name ?? throw new InvalidOperationException("No assembly name"))
             .ToArray();
@@ -29,9 +29,7 @@ public abstract class ControllersFixture
         services.AddTransient<DeviceTypeController>();
         services.AddTransient<InitialVerificationJobsController>();
         services.AddTransient<VerificationsController>();
-        services.AddTransient<PendingManometrVerificationsController>();
         services.AddTransient<VerificationMethodsController>();
-        services.AddTransient<ProtocolTemplateController>();
 
         services.AddSingleton<InitialVerificationBackgroundService>();
 

@@ -10,7 +10,7 @@ public static class MKAIRInfo
          "Ханты-Мансийский автономный округ - Югра, г.о. Нижневартовск, г Нижневартовск, ул Индустриальная, зд. 32, стр. 1, кабинет 14"),
     ];
 
-    public static string? GetAddress(DateOnly date)
+    public static string GetAddress(DateOnly date)
     {
         foreach (var (addressDate, address) in _addresses)
         {

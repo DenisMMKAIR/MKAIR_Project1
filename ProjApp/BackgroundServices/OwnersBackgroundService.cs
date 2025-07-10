@@ -81,8 +81,8 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
                     miss++;
                     continue;
                 }
-                if (iv.OwnerInn == owner.INN) continue;
-                iv.OwnerInn = owner.INN;
+                if (iv.OwnerINN == owner.INN) continue;
+                iv.OwnerINN = owner.INN;
                 set++;
             }
 

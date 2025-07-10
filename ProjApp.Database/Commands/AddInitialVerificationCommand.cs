@@ -1,4 +1,3 @@
-using System.Diagnostics.CodeAnalysis;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
 using ProjApp.Database.Normalizers;
@@ -17,7 +16,7 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
          AddDeviceTypeCommand addDeviceTypeCommand,
          AddDeviceCommand addDeviceCommand,
          AddEtalonCommand addEtalonCommand) :
-         base(logger, database, new InitialVerificationUniqComparer<T>())
+         base(logger, database, new VerificationUniqComparer())
     {
         _addDeviceTypeCommand = addDeviceTypeCommand;
         _addDeviceCommand = addDeviceCommand;
@@ -45,7 +44,7 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         IReadOnlyList<Etalon> uniqEtalons = [.. items.SelectMany(x => x.Etalons!).Distinct(etalonsUniqComparer)];
         var savedEtalons = await _addEtalonCommand.ExecuteAsync(uniqEtalons);
 
-        var uniqComparer = new InitialVerificationUniqComparer<IVerificationBase>();
+        var uniqComparer = new VerificationUniqComparer();
 
         // TODO: Possible problem. With this logic we wont return item if it already exists, unlike
         // another commands
@@ -63,28 +62,11 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
 
         foreach (var item in items)
         {
-            item.VerificationTypeNames = [.. item.VerificationTypeNames.Select(nameNormalizer.Normalize)];
+            item.VerificationTypeName = nameNormalizer.Normalize(item.VerificationTypeName);
             item.Device = savedDevices.Items!.Single(d => deviceUniqComparer.Equals(item.Device!, d));
             item.Etalons = [.. item.Etalons!.Select(e => savedEtalons.Items!.Single(e2 => etalonsUniqComparer.Equals(e, e2)))];
         }
 
         return await base.ExecuteAsync(items);
-    }
-}
-
-public class InitialVerificationUniqComparer<T> : IEqualityComparer<T> where T : IVerificationBase
-{
-    public bool Equals(T? x, T? y)
-    {
-        if (x == null || y == null) return false;
-
-        return x.VerificationDate.Equals(y.VerificationDate) &&
-            x.DeviceTypeNumber.Equals(y.DeviceTypeNumber) &&
-            x.DeviceSerial.Equals(y.DeviceSerial);
-    }
-
-    public int GetHashCode([DisallowNull] T obj)
-    {
-        return HashCode.Combine(obj.VerificationDate, obj.DeviceTypeNumber, obj.DeviceSerial);
     }
 }

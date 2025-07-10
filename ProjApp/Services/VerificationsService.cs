@@ -93,10 +93,10 @@ public class VerificationsService
         }
 
         if (yearMonthFilter != null)
-            {
-                query = query.Where(v => v.VerificationDate.Year == yearMonthFilter.Value.Year &&
-                                         v.VerificationDate.Month == yearMonthFilter.Value.Month);
-            }
+        {
+            query = query.Where(v => v.VerificationDate.Year == yearMonthFilter.Value.Year &&
+                                     v.VerificationDate.Month == yearMonthFilter.Value.Month);
+        }
 
         if (typeInfoFilter != null)
         {
@@ -154,7 +154,7 @@ public class VerificationsService
             return ServiceResult.Fail(e.Message);
         }
 
-        var uniqComparer = new InitialVerificationUniqComparer<IInitialVerification>();
+        var uniqComparer = new VerificationUniqComparer();
 
         var dbIvs = _database.SuccessInitialVerifications
             .AsEnumerable()
@@ -166,24 +166,20 @@ public class VerificationsService
         foreach (var dbIv in dbIvs)
         {
             var resultIv = resultIvs.First(iv => uniqComparer.Equals(iv, dbIv));
+
             if (setLocation && dbIv.Location != request.Location)
             {
                 dbIv.Location = request.Location;
                 setAny = true;
             }
-            if (request.VerificationTypeNum is true && dbIv.VerificationTypeNum != resultIv.VerificationTypeNum)
+            if (request.VerificationTypeNum is true && dbIv.ProtocolNumber != resultIv.ProtocolNumber)
             {
-                dbIv.VerificationTypeNum = resultIv.VerificationTypeNum;
+                dbIv.ProtocolNumber = resultIv.ProtocolNumber;
                 setAny = true;
             }
             if (request.Worker is true && dbIv.Worker != resultIv.Worker)
             {
                 dbIv.Worker = resultIv.Worker;
-                setAny = true;
-            }
-            if (request.AdditionalInfo is true && dbIv.AdditionalInfo != resultIv.AdditionalInfo)
-            {
-                dbIv.AdditionalInfo = resultIv.AdditionalInfo;
                 setAny = true;
             }
             if (request.Pressure is true && dbIv.Pressure != resultIv.Pressure)
@@ -200,6 +196,36 @@ public class VerificationsService
             {
                 dbIv.Humidity = resultIv.Humidity;
                 setAny = true;
+            }
+            if (request.MeasurementRange is true)
+            {
+                var key = "min";
+                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
+                {
+                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
+                    setAny = true;
+                }
+                key = "max";
+                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
+                {
+                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
+                    setAny = true;
+                }
+                key = "unit";
+                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
+                {
+                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
+                    setAny = true;
+                }
+            }
+            if (request.Accuracy is true)
+            {
+                var key = "accuracy";
+                if (dbIv.AdditionalInfo[key] != resultIv.AdditionalInfo[key])
+                {
+                    dbIv.AdditionalInfo[key] = resultIv.AdditionalInfo[key];
+                    setAny = true;
+                }
             }
         }
 
@@ -229,8 +255,9 @@ public class SetValuesRequest
     public required DeviceLocation Location { get; init; }
     public bool? VerificationTypeNum { get; init; }
     public bool? Worker { get; init; }
-    public bool? AdditionalInfo { get; init; }
     public bool? Pressure { get; init; }
     public bool? Temperature { get; init; }
     public bool? Humidity { get; init; }
+    public bool? MeasurementRange { get; set; }
+    public bool? Accuracy { get; set; }
 }
