@@ -2,7 +2,7 @@
 <div class="centered-add-method">
   <app-add-verification-method (added)="verificationMethodsTable?.reload(); possibleVerificationMethodsTable?.reload()"></app-add-verification-method>
 </div>
-<app-verification-methods-table #verificationMethodsTable></app-verification-methods-table>
+<app-verification-methods-table #verificationMethodsTable (reloadPossible)="possibleVerificationMethodsTable?.reload()"></app-verification-methods-table>
 
 <h2>Возможные методы поверки</h2>
 <app-possible-verification-methods-table #possibleVerificationMethodsTable></app-possible-verification-methods-table> 

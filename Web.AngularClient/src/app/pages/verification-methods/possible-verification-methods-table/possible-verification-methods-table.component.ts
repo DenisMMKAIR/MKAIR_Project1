@@ -21,6 +21,7 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
   public possibleVerificationMethods: PossibleVerificationMethodDTO[] = [];
   public loading = false;
   public error: string | null = null;
+  public aliasErrorMessage: string | null = null;
 
   ngOnInit(): void {
     this.verificationMethodsService.setPageChangeCallback(this.key, () => this.loadPossibleVerificationMethods());

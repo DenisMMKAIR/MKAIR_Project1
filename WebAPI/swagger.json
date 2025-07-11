@@ -313,6 +313,155 @@
         }
       }
     },
+    "/api/ProtocolTemplate/GetTemplates": {
+      "get": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_GetTemplates",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfProtocolTemplateDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/GetPossibleVerificationMethods": {
+      "get": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_GetPossibleVerificationMethods",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/AddTemplate": {
+      "post": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_AddTemplate",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "VerificationGroup": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "ProtocolGroup": {
+                    "type": "string",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ProtocolTemplate/DeleteTemplate": {
+      "delete": {
+        "tags": [
+          "ProtocolTemplate"
+        ],
+        "operationId": "ProtocolTemplate_DeleteTemplate",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/VerificationMethods/GetVerificationMethods": {
       "get": {
         "tags": [
@@ -429,6 +578,108 @@
         }
       }
     },
+    "/api/VerificationMethods/AddVerificationMethod": {
+      "post": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_AddVerificationMethod",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "FileName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "Description": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "Aliases": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "Checkups": {
+                    "type": "object",
+                    "nullable": true,
+                    "x-dictionaryKey": {
+                      "$ref": "#/components/schemas/VerificationMethodCheckups"
+                    },
+                    "additionalProperties": {
+                      "type": "string"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/AddAliases": {
+      "patch": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_AddAliases",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "properties": {
+                  "Aliases": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "VerificationMethodId": {
+                    "type": "string",
+                    "format": "guid"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/VerificationMethods/DownloadFile": {
       "get": {
         "tags": [
@@ -454,64 +705,6 @@
                 "schema": {
                   "type": "string",
                   "format": "binary"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/VerificationMethods/AddVerificationMethod": {
-      "post": {
-        "tags": [
-          "VerificationMethods"
-        ],
-        "operationId": "VerificationMethods_AddVerificationMethod",
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "Description": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "Aliases": {
-                    "type": "array",
-                    "nullable": true,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "Checkups": {
-                    "type": "object",
-                    "nullable": true,
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  },
-                  "FileName": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
                 }
               }
             }
@@ -708,6 +901,10 @@
                     "type": "string",
                     "nullable": true
                   },
+                  "Group": {
+                    "type": "string",
+                    "nullable": true
+                  },
                   "VerificationTypeNum": {
                     "type": "boolean",
                     "nullable": true
@@ -877,6 +1074,106 @@
               },
               "notation": {
                 "type": "string"
+              },
+              "verificationMethodId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "verificationMethod": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "VerificationMethod": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "checkups": {
+                "type": "object",
+                "x-dictionaryKey": {
+                  "$ref": "#/components/schemas/VerificationMethodCheckups"
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "protocolTemplateId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "verificationMethodFiles": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VerificationMethodFile"
+                }
+              },
+              "deviceTypes": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/DeviceType"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VerificationMethodCheckups": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "visual",
+          "result",
+          "accuracy"
+        ],
+        "enum": [
+          "visual",
+          "result",
+          "accuracy"
+        ]
+      },
+      "VerificationMethodFile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fileName": {
+                "type": "string"
+              },
+              "mimetype": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string",
+                "format": "byte"
               }
             }
           }
@@ -1061,6 +1358,169 @@
           }
         ]
       },
+      "ServicePaginatedResultOfProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfProtocolTemplateDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/ProtocolTemplateDTO"
+            }
+          }
+        }
+      },
+      "ProtocolTemplateDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "protocolGroup": {
+            "$ref": "#/components/schemas/ProtocolGroup"
+          },
+          "verificationGroup": {
+            "$ref": "#/components/schemas/VerificationGroup"
+          },
+          "verificationMethodIds": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
+          }
+        }
+      },
+      "ProtocolGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометр1"
+        ],
+        "enum": [
+          "Манометр1"
+        ]
+      },
+      "VerificationGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
+      },
+      "ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfPossibleTemplateVerificationMethodsDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfPossibleTemplateVerificationMethodsDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PossibleTemplateVerificationMethodsDTO"
+            }
+          }
+        }
+      },
+      "PossibleTemplateVerificationMethodsDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "protocolGroup": {
+            "$ref": "#/components/schemas/ProtocolGroup"
+          },
+          "verificationMethod": {
+            "$ref": "#/components/schemas/VerificationMethod"
+          }
+        }
+      },
       "ServicePaginatedResultOfVerificationMethodDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -1135,6 +1595,12 @@
             "items": {
               "type": "string"
             }
+          },
+          "typeNumbers": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
           }
         }
       },
@@ -1199,6 +1665,11 @@
           },
           "deviceTypeInfo": {
             "type": "string"
+          },
+          "verificationMethodId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
           },
           "deviceModifications": {
             "type": "array",
@@ -1309,9 +1780,6 @@
               "type": "string"
             }
           },
-          "additionalInfo": {
-            "type": "string"
-          },
           "verificationGroup": {
             "nullable": true,
             "oneOf": [
@@ -1324,7 +1792,7 @@
             "type": "string",
             "nullable": true
           },
-          "ownerInn": {
+          "ownerINN": {
             "type": "integer",
             "format": "uint64",
             "nullable": true
@@ -1354,22 +1822,27 @@
             "type": "number",
             "format": "double",
             "nullable": true
+          },
+          "measurementMin": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "measurementMax": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
+          },
+          "measurementUnit": {
+            "type": "string",
+            "nullable": true
+          },
+          "accuracy": {
+            "type": "number",
+            "format": "double",
+            "nullable": true
           }
         }
-      },
-      "VerificationGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ],
-        "enum": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ]
       },
       "DeviceLocation": {
         "type": "string",
@@ -1488,9 +1961,6 @@
           "location": {
             "$ref": "#/components/schemas/DeviceLocation"
           },
-          "additionalInfo": {
-            "type": "string"
-          },
           "pressure": {
             "type": "string"
           },
@@ -1499,6 +1969,21 @@
             "format": "double"
           },
           "humidity": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementUnit": {
+            "type": "string"
+          },
+          "accuracy": {
             "type": "number",
             "format": "double"
           }

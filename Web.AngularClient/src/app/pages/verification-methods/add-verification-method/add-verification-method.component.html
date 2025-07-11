@@ -1,25 +1,50 @@
-<form [formGroup]="form" (ngSubmit)="submit()">
-  <label>
-    Описание
-    <input id="description" type="text" formControlName="description" autocomplete="off" />
-  </label>
-  <label>
-    Псевдонимы
-    <div style="display: flex; gap: var(--spacing-xs); align-items: flex-end;">
-      <input type="text" [(ngModel)]="aliasInput" [ngModelOptions]="{standalone: true}" name="aliasInput" placeholder="Введите псевдоним" autocomplete="off" (keyup.enter)="addAlias()" />
-      <button type="button" (click)="addAlias()" [disabled]="!aliasInput.trim()">Добавить</button>
+<form [formGroup]="form" (ngSubmit)="submit()" class="add-verification-method-form">
+  <div class="tips-row">
+    <div class="tips-text">
+      Возможные ключи проверок: visual, result, accuracy
     </div>
-    <div *ngIf="aliases.length" style="margin-top: var(--spacing-xs); display: flex; flex-wrap: wrap; gap: var(--spacing-xs);">
-      <span *ngFor="let alias of aliases" style="background: var(--secondary-color); border-radius: var(--border-radius-sm); padding: 0 var(--spacing-xs); display: flex; align-items: center;">
-        {{ alias }}
-        <button type="button" (click)="removeAlias(alias)" style="margin-left: 0.25em; background: none; border: none; color: var(--error-color); cursor: pointer; font-size: 1em;">×</button>
-      </span>
+  </div>
+  <div class="controls-row">
+    <div class="form-row">
+      <label>
+        Описание
+        <input id="description" type="text" formControlName="description" autocomplete="off" />
+      </label>
+      <label>
+        Файл (Опционально)
+        <input id="file" type="file" (change)="onFileChange($event)" accept="application/pdf" />
+      </label>
+      <label>
+        Псевдонимы
+        <div class="alias-row">
+          <input #aliasInput type="text" placeholder="Введите псевдоним" autocomplete="off" (keyup.enter)="addAlias(aliasInput.value); aliasInput.value=''" />
+          <button type="button" (click)="addAlias(aliasInput.value); aliasInput.value=''" [disabled]="!aliasInput.value.trim()">Добавить</button>
+        </div>
+        <div *ngIf="aliases.length" class="alias-list">
+          <span *ngFor="let aliasCtrl of aliases.controls; let i = index" class="alias-item">
+            {{ aliasCtrl.value }}
+            <button type="button" (click)="removeAlias(i)">×</button>
+          </span>
+        </div>
+      </label>
+      <label>
+        Проверки
+        <div class="checkup-row">
+          <input #checkupKey type="text" placeholder="Ключ" autocomplete="off" />
+          <input #checkupValue type="text" placeholder="Значение" autocomplete="off" />
+          <button type="button" (click)="addCheckup(checkupKey.value, checkupValue.value); checkupKey.value=''; checkupValue.value=''" [disabled]="!checkupKey.value.trim() || !checkupValue.value.trim()">Добавить</button>
+        </div>
+        <div *ngIf="checkups.length" class="checkup-list">
+          <span *ngFor="let checkupCtrl of checkups.controls; let i = index" class="checkup-item">
+            {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value }}
+            <button type="button" (click)="removeCheckup(i)">×</button>
+          </span>
+        </div>
+      </label>
+      <div class="form-block submit-block">
+        <button type="submit" [disabled]="form.invalid || loading">Добавить метод</button>
+      </div>
     </div>
-  </label>
-  <label>
-    Файл (PDF)
-    <input id="file" type="file" (change)="onFileChange($event)" accept="application/pdf" />
-  </label>
-  <button type="submit" [disabled]="form.invalid || loading">Добавить метод</button>
+  </div>
   <div class="result-message" [ngClass]="{'success': result === 'Метод успешно добавлен', 'error': result && result !== 'Метод успешно добавлен'}" *ngIf="result">{{ result }}</div>
 </form> 

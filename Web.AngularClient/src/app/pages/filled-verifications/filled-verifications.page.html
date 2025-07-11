@@ -74,7 +74,6 @@
           <th>ИНН владельца</th>
           <th>Работник</th>
           <th>Местоположение</th>
-          <th>Доп. информация</th>
           <th>Давление</th>
           <th>Температура</th>
           <th>Влажность</th>
@@ -95,7 +94,6 @@
           <td>{{ v.ownerInn || '-' }}</td>
           <td>{{ v.worker || '-' }}</td>
           <td>{{ v.location || '-' }}</td>
-          <td>{{ v.additionalInfo || '-' }}</td>
           <td>{{ v.pressure || '-' }}</td>
           <td>{{ v.temperature != null ? v.temperature + '°C' : '-' }}</td>
           <td>{{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</td>

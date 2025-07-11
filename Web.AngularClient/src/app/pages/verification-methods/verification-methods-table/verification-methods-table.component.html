@@ -21,20 +21,33 @@
       <tr>
         <th>Описание</th>
         <th>Псевдонимы</th>
-        <th>Имя файла</th>
+        <th>Номер типа</th>
+        <th>Файлы</th>
+        <th>Добавить псевдонимы</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngIf="loading">
-        <td colspan="3" class="loading-message">Загрузка методов поверки...</td>
+        <td colspan="5" class="loading-message">Загрузка методов поверки...</td>
       </tr>
       <tr *ngIf="error && !loading">
-        <td colspan="3" class="error-message">{{ error }}</td>
+        <td colspan="5" class="error-message">{{ error }}</td>
       </tr>
       <tr *ngFor="let m of verificationMethods" [hidden]="loading || error">
         <td>{{ m.description }}</td>
         <td>{{ m.aliases?.join(', ') || '-' }}</td>
-        <td>{{ m.files && m.files.length ? m.files.join(', ') : '-' }}</td>
+        <td>{{ m.typeNumbers?.join(', ') || '-' }}</td>
+        <td>
+          <ng-container *ngIf="m.files && m.files.length; else noFiles">
+            <div *ngFor="let file of m.files">
+              <button type="button" (click)="downloadFile(m.id || '', file)">{{ file }}</button>
+            </div>
+          </ng-container>
+          <ng-template #noFiles>-</ng-template>
+        </td>
+        <td>
+          <input type="text" [(ngModel)]="aliasInputs[m.id || '']" [ngModelOptions]="{standalone: true}" placeholder="Псевдоним" (keyup.enter)="addAliasOnEnter(m.id || '', $event)" [disabled]="aliasLoading[m.id || '']" [style.background]="aliasLoading[m.id || ''] ? '#f0f0f0' : ''" />
+        </td>
       </tr>
     </tbody>
   </table>

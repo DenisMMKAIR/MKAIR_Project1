@@ -168,7 +168,8 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
 
         public IInitialVerification PostProcess(string fileName, int rowNumber, DeviceLocation location)
         {
-            var additionalInfo = new Dictionary<string, object>();
+            double min = 0, max = 0, accuracy = 0;
+            string measurementUnit = string.Empty;
 
             if (MeasurementRange != null)
             {
@@ -177,26 +178,23 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
                 {
                     throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать диапазон измерений. Введенная строка {MeasurementRange}");
                 }
-                if (!double.TryParse(measurementMatch.Groups[1].Value, out var min))
+                if (!double.TryParse(measurementMatch.Groups[1].Value, out min))
                 {
                     throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать минимальное значение диапазона измерений. Введенная строка {MeasurementRange}");
                 }
-                if (!double.TryParse(measurementMatch.Groups[2].Value, out var max))
+                if (!double.TryParse(measurementMatch.Groups[2].Value, out max))
                 {
                     throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать максимальное значение диапазона измерений. Введенная строка {MeasurementRange}");
                 }
-                additionalInfo["min"] = min;
-                additionalInfo["max"] = max;
-                additionalInfo["unit"] = measurementMatch.Groups[3].Value;
+                measurementUnit = measurementMatch.Groups[3].Value;
             }
 
             if (Accuracy! != null)
             {
-                if (!double.TryParse(Accuracy, out var resultAccuracy))
+                if (!double.TryParse(Accuracy, out accuracy))
                 {
                     throw new InvalidDataException($"Файл {fileName}. Строка {rowNumber}. Не удалось распознать точность. Введенная строка {Accuracy}");
                 }
-                additionalInfo["accuracy"] = resultAccuracy;
             }
 
             return new SuccessInitialVerification()
@@ -207,10 +205,13 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
                 Location = location,
                 ProtocolNumber = VerificationTypeNum,
                 Worker = Worker,
-                AdditionalInfo = additionalInfo,
                 Pressure = Pressure,
                 Temperature = Temperature,
                 Humidity = Humidity,
+                MeasurementMin = min,
+                MeasurementMax = max,
+                MeasurementUnit = measurementUnit,
+                Accuracy = accuracy,
 
                 VerifiedUntilDate = default,
                 VerificationTypeName = string.Empty,

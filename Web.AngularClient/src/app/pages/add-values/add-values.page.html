@@ -25,9 +25,15 @@
         <option value="ГПНЯмал">ГПН Ямал</option>
       </select>
     </div>
+    <div *ngIf="mode === 'setValues'" class="form-field">
+      <label for="group">Группа поверки:</label>
+      <select id="group" [(ngModel)]="group" name="group" required>
+        <option value="" selected>Выберите группу поверки</option>
+        <option *ngFor="let group of verificationGroups" [value]="group">{{ group }}</option>
+      </select>
+    </div>
     <div *ngIf="mode === 'setValues'" class="form-field options">
       <label><input type="checkbox" [(ngModel)]="worker" name="worker" /> Работник</label>
-      <label><input type="checkbox" [(ngModel)]="additionalInfo" name="additionalInfo" /> Доп. информация</label>
       <label><input type="checkbox" [(ngModel)]="pressure" name="pressure" /> Давление</label>
       <label><input type="checkbox" [(ngModel)]="temperature" name="temperature" /> Температура</label>
       <label><input type="checkbox" [(ngModel)]="humidity" name="humidity" /> Влажность</label>
@@ -35,6 +41,7 @@
       <label><input type="checkbox" [(ngModel)]="accuracy" name="accuracy" /> Точность</label>
     </div>
     <button type="submit" [disabled]="loading">Добавить</button>
+    <button type="button" (click)="resetForm()" class="reset-btn">Сбросить</button>
   </form>
 
   <div *ngIf="loading" class="loading-message">Загрузка...</div>

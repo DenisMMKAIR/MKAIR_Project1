@@ -129,7 +129,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     verification_type_name = table.Column<string>(type: "text", nullable: false),
                     verification_date = table.Column<DateOnly>(type: "date", nullable: false),
                     failed_doc_number = table.Column<string>(type: "text", nullable: false),
-                    additional_info = table.Column<string>(type: "text", nullable: false),
                     verification_group = table.Column<int>(type: "integer", nullable: true),
                     protocol_number = table.Column<string>(type: "text", nullable: true),
                     owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
@@ -138,6 +137,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                     pressure = table.Column<string>(type: "text", nullable: true),
                     temperature = table.Column<double>(type: "double precision", nullable: true),
                     humidity = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_min = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_max = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_unit = table.Column<string>(type: "text", nullable: true),
+                    accuracy = table.Column<double>(type: "double precision", nullable: true),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -169,7 +172,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                     pressure = table.Column<string>(type: "text", nullable: false),
                     temperature = table.Column<double>(type: "double precision", nullable: false),
                     humidity = table.Column<double>(type: "double precision", nullable: false),
-                    additional_info = table.Column<string>(type: "text", nullable: false),
+                    measurement_min = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_max = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_unit = table.Column<string>(type: "text", nullable: false),
+                    accuracy = table.Column<double>(type: "double precision", nullable: false),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -193,7 +199,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     verification_type_name = table.Column<string>(type: "text", nullable: false),
                     verification_date = table.Column<DateOnly>(type: "date", nullable: false),
                     verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
-                    additional_info = table.Column<string>(type: "text", nullable: false),
                     verification_group = table.Column<int>(type: "integer", nullable: true),
                     protocol_number = table.Column<string>(type: "text", nullable: true),
                     owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: true),
@@ -202,6 +207,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                     pressure = table.Column<string>(type: "text", nullable: true),
                     temperature = table.Column<double>(type: "double precision", nullable: true),
                     humidity = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_min = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_max = table.Column<double>(type: "double precision", nullable: true),
+                    measurement_unit = table.Column<string>(type: "text", nullable: true),
+                    accuracy = table.Column<double>(type: "double precision", nullable: true),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
@@ -219,13 +228,13 @@ namespace ProjApp.Database.Maintenance.Migrations
                 columns: table => new
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
-                    verification_group = table.Column<int>(type: "integer", nullable: false),
                     device_type_number = table.Column<string>(type: "text", nullable: false),
                     device_serial = table.Column<string>(type: "text", nullable: false),
-                    owner = table.Column<string>(type: "text", nullable: false),
-                    verification_type_name = table.Column<string>(type: "text", nullable: false),
                     verification_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verification_group = table.Column<int>(type: "integer", nullable: false),
                     verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    verification_type_name = table.Column<string>(type: "text", nullable: false),
+                    owner = table.Column<string>(type: "text", nullable: false),
                     protocol_number = table.Column<string>(type: "text", nullable: false),
                     owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
                     worker = table.Column<string>(type: "text", nullable: false),
@@ -233,7 +242,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                     pressure = table.Column<string>(type: "text", nullable: false),
                     temperature = table.Column<double>(type: "double precision", nullable: false),
                     humidity = table.Column<double>(type: "double precision", nullable: false),
-                    additional_info = table.Column<string>(type: "text", nullable: false),
+                    measurement_min = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_max = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_unit = table.Column<string>(type: "text", nullable: false),
+                    accuracy = table.Column<double>(type: "double precision", nullable: false),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>

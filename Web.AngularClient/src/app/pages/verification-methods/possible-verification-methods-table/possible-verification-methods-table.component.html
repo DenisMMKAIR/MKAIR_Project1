@@ -25,7 +25,7 @@
       />
     </div>
     <div class="selector-form">
-      <label for="deviceTypeInfoFilter">Типа устройства:</label>
+      <label for="deviceTypeInfoFilter">Инфо типа:</label>
       <input
         id="deviceTypeInfoFilter"
         name="deviceTypeInfoFilter"
@@ -37,7 +37,7 @@
       />
     </div>
     <div class="selector-form">
-      <label for="verificationNameFilter">Название поверки:</label>
+      <label for="verificationNameFilter">Поверка:</label>
       <input
         id="verificationNameFilter"
         name="verificationNameFilter"
@@ -85,6 +85,7 @@
       </tr>
     </tbody>
   </table>
+  <div *ngIf="aliasErrorMessage" class="error-message">{{ aliasErrorMessage }}</div>
   <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
     <button class="pagination-btn" [disabled]="!pagination.canActivateFirst" (click)="pagination.goToFirstPage()" title="Первая страница">«</button>
     <button class="pagination-btn" [disabled]="!pagination.hasPreviousPage" (click)="pagination.goToPreviousPage()" title="Предыдущая страница">‹</button>

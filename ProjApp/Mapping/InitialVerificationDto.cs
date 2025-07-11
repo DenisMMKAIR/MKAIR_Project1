@@ -1,6 +1,3 @@
-using System.Text.Encodings.Web;
-using System.Text.Json;
-using System.Text.Unicode;
 using Mapster;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
@@ -18,25 +15,26 @@ public class SuccessInitialVerificationDto : IRegister
     public required Guid Id { get; set; }
     public required string DeviceTypeInfo { get; set; }
     public required IReadOnlyList<string> Etalons { get; set; }
-    public required string AdditionalInfo { get; set; }
 
     // Optional
     public VerificationGroup? VerificationGroup { get; set; }
     public string? ProtocolNumber { get; set; }
-    public ulong? OwnerInn { get; set; }
+    public ulong? OwnerINN { get; set; }
     public string? Worker { get; set; }
     public DeviceLocation? Location { get; set; }
     public string? Pressure { get; set; }
     public double? Temperature { get; set; }
     public double? Humidity { get; set; }
+    public double? MeasurementMin { get; set; }
+    public double? MeasurementMax { get; set; }
+    public string? MeasurementUnit { get; set; }
+    public double? Accuracy { get; set; }
+    
 
     public void Register(TypeAdapterConfig config)
     {
-        var _options = new JsonSerializerOptions{Encoder = JavaScriptEncoder.Create(UnicodeRanges.All)};
-
         config.NewConfig<SuccessInitialVerification, SuccessInitialVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
-            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number))
-            .Map(dest => dest.AdditionalInfo, src => JsonSerializer.Serialize(src.AdditionalInfo, _options));
+            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
     }
 }

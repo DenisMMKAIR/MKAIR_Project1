@@ -70,7 +70,8 @@ public class VerificationsService
         }
 
         var result = await query
-            .OrderBy(v => v.DeviceTypeNumber)
+            .OrderBy(v => v.VerificationDate)
+            .ThenBy(v => v.DeviceTypeNumber)
             .ProjectToType<SuccessInitialVerificationDto>(_mapper.Config)
             .ToPaginatedAsync(page, pageSize);
 
@@ -127,20 +128,20 @@ public class VerificationsService
 
     public async Task<ServiceResult> SetValues(MemoryStream file, SetValuesRequest request)
     {
-        var result = await SetValuesBaseAsync(file, request, true);
+        var result = await SetValuesBaseAsync(file, request, true, true);
         _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
         return result;
     }
 
     public async Task<ServiceResult> SetVerificationNum(MemoryStream file, string sheetName, string dataRange)
     {
-        var request = new SetValuesRequest { DataRange = dataRange, SheetName = sheetName, VerificationTypeNum = true, Location = DeviceLocation.АнтипинскийНПЗ };
-        var result = await SetValuesBaseAsync(file, request, false);
+        var request = new SetValuesRequest { DataRange = dataRange, SheetName = sheetName, VerificationTypeNum = true, Location = DeviceLocation.АнтипинскийНПЗ, Group = VerificationGroup.Манометры };
+        var result = await SetValuesBaseAsync(file, request, false, false);
         _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
         return result;
     }
 
-    private async Task<ServiceResult> SetValuesBaseAsync(MemoryStream file, SetValuesRequest request, bool setLocation)
+    private async Task<ServiceResult> SetValuesBaseAsync(MemoryStream file, SetValuesRequest request, bool setLocation, bool setGroup)
     {
         IReadOnlyList<IInitialVerification> resultIvs;
 
@@ -172,6 +173,11 @@ public class VerificationsService
                 dbIv.Location = request.Location;
                 setAny = true;
             }
+            if (setGroup && dbIv.VerificationGroup != request.Group)
+            {
+                dbIv.VerificationGroup = request.Group;
+                setAny = true;
+            }
             if (request.VerificationTypeNum is true && dbIv.ProtocolNumber != resultIv.ProtocolNumber)
             {
                 dbIv.ProtocolNumber = resultIv.ProtocolNumber;
@@ -197,41 +203,28 @@ public class VerificationsService
                 dbIv.Humidity = resultIv.Humidity;
                 setAny = true;
             }
-
-            string? SetKey(string key)
-            {
-                var newValue = resultIv.AdditionalInfo[key];
-
-                if (dbIv.AdditionalInfo.TryGetValue(key, out var value))
-                {
-                    if (!EqualityComparer<object>.Default.Equals(value, newValue))
-                    {
-                        dbIv.AdditionalInfo[key] = newValue;
-                        _database.Entry(dbIv).Property(x => x.AdditionalInfo).IsModified = true;
-                        setAny = true;
-                    }
-                }
-                else
-                {
-                    dbIv.AdditionalInfo.Add(key, newValue);
-                    _database.Entry(dbIv).Property(x => x.AdditionalInfo).IsModified = true;
-                    setAny = true;
-                }
-                return null;
-            }
             if (request.MeasurementRange is true)
             {
-                var result = SetKey("min");
-                if (result != null) return ServiceResult.Fail(result);
-                result = SetKey("max");
-                if (result != null) return ServiceResult.Fail(result);
-                result = SetKey("unit");
-                if (result != null) return ServiceResult.Fail(result);
+                if (dbIv.MeasurementMin != resultIv.MeasurementMin)
+                {
+                    dbIv.MeasurementMin = resultIv.MeasurementMin;
+                    setAny = true;
+                }
+                if (dbIv.MeasurementMax != resultIv.MeasurementMax)
+                {
+                    dbIv.MeasurementMax = resultIv.MeasurementMax;
+                    setAny = true;
+                }
+                if (dbIv.MeasurementUnit != resultIv.MeasurementUnit)
+                {
+                    dbIv.MeasurementUnit = resultIv.MeasurementUnit;
+                    setAny = true;
+                }
             }
-            if (request.Accuracy is true)
+            if (request.Accuracy is true && dbIv.Accuracy != resultIv.Accuracy)
             {
-                var result = SetKey("accuracy");
-                if (result != null) return ServiceResult.Fail(result);
+                dbIv.Accuracy = resultIv.Accuracy;
+                setAny = true;
             }
         }
 
@@ -250,6 +243,8 @@ public class VerificationsService
             return ServiceResult.Fail(e.Message);
         }
 
+        _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
+
         return ServiceResult.Success("Данные добавлены");
     }
 }
@@ -259,6 +254,7 @@ public class SetValuesRequest
     public required string SheetName { get; set; }
     public required string DataRange { get; set; }
     public required DeviceLocation Location { get; init; }
+    public required VerificationGroup Group { get; init; }
     public bool? VerificationTypeNum { get; init; }
     public bool? Worker { get; init; }
     public bool? Pressure { get; init; }

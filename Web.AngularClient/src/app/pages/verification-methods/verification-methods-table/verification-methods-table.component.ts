@@ -1,4 +1,4 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, Output, EventEmitter } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VerificationMethodsClient, VerificationMethodDTO } from '../../../api-client';
@@ -17,9 +17,13 @@ export class VerificationMethodsTableComponent implements OnInit {
   private readonly verificationMethodsService = inject(VerificationMethodsService);
   private readonly key = 'verification' as const;
 
+  @Output() reloadPossible = new EventEmitter<void>();
+
   public verificationMethods: VerificationMethodDTO[] = [];
   public loading = false;
   public error: string | null = null;
+  public aliasInputs: { [id: string]: string } = {};
+  public aliasLoading: { [id: string]: boolean } = {};
 
   ngOnInit(): void {
     this.verificationMethodsService.setPageChangeCallback(this.key, () => this.loadVerificationMethods());
@@ -57,5 +61,42 @@ export class VerificationMethodsTableComponent implements OnInit {
 
   public reload() {
     this.loadVerificationMethods();
+  }
+
+  public downloadFile(methodId: string, fileName: string) {
+    this.verificationMethodsClient.downloadFile(fileName).subscribe({
+      next: (response) => {
+        const blob = new Blob([response.data], { type: 'application/pdf' });
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = fileName;
+        a.click();
+        window.URL.revokeObjectURL(url);
+      },
+      error: (err) => {
+        alert('Ошибка загрузки файла: ' + (err?.error?.message || err?.message || ''));
+      },
+    });
+  }
+
+  public addAliasOnEnter(methodId: string, event?: any) {
+    if (!event || event.key === 'Enter') {
+      const input = (this.aliasInputs[methodId] || '').trim();
+      if (!input || this.aliasLoading[methodId]) return;
+      this.aliasLoading[methodId] = true;
+      this.verificationMethodsClient.addAliases([input], methodId).subscribe({
+        next: () => {
+          this.aliasInputs[methodId] = '';
+          this.aliasLoading[methodId] = false;
+          this.reload();
+          this.reloadPossible.emit();
+        },
+        error: (err) => {
+          this.aliasLoading[methodId] = false;
+          alert('Ошибка добавления псевдонима: ' + (err?.error?.message || err?.message || ''));
+        },
+      });
+    }
   }
 } 

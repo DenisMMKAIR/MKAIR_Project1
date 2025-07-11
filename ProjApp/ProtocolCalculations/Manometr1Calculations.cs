@@ -7,42 +7,42 @@ namespace ProjApp.ProtocolCalculations;
 
 internal static class Manometr1Calculations
 {
-    public static Manometr1Verification ToManometr1(ILogger logger, SuccessVerification v, VerificationMethod[] vrfMeth)
+    public static Manometr1Verification ToManometr1(ILogger logger, SuccessInitialVerification v, VerificationMethod[] vrfMeth)
     {
         var vms = vrfMeth.First(m => m.Aliases.Contains(v.VerificationTypeName));
 
         var newVrf = new Manometr1Verification
         {
             Address = MKAIRInfo.GetAddress(v.VerificationDate),
-            ProtocolNumber = v.ProtocolNumber,
+            ProtocolNumber = v.ProtocolNumber!,
             DeviceTypeName = v.DeviceTypeNumber,
             DeviceModification = v.Device!.Modification,
             DeviceTypeNumber = v.DeviceTypeNumber,
             DeviceSerial = v.DeviceSerial,
             ManufactureYear = v.Device!.ManufacturedYear,
             Owner = v.Owner,
-            OwnerINN = v.OwnerINN,
+            OwnerINN = v.OwnerINN!.Value,
             VerificationsInfo = v.VerificationTypeName,
             EtalonsInfo = v.Etalons!.Select(e => e.FullInfo).Aggregate((a, c) => $"{a}; {c}"),
-            Temperature = v.Temperature,
-            Humidity = v.Humidity,
-            Pressure = v.Pressure,
-            VerificationVisualCheckup = vms.Checkups["visual"],
-            VerificationResultCheckup = vms.Checkups["result"],
-            VerificationAccuracyCheckup = vms.Checkups["accuracy"],
+            Temperature = v.Temperature!.Value,
+            Humidity = v.Humidity!.Value,
+            Pressure = v.Pressure!,
+            VerificationVisualCheckup = vms.Checkups[VerificationMethodCheckups.visual],
+            VerificationResultCheckup = vms.Checkups[VerificationMethodCheckups.result],
+            VerificationAccuracyCheckup = vms.Checkups[VerificationMethodCheckups.accuracy],
             VerificationDate = v.VerificationDate,
-            Worker = v.Worker,
+            Worker = v.Worker!,
 
             // Support properties
-            VerificationGroup = v.VerificationGroup,
-            Location = v.Location,
+            VerificationGroup = v.VerificationGroup!.Value,
+            Location = v.Location!.Value,
             VerifiedUntilDate = v.VerifiedUntilDate,
 
             // Table values
-            MeasurementMin = (double)v.AdditionalInfo["min"],
-            MeasurementMax = (double)v.AdditionalInfo["max"],
-            MeasurementUnit = (string)v.AdditionalInfo["unit"],
-            ValidError = (double)v.AdditionalInfo["validError"],
+            MeasurementMin = v.MeasurementMin!.Value,
+            MeasurementMax = v.MeasurementMax!.Value,
+            MeasurementUnit = v.MeasurementUnit!,
+            ValidError = v.Accuracy!.Value,
 
             DeviceValues = default!,
             EtalonValues = default!,

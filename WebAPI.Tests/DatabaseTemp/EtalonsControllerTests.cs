@@ -62,7 +62,6 @@ public class EtalonsControllerTests : ControllersFixture
         return new()
         {
             DeviceTypeNumber = number,
-            AdditionalInfo = [],
             DeviceSerial = "",
             Owner = "",
             VerificationDate = default,

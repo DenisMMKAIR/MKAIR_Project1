@@ -112,4 +112,18 @@ export class VerificationsPage implements OnInit {
   public set deviceTypeNumberFilter(value: string | null) {
     this.verificationsService.setDeviceTypeNumberFilter(value);
   }
+
+  public formatRangeAccuracy(v: SuccessInitialVerificationDto): string {
+    if (v.measurementMin != null && v.measurementMax != null && v.measurementUnit) {
+      let range = `${v.measurementMin}–${v.measurementMax} ${v.measurementUnit}`;
+      if (v.accuracy != null) {
+        range += `; ${v.accuracy}`;
+      }
+      return range;
+    }
+    if (v.accuracy != null) {
+      return `${v.accuracy}`;
+    }
+    return '-';
+  }
 }

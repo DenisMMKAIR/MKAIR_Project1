@@ -23,10 +23,13 @@ public class SuccessVerificationDto : IRegister
     public required ulong OwnerInn { get; set; }
     public required string Worker { get; set; }
     public required DeviceLocation Location { get; set; }
-    public required string AdditionalInfo { get; set; }
     public required string Pressure { get; set; }
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
+    public required double MeasurementMin { get; set; }
+    public required double MeasurementMax { get; set; }
+    public required string MeasurementUnit { get; set; }
+    public required double Accuracy { get; set; }
 
     public void Register(TypeAdapterConfig config)
     {
@@ -34,7 +37,6 @@ public class SuccessVerificationDto : IRegister
 
         config.NewConfig<SuccessVerification, SuccessVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
-            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number))
-            .Map(dest => dest.AdditionalInfo, src => JsonSerializer.Serialize(src.AdditionalInfo, _options));
+            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
     }
 }

@@ -1,7 +1,8 @@
-import { Component, inject } from '@angular/core';
+import { Component, inject, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { VerificationsClient, ServiceResult, FileParameter } from '../../api-client';
+import { VerificationsClient, ServiceResult, FileParameter, VerificationGroup } from '../../api-client';
+import { AddValuesService } from '../../services/add-values.service';
 
 @Component({
   selector: 'app-add-values',
@@ -11,56 +12,126 @@ import { VerificationsClient, ServiceResult, FileParameter } from '../../api-cli
   styleUrls: ['./add-values.page.scss'],
   providers: [VerificationsClient],
 })
-export class AddValuesPage {
+export class AddValuesPage implements OnInit {
   private readonly api = inject(VerificationsClient);
-
-  public mode: 'setValues' | 'setVerificationNum' = 'setValues';
+  private readonly addValuesService = inject(AddValuesService);
 
   public excelFile: File | null = null;
-  public sheetName: string = '';
-  public dataRange: string = '';
-  public location: string = '';
-  public worker: boolean = false;
-  public additionalInfo: boolean = false;
-  public pressure: boolean = false;
-  public temperature: boolean = false;
-  public humidity: boolean = false;
-  public measurementRange: boolean = false;
-  public accuracy: boolean = false;
-  public loading = false;
+  public loading: boolean = false;
   public error: string | null = null;
   public result: ServiceResult | null = null;
 
-  public excelFileNum: File | null = null;
-  public sheetNameNum: string = '';
-  public dataRangeNum: string = '';
-  public loadingNum = false;
-  public errorNum: string | null = null;
-  public resultNum: ServiceResult | null = null;
+  public readonly verificationGroups = Object.values(VerificationGroup);
+
+  ngOnInit(): void {
+    this.loadFormData();
+  }
+
+  private loadFormData(): void {
+    this.mode = this.addValuesService.getMode();
+    this.sheetName = this.addValuesService.getSheetName();
+    this.dataRange = this.addValuesService.getDataRange();
+    this.location = this.addValuesService.getLocation();
+    this.group = this.addValuesService.getGroup();
+    this.worker = this.addValuesService.getWorker();
+    this.pressure = this.addValuesService.getPressure();
+    this.temperature = this.addValuesService.getTemperature();
+    this.humidity = this.addValuesService.getHumidity();
+    this.measurementRange = this.addValuesService.getMeasurementRange();
+    this.accuracy = this.addValuesService.getAccuracy();
+  }
+
+  public get mode(): 'setValues' | 'setVerificationNum' {
+    return this.addValuesService.getMode();
+  }
+
+  public set mode(value: 'setValues' | 'setVerificationNum') {
+    this.addValuesService.setMode(value);
+  }
+
+  public get sheetName(): string {
+    return this.addValuesService.getSheetName();
+  }
+
+  public set sheetName(value: string) {
+    this.addValuesService.setSheetName(value);
+  }
+
+  public get dataRange(): string {
+    return this.addValuesService.getDataRange();
+  }
+
+  public set dataRange(value: string) {
+    this.addValuesService.setDataRange(value);
+  }
+
+  public get location(): string {
+    return this.addValuesService.getLocation();
+  }
+
+  public set location(value: string) {
+    this.addValuesService.setLocation(value);
+  }
+
+  public get group(): string {
+    return this.addValuesService.getGroup();
+  }
+
+  public set group(value: string) {
+    this.addValuesService.setGroup(value);
+  }
+
+  public get worker(): boolean {
+    return this.addValuesService.getWorker();
+  }
+
+  public set worker(value: boolean) {
+    this.addValuesService.setWorker(value);
+  }
+
+  public get pressure(): boolean {
+    return this.addValuesService.getPressure();
+  }
+
+  public set pressure(value: boolean) {
+    this.addValuesService.setPressure(value);
+  }
+
+  public get temperature(): boolean {
+    return this.addValuesService.getTemperature();
+  }
+
+  public set temperature(value: boolean) {
+    this.addValuesService.setTemperature(value);
+  }
+
+  public get humidity(): boolean {
+    return this.addValuesService.getHumidity();
+  }
+
+  public set humidity(value: boolean) {
+    this.addValuesService.setHumidity(value);
+  }
+
+  public get measurementRange(): boolean {
+    return this.addValuesService.getMeasurementRange();
+  }
+
+  public set measurementRange(value: boolean) {
+    this.addValuesService.setMeasurementRange(value);
+  }
+
+  public get accuracy(): boolean {
+    return this.addValuesService.getAccuracy();
+  }
+
+  public set accuracy(value: boolean) {
+    this.addValuesService.setAccuracy(value);
+  }
 
   public switchMode(newMode: 'setValues' | 'setVerificationNum'): void {
     this.mode = newMode;
-    this.clearControls();
-  }
-
-  public clearControls(): void {
-    this.excelFile = null;
-    this.sheetName = '';
-    this.dataRange = '';
-    this.location = '';
-    this.worker = false;
-    this.additionalInfo = false;
-    this.pressure = false;
-    this.temperature = false;
-    this.humidity = false;
-    this.measurementRange = false;
-    this.accuracy = false;
-    this.loading = false;
-    this.error = null;
-    this.result = null;
-    this.loadingNum = false;
-    this.errorNum = null;
-    this.resultNum = null;
+    this.clearFileControls();
   }
 
   public onFileChange(event: Event): void {
@@ -70,30 +141,32 @@ export class AddValuesPage {
     }
   }
 
-  public onFileChangeNum(event: Event): void {
-    const input = event.target as HTMLInputElement;
-    if (input.files && input.files.length > 0) {
-      this.excelFileNum = input.files[0];
-    }
-  }
-
   public submit(): void {
     if (!this.excelFile) {
       this.error = 'Выберите файл Excel.';
       return;
     }
+
     if (!this.sheetName.trim()) {
       this.error = 'Укажите имя листа.';
       return;
     }
+
     if (!this.dataRange.trim()) {
       this.error = 'Укажите диапазон данных.';
       return;
     }
+
     if (this.mode === 'setValues' && !this.location) {
       this.error = 'Укажите расположение.';
       return;
     }
+
+    if (this.mode === 'setValues' && !this.group) {
+      this.error = 'Укажите группу поверки.';
+      return;
+    }
+
     this.loading = true;
     this.error = null;
     this.result = null;
@@ -106,7 +179,8 @@ export class AddValuesPage {
         this.sheetName.trim(),
         this.dataRange.trim(),
         this.location,
-        false, // verificationTypeNum
+        this.group || null,
+        false,
         this.worker,
         this.pressure,
         this.temperature,
@@ -139,5 +213,18 @@ export class AddValuesPage {
         }
       });
     }
+  }
+
+  public resetForm(): void {
+    this.addValuesService.resetForm();
+    this.loadFormData();
+    this.clearFileControls();
+  }
+
+  private clearFileControls(): void {
+    this.excelFile = null;
+    this.loading = false;
+    this.error = null;
+    this.result = null;
   }
 } 

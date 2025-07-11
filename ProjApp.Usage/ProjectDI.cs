@@ -36,6 +36,7 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddOwnerCommand>();
         serviceCollection.AddTransient<AddVerificationCommand<SuccessVerification>>();
         serviceCollection.AddTransient<AddVerificationCommand<FailedVerification>>();
+        serviceCollection.AddTransient<AddProtocolTemplateCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
@@ -47,6 +48,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<VerificationsService>();
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<OwnersService>();
+        serviceCollection.AddScoped<ProtocolTemplesService>();
 
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan([.. assemblies.Select(Assembly.Load)]);
@@ -56,7 +58,6 @@ public static class ProjectDI
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         serviceCollection.AddHostedService<OwnersBackgroundService>();
-        serviceCollection.AddHostedService<VerificationBackgroundService>();
         serviceCollection.AddHostedService<CompleteVerificationBackgroundService>();
 
         serviceCollection.AddFGISAPI();

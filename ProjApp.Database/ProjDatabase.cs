@@ -2,6 +2,7 @@ using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Database;
@@ -53,40 +54,18 @@ public class ProjDatabase : DbContext
 
         modelBuilder.Entity<VerificationMethod>()
             .Property(e => e.Checkups)
-            .HasConversion(new ValueConverter<Dictionary<string, string>, string>(
+            .HasConversion(new ValueConverter<Dictionary<VerificationMethodCheckups, string>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, _jsonSerializerOptions) ??
-                    new Dictionary<string, string>()));
+                v => JsonSerializer.Deserialize<Dictionary<VerificationMethodCheckups, string>>(v, _jsonSerializerOptions) ??
+                    new Dictionary<VerificationMethodCheckups, string>()));
     }
 
     private static void ConfigureInitialVerifications(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SuccessInitialVerification>()
-            .Property(e => e.AdditionalInfo)
-            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
-                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => DeserializeDict(v)));
-
-        modelBuilder.Entity<FailedInitialVerification>()
-            .Property(e => e.AdditionalInfo)
-            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
-                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => DeserializeDict(v)));
     }
 
     private static void ConfigureVerifications(ModelBuilder modelBuilder)
     {
-        modelBuilder.Entity<SuccessVerification>()
-            .Property(e => e.AdditionalInfo)
-            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
-                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => DeserializeDict(v)));
-
-        modelBuilder.Entity<FailedVerification>()
-            .Property(e => e.AdditionalInfo)
-            .HasConversion(new ValueConverter<Dictionary<string, object>, string>(
-                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => DeserializeDict(v)));
     }
 
     private static void ConfigureManometr1Verifications(ModelBuilder modelBuilder)
@@ -111,49 +90,5 @@ public class ProjDatabase : DbContext
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
                 v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
                     new List<IReadOnlyList<double>>()));
-    }
-
-    private static Dictionary<string, object> DeserializeDict(string serializedDict)
-    {
-        var dict = JsonSerializer.Deserialize<Dictionary<string, JsonElement>>(serializedDict, _jsonSerializerOptions);
-        if (dict == null)
-            return new Dictionary<string, object>();
-
-        var result = new Dictionary<string, object>();
-        foreach (var kvp in dict)
-        {
-            var value = ConvertJsonElementToObject(kvp.Value);
-            ArgumentNullException.ThrowIfNull(value);
-            result[kvp.Key] = value;
-        }
-        return result;
-    }
-
-    private static object? ConvertJsonElementToObject(JsonElement jsonElement)
-    {
-        switch (jsonElement.ValueKind)
-        {
-            case JsonValueKind.Number:
-                double rawValue = jsonElement.GetDouble();
-                if (rawValue == Math.Truncate(rawValue))
-                {
-                    if (rawValue >= int.MinValue && rawValue <= int.MaxValue)
-                        return (int)rawValue;
-                    else
-                        return (long)rawValue;
-                }
-                else
-                    return rawValue;
-            case JsonValueKind.String:
-                return jsonElement.GetString();
-            case JsonValueKind.True:
-                return true;
-            case JsonValueKind.False:
-                return false;
-            case JsonValueKind.Null:
-                return null;
-            default:
-                throw new InvalidOperationException($"Unsupported JSON value kind: {jsonElement.ValueKind}");
-        }
     }
 }

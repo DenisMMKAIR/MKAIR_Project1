@@ -1,11 +1,8 @@
-using Mapster;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
-using ProjApp.Database.Commands;
-using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.ProtocolCalculations;
@@ -26,6 +23,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         _serviceScopeFactory = serviceScopeFactory;
         _keeper = eventKeeper;
         SubscribeTo(_keeper, BackgroundEvents.NewProtocolTemplate);
+        SubscribeTo(_keeper, BackgroundEvents.AddedValuesInitialVerification);
     }
 
     public Task StartAsync(CancellationToken cancellationToken)
@@ -54,18 +52,28 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
             .Include(p => p.VerificationMethods)
             .FirstAsync(p => p.ProtocolGroup == ProtocolGroup.Манометр1);
 
-        // TODO: Not sure we have to check this. Initial verifications already checked before add
-        var existsMan1 = await db.Manometr1Verifications
-            .ProjectToType<IVerificationBase>()
-            .ToArrayAsync();
+        var protocolVerificationMethodIds = protocol.VerificationMethods!
+            .Select(m => m.Id)
+            .ToArray();
 
-        var dbVerifications = db.SuccessVerifications
+        var dbVerifications = db.SuccessInitialVerifications
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
             .Include(v => v.Etalons)
-            .Where(v => v.VerificationGroup == protocol.VerificationGroup)
+            .Where(v => v.ProtocolNumber != null &&
+                        v.OwnerINN != null &&
+                        v.Worker != null &&
+                        v.Location != null &&
+                        v.Pressure != null &&
+                        v.Temperature != null &&
+                        v.Humidity != null &&
+                        v.MeasurementMin != null &&
+                        v.MeasurementMax != null &&
+                        v.MeasurementUnit != null &&
+                        v.Accuracy != null &&
+                        v.Device!.DeviceType!.VerificationMethodId != null)
+            .Where(v => protocolVerificationMethodIds.Any(id => id == v.Device!.DeviceType!.VerificationMethodId))
             .AsEnumerable()
-            .Where(v => !existsMan1.Contains(v, VerificationUniqComparer.Instance))
             .Where(v => protocol.VerificationMethods!.Any(m => m.Aliases.Contains(v.VerificationTypeName)))
             .ToArray();
 
@@ -92,7 +100,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
                 continue;
             }
 
-            db.SuccessVerifications.Remove(verification);
+            db.SuccessInitialVerifications.Remove(verification);
             db.Manometr1Verifications.Add(manometrVerification);
             addCount++;
         }

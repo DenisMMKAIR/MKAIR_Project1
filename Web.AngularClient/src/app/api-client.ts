@@ -504,6 +504,237 @@ export class OwnersClient {
 }
 
 @Injectable()
+export class ProtocolTemplateClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getTemplates(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfProtocolTemplateDTO> {
+        let url_ = this.baseUrl + "/api/ProtocolTemplate/GetTemplates?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetTemplates(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetTemplates(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfProtocolTemplateDTO>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfProtocolTemplateDTO>;
+        }));
+    }
+
+    protected processGetTemplates(response: HttpResponseBase): Observable<ServicePaginatedResultOfProtocolTemplateDTO> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfProtocolTemplateDTO.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO> {
+        let url_ = this.baseUrl + "/api/ProtocolTemplate/GetPossibleVerificationMethods?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetPossibleVerificationMethods(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetPossibleVerificationMethods(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO>;
+        }));
+    }
+
+    protected processGetPossibleVerificationMethods(response: HttpResponseBase): Observable<ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    addTemplate(verificationGroup: string | null | undefined, protocolGroup: string | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/ProtocolTemplate/AddTemplate";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (verificationGroup !== null && verificationGroup !== undefined)
+            content_.append("VerificationGroup", verificationGroup.toString());
+        if (protocolGroup !== null && protocolGroup !== undefined)
+            content_.append("ProtocolGroup", protocolGroup.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processAddTemplate(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    deleteTemplate(id: string | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/ProtocolTemplate/DeleteTemplate?";
+        if (id === null)
+            throw new Error("The parameter 'id' cannot be null.");
+        else if (id !== undefined)
+            url_ += "id=" + encodeURIComponent("" + id) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteTemplate(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteTemplate(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processDeleteTemplate(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class VerificationMethodsClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -634,6 +865,124 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
+    addVerificationMethod(fileName: string | null | undefined, file: FileParameter | null | undefined, description: string | null | undefined, aliases: string[] | null | undefined, checkups: { [key in keyof typeof VerificationMethodCheckups]?: string; } | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/VerificationMethods/AddVerificationMethod";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (fileName !== null && fileName !== undefined)
+            content_.append("FileName", fileName.toString());
+        if (file !== null && file !== undefined)
+            content_.append("File", file.data, file.fileName ? file.fileName : "File");
+        if (description !== null && description !== undefined)
+            content_.append("Description", description.toString());
+        if (aliases !== null && aliases !== undefined)
+            aliases.forEach(item_ => content_.append("Aliases", item_.toString()));
+        if (checkups !== null && checkups !== undefined)
+            content_.append("Checkups", JSON.stringify(checkups));
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddVerificationMethod(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddVerificationMethod(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processAddVerificationMethod(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    addAliases(aliases: string[] | null | undefined, verificationMethodId: string | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/VerificationMethods/AddAliases";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (aliases !== null && aliases !== undefined)
+            aliases.forEach(item_ => content_.append("Aliases", item_.toString()));
+        if (verificationMethodId === null || verificationMethodId === undefined)
+            throw new Error("The parameter 'verificationMethodId' cannot be null.");
+        else
+            content_.append("VerificationMethodId", verificationMethodId.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("patch", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processAddAliases(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processAddAliases(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processAddAliases(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     downloadFile(fileId: string | undefined): Observable<FileResponse> {
         let url_ = this.baseUrl + "/api/VerificationMethods/DownloadFile?";
         if (fileId === null)
@@ -682,67 +1031,6 @@ export class VerificationMethodsClient {
                 fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    addVerificationMethod(description: string | null | undefined, aliases: string[] | null | undefined, checkups: { [key: string]: string; } | null | undefined, fileName: string | null | undefined, file: FileParameter | null | undefined): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/VerificationMethods/AddVerificationMethod";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (description !== null && description !== undefined)
-            content_.append("Description", description.toString());
-        if (aliases !== null && aliases !== undefined)
-            aliases.forEach(item_ => content_.append("Aliases", item_.toString()));
-        if (checkups !== null && checkups !== undefined)
-            content_.append("Checkups", JSON.stringify(checkups));
-        if (fileName !== null && fileName !== undefined)
-            content_.append("FileName", fileName.toString());
-        if (file !== null && file !== undefined)
-            content_.append("File", file.data, file.fileName ? file.fileName : "File");
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processAddVerificationMethod(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processAddVerificationMethod(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processAddVerificationMethod(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -891,7 +1179,7 @@ export class VerificationsClient {
         return _observableOf(null as any);
     }
 
-    setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined, measurementRange: boolean | null | undefined, accuracy: boolean | null | undefined): Observable<ServiceResult> {
+    setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, group: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined, measurementRange: boolean | null | undefined, accuracy: boolean | null | undefined): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/Verifications/SetValues";
         url_ = url_.replace(/[?&]$/, "");
 
@@ -904,6 +1192,8 @@ export class VerificationsClient {
             content_.append("DataRange", dataRange.toString());
         if (location !== null && location !== undefined)
             content_.append("Location", location.toString());
+        if (group !== null && group !== undefined)
+            content_.append("Group", group.toString());
         if (verificationTypeNum !== null && verificationTypeNum !== undefined)
             content_.append("VerificationTypeNum", verificationTypeNum.toString());
         if (worker !== null && worker !== undefined)
@@ -1173,6 +1463,8 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
     number?: string;
     title?: string;
     notation?: string;
+    verificationMethodId?: string | null;
+    verificationMethod?: VerificationMethod | null;
 
     constructor(data?: IDeviceType) {
         super(data);
@@ -1184,6 +1476,8 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
             this.number = _data["number"] !== undefined ? _data["number"] : <any>null;
             this.title = _data["title"] !== undefined ? _data["title"] : <any>null;
             this.notation = _data["notation"] !== undefined ? _data["notation"] : <any>null;
+            this.verificationMethodId = _data["verificationMethodId"] !== undefined ? _data["verificationMethodId"] : <any>null;
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>null;
         }
     }
 
@@ -1199,6 +1493,8 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
         data["number"] = this.number !== undefined ? this.number : <any>null;
         data["title"] = this.title !== undefined ? this.title : <any>null;
         data["notation"] = this.notation !== undefined ? this.notation : <any>null;
+        data["verificationMethodId"] = this.verificationMethodId !== undefined ? this.verificationMethodId : <any>null;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>null;
         super.toJSON(data);
         return data;
     }
@@ -1208,6 +1504,156 @@ export interface IDeviceType extends IDatabaseEntity {
     number?: string;
     title?: string;
     notation?: string;
+    verificationMethodId?: string | null;
+    verificationMethod?: VerificationMethod | null;
+}
+
+export class VerificationMethod extends DatabaseEntity implements IVerificationMethod {
+    aliases?: string[];
+    description?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    protocolTemplateId?: string | null;
+    verificationMethodFiles?: VerificationMethodFile[] | null;
+    deviceTypes?: DeviceType[] | null;
+
+    constructor(data?: IVerificationMethod) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            if (Array.isArray(_data["aliases"])) {
+                this.aliases = [] as any;
+                for (let item of _data["aliases"])
+                    this.aliases!.push(item);
+            }
+            else {
+                this.aliases = <any>null;
+            }
+            this.description = _data["description"] !== undefined ? _data["description"] : <any>null;
+            if (_data["checkups"]) {
+                this.checkups = {} as any;
+                for (let key in _data["checkups"]) {
+                    if (_data["checkups"].hasOwnProperty(key))
+                        (<any>this.checkups)![key] = _data["checkups"][key] !== undefined ? _data["checkups"][key] : <any>null;
+                }
+            }
+            else {
+                this.checkups = <any>null;
+            }
+            this.protocolTemplateId = _data["protocolTemplateId"] !== undefined ? _data["protocolTemplateId"] : <any>null;
+            if (Array.isArray(_data["verificationMethodFiles"])) {
+                this.verificationMethodFiles = [] as any;
+                for (let item of _data["verificationMethodFiles"])
+                    this.verificationMethodFiles!.push(VerificationMethodFile.fromJS(item));
+            }
+            else {
+                this.verificationMethodFiles = <any>null;
+            }
+            if (Array.isArray(_data["deviceTypes"])) {
+                this.deviceTypes = [] as any;
+                for (let item of _data["deviceTypes"])
+                    this.deviceTypes!.push(DeviceType.fromJS(item));
+            }
+            else {
+                this.deviceTypes = <any>null;
+            }
+        }
+    }
+
+    static override fromJS(data: any): VerificationMethod {
+        data = typeof data === 'object' ? data : {};
+        let result = new VerificationMethod();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.aliases)) {
+            data["aliases"] = [];
+            for (let item of this.aliases)
+                data["aliases"].push(item);
+        }
+        data["description"] = this.description !== undefined ? this.description : <any>null;
+        if (this.checkups) {
+            data["checkups"] = {};
+            for (let key in this.checkups) {
+                if (this.checkups.hasOwnProperty(key))
+                    (<any>data["checkups"])[key] = this.checkups[key] !== undefined ? this.checkups[key] : <any>null;
+            }
+        }
+        data["protocolTemplateId"] = this.protocolTemplateId !== undefined ? this.protocolTemplateId : <any>null;
+        if (Array.isArray(this.verificationMethodFiles)) {
+            data["verificationMethodFiles"] = [];
+            for (let item of this.verificationMethodFiles)
+                data["verificationMethodFiles"].push(item ? item.toJSON() : <any>null);
+        }
+        if (Array.isArray(this.deviceTypes)) {
+            data["deviceTypes"] = [];
+            for (let item of this.deviceTypes)
+                data["deviceTypes"].push(item ? item.toJSON() : <any>null);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IVerificationMethod extends IDatabaseEntity {
+    aliases?: string[];
+    description?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    protocolTemplateId?: string | null;
+    verificationMethodFiles?: VerificationMethodFile[] | null;
+    deviceTypes?: DeviceType[] | null;
+}
+
+export enum VerificationMethodCheckups {
+    Visual = "visual",
+    Result = "result",
+    Accuracy = "accuracy",
+}
+
+export class VerificationMethodFile extends DatabaseEntity implements IVerificationMethodFile {
+    fileName?: string;
+    mimetype?: string;
+    content?: string;
+
+    constructor(data?: IVerificationMethodFile) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.fileName = _data["fileName"] !== undefined ? _data["fileName"] : <any>null;
+            this.mimetype = _data["mimetype"] !== undefined ? _data["mimetype"] : <any>null;
+            this.content = _data["content"] !== undefined ? _data["content"] : <any>null;
+        }
+    }
+
+    static override fromJS(data: any): VerificationMethodFile {
+        data = typeof data === 'object' ? data : {};
+        let result = new VerificationMethodFile();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName !== undefined ? this.fileName : <any>null;
+        data["mimetype"] = this.mimetype !== undefined ? this.mimetype : <any>null;
+        data["content"] = this.content !== undefined ? this.content : <any>null;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IVerificationMethodFile extends IDatabaseEntity {
+    fileName?: string;
+    mimetype?: string;
+    content?: string;
 }
 
 export class ServiceResult implements IServiceResult {
@@ -1582,6 +2028,337 @@ export interface IOwner extends IDatabaseEntity {
     inn?: number;
 }
 
+export class ServicePaginatedResultOfProtocolTemplateDTO implements IServicePaginatedResultOfProtocolTemplateDTO {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfProtocolTemplateDTO | null;
+
+    constructor(data?: IServicePaginatedResultOfProtocolTemplateDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfProtocolTemplateDTO.fromJS(_data["data"]) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfProtocolTemplateDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfProtocolTemplateDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfProtocolTemplateDTO {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfProtocolTemplateDTO | null;
+}
+
+export class PaginatedListOfProtocolTemplateDTO implements IPaginatedListOfProtocolTemplateDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: ProtocolTemplateDTO[];
+
+    constructor(data?: IPaginatedListOfProtocolTemplateDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(ProtocolTemplateDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfProtocolTemplateDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfProtocolTemplateDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>null);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfProtocolTemplateDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: ProtocolTemplateDTO[];
+}
+
+export class ProtocolTemplateDTO implements IProtocolTemplateDTO {
+    id?: string;
+    protocolGroup?: ProtocolGroup;
+    verificationGroup?: VerificationGroup;
+    verificationMethodIds?: string[];
+
+    constructor(data?: IProtocolTemplateDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"] !== undefined ? _data["id"] : <any>null;
+            this.protocolGroup = _data["protocolGroup"] !== undefined ? _data["protocolGroup"] : <any>null;
+            this.verificationGroup = _data["verificationGroup"] !== undefined ? _data["verificationGroup"] : <any>null;
+            if (Array.isArray(_data["verificationMethodIds"])) {
+                this.verificationMethodIds = [] as any;
+                for (let item of _data["verificationMethodIds"])
+                    this.verificationMethodIds!.push(item);
+            }
+            else {
+                this.verificationMethodIds = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): ProtocolTemplateDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProtocolTemplateDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id !== undefined ? this.id : <any>null;
+        data["protocolGroup"] = this.protocolGroup !== undefined ? this.protocolGroup : <any>null;
+        data["verificationGroup"] = this.verificationGroup !== undefined ? this.verificationGroup : <any>null;
+        if (Array.isArray(this.verificationMethodIds)) {
+            data["verificationMethodIds"] = [];
+            for (let item of this.verificationMethodIds)
+                data["verificationMethodIds"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IProtocolTemplateDTO {
+    id?: string;
+    protocolGroup?: ProtocolGroup;
+    verificationGroup?: VerificationGroup;
+    verificationMethodIds?: string[];
+}
+
+export enum ProtocolGroup {
+    Манометр1 = "Манометр1",
+}
+
+export enum VerificationGroup {
+    Манометры = "Манометры",
+    Датчики_давления = "Датчики_давления",
+    Термометры_биметаллические = "Термометры_биметаллические",
+}
+
+export class ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO implements IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleTemplateVerificationMethodsDTO | null;
+
+    constructor(data?: IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"] !== undefined ? _data["message"] : <any>null;
+            this.error = _data["error"] !== undefined ? _data["error"] : <any>null;
+            this.data = _data["data"] ? PaginatedListOfPossibleTemplateVerificationMethodsDTO.fromJS(_data["data"]) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message !== undefined ? this.message : <any>null;
+        data["error"] = this.error !== undefined ? this.error : <any>null;
+        data["data"] = this.data ? this.data.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
+    message?: string | null;
+    error?: string | null;
+    data?: PaginatedListOfPossibleTemplateVerificationMethodsDTO | null;
+}
+
+export class PaginatedListOfPossibleTemplateVerificationMethodsDTO implements IPaginatedListOfPossibleTemplateVerificationMethodsDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: PossibleTemplateVerificationMethodsDTO[];
+
+    constructor(data?: IPaginatedListOfPossibleTemplateVerificationMethodsDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"] !== undefined ? _data["pageIndex"] : <any>null;
+            this.totalPages = _data["totalPages"] !== undefined ? _data["totalPages"] : <any>null;
+            this.hasPreviousPage = _data["hasPreviousPage"] !== undefined ? _data["hasPreviousPage"] : <any>null;
+            this.hasNextPage = _data["hasNextPage"] !== undefined ? _data["hasNextPage"] : <any>null;
+            this.totalCount = _data["totalCount"] !== undefined ? _data["totalCount"] : <any>null;
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(PossibleTemplateVerificationMethodsDTO.fromJS(item));
+            }
+            else {
+                this.items = <any>null;
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfPossibleTemplateVerificationMethodsDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfPossibleTemplateVerificationMethodsDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex !== undefined ? this.pageIndex : <any>null;
+        data["totalPages"] = this.totalPages !== undefined ? this.totalPages : <any>null;
+        data["hasPreviousPage"] = this.hasPreviousPage !== undefined ? this.hasPreviousPage : <any>null;
+        data["hasNextPage"] = this.hasNextPage !== undefined ? this.hasNextPage : <any>null;
+        data["totalCount"] = this.totalCount !== undefined ? this.totalCount : <any>null;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>null);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfPossibleTemplateVerificationMethodsDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: PossibleTemplateVerificationMethodsDTO[];
+}
+
+export class PossibleTemplateVerificationMethodsDTO implements IPossibleTemplateVerificationMethodsDTO {
+    protocolGroup?: ProtocolGroup;
+    verificationMethod?: VerificationMethod;
+
+    constructor(data?: IPossibleTemplateVerificationMethodsDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.protocolGroup = _data["protocolGroup"] !== undefined ? _data["protocolGroup"] : <any>null;
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>null;
+        }
+    }
+
+    static fromJS(data: any): PossibleTemplateVerificationMethodsDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PossibleTemplateVerificationMethodsDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["protocolGroup"] = this.protocolGroup !== undefined ? this.protocolGroup : <any>null;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>null;
+        return data;
+    }
+}
+
+export interface IPossibleTemplateVerificationMethodsDTO {
+    protocolGroup?: ProtocolGroup;
+    verificationMethod?: VerificationMethod;
+}
+
 export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePaginatedResultOfVerificationMethodDTO {
     message?: string | null;
     error?: string | null;
@@ -1698,6 +2475,7 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
     aliases?: string[];
     description?: string;
     files?: string[];
+    typeNumbers?: string[];
 
     constructor(data?: IVerificationMethodDTO) {
         if (data) {
@@ -1728,6 +2506,14 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
             else {
                 this.files = <any>null;
             }
+            if (Array.isArray(_data["typeNumbers"])) {
+                this.typeNumbers = [] as any;
+                for (let item of _data["typeNumbers"])
+                    this.typeNumbers!.push(item);
+            }
+            else {
+                this.typeNumbers = <any>null;
+            }
         }
     }
 
@@ -1752,6 +2538,11 @@ export class VerificationMethodDTO implements IVerificationMethodDTO {
             for (let item of this.files)
                 data["files"].push(item);
         }
+        if (Array.isArray(this.typeNumbers)) {
+            data["typeNumbers"] = [];
+            for (let item of this.typeNumbers)
+                data["typeNumbers"].push(item);
+        }
         return data;
     }
 }
@@ -1761,6 +2552,7 @@ export interface IVerificationMethodDTO {
     aliases?: string[];
     description?: string;
     files?: string[];
+    typeNumbers?: string[];
 }
 
 export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IServicePaginatedResultOfPossibleVerificationMethodDTO {
@@ -1877,6 +2669,7 @@ export interface IPaginatedListOfPossibleVerificationMethodDTO {
 export class PossibleVerificationMethodDTO implements IPossibleVerificationMethodDTO {
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
+    verificationMethodId?: string | null;
     deviceModifications?: string[];
     verificationTypeNames?: string[];
     dates?: YearMonth[];
@@ -1894,6 +2687,7 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
         if (_data) {
             this.deviceTypeNumber = _data["deviceTypeNumber"] !== undefined ? _data["deviceTypeNumber"] : <any>null;
             this.deviceTypeInfo = _data["deviceTypeInfo"] !== undefined ? _data["deviceTypeInfo"] : <any>null;
+            this.verificationMethodId = _data["verificationMethodId"] !== undefined ? _data["verificationMethodId"] : <any>null;
             if (Array.isArray(_data["deviceModifications"])) {
                 this.deviceModifications = [] as any;
                 for (let item of _data["deviceModifications"])
@@ -1932,6 +2726,7 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
         data = typeof data === 'object' ? data : {};
         data["deviceTypeNumber"] = this.deviceTypeNumber !== undefined ? this.deviceTypeNumber : <any>null;
         data["deviceTypeInfo"] = this.deviceTypeInfo !== undefined ? this.deviceTypeInfo : <any>null;
+        data["verificationMethodId"] = this.verificationMethodId !== undefined ? this.verificationMethodId : <any>null;
         if (Array.isArray(this.deviceModifications)) {
             data["deviceModifications"] = [];
             for (let item of this.deviceModifications)
@@ -1954,6 +2749,7 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
 export interface IPossibleVerificationMethodDTO {
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
+    verificationMethodId?: string | null;
     deviceModifications?: string[];
     verificationTypeNames?: string[];
     dates?: YearMonth[];
@@ -2080,15 +2876,18 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
     id?: string;
     deviceTypeInfo?: string;
     etalons?: string[];
-    additionalInfo?: string;
     verificationGroup?: VerificationGroup | null;
     protocolNumber?: string | null;
-    ownerInn?: number | null;
+    ownerINN?: number | null;
     worker?: string | null;
     location?: DeviceLocation | null;
     pressure?: string | null;
     temperature?: number | null;
     humidity?: number | null;
+    measurementMin?: number | null;
+    measurementMax?: number | null;
+    measurementUnit?: string | null;
+    accuracy?: number | null;
 
     constructor(data?: ISuccessInitialVerificationDto) {
         if (data) {
@@ -2117,15 +2916,18 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
             else {
                 this.etalons = <any>null;
             }
-            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
             this.verificationGroup = _data["verificationGroup"] !== undefined ? _data["verificationGroup"] : <any>null;
             this.protocolNumber = _data["protocolNumber"] !== undefined ? _data["protocolNumber"] : <any>null;
-            this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
+            this.ownerINN = _data["ownerINN"] !== undefined ? _data["ownerINN"] : <any>null;
             this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
             this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
             this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
             this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
             this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
+            this.measurementMin = _data["measurementMin"] !== undefined ? _data["measurementMin"] : <any>null;
+            this.measurementMax = _data["measurementMax"] !== undefined ? _data["measurementMax"] : <any>null;
+            this.measurementUnit = _data["measurementUnit"] !== undefined ? _data["measurementUnit"] : <any>null;
+            this.accuracy = _data["accuracy"] !== undefined ? _data["accuracy"] : <any>null;
         }
     }
 
@@ -2151,15 +2953,18 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
             for (let item of this.etalons)
                 data["etalons"].push(item);
         }
-        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
         data["verificationGroup"] = this.verificationGroup !== undefined ? this.verificationGroup : <any>null;
         data["protocolNumber"] = this.protocolNumber !== undefined ? this.protocolNumber : <any>null;
-        data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
+        data["ownerINN"] = this.ownerINN !== undefined ? this.ownerINN : <any>null;
         data["worker"] = this.worker !== undefined ? this.worker : <any>null;
         data["location"] = this.location !== undefined ? this.location : <any>null;
         data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
         data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
         data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
+        data["measurementMin"] = this.measurementMin !== undefined ? this.measurementMin : <any>null;
+        data["measurementMax"] = this.measurementMax !== undefined ? this.measurementMax : <any>null;
+        data["measurementUnit"] = this.measurementUnit !== undefined ? this.measurementUnit : <any>null;
+        data["accuracy"] = this.accuracy !== undefined ? this.accuracy : <any>null;
         return data;
     }
 }
@@ -2174,21 +2979,18 @@ export interface ISuccessInitialVerificationDto {
     id?: string;
     deviceTypeInfo?: string;
     etalons?: string[];
-    additionalInfo?: string;
     verificationGroup?: VerificationGroup | null;
     protocolNumber?: string | null;
-    ownerInn?: number | null;
+    ownerINN?: number | null;
     worker?: string | null;
     location?: DeviceLocation | null;
     pressure?: string | null;
     temperature?: number | null;
     humidity?: number | null;
-}
-
-export enum VerificationGroup {
-    Манометры = "Манометры",
-    Датчики_давления = "Датчики_давления",
-    Термометры_биметаллические = "Термометры_биметаллические",
+    measurementMin?: number | null;
+    measurementMax?: number | null;
+    measurementUnit?: string | null;
+    accuracy?: number | null;
 }
 
 export enum DeviceLocation {
@@ -2322,10 +3124,13 @@ export class SuccessVerificationDto implements ISuccessVerificationDto {
     ownerInn?: number;
     worker?: string;
     location?: DeviceLocation;
-    additionalInfo?: string;
     pressure?: string;
     temperature?: number;
     humidity?: number;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    accuracy?: number;
 
     constructor(data?: ISuccessVerificationDto) {
         if (data) {
@@ -2359,10 +3164,13 @@ export class SuccessVerificationDto implements ISuccessVerificationDto {
             this.ownerInn = _data["ownerInn"] !== undefined ? _data["ownerInn"] : <any>null;
             this.worker = _data["worker"] !== undefined ? _data["worker"] : <any>null;
             this.location = _data["location"] !== undefined ? _data["location"] : <any>null;
-            this.additionalInfo = _data["additionalInfo"] !== undefined ? _data["additionalInfo"] : <any>null;
             this.pressure = _data["pressure"] !== undefined ? _data["pressure"] : <any>null;
             this.temperature = _data["temperature"] !== undefined ? _data["temperature"] : <any>null;
             this.humidity = _data["humidity"] !== undefined ? _data["humidity"] : <any>null;
+            this.measurementMin = _data["measurementMin"] !== undefined ? _data["measurementMin"] : <any>null;
+            this.measurementMax = _data["measurementMax"] !== undefined ? _data["measurementMax"] : <any>null;
+            this.measurementUnit = _data["measurementUnit"] !== undefined ? _data["measurementUnit"] : <any>null;
+            this.accuracy = _data["accuracy"] !== undefined ? _data["accuracy"] : <any>null;
         }
     }
 
@@ -2393,10 +3201,13 @@ export class SuccessVerificationDto implements ISuccessVerificationDto {
         data["ownerInn"] = this.ownerInn !== undefined ? this.ownerInn : <any>null;
         data["worker"] = this.worker !== undefined ? this.worker : <any>null;
         data["location"] = this.location !== undefined ? this.location : <any>null;
-        data["additionalInfo"] = this.additionalInfo !== undefined ? this.additionalInfo : <any>null;
         data["pressure"] = this.pressure !== undefined ? this.pressure : <any>null;
         data["temperature"] = this.temperature !== undefined ? this.temperature : <any>null;
         data["humidity"] = this.humidity !== undefined ? this.humidity : <any>null;
+        data["measurementMin"] = this.measurementMin !== undefined ? this.measurementMin : <any>null;
+        data["measurementMax"] = this.measurementMax !== undefined ? this.measurementMax : <any>null;
+        data["measurementUnit"] = this.measurementUnit !== undefined ? this.measurementUnit : <any>null;
+        data["accuracy"] = this.accuracy !== undefined ? this.accuracy : <any>null;
         return data;
     }
 }
@@ -2416,10 +3227,13 @@ export interface ISuccessVerificationDto {
     ownerInn?: number;
     worker?: string;
     location?: DeviceLocation;
-    additionalInfo?: string;
     pressure?: string;
     temperature?: number;
     humidity?: number;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    accuracy?: number;
 }
 
 function formatDate(d: Date) {

@@ -9,7 +9,6 @@ public interface IInitialVerification : IVerificationBase
     // DateOnly VerificationDate { get; set; } - inherited
     string VerificationTypeName { get; set; }
     string Owner { get; set; }
-    Dictionary<string, object> AdditionalInfo { get; set; }
 
     // Optional
     VerificationGroup? VerificationGroup { get; set; }
@@ -20,6 +19,10 @@ public interface IInitialVerification : IVerificationBase
     string? Pressure { get; set; }
     double? Temperature { get; set; }
     double? Humidity { get; set; }
+    double? MeasurementMin { get; set; }
+    double? MeasurementMax { get; set; }
+    string? MeasurementUnit { get; set; }
+    double? Accuracy { get; set; }
 
     // Navigation properties
     // Device? Device { get; set; } - inherited
@@ -34,7 +37,6 @@ public class SuccessInitialVerification : DatabaseEntity, IInitialVerification
     public required string VerificationTypeName { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required DateOnly VerifiedUntilDate { get; set; }
-    public required Dictionary<string, object> AdditionalInfo { get; set; } = [];
 
     // Optional
     public VerificationGroup? VerificationGroup { get; set; }
@@ -45,6 +47,10 @@ public class SuccessInitialVerification : DatabaseEntity, IInitialVerification
     public string? Pressure { get; set; }
     public double? Temperature { get; set; }
     public double? Humidity { get; set; }
+    public double? MeasurementMin { get; set; }
+    public double? MeasurementMax { get; set; }
+    public string? MeasurementUnit { get; set; }
+    public double? Accuracy { get; set; }
 
 
     // Navigation properties
@@ -60,7 +66,6 @@ public class FailedInitialVerification : DatabaseEntity, IInitialVerification
     public required string VerificationTypeName { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required string FailedDocNumber { get; set; }
-    public required Dictionary<string, object> AdditionalInfo { get; set; } = [];
 
     // Optional
     public VerificationGroup? VerificationGroup { get; set; }
@@ -71,6 +76,10 @@ public class FailedInitialVerification : DatabaseEntity, IInitialVerification
     public string? Pressure { get; set; }
     public double? Temperature { get; set; }
     public double? Humidity { get; set; }
+    public double? MeasurementMin { get; set; }
+    public double? MeasurementMax { get; set; }
+    public string? MeasurementUnit { get; set; }
+    public double? Accuracy { get; set; }
 
     // Navigation properties
     public Device? Device { get; set; }

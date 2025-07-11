@@ -17,7 +17,10 @@ public interface IVerification : IVerificationBase
     string Pressure { get; set; }
     double Temperature { get; set; }
     double Humidity { get; set; }
-    Dictionary<string, object> AdditionalInfo { get; set; }
+    double MeasurementMin { get; set; }
+    double MeasurementMax { get; set; }
+    string MeasurementUnit { get; set; }
+    double Accuracy { get; set; }
 
     // Navigation properties
     // Device? Device { get; set; } - inherited
@@ -40,7 +43,10 @@ public class SuccessVerification : DatabaseEntity, IVerification
     public required string Pressure { get; set; }
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
-    public required Dictionary<string, object> AdditionalInfo { get; set; }
+    public required double MeasurementMin { get; set; }
+    public required double MeasurementMax { get; set; }
+    public required string MeasurementUnit { get; set; }
+    public required double Accuracy { get; set; }
 
     // Navigation properties
     public Device? Device { get; set; }
@@ -63,7 +69,10 @@ public class FailedVerification : DatabaseEntity, IVerification
     public required string Pressure { get; set; }
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
-    public required Dictionary<string, object> AdditionalInfo { get; set; }
+    public required double MeasurementMin { get; set; }
+    public required double MeasurementMax { get; set; }
+    public required string MeasurementUnit { get; set; }
+    public required double Accuracy { get; set; }
 
     // Navigation properties
     public Device? Device { get; set; }

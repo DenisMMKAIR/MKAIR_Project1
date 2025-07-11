@@ -12,7 +12,7 @@ using ProjApp.Database;
 namespace ProjApp.Database.Maintenance.Migrations
 {
     [DbContext(typeof(ProjDatabase))]
-    [Migration("20250710213031_Initial")]
+    [Migration("20250711035455_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -225,10 +225,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
+                    b.Property<double?>("Accuracy")
+                        .HasColumnType("double precision")
+                        .HasColumnName("accuracy");
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid")
@@ -256,6 +255,18 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<int?>("Location")
                         .HasColumnType("integer")
                         .HasColumnName("location");
+
+                    b.Property<double?>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double?>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
 
                     b.Property<string>("Owner")
                         .IsRequired()
@@ -311,10 +322,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
+                    b.Property<double>("Accuracy")
+                        .HasColumnType("double precision")
+                        .HasColumnName("accuracy");
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid")
@@ -342,6 +352,19 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<int>("Location")
                         .HasColumnType("integer")
                         .HasColumnName("location");
+
+                    b.Property<double>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
 
                     b.Property<string>("Owner")
                         .IsRequired()
@@ -626,10 +649,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
+                    b.Property<double?>("Accuracy")
+                        .HasColumnType("double precision")
+                        .HasColumnName("accuracy");
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid")
@@ -652,6 +674,18 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<int?>("Location")
                         .HasColumnType("integer")
                         .HasColumnName("location");
+
+                    b.Property<double?>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double?>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
 
                     b.Property<string>("Owner")
                         .IsRequired()
@@ -711,10 +745,9 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
-                    b.Property<string>("AdditionalInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("additional_info");
+                    b.Property<double>("Accuracy")
+                        .HasColumnType("double precision")
+                        .HasColumnName("accuracy");
 
                     b.Property<Guid?>("DeviceId")
                         .HasColumnType("uuid")
@@ -737,6 +770,19 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<int>("Location")
                         .HasColumnType("integer")
                         .HasColumnName("location");
+
+                    b.Property<double>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
 
                     b.Property<string>("Owner")
                         .IsRequired()

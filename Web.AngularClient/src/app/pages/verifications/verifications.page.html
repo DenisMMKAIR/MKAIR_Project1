@@ -81,15 +81,12 @@
           <th>Тип поверки</th>
           <th>Группа поверки</th>
           <th>Номер протокола</th>
-          <th>ИНН владельца</th>
+          <th>Владелец/ИНН</th>
           <th>Работник</th>
           <th>Местоположение</th>
-          <th>Доп. информация</th>
-          <th>Давление</th>
-          <th>Температура</th>
-          <th>Влажность</th>
-          <th>Владелец</th>
+          <th>Температура/Давление/Влажность</th>
           <th>Эталоны</th>
+          <th>Диапазон/Точность</th>
         </tr>
       </thead>
       <tbody>
@@ -102,15 +99,19 @@
           <td>{{ v.verificationTypeName || '-' }}</td>
           <td>{{ v.verificationGroup || '-' }}</td>
           <td>{{ v.protocolNumber || '-' }}</td>
-          <td>{{ v.ownerInn || '-' }}</td>
+          <td>
+            <div>Владелец: {{ v.owner || '-' }}</div>
+            <div>ИНН: {{ v.ownerINN || '-' }}</div>
+          </td>
           <td>{{ v.worker || '-' }}</td>
           <td>{{ v.location || '-' }}</td>
-          <td>{{ v.additionalInfo || '-' }}</td>
-          <td>{{ v.pressure || '-' }}</td>
-          <td>{{ v.temperature != null ? v.temperature + '°C' : '-' }}</td>
-          <td>{{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</td>
-          <td>{{ v.owner }}</td>
+          <td>
+            <div>Темп: {{ v.temperature != null ? v.temperature + '°C' : '-' }}</div>
+            <div>Давл: {{ v.pressure || '-' }}</div>
+            <div>Влаж: {{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+          </td>
           <td>{{v.etalons?.join(', ')}}</td>
+          <td>{{ formatRangeAccuracy(v) }}</td>
         </tr>
       </tbody>
     </table>
