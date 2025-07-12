@@ -15,6 +15,14 @@ internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<Manometr1Ver
 
     protected override string? SetSpecific(IDocument document, Manometr1Verification data)
     {
+        var measurement1Element = document.QuerySelector("#measurementUnit1");
+        if (measurement1Element == null) return "measurementUnit1 not found";
+        var prop = TypeProps.First(p => p.Name == nameof(Manometr1Verification.MeasurementUnit));
+        SetElementValue(measurement1Element, prop.GetValue(data)!.ToString()!);
+        var measurement2Element = document.QuerySelector("#measurementUnit2");
+        if (measurement2Element == null) return "measurementUnit2 not found";
+        SetElementValue(measurement2Element, prop.GetValue(data)!.ToString()!);
+
         var table = document.QuerySelector("#valuesTable");
         if (table == null)
         {
