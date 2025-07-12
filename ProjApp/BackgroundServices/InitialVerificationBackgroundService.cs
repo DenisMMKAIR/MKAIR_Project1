@@ -6,6 +6,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
+using ProjApp.Services;
 
 namespace ProjApp.BackgroundServices;
 
@@ -45,6 +46,7 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var addGoodVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<SuccessInitialVerification>>();
         var addFailedVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<FailedInitialVerification>>();
+        var vService = scope.ServiceProvider.GetRequiredService<VerificationsService>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
         foreach (var job in jobs)
         {
@@ -60,6 +62,9 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
                 _logger.LogInformation("Сохранение неисправных устройств");
                 var saveFailed = await addFailedVerificationsCommand.ExecuteAsync(vdfFailed);
                 _logger.LogInformation("Поверки неисправных устройств {Msg}", saveFailed.Message);
+
+                _ = await vService.AddVerificationMethodsAsync(vrfGood);
+                _ = await vService.AddVerificationMethodsAsync(vdfFailed);
 
                 db.InitialVerificationJobs.Remove(job);
                 await db.SaveChangesAsync();

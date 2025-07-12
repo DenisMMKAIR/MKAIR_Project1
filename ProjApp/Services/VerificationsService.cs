@@ -1,11 +1,13 @@
 using Mapster;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
+using ProjApp.Database.Normalizers;
 using ProjApp.Database.SupportTypes;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Mapping;
@@ -244,6 +246,30 @@ public class VerificationsService
         _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
 
         return ServiceResult.Success("Данные добавлены");
+    }
+
+    public async Task<ServiceResult> AddVerificationMethodsAsync(IReadOnlyList<IInitialVerification> verifications)
+    {
+        var norm = new ComplexStringNormalizer();
+        var aliases = verifications
+            .Select(v => norm.Normalize(v.VerificationTypeName))
+            .Distinct()
+            .ToArray();
+
+        var vms = _database.VerificationMethods
+            .Where(m => m.Aliases.Any(a => aliases.Contains(a)))
+            .ToArray();
+
+        if (vms.Length == 0) return ServiceResult.Success("Методики поверок не найдены");
+
+        foreach (var v in verifications)
+        {
+            var m = vms.FirstOrDefault(m => m.Aliases.Contains(norm.Normalize(v.VerificationTypeName)));
+            if (m == null) continue;
+            v.Device!.DeviceType!.VerificationMethod = m;
+        }
+        await _database.SaveChangesAsync();
+        return ServiceResult.Success("Методики поверок добавлены");
     }
 }
 

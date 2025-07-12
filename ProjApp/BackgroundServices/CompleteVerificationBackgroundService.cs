@@ -62,31 +62,16 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
 
         if (verifications.Length == 0) return;
 
-        var addCount = 0;
-        var failedCount = 0;
-
         foreach (var vrf in verifications)
         {
             var manometrVrf = Manometr1Calculations.ToManometr1(_logger, vrf);
-            var result = await pdfCreator.CreatePDFAsync(manometrVrf);
-
-            if (result.Error != null)
-            {
-                _logger.LogError("Группа {Group}. Поверка {Verification}. Не удалось создать pdf и завершить регистрацию поверки. {Error}",
-                                 manometrVrf.VerificationGroup, manometrVrf, result.Error);
-
-                failedCount++;
-                continue;
-            }
-
             db.SuccessInitialVerifications.Remove(vrf);
             db.Manometr1Verifications.Add(manometrVrf);
-            addCount++;
         }
 
         await db.SaveChangesAsync();
 
         var group = verifications.First().VerificationGroup!;
-        _logger.LogInformation("Группа {Group}. Успешно добавлено {AddCount} поверок. Не удалось обработать поверок {FailedCount}", group, addCount, failedCount);
+        _logger.LogInformation("Группа {Group}. Добавлено {AddCount} поверок", group, verifications.Length);
     }
 }
