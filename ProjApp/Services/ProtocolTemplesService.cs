@@ -39,7 +39,7 @@ public class ProtocolTemplesService
 
     public async Task<ServiceResult> AddProtocolAsync(ProtocolTemplate protocol)
     {
-        var result = await _addCommand.ExecuteAsync(protocol);
+        var result = await _addCommand.ExecuteAsync([protocol]);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.DuplicateCount > 0) return ServiceResult.Fail("Протокол уже существует");
         _keeper.Signal(BackgroundEvents.NewProtocolTemplate);

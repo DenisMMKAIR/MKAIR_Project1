@@ -50,7 +50,7 @@ public class InitialVerificationJobsService
         }
 
         var incomingJob = new InitialVerificationJob { Date = date };
-        var result = await _addCommand.ExecuteAsync(incomingJob);
+        var result = await _addCommand.ExecuteAsync([incomingJob]);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Задание уже существует");
         _eventKeeper.Signal(BackgroundEvents.NewInitialVerificationJob);

@@ -120,7 +120,7 @@ public class VerificationsService
 
     public async Task<ServiceResult> AddInitialVerification(SuccessInitialVerification iv)
     {
-        var result = await _addInitialVerificationCommand.ExecuteAsync(iv);
+        var result = await _addInitialVerificationCommand.ExecuteAsync([iv]);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.DuplicateCount > 0) return ServiceResult.Fail("Поверка уже существует");
         return ServiceResult.Success("Поверка добавлена");

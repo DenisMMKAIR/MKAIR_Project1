@@ -27,7 +27,7 @@ public class DeviceTypeService
 
     public async Task<ServiceResult> AddDeviceTypeAsync(DeviceType deviceType)
     {
-        var result = await _addCommand.ExecuteAsync(deviceType);
+        var result = await _addCommand.ExecuteAsync([deviceType]);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Тип устройства уже существует");
         return ServiceResult.Success($"Тип устройства {deviceType.Number} успешно добавлен");

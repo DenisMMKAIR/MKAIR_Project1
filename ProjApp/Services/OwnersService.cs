@@ -47,7 +47,7 @@ public class OwnersService
             return ServiceResult.Fail("ИНН не может быть пустым");
         }
 
-        var result = await _addOwnerCommand.ExecuteAsync(owner);
+        var result = await _addOwnerCommand.ExecuteAsync([owner]);
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.DuplicateCount > 0) return ServiceResult.Fail("Владелец уже существует");
 

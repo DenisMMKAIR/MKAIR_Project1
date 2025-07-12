@@ -1,4 +1,6 @@
+using System.Data;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using Npgsql;
 using ProjApp.Database.Entities;
@@ -20,7 +22,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         _uniqComparer = uniqComparer;
     }
 
-    public virtual async Task<Result> ExecuteAsync(params IReadOnlyList<T> items)
+    public virtual async Task<Result> ExecuteAsync(IReadOnlyList<T> items, IDbContextTransaction? parentTransaction = null)
     {
         if (items.Count == 0) return Result.Ok("Список пуст, добавление не требуется", items, newCount: 0, duplicateCount: 0);
 
@@ -47,12 +49,18 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         }
 
         _db.AddRange(newItems);
-        await using var transaction = await _db.Database.BeginTransactionAsync();
+
+        IDbContextTransaction? transaction = null;
+        if (parentTransaction == null)
+        {
+            transaction = await _db.Database.BeginTransactionAsync();
+        }
 
         try
         {
             var affectedRows = await _db.SaveChangesAsync();
-            await transaction.CommitAsync();
+            if (transaction != null) await transaction.CommitAsync();
+
             var savedItems = existingItems.Concat(newItems).ToList();
 
             return Result.Ok($"Добавлено новых элементов {newItems.Count}. Отсеяно дубликатов {existingItems.Count}",
@@ -62,7 +70,8 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         }
         catch (DbUpdateException ex) when (IsUniqueConstraintViolation(ex))
         {
-            await transaction.RollbackAsync();
+            if (transaction != null) await transaction.RollbackAsync();
+
             var e = (PostgresException)ex.InnerException!;
             _logger.LogError("Не удалось добавить. Обнаружены дубликаты. {Details}. {MessageText}",
                 e.Detail, e.MessageText);
@@ -70,7 +79,7 @@ public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
         }
         catch (Exception ex)
         {
-            await transaction.RollbackAsync();
+            if (transaction != null) await transaction.RollbackAsync();
             _logger.LogError(ex, "Не удалось добавить. {Message}", ex.Message);
             return Result.Failed(ex.Message);
         }
