@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
@@ -15,13 +16,15 @@ namespace ProjApp.Services;
 
 public partial class VerificationMethodsService
 {
+    private readonly ILogger<VerificationMethodsService> _logger;
     private readonly ProjDatabase _database;
     private readonly IMapper _mapper;
     private readonly AddVerificationMethodCommand _addCommand;
     [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")] private static partial Regex _invalidFileChars();
 
-    public VerificationMethodsService(ProjDatabase database, IMapper mapper, AddVerificationMethodCommand addCommand)
+    public VerificationMethodsService(ILogger<VerificationMethodsService> logger, ProjDatabase database, IMapper mapper, AddVerificationMethodCommand addCommand)
     {
+        _logger = logger;
         _database = database;
         _mapper = mapper;
         _addCommand = addCommand;
@@ -88,6 +91,34 @@ public partial class VerificationMethodsService
         return ServiceItemResult<VerificationMethodFile>.Success(file);
     }
 
+    public async Task<ServiceResult> DeleteVerificationMethodAsync(Guid VerificationMethodId)
+    {
+        var m = await _database.VerificationMethods
+            .Include(m => m.ProtocolTemplate)
+            .Include(m => m.DeviceTypes)
+            .FirstOrDefaultAsync(m => m.Id == VerificationMethodId);
+
+        if (m == null) return ServiceResult.Fail("Метод поверки не найден");
+
+        await using var transaction = await _database.Database.BeginTransactionAsync();
+
+        try
+        {
+            foreach (var dt in m.DeviceTypes!) dt.VerificationMethodId = null;
+            _database.VerificationMethods.Remove(m);
+            await _database.SaveChangesAsync();
+            await transaction.CommitAsync();
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Ошибка при удалении");
+            await transaction.RollbackAsync();
+            return ServiceResult.Fail("Ошибка при удалении");
+        }
+
+        return ServiceResult.Success("Метод поверки удален");
+    }
+
     public async Task<ServiceResult> AddAliasesAsync(IReadOnlyList<string> aliases, Guid verificationMethodId)
     {
         var m = await _database.VerificationMethods.FindAsync(verificationMethodId);
@@ -103,7 +134,10 @@ public partial class VerificationMethodsService
 
         if (newAliases.Length == 0) return ServiceResult.Success("Поверка уже имеет указанные псевдонимы");
 
-        m.Aliases = [.. m.Aliases, .. newAliases];
+        m.Aliases = m.Aliases.Concat(newAliases)
+            .OrderBy(a => a.Length)
+            .ToArray();
+
         await _database.SaveChangesAsync();
 
         var (deviceTypeCount, newAliasesCount) = await AddAllDevicesAsync(m, stringNormalizer);
@@ -123,10 +157,15 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Псевдонимы должны быть уникальными");
         }
 
+        if (verificationMethod.Checkups.Count == 0)
+        {
+            return ServiceResult.Fail("Не указаны пункты проверки");
+        }
+
         var stringNormalizer = new ComplexStringNormalizer();
         verificationMethod.Aliases = verificationMethod.Aliases
             .Select(stringNormalizer.Normalize)
-            .Order()
+            .OrderBy(a => a.Length)
             .ToArray();
 
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)

@@ -15,6 +15,7 @@ public record VerificationMethodDTO : IRegister
     {
         config.NewConfig<VerificationMethod, VerificationMethodDTO>()
             .Map(dest => dest.Files, src => src.VerificationMethodFiles!.Select(f => f.FileName))
-            .Map(dest => dest.TypeNumbers, src => src.DeviceTypes!.Select(t => t.Number).Order());
+            .Map(dest => dest.TypeNumbers, src => src.DeviceTypes!.Select(t => t.Number).Order())
+            .Map(dest => dest.Aliases, src => src.Aliases!.OrderBy(a => a.Length));
     }
 }

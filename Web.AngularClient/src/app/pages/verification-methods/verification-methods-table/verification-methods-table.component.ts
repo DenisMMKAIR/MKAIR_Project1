@@ -25,6 +25,7 @@ export class VerificationMethodsTableComponent implements OnInit {
   public successMessage: string | null = null;
   public aliasInputs: { [id: string]: string } = {};
   public aliasLoading: { [id: string]: boolean } = {};
+  public deletingMethods: { [id: string]: boolean } = {};
 
   ngOnInit(): void {
     this.verificationMethodsService.setPageChangeCallback(this.key, () => this.loadVerificationMethods());
@@ -35,10 +36,7 @@ export class VerificationMethodsTableComponent implements OnInit {
     this.loading = true;
     this.error = null;
     this.successMessage = null;
-    this.verificationMethodsClient.getVerificationMethods(
-      this.pagination.currentPage,
-      this.pagination.pageSize
-    ).subscribe({
+    this.verificationMethodsClient.getVerificationMethods(this.pagination.currentPage, this.pagination.pageSize).subscribe({
       next: (result) => {
         if (result.data) {
           this.verificationMethods = result.data.items ?? [];
@@ -57,13 +55,9 @@ export class VerificationMethodsTableComponent implements OnInit {
     });
   }
 
-  public get pagination() {
-    return this.verificationMethodsService.getPagination(this.key);
-  }
+  public get pagination() { return this.verificationMethodsService.getPagination(this.key); }
 
-  public reload() {
-    this.loadVerificationMethods();
-  }
+  public reload() { this.loadVerificationMethods(); }
 
   public downloadFile(methodId: string, fileName: string) {
     this.verificationMethodsClient.downloadFile(fileName).subscribe({
@@ -79,11 +73,7 @@ export class VerificationMethodsTableComponent implements OnInit {
       error: (err) => {
         const msg = err?.error?.message || err?.message || '';
         this.error = 'Ошибка загрузки файла: ' + msg;
-        
-        // Clear error message after 5 seconds
-        setTimeout(() => {
-          this.error = null;
-        }, 5000);
+        setTimeout(() => { this.error = null; }, 5000);
       },
     });
   }
@@ -95,20 +85,12 @@ export class VerificationMethodsTableComponent implements OnInit {
       this.aliasLoading[methodId] = true;
       this.error = null;
       this.successMessage = null;
-      
       this.verificationMethodsClient.addAliases([input], methodId).subscribe({
         next: (result) => {
           this.aliasInputs[methodId] = '';
           this.aliasLoading[methodId] = false;
-          
-          // Show success message
           this.successMessage = result.message || 'Псевдоним успешно добавлен';
-          
-          // Clear success message after 5 seconds
-          setTimeout(() => {
-            this.successMessage = null;
-          }, 5000);
-          
+          setTimeout(() => { this.successMessage = null; }, 5000);
           this.reload();
           this.reloadPossible.emit();
         },
@@ -116,18 +98,33 @@ export class VerificationMethodsTableComponent implements OnInit {
           this.aliasLoading[methodId] = false;
           const msg = err?.error?.message || err?.message || '';
           this.error = 'Ошибка добавления псевдонима: ' + msg;
-          
-          // Clear error message after 5 seconds
-          setTimeout(() => {
-            this.error = null;
-          }, 5000);
+          setTimeout(() => { this.error = null; }, 5000);
         },
       });
     }
   }
 
-  public clearMessages(): void {
+  public deleteVerificationMethod(methodId: string): void {
+    if (this.deletingMethods[methodId]) return;
+    this.deletingMethods[methodId] = true;
     this.error = null;
     this.successMessage = null;
+    this.verificationMethodsClient.deleteVerificationMethod(methodId).subscribe({
+      next: (result) => {
+        this.deletingMethods[methodId] = false;
+        this.successMessage = result.message || 'Метод поверки успешно удален';
+        setTimeout(() => { this.successMessage = null; }, 5000);
+        this.reload();
+        this.reloadPossible.emit();
+      },
+      error: (err) => {
+        this.deletingMethods[methodId] = false;
+        const msg = err?.error?.error || err?.error?.message || err?.message || '';
+        this.error = 'Ошибка удаления метода поверки: ' + msg;
+        setTimeout(() => { this.error = null; }, 5000);
+      },
+    });
   }
+
+  public clearMessages(): void { this.error = null; this.successMessage = null; }
 } 

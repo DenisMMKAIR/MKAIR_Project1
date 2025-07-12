@@ -1,50 +1,82 @@
-<form [formGroup]="form" (ngSubmit)="submit()" class="add-verification-method-form">
+<div [formGroup]="form" class="add-verification-method-form">
+  <div class="single-row-form">
+    <!-- Temporarily disabled file upload
+    <div class="form-group file-upload-group">
+      <label for="fileInput">Файл (опционально)</label>
+      <div class="file-upload-container">
+        <input 
+          type="file" 
+          id="fileInput"
+          (change)="onFileChange($event)" 
+          accept="application/pdf,.pdf,.doc,.docx,.xls,.xlsx"
+          class="file-input-hidden"
+        />
+        <label for="fileInput" class="file-upload-button">
+          <span>Загрузить</span>
+        </label>
+        <div *ngIf="file" class="file-info">
+          <span class="file-name">{{ file.name }}</span>
+          <button type="button" class="remove-file-btn" (click)="removeFile()" [disabled]="loading">
+            ×
+          </button>
+        </div>
+      </div>
+    </div>
+    -->
+
+    <div class="form-group">
+      <label for="description">Описание</label>
+      <input id="description" type="text" formControlName="description" autocomplete="off" />
+    </div>
+
+    <div class="form-group">
+      <label for="aliasInput">Псевдонимы</label>
+      <div class="alias-input-row">
+        <input id="aliasInput" type="text" placeholder="Введите псевдоним" autocomplete="off" formControlName="aliasInput" />
+        <button type="button" (click)="addAlias()" [disabled]="!aliasInputValue.trim()">Добавить</button>
+      </div>
+    </div>
+
+    <div class="form-group submit-group">
+      <label style="visibility: hidden">&nbsp;</label>
+      <button type="button" (click)="submit()" [disabled]="!isFormValid">
+        {{ loading ? 'Добавление...' : 'Добавить метод' }}
+      </button>
+    </div>
+  </div>
+
   <div class="tips-row">
     <div class="tips-text">
       Возможные ключи проверок: visual, result, accuracy
     </div>
   </div>
-  <div class="controls-row">
-    <div class="form-row">
-      <label>
-        Описание
-        <input id="description" type="text" formControlName="description" autocomplete="off" />
-      </label>
-      <label>
-        Файл (Опционально)
-        <input id="file" type="file" (change)="onFileChange($event)" accept="application/pdf" />
-      </label>
-      <label>
-        Псевдонимы
-        <div class="alias-row">
-          <input #aliasInput type="text" placeholder="Введите псевдоним" autocomplete="off" (keyup.enter)="addAlias(aliasInput.value); aliasInput.value=''" />
-          <button type="button" (click)="addAlias(aliasInput.value); aliasInput.value=''" [disabled]="!aliasInput.value.trim()">Добавить</button>
-        </div>
-        <div *ngIf="aliases.length" class="alias-list">
-          <span *ngFor="let aliasCtrl of aliases.controls; let i = index" class="alias-item">
-            {{ aliasCtrl.value }}
-            <button type="button" (click)="removeAlias(i)">×</button>
-          </span>
-        </div>
-      </label>
-      <label>
-        Проверки
-        <div class="checkup-row">
-          <input #checkupKey type="text" placeholder="Ключ" autocomplete="off" />
-          <input #checkupValue type="text" placeholder="Значение" autocomplete="off" />
-          <button type="button" (click)="addCheckup(checkupKey.value, checkupValue.value); checkupKey.value=''; checkupValue.value=''" [disabled]="!checkupKey.value.trim() || !checkupValue.value.trim()">Добавить</button>
-        </div>
-        <div *ngIf="checkups.length" class="checkup-list">
-          <span *ngFor="let checkupCtrl of checkups.controls; let i = index" class="checkup-item">
-            {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value }}
-            <button type="button" (click)="removeCheckup(i)">×</button>
-          </span>
-        </div>
-      </label>
-      <div class="form-block submit-block">
-        <button type="submit" [disabled]="form.invalid || loading">Добавить метод</button>
+
+  <div class="single-row-form">
+    <div class="form-group">
+      <label for="checkupKey">Проверки</label>
+      <div class="checkup-input-row">
+        <input id="checkupKey" type="text" placeholder="Ключ" autocomplete="off" formControlName="checkupKey" />
+        <input id="checkupValue" type="text" placeholder="Значение" autocomplete="off" formControlName="checkupValue" />
+        <button type="button" (click)="addCheckup()" [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim()">Добавить</button>
       </div>
     </div>
   </div>
-  <div class="result-message" [ngClass]="{'success': result === 'Метод успешно добавлен', 'error': result && result !== 'Метод успешно добавлен'}" *ngIf="result">{{ result }}</div>
-</form> 
+
+  <div *ngIf="aliases.length" class="alias-list">
+    <span *ngFor="let aliasCtrl of aliases.controls; let i = index" class="alias-item">
+      {{ aliasCtrl.value }}
+      <button type="button" (click)="removeAlias(i)">×</button>
+    </span>
+  </div>
+
+  <div *ngIf="checkups.length" class="checkup-list">
+    <span *ngFor="let checkupCtrl of checkups.controls; let i = index" class="checkup-item">
+      {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value }}
+      <button type="button" (click)="removeCheckup(i)">×</button>
+    </span>
+  </div>
+</div>
+
+<div *ngIf="result" class="result-message" [ngClass]="{'success': result === 'Метод успешно добавлен', 'error': result !== 'Метод успешно добавлен'}">
+  {{ result }}
+</div> 

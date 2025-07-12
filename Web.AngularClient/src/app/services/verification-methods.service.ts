@@ -3,6 +3,13 @@ import { Pagination, IPaginationData } from '../shared/pagination';
 
 type TableKey = 'verification' | 'possible';
 
+interface AddVerificationMethodFormData {
+  description: string;
+  aliasInput: string;
+  checkupKey: string;
+  checkupValue: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class VerificationMethodsService {
   private paginations: Record<TableKey, Pagination> = {
@@ -22,6 +29,13 @@ export class VerificationMethodsService {
       yearMonthFilter: '' as string,
       deviceTypeNumberFilter: '' as string,
     },
+  };
+
+  private addVerificationMethodFormData: AddVerificationMethodFormData = {
+    description: '',
+    aliasInput: '',
+    checkupKey: '',
+    checkupValue: '',
   };
 
   public setPageChangeCallback(key: TableKey, callback: () => void): void {
@@ -75,5 +89,23 @@ export class VerificationMethodsService {
     this.filters[key].deviceTypeInfoFilter = null;
     this.filters[key].yearMonthFilter = '';
     this.filters[key].deviceTypeNumberFilter = '';
+  }
+
+  // Add verification method form data persistence
+  public getAddVerificationMethodFormData(): AddVerificationMethodFormData {
+    return { ...this.addVerificationMethodFormData };
+  }
+
+  public setAddVerificationMethodFormData(data: Partial<AddVerificationMethodFormData>): void {
+    this.addVerificationMethodFormData = { ...this.addVerificationMethodFormData, ...data };
+  }
+
+  public clearAddVerificationMethodFormData(): void {
+    this.addVerificationMethodFormData = {
+      description: '',
+      aliasInput: '',
+      checkupKey: '',
+      checkupValue: '',
+    };
   }
 } 

@@ -20,7 +20,7 @@ public class PossibleVerificationMethodDTO : IRegister
             .Map(dest => dest.DeviceTypeInfo, src => src.First().DeviceTypeInfo)
             .Map(dest => dest.VerificationMethodId, src => src.First().VerificationMethodId)
             .Map(dest => dest.DeviceModifications, src => src.Select(d => d.DeviceModification).Distinct().Order())
-            .Map(dest => dest.VerificationTypeNames, src => src.Select(dto => dto.VerificationTypeName).Distinct().Order())
+            .Map(dest => dest.VerificationTypeNames, src => src.Select(dto => dto.VerificationTypeName).Distinct().OrderBy(a => a.Length))
             .Map(dest => dest.Dates, src => src.Select(dto => (YearMonth)dto.VerificationDate).Distinct().Order());
     }
 }

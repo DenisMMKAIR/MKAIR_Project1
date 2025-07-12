@@ -623,45 +623,16 @@
         ],
         "operationId": "VerificationMethods_AddVerificationMethod",
         "requestBody": {
+          "x-name": "request",
           "content": {
-            "multipart/form-data": {
+            "application/json": {
               "schema": {
-                "type": "object",
-                "properties": {
-                  "FileName": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "File": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  },
-                  "Description": {
-                    "type": "string",
-                    "nullable": true
-                  },
-                  "Aliases": {
-                    "type": "array",
-                    "nullable": true,
-                    "items": {
-                      "type": "string"
-                    }
-                  },
-                  "Checkups": {
-                    "type": "object",
-                    "nullable": true,
-                    "x-dictionaryKey": {
-                      "$ref": "#/components/schemas/VerificationMethodCheckups"
-                    },
-                    "additionalProperties": {
-                      "type": "string"
-                    }
-                  }
-                }
+                "$ref": "#/components/schemas/AddVerificationMethodRequest"
               }
             }
-          }
+          },
+          "required": true,
+          "x-position": 1
         },
         "responses": {
           "200": {
@@ -704,6 +675,37 @@
             }
           }
         },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/VerificationMethods/DeleteVerificationMethod": {
+      "delete": {
+        "tags": [
+          "VerificationMethods"
+        ],
+        "operationId": "VerificationMethods_DeleteVerificationMethod",
+        "parameters": [
+          {
+            "name": "verificationMethodId",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "format": "guid"
+            },
+            "x-position": 1
+          }
+        ],
         "responses": {
           "200": {
             "description": "",
@@ -1162,6 +1164,14 @@
                 "format": "guid",
                 "nullable": true
               },
+              "protocolTemplate": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ProtocolTemplate"
+                  }
+                ]
+              },
               "verificationMethodFiles": {
                 "type": "array",
                 "nullable": true,
@@ -1194,6 +1204,67 @@
           "accuracy"
         ]
       },
+      "ProtocolTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "verificationGroup": {
+                "$ref": "#/components/schemas/VerificationGroup"
+              },
+              "protocolGroup": {
+                "$ref": "#/components/schemas/ProtocolGroup"
+              },
+              "verificationMethods": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VerificationMethod"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VerificationGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
+      },
+      "ProtocolGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометр1"
+        ],
+        "enum": [
+          "Манометр1"
+        ]
+      },
+      "DatabaseEntity": {
+        "type": "object",
+        "x-abstract": true,
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          }
+        }
+      },
       "VerificationMethodFile": {
         "allOf": [
           {
@@ -1216,17 +1287,6 @@
             }
           }
         ]
-      },
-      "DatabaseEntity": {
-        "type": "object",
-        "x-abstract": true,
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          }
-        }
       },
       "ServiceResult": {
         "type": "object",
@@ -1470,30 +1530,6 @@
           }
         }
       },
-      "ProtocolGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометр1"
-        ],
-        "enum": [
-          "Манометр1"
-        ]
-      },
-      "VerificationGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ],
-        "enum": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ]
-      },
       "ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -1728,6 +1764,30 @@
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/YearMonth"
+            }
+          }
+        }
+      },
+      "AddVerificationMethodRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "aliases": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "checkups": {
+            "type": "object",
+            "x-dictionaryKey": {
+              "$ref": "#/components/schemas/VerificationMethodCheckups"
+            },
+            "additionalProperties": {
+              "type": "string"
             }
           }
         }

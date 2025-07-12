@@ -924,27 +924,18 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
-    addVerificationMethod(fileName: string | null | undefined, file: FileParameter | null | undefined, description: string | null | undefined, aliases: string[] | null | undefined, checkups: { [key in keyof typeof VerificationMethodCheckups]?: string; } | null | undefined): Observable<ServiceResult> {
+    addVerificationMethod(request: AddVerificationMethodRequest): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/VerificationMethods/AddVerificationMethod";
         url_ = url_.replace(/[?&]$/, "");
 
-        const content_ = new FormData();
-        if (fileName !== null && fileName !== undefined)
-            content_.append("FileName", fileName.toString());
-        if (file !== null && file !== undefined)
-            content_.append("File", file.data, file.fileName ? file.fileName : "File");
-        if (description !== null && description !== undefined)
-            content_.append("Description", description.toString());
-        if (aliases !== null && aliases !== undefined)
-            aliases.forEach(item_ => content_.append("Aliases", item_.toString()));
-        if (checkups !== null && checkups !== undefined)
-            content_.append("Checkups", JSON.stringify(checkups));
+        const content_ = JSON.stringify(request);
 
         let options_ : any = {
             body: content_,
             observe: "response",
             responseType: "blob",
             headers: new HttpHeaders({
+                "Content-Type": "application/json",
                 "Accept": "application/json"
             })
         };
@@ -1021,6 +1012,58 @@ export class VerificationMethodsClient {
     }
 
     protected processAddAliases(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    deleteVerificationMethod(verificationMethodId: string | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/VerificationMethods/DeleteVerificationMethod?";
+        if (verificationMethodId === null)
+            throw new Error("The parameter 'verificationMethodId' cannot be null.");
+        else if (verificationMethodId !== undefined)
+            url_ += "verificationMethodId=" + encodeURIComponent("" + verificationMethodId) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("delete", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteVerificationMethod(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteVerificationMethod(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processDeleteVerificationMethod(response: HttpResponseBase): Observable<ServiceResult> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1569,6 +1612,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
     description?: string;
     checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     protocolTemplateId?: string | undefined;
+    protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
     deviceTypes?: DeviceType[] | undefined;
 
@@ -1593,6 +1637,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
                 }
             }
             this.protocolTemplateId = _data["protocolTemplateId"];
+            this.protocolTemplate = _data["protocolTemplate"] ? ProtocolTemplate.fromJS(_data["protocolTemplate"]) : <any>undefined;
             if (Array.isArray(_data["verificationMethodFiles"])) {
                 this.verificationMethodFiles = [] as any;
                 for (let item of _data["verificationMethodFiles"])
@@ -1629,6 +1674,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
             }
         }
         data["protocolTemplateId"] = this.protocolTemplateId;
+        data["protocolTemplate"] = this.protocolTemplate ? this.protocolTemplate.toJSON() : <any>undefined;
         if (Array.isArray(this.verificationMethodFiles)) {
             data["verificationMethodFiles"] = [];
             for (let item of this.verificationMethodFiles)
@@ -1649,6 +1695,7 @@ export interface IVerificationMethod extends IDatabaseEntity {
     description?: string;
     checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     protocolTemplateId?: string | undefined;
+    protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
     deviceTypes?: DeviceType[] | undefined;
 }
@@ -1657,6 +1704,65 @@ export enum VerificationMethodCheckups {
     Visual = "visual",
     Result = "result",
     Accuracy = "accuracy",
+}
+
+export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {
+    verificationGroup?: VerificationGroup;
+    protocolGroup?: ProtocolGroup;
+    verificationMethods?: VerificationMethod[] | undefined;
+
+    constructor(data?: IProtocolTemplate) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.verificationGroup = _data["verificationGroup"];
+            this.protocolGroup = _data["protocolGroup"];
+            if (Array.isArray(_data["verificationMethods"])) {
+                this.verificationMethods = [] as any;
+                for (let item of _data["verificationMethods"])
+                    this.verificationMethods!.push(VerificationMethod.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): ProtocolTemplate {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProtocolTemplate();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["verificationGroup"] = this.verificationGroup;
+        data["protocolGroup"] = this.protocolGroup;
+        if (Array.isArray(this.verificationMethods)) {
+            data["verificationMethods"] = [];
+            for (let item of this.verificationMethods)
+                data["verificationMethods"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IProtocolTemplate extends IDatabaseEntity {
+    verificationGroup?: VerificationGroup;
+    protocolGroup?: ProtocolGroup;
+    verificationMethods?: VerificationMethod[] | undefined;
+}
+
+export enum VerificationGroup {
+    Манометры = "Манометры",
+    Датчики_давления = "Датчики_давления",
+    Термометры_биметаллические = "Термометры_биметаллические",
+}
+
+export enum ProtocolGroup {
+    Манометр1 = "Манометр1",
 }
 
 export class VerificationMethodFile extends DatabaseEntity implements IVerificationMethodFile {
@@ -2230,16 +2336,6 @@ export interface IProtocolTemplateDTO {
     verificationMethodsAliases?: string[];
 }
 
-export enum ProtocolGroup {
-    Манометр1 = "Манометр1",
-}
-
-export enum VerificationGroup {
-    Манометры = "Манометры",
-    Датчики_давления = "Датчики_давления",
-    Термометры_биметаллические = "Термометры_биметаллические",
-}
-
 export class ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO implements IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
     message?: string | undefined;
     error?: string | undefined;
@@ -2762,6 +2858,70 @@ export interface IPossibleVerificationMethodDTO {
     deviceModifications?: string[];
     verificationTypeNames?: string[];
     dates?: YearMonth[];
+}
+
+export class AddVerificationMethodRequest implements IAddVerificationMethodRequest {
+    description?: string;
+    aliases?: string[];
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+
+    constructor(data?: IAddVerificationMethodRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.description = _data["description"];
+            if (Array.isArray(_data["aliases"])) {
+                this.aliases = [] as any;
+                for (let item of _data["aliases"])
+                    this.aliases!.push(item);
+            }
+            if (_data["checkups"]) {
+                this.checkups = {} as any;
+                for (let key in _data["checkups"]) {
+                    if (_data["checkups"].hasOwnProperty(key))
+                        (<any>this.checkups)![key] = _data["checkups"][key];
+                }
+            }
+        }
+    }
+
+    static fromJS(data: any): AddVerificationMethodRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new AddVerificationMethodRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["description"] = this.description;
+        if (Array.isArray(this.aliases)) {
+            data["aliases"] = [];
+            for (let item of this.aliases)
+                data["aliases"].push(item);
+        }
+        if (this.checkups) {
+            data["checkups"] = {};
+            for (let key in this.checkups) {
+                if (this.checkups.hasOwnProperty(key))
+                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+            }
+        }
+        return data;
+    }
+}
+
+export interface IAddVerificationMethodRequest {
+    description?: string;
+    aliases?: string[];
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
 }
 
 export class ServicePaginatedResultOfSuccessInitialVerificationDto implements IServicePaginatedResultOfSuccessInitialVerificationDto {

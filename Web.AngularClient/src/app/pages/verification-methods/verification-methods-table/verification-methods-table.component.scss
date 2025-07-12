@@ -62,4 +62,23 @@
       opacity: 0.8;
     }
   }
+}
+
+.delete-btn {
+  background-color: var(--error-color);
+  color: var(--text-white);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--text-small);
+
+  &:hover:not(:disabled) {
+    background-color: var(--error-color-dark);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
 } 

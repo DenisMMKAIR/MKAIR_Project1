@@ -36,15 +36,23 @@
         <th>Номер типа</th>
         <th>Файлы</th>
         <th>Добавить псевдонимы</th>
+        <th>Действия</th>
       </tr>
     </thead>
     <tbody>
       <tr *ngIf="loading">
-        <td colspan="5" class="loading-message">Загрузка методов поверки...</td>
+        <td colspan="6" class="loading-message">Загрузка методов поверки...</td>
       </tr>
       <tr *ngFor="let m of verificationMethods" [hidden]="loading || error">
         <td>{{ m.description }}</td>
-        <td>{{ m.aliases?.join(', ') || '-' }}</td>
+        <td>
+          <div *ngIf="m.aliases && m.aliases.length > 0">
+            <div *ngFor="let alias of m.aliases">
+              {{ alias }}
+            </div>
+          </div>
+          <span *ngIf="!m.aliases || m.aliases.length === 0">-</span>
+        </td>
         <td>{{ m.typeNumbers?.join(', ') || '-' }}</td>
         <td>
           <ng-container *ngIf="m.files && m.files.length; else noFiles">
@@ -56,6 +64,15 @@
         </td>
         <td>
           <input type="text" [(ngModel)]="aliasInputs[m.id || '']" [ngModelOptions]="{standalone: true}" placeholder="Псевдоним" (keyup.enter)="addAliasOnEnter(m.id || '', $event)" [disabled]="aliasLoading[m.id || '']" [style.background]="aliasLoading[m.id || ''] ? '#f0f0f0' : ''" />
+        </td>
+        <td>
+          <button 
+            type="button" 
+            (click)="deleteVerificationMethod(m.id!)"
+            class="delete-btn"
+            [disabled]="deletingMethods[m.id || '']">
+            {{ deletingMethods[m.id || ''] ? 'Удаление...' : 'Удалить' }}
+          </button>
         </td>
       </tr>
     </tbody>

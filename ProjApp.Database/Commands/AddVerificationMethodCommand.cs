@@ -8,7 +8,7 @@ public class AddVerificationMethodCommand : AddWithUniqConstraintCommand<Verific
 {
     public AddVerificationMethodCommand(ILogger<VerificationMethod> logger,
          ProjDatabase db) :
-         base(logger, db, new VerificationMethodUniqComparer())
+         base(logger, db, VerificationMethodUniqComparer.Instance)
     {
     }
 }
@@ -36,6 +36,8 @@ public class VerificationMethodUniqComparer : IEqualityComparer<VerificationMeth
         }
         return hash.ToHashCode();
     }
+
+    public static VerificationMethodUniqComparer Instance { get; } = new VerificationMethodUniqComparer();
 }
 
 public static class CollectionExtensions
