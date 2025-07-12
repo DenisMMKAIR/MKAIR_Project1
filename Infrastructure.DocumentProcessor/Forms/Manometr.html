@@ -289,20 +289,26 @@
       <span class="line">пригодным</span>/<span>непригодным</span>
       к применению
     </p>
-    <div class="split-15 spread-bottom">
+    <div class="split-15">
       <p>Дата поверки:</p>
       <div>
         <p class="line h-center" id="setValue_verificationDate">28.03.2024</p>
         <p class="undertext">Указывается дата поверки в формате ЧЧ.ММ.ГГГГ.</p>
       </div>
     </div>
-    <br class="spread-botton-large" />
-    <div class="split-15 spread-bottom">
-      <p class="h-left v-center">Поверитель:</p>
-      <div>
-        <div class="line" style="display: flex; justify-content: space-around; margin-top: 20px;">
-          <div class="sign-wrapper">
-            <img alt="ПОДПИСЬ" id="sign" src="большаков с.н. 1.png" />
+    <div class="split-15">
+      <p class="h-left v-bottom" style="padding-bottom: 15px">Поверитель:</p>
+      <div class="sign-wrapper">
+        <div
+          class="line"
+          style="display: flex; justify-content: space-around; margin-top: 60px"
+        >
+          <div>
+            <img alt="ПОДПИСЬ" id="sign" src="тиора в.а. 1.png" />
+            <!-- <img alt="ПОДПИСЬ" id="sign" src="большаков с.н. 1.png" />
+            <img alt="ПОДПИСЬ" id="sign" src="запевахин т.е. 1.png" />
+            <img alt="ПОДПИСЬ" id="sign" src="манджеев а.а. 1.png" />
+            <img alt="ПОДПИСЬ" id="sign" src="чупин а.а. 1.png" /> -->
           </div>
           <p class="v-bottom" id="setValue_worker">Иванов Иван Иванович</p>
         </div>
@@ -453,10 +459,9 @@
     }
     #sign {
       position: absolute;
-      top: 0%;
-      left: 200;
-      transform: translateY(0%);
-      height: 20px;
+      top: 30px; /* 20 - 30 */
+      left: 150px; /* 30 - 150 */
+      height: 33px; /* 31 - 33 */
       width: auto;
     }
   </style>

@@ -6,7 +6,6 @@ using AngleSharp.Html.Dom;
 namespace Infrastructure.DocumentProcessor.Creator;
 
 // TODO: Replace reflection with the source generator
-// TODO: Cache Sings
 internal abstract class DocumentCreatorBase<T>
 {
     private readonly string _fileContent;
@@ -184,9 +183,10 @@ internal abstract class DocumentCreatorBase<T>
         var _ = _signsCache.TryGetValue(key, out var sign);
 
         var imgElement = document.QuerySelector<IHtmlImageElement>("#sign")!;
-        var randomLeft = Random.Shared.Next(0, 200);
-        imgElement.SetAttribute("style", $"position: absolute; top: 50%; transform: translateY(-50%); left: {randomLeft}px; height: 20px; width: auto;");
-
+        var randomTop = Random.Shared.Next(20, 30);
+        var randomLeft = Random.Shared.Next(30, 150);
+        var randomHeight = Random.Shared.Next(31, 33);
+        imgElement.SetAttribute("style", $"top: {randomTop}px; left: {randomLeft}px;height: {randomHeight}px;");
         imgElement.Source = sign;
 
         return null;
