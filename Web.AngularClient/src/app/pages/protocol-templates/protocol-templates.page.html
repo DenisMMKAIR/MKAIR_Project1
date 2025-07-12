@@ -1,3 +1,221 @@
-<h1>Protocol Templates</h1>
+<!-- Add new template form -->
+<div class="add-template-form">
+  <h2>Добавить новый шаблон</h2>
+  <form (ngSubmit)="addTemplate()" #templateForm="ngForm">
+    <div class="form-row">
+      <label>
+        Группа поверки:
+        <select 
+          name="verificationGroup" 
+          [(ngModel)]="newTemplate.verificationGroup" 
+          required>
+          <option value="">Выберите группу поверки</option>
+          <option *ngFor="let group of verificationGroups" [value]="group">
+            {{ getVerificationGroupDisplayName(group) }}
+          </option>
+        </select>
+      </label>
+      
+      <label>
+        Группа протокола:
+        <select 
+          name="protocolGroup" 
+          [(ngModel)]="newTemplate.protocolGroup" 
+          required>
+          <option value="">Выберите группу протокола</option>
+          <option *ngFor="let group of protocolGroups" [value]="group">
+            {{ getProtocolGroupDisplayName(group) }}
+          </option>
+        </select>
+      </label>
+      
+      <button type="submit" [disabled]="addingTemplate || !templateForm.form.valid">
+        {{ addingTemplate ? 'Добавление...' : 'Добавить' }}
+      </button>
+    </div>
+  </form>
+</div>
 
-<div class="error-message">Функциональность шаблонов протоколов временно недоступна</div> 
+<!-- Success message for templates -->
+<div *ngIf="result && result.message" class="success-message">
+  {{ result.message }}
+  <button type="button" class="close-btn" (click)="result = null">×</button>
+</div>
+
+<!-- Error message from result for templates -->
+<div *ngIf="result && result.error" class="error-message">
+  {{ result.error }}
+  <button type="button" class="close-btn" (click)="result = null">×</button>
+</div>
+
+<!-- Error message for templates -->
+<div *ngIf="error" class="error-message">
+  {{ error }}
+  <button type="button" class="close-btn" (click)="error = null">×</button>
+</div>
+
+<!-- Loading message -->
+<div *ngIf="loading" class="loading-message">
+  Загрузка шаблонов протоколов...
+</div>
+
+<!-- Templates table -->
+<div *ngIf="!loading && protocolTemplates.length > 0" class="templates-table">
+  <h2>Существующие шаблоны</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Группа поверки</th>
+        <th>Группа протокола</th>
+        <th>Методы поверки</th>
+        <th>Действия</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let template of protocolTemplates">
+        <td>{{ template.id }}</td>
+        <td>{{ getVerificationGroupDisplayName(template.verificationGroup!) }}</td>
+        <td>{{ getProtocolGroupDisplayName(template.protocolGroup!) }}</td>
+        <td>
+          <span *ngIf="template.verificationMethodsAliases && template.verificationMethodsAliases.length > 0">
+                      <div *ngFor="let alias of template.verificationMethodsAliases">
+            {{ alias }}
+          </div>
+          </span>
+          <span *ngIf="!template.verificationMethodsAliases || template.verificationMethodsAliases.length === 0">
+            Нет методов
+          </span>
+        </td>
+        <td>
+          <button 
+            type="button" 
+            (click)="deleteTemplate(template.id)"
+            class="delete-btn">
+            Удалить
+          </button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- Empty state for templates -->
+<div *ngIf="!loading && protocolTemplates.length === 0" class="empty-state">
+  <p>Шаблоны протоколов не найдены. Добавьте первый шаблон выше.</p>
+</div>
+
+<!-- Pagination for templates -->
+<div *ngIf="!loading && protocolTemplates.length > 0" class="pagination">
+  <button 
+    [disabled]="!pagination.hasPreviousPage" 
+    (click)="pagination.goToPreviousPage()">
+    Предыдущая
+  </button>
+  
+  <span class="page-info">
+    Страница {{ pagination.currentPage }} из {{ pagination.totalPages }}
+    (Всего: {{ pagination.totalCount }})
+  </span>
+  
+  <button 
+    [disabled]="!pagination.hasNextPage" 
+    (click)="pagination.goToNextPage()">
+    Следующая
+  </button>
+</div>
+
+<!-- Possible verification methods section -->
+<div class="possible-methods-section">
+  <h2>Возможные методы поверки для шаблонов</h2>
+  
+  <!-- Success message for methods -->
+  <div *ngIf="methodsResult && methodsResult.message" class="success-message">
+    {{ methodsResult.message }}
+    <button type="button" class="close-btn" (click)="methodsResult = null">×</button>
+  </div>
+
+  <!-- Error message for methods -->
+  <div *ngIf="methodsError" class="error-message">
+    {{ methodsError }}
+    <button type="button" class="close-btn" (click)="methodsError = null">×</button>
+  </div>
+
+  <!-- Error message from result for methods -->
+  <div *ngIf="methodsResult && methodsResult.error" class="error-message">
+    {{ methodsResult.error }}
+    <button type="button" class="close-btn" (click)="methodsResult = null">×</button>
+  </div>
+
+  <!-- Loading message for methods -->
+  <div *ngIf="loadingMethods" class="loading-message">
+    Загрузка возможных методов поверки...
+  </div>
+
+  <!-- Possible methods table -->
+  <div *ngIf="!loadingMethods && possibleMethods.length > 0" class="possible-methods-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Группа протокола</th>
+          <th>Метод поверки</th>
+          <th>Описание</th>
+          <th>Псевдонимы</th>
+          <th>Добавить к шаблону</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let method of possibleMethods">
+          <td>{{ getProtocolGroupDisplayName(method.protocolGroup!) }}</td>
+          <td>{{ method.verificationMethod?.id }}</td>
+          <td>{{ method.verificationMethod?.description }}</td>
+          <td>
+            <span *ngFor="let alias of method.verificationMethod?.aliases; let last = last">
+              {{ alias }}{{ !last ? ', ' : '' }}
+            </span>
+          </td>
+          <td>
+            <select 
+              (change)="onTemplateSelectChange($event, method.verificationMethod?.id!)"
+              class="template-select">
+              <option value="">Выберите шаблон</option>
+              <option 
+                *ngFor="let template of protocolTemplates" 
+                [value]="template.id"
+                [disabled]="isMethodAlreadyInTemplate(template, method.verificationMethod?.id!)">
+                {{ getVerificationGroupDisplayName(template.verificationGroup!) }} - 
+                {{ getProtocolGroupDisplayName(template.protocolGroup!) }}
+                {{ isMethodAlreadyInTemplate(template, method.verificationMethod?.id!) ? ' (уже добавлен)' : '' }}
+              </option>
+            </select>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Empty state for methods -->
+  <div *ngIf="!loadingMethods && possibleMethods.length === 0" class="empty-state">
+    <p>Возможные методы поверки не найдены.</p>
+  </div>
+
+  <!-- Pagination for methods -->
+  <div *ngIf="!loadingMethods && possibleMethods.length > 0" class="pagination">
+    <button 
+      [disabled]="!possibleMethodsPagination.hasPreviousPage" 
+      (click)="possibleMethodsPagination.goToPreviousPage()">
+      Предыдущая
+    </button>
+    
+    <span class="page-info">
+      Страница {{ possibleMethodsPagination.currentPage }} из {{ possibleMethodsPagination.totalPages }}
+      (Всего: {{ possibleMethodsPagination.totalCount }})
+    </span>
+    
+    <button 
+      [disabled]="!possibleMethodsPagination.hasNextPage" 
+      (click)="possibleMethodsPagination.goToNextPage()">
+      Следующая
+    </button>
+  </div>
+</div> 

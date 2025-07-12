@@ -48,33 +48,51 @@ public class ProtocolTemplesService
 
     public async Task<ServiceResult> DeleteProtocolAsync(Guid id)
     {
-        var template = await _database.ProtocolTemplates.FindAsync(id);
+        var template = await _database.ProtocolTemplates
+            .Include(t => t.VerificationMethods)
+            .AsNoTracking()
+            .FirstOrDefaultAsync(t => t.Id == id);
+
         if (template == null) return ServiceResult.Fail("Протокол не найден");
+
+        using var transaction = await _database.Database.BeginTransactionAsync();
+
+        foreach (var verificationMethod in template.VerificationMethods!)
+        {
+            verificationMethod.ProtocolTemplateId = null;
+        }
+
         _database.ProtocolTemplates.Remove(template);
         await _database.SaveChangesAsync();
+        await transaction.CommitAsync();
+
         return ServiceResult.Success("Протокол удален");
     }
 
     public async Task<ServicePaginatedResult<PossibleTemplateVerificationMethodsDTO>> GetPossibleVerificationMethodsAsync(int pageIndex, int pageSize)
     {
         var dtoList = await _database.ProtocolTemplates
-            .SelectMany(template => _database.SuccessInitialVerifications
-                .Where(v => v.VerificationGroup == template.VerificationGroup)
-                .Where(v => v.Device!.DeviceType!.VerificationMethodId != null)
-                .Select(v => v.Device!.DeviceType!.VerificationMethodId!)
-                .Distinct()
-                .Join(
-                    _database.VerificationMethods,
-                    vmId => vmId,
-                    vm => vm.Id,
-                    (vmId, vm) => new PossibleTemplateVerificationMethodsDTO
-                    {
-                        ProtocolGroup = template.ProtocolGroup,
-                        VerificationMethod = vm
-                    }
-                )
+            .SelectMany(template =>
+                _database.SuccessInitialVerifications
+                    .Where(v => v.VerificationGroup == template.VerificationGroup)
+                    .Where(v => v.Device!.DeviceType!.VerificationMethodId != null)
+                    .Select(v => v.Device!.DeviceType!.VerificationMethodId!)
+                    .Distinct()
+                    .Join(
+                        _database.VerificationMethods,
+                        vmId => vmId,
+                        vm => vm.Id,
+                        (vmId, vm) => new PossibleTemplateVerificationMethodsDTO
+                        {
+                            ProtocolId = template.Id,
+                            ProtocolGroup = template.ProtocolGroup,
+                            VerificationMethod = vm
+                        })
             )
+            .Where(dto => dto.VerificationMethod.ProtocolTemplateId != dto.ProtocolId)
             .ToListAsync();
+
+
 
         var result = dtoList.ToPaginated(pageIndex, pageSize);
 
@@ -83,12 +101,19 @@ public class ProtocolTemplesService
 
     public async Task<ServiceResult> AddVerificationMethodAsync(Guid templateId, Guid verificationMethodId)
     {
-        throw new NotImplementedException();
+        var template = await _database.ProtocolTemplates.FindAsync(templateId);
+        if (template == null) return ServiceResult.Fail("Протокол не найден");
+        var verificationMethod = await _database.VerificationMethods.FindAsync(verificationMethodId);
+        if (verificationMethod == null) return ServiceResult.Fail("Методика проверки не найдена");
+        verificationMethod.ProtocolTemplateId = template.Id;
+        await _database.SaveChangesAsync();
+        return ServiceResult.Success("Методика проверки добавлена");
     }
 }
 
 public class PossibleTemplateVerificationMethodsDTO
 {
+    public required Guid ProtocolId { get; init; }
     public required ProtocolGroup ProtocolGroup { get; init; }
     public required VerificationMethod VerificationMethod { get; init; }
 }

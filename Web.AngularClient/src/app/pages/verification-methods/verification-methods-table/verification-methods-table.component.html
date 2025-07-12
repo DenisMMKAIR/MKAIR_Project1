@@ -1,4 +1,16 @@
 <div class="table-container">
+  <!-- Success message -->
+  <div *ngIf="successMessage" class="success-message">
+    {{ successMessage }}
+    <button type="button" class="close-btn" (click)="successMessage = null">×</button>
+  </div>
+
+  <!-- Error message -->
+  <div *ngIf="error" class="error-message">
+    {{ error }}
+    <button type="button" class="close-btn" (click)="error = null">×</button>
+  </div>
+
   <div class="pagination-controls">
     <div class="selector-form">
       <label for="pageSize">Записей на странице:</label>
@@ -29,9 +41,6 @@
     <tbody>
       <tr *ngIf="loading">
         <td colspan="5" class="loading-message">Загрузка методов поверки...</td>
-      </tr>
-      <tr *ngIf="error && !loading">
-        <td colspan="5" class="error-message">{{ error }}</td>
       </tr>
       <tr *ngFor="let m of verificationMethods" [hidden]="loading || error">
         <td>{{ m.description }}</td>

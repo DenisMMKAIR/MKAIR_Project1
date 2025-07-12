@@ -22,6 +22,7 @@ export class VerificationMethodsTableComponent implements OnInit {
   public verificationMethods: VerificationMethodDTO[] = [];
   public loading = false;
   public error: string | null = null;
+  public successMessage: string | null = null;
   public aliasInputs: { [id: string]: string } = {};
   public aliasLoading: { [id: string]: boolean } = {};
 
@@ -33,6 +34,7 @@ export class VerificationMethodsTableComponent implements OnInit {
   public loadVerificationMethods(): void {
     this.loading = true;
     this.error = null;
+    this.successMessage = null;
     this.verificationMethodsClient.getVerificationMethods(
       this.pagination.currentPage,
       this.pagination.pageSize
@@ -75,7 +77,13 @@ export class VerificationMethodsTableComponent implements OnInit {
         window.URL.revokeObjectURL(url);
       },
       error: (err) => {
-        alert('Ошибка загрузки файла: ' + (err?.error?.message || err?.message || ''));
+        const msg = err?.error?.message || err?.message || '';
+        this.error = 'Ошибка загрузки файла: ' + msg;
+        
+        // Clear error message after 5 seconds
+        setTimeout(() => {
+          this.error = null;
+        }, 5000);
       },
     });
   }
@@ -85,18 +93,41 @@ export class VerificationMethodsTableComponent implements OnInit {
       const input = (this.aliasInputs[methodId] || '').trim();
       if (!input || this.aliasLoading[methodId]) return;
       this.aliasLoading[methodId] = true;
+      this.error = null;
+      this.successMessage = null;
+      
       this.verificationMethodsClient.addAliases([input], methodId).subscribe({
-        next: () => {
+        next: (result) => {
           this.aliasInputs[methodId] = '';
           this.aliasLoading[methodId] = false;
+          
+          // Show success message
+          this.successMessage = result.message || 'Псевдоним успешно добавлен';
+          
+          // Clear success message after 5 seconds
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 5000);
+          
           this.reload();
           this.reloadPossible.emit();
         },
         error: (err) => {
           this.aliasLoading[methodId] = false;
-          alert('Ошибка добавления псевдонима: ' + (err?.error?.message || err?.message || ''));
+          const msg = err?.error?.message || err?.message || '';
+          this.error = 'Ошибка добавления псевдонима: ' + msg;
+          
+          // Clear error message after 5 seconds
+          setTimeout(() => {
+            this.error = null;
+          }, 5000);
         },
       });
     }
+  }
+
+  public clearMessages(): void {
+    this.error = null;
+    this.successMessage = null;
   }
 } 
