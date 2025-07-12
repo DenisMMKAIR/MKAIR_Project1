@@ -3,6 +3,7 @@ using System.Text.RegularExpressions;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
@@ -138,11 +139,12 @@ public partial class VerificationMethodsService
             .OrderBy(a => a.Length)
             .ToArray();
 
+        using var transaction = await _database.Database.BeginTransactionAsync();
+        var (deviceTypeCount, newAliasesCount) = await AddAllDevicesAsync(m, stringNormalizer, transaction);
         await _database.SaveChangesAsync();
+        await transaction.CommitAsync();
 
-        var (deviceTypeCount, newAliasesCount) = await AddAllDevicesAsync(m, stringNormalizer);
-
-        return ServiceResult.Success($"Псевдонимы добавлены: {newAliases.Length + newAliasesCount}. Устройства присвоены: {deviceTypeCount}.");
+        return ServiceResult.Success($"Псевдонимы добавлены: {newAliases.Length}. Устройства присвоены: {deviceTypeCount}.");
     }
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
@@ -193,16 +195,21 @@ public partial class VerificationMethodsService
             }
         }
 
-        var result = await _addCommand.ExecuteAsync(verificationMethod);
+        using var transaction = await _database.Database.BeginTransactionAsync();
+
+        var result = await _addCommand.ExecuteAsync([verificationMethod], transaction);
+
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Метод поверки с псевдонимом уже существует");
 
-        var (deviceTypesCount, newAliasesCount) = await AddAllDevicesAsync(verificationMethod, stringNormalizer);
+        var (deviceTypesCount, newAliasesCount) = await AddAllDevicesAsync(verificationMethod, stringNormalizer, transaction);
 
-        return ServiceResult.Success($"Метод поверки добавлен. Присвоен устройствам {deviceTypesCount}. Добавлены псевдонимов {newAliasesCount}");
+        await transaction.CommitAsync();
+
+        return ServiceResult.Success($"Метод поверки добавлен. Присвоен устройствам {deviceTypesCount}");
     }
 
-    private async Task<(int, int)> AddAllDevicesAsync(VerificationMethod verificationMethod, ComplexStringNormalizer stringNormalizer)
+    private async Task<(int deviceTypesCount, int newAliasesCount)> AddAllDevicesAsync(VerificationMethod verificationMethod, ComplexStringNormalizer stringNormalizer, IDbContextTransaction? transaction)
     {
         int deviceTypesCount = 0, newAliasesCount = 0;
 
@@ -233,7 +240,7 @@ public partial class VerificationMethodsService
                 .Where(dt => dtos.Any(dto => dto.DeviceTypeNumber == dt.Number))
                 .ToArray();
 
-            foreach (var deviceType in deviceTypes) deviceType.VerificationMethodId = verificationMethod.Id;
+            foreach (var deviceType in deviceTypes) deviceType.VerificationMethod = verificationMethod;
 
             var newAliases = dtos
                 .SelectMany(dto => dto.VerificationTypeNames)
@@ -249,10 +256,10 @@ public partial class VerificationMethodsService
 
             if (deviceTypes.Length == 0 && newAliases.Length == 0) break;
 
-            await _database.SaveChangesAsync();
-
             deviceTypesCount += deviceTypes.Length;
             newAliasesCount += newAliases.Length;
+
+            await _database.SaveChangesAsync();
         }
 
         return (deviceTypesCount, newAliasesCount);
