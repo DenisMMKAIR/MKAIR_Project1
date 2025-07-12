@@ -18,7 +18,7 @@ internal static class Manometr1Calculations
         {
             Address = MKAIRInfo.GetAddress(v.VerificationDate),
             ProtocolNumber = v.ProtocolNumber!,
-            DeviceTypeName = v.DeviceTypeNumber,
+            DeviceTypeName = $"{v.Device.DeviceType.Title} {v.Device.DeviceType.Notation}",
             DeviceModification = v.Device!.Modification,
             DeviceTypeNumber = v.DeviceTypeNumber,
             DeviceSerial = v.DeviceSerial,
@@ -64,7 +64,7 @@ internal static class Manometr1Calculations
 
     private static void CalculateValues(ILogger logger, Manometr1Verification newVrf)
     {
-        var magicValues = new[] { 4, 8, 12, 16, 20, 24, 28, 32 };
+        var magicValues = new double[] { 4, 8, 12, 16, 20, 24, 28, 32 };
 
         var min = newVrf.MeasurementMin;
         var max = newVrf.MeasurementMax;
