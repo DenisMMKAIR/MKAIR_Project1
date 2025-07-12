@@ -44,20 +44,16 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         IReadOnlyList<Etalon> uniqEtalons = [.. items.SelectMany(x => x.Etalons!).Distinct(etalonsUniqComparer)];
         var savedEtalons = await _addEtalonCommand.ExecuteAsync(uniqEtalons, parentTransaction);
 
-        var uniqComparer = new VerificationUniqComparer();
-
         // TODO: Possible problem. With this logic we wont return item if it already exists, unlike
         // another commands
         var vrfDB = _database.SuccessInitialVerifications
                          .AsEnumerable<IVerificationBase>()
-                         .Union(_database.FailedInitialVerifications
-                                         .AsEnumerable())
-                         .Union(_database.SuccessVerifications
-                                         .AsEnumerable())
-                         .Union(_database.FailedVerifications
-                                         .AsEnumerable());
+                         .Union(_database.FailedInitialVerifications)
+                         .Union(_database.SuccessVerifications)
+                         .Union(_database.FailedVerifications)
+                         .Union(_database.Manometr1Verifications);
 
-        items = items.Except(vrfDB, uniqComparer).Cast<T>().ToArray();
+        items = items.Except(vrfDB, VerificationUniqComparer.Instance).Cast<T>().ToArray();
         var nameNormalizer = new ComplexStringNormalizer();
 
         foreach (var item in items)
