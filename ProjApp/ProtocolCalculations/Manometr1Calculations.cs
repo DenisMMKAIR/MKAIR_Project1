@@ -30,9 +30,9 @@ internal static class Manometr1Calculations
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
             Pressure = v.Pressure!,
-            VerificationVisualCheckup = method.Checkups[VerificationMethodCheckups.visual],
-            VerificationResultCheckup = method.Checkups[VerificationMethodCheckups.result],
-            VerificationAccuracyCheckup = method.Checkups[VerificationMethodCheckups.accuracy],
+            VerificationVisualCheckup = method.Checkups[VerificationMethodCheckups.внешний_осмотр],
+            VerificationResultCheckup = method.Checkups[VerificationMethodCheckups.результат_опробывания],
+            VerificationAccuracyCheckup = method.Checkups[VerificationMethodCheckups.опр_осн_поргрешности],
             VerificationDate = v.VerificationDate,
             Worker = v.Worker!,
 

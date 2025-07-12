@@ -1701,9 +1701,9 @@ export interface IVerificationMethod extends IDatabaseEntity {
 }
 
 export enum VerificationMethodCheckups {
-    Visual = "visual",
-    Result = "result",
-    Accuracy = "accuracy",
+    Внешний_осмотр = "внешний_осмотр",
+    Результат_опробывания = "результат_опробывания",
+    Опр_осн_поргрешности = "опр_осн_поргрешности",
 }
 
 export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {

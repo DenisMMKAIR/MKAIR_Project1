@@ -2,7 +2,7 @@ import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import { VerificationMethodsClient, AddVerificationMethodRequest } from '../../../api-client';
+import { VerificationMethodsClient, AddVerificationMethodRequest, VerificationMethodCheckups } from '../../../api-client';
 import { VerificationMethodsService } from '../../../services/verification-methods.service';
 
 interface CheckupItem {
@@ -46,6 +46,7 @@ export class AddVerificationMethodComponent implements OnDestroy {
   loading = false;
   result: string | null = null;
   file: File | null = null;
+  checkupKeys = Object.values(VerificationMethodCheckups);
 
   private readonly destroy$ = new Subject<void>();
 

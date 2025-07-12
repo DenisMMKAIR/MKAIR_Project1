@@ -1194,14 +1194,14 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "visual",
-          "result",
-          "accuracy"
+          "внешний_осмотр",
+          "результат_опробывания",
+          "опр_осн_поргрешности"
         ],
         "enum": [
-          "visual",
-          "result",
-          "accuracy"
+          "внешний_осмотр",
+          "результат_опробывания",
+          "опр_осн_поргрешности"
         ]
       },
       "ProtocolTemplate": {

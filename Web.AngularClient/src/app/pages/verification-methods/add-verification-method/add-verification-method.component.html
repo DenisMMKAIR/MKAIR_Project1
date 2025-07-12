@@ -45,17 +45,14 @@
     </div>
   </div>
 
-  <div class="tips-row">
-    <div class="tips-text">
-      Возможные ключи проверок: visual, result, accuracy
-    </div>
-  </div>
-
   <div class="single-row-form">
     <div class="form-group">
       <label for="checkupKey">Проверки</label>
       <div class="checkup-input-row">
-        <input id="checkupKey" type="text" placeholder="Ключ" autocomplete="off" formControlName="checkupKey" />
+        <select id="checkupKey" formControlName="checkupKey">
+          <option value="">Выберите ключ проверки</option>
+          <option *ngFor="let key of checkupKeys" [value]="key">{{ key }}</option>
+        </select>
         <input id="checkupValue" type="text" placeholder="Значение" autocomplete="off" formControlName="checkupValue" />
         <button type="button" (click)="addCheckup()" [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim()">Добавить</button>
       </div>

@@ -5,7 +5,7 @@ namespace ProjApp.Database.EntitiesStatic;
 [JsonConverter(typeof(JsonStringEnumConverter))]
 public enum VerificationMethodCheckups
 {
-    visual,
-    result,
-    accuracy
+    внешний_осмотр,
+    результат_опробывания,
+    опр_осн_поргрешности
 }
