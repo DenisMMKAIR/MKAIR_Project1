@@ -69,6 +69,21 @@ public class ProtocolTemplesService
         return ServiceResult.Success("Протокол удален");
     }
 
+    public async Task<ServiceResult> AddVerificationMethodAsync(Guid templateId, Guid verificationMethodId)
+    {
+        var template = await _database.ProtocolTemplates.FindAsync(templateId);
+        if (template == null) return ServiceResult.Fail("Протокол не найден");
+
+        var verificationMethod = await _database.VerificationMethods.FindAsync(verificationMethodId);
+        if (verificationMethod == null) return ServiceResult.Fail("Методика проверки не найдена");
+
+        verificationMethod.ProtocolTemplateId = template.Id;
+        await _database.SaveChangesAsync();
+        _keeper.Signal(BackgroundEvents.ChangedProtocolTemplate);
+
+        return ServiceResult.Success("Методика проверки добавлена");
+    }
+
     public async Task<ServicePaginatedResult<PossibleTemplateVerificationMethodsDTO>> GetPossibleVerificationMethodsAsync(int pageIndex, int pageSize)
     {
         var dtoList = await _database.ProtocolTemplates
@@ -97,17 +112,6 @@ public class ProtocolTemplesService
         var result = dtoList.ToPaginated(pageIndex, pageSize);
 
         return ServicePaginatedResult<PossibleTemplateVerificationMethodsDTO>.Success(result);
-    }
-
-    public async Task<ServiceResult> AddVerificationMethodAsync(Guid templateId, Guid verificationMethodId)
-    {
-        var template = await _database.ProtocolTemplates.FindAsync(templateId);
-        if (template == null) return ServiceResult.Fail("Протокол не найден");
-        var verificationMethod = await _database.VerificationMethods.FindAsync(verificationMethodId);
-        if (verificationMethod == null) return ServiceResult.Fail("Методика проверки не найдена");
-        verificationMethod.ProtocolTemplateId = template.Id;
-        await _database.SaveChangesAsync();
-        return ServiceResult.Success("Методика проверки добавлена");
     }
 }
 

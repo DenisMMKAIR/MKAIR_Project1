@@ -10,6 +10,7 @@ public class VerificationMethod : DatabaseEntity
 
     // Navigation properties
     public Guid? ProtocolTemplateId { get; set; }
+    public ProtocolTemplate? ProtocolTemplate { get; set; }
     public ICollection<VerificationMethodFile>? VerificationMethodFiles { get; set; }
     public ICollection<DeviceType>? DeviceTypes { get; set; }
 }

@@ -5,7 +5,7 @@ using IAppConfig = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Infrastructure.DocumentProcessor.Services;
 
-public class TemplateProcessor : ITemplateProcessor, IAsyncDisposable
+public class TemplateProcessor : ITemplateProcessor
 {
     private readonly Dictionary<string, string> _signsCache = [];
     private readonly PDFExporter _exporter = new();
@@ -18,13 +18,13 @@ public class TemplateProcessor : ITemplateProcessor, IAsyncDisposable
         var signsDirPath = configuration["SignsDirPath"] ??
             throw new ArgumentNullException(nameof(configuration), "Директория подписей не задана в настройках");
 
-        _protocoolsDirPath = configuration["ProtocolsDirPath"] ??
+        _protocoolsDirPath = configuration["ProtocolsExportDirPath"] ??
             throw new ArgumentNullException(nameof(configuration), "Директория протоколов не задана в настройках");
 
         _manDocCreator = new(_signsCache, signsDirPath);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(ProtocolTemplate template, Manometr1Verification verification)
+    public async Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification)
     {
         var result = await _manDocCreator.CreateAsync(verification);
 
@@ -33,7 +33,7 @@ public class TemplateProcessor : ITemplateProcessor, IAsyncDisposable
         var dirPath = Path.Combine(
             _protocoolsDirPath,
             verification.Location.ToString(),
-            template.VerificationGroup.ToString(),
+            verification.VerificationGroup.ToString(),
             verification.VerificationDate.ToString("yyyy-MM"));
 
         if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
@@ -57,5 +57,6 @@ public class TemplateProcessor : ITemplateProcessor, IAsyncDisposable
         if (_disposed) return;
         _disposed = true;
         await _exporter.DisposeAsync();
+        GC.SuppressFinalize(this);
     }
 }

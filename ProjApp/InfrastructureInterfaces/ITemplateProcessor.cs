@@ -2,9 +2,9 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.InfrastructureInterfaces;
 
-public interface ITemplateProcessor
+public interface ITemplateProcessor : IAsyncDisposable
 {
-    Task<PDFCreationResult> CreatePDFAsync(ProtocolTemplate template, Manometr1Verification verification);
+    Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification);
 }
 
 public class PDFCreationResult

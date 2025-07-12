@@ -3,6 +3,7 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
+using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.ProtocolCalculations;
@@ -23,6 +24,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         _serviceScopeFactory = serviceScopeFactory;
         _keeper = eventKeeper;
         SubscribeTo(_keeper, BackgroundEvents.NewProtocolTemplate);
+        SubscribeTo(_keeper, BackgroundEvents.ChangedProtocolTemplate);
         SubscribeTo(_keeper, BackgroundEvents.AddedValuesInitialVerification);
     }
 
@@ -39,73 +41,52 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
 
     protected override async Task ProcessWorkAsync()
     {
-        using var scopre = _serviceScopeFactory.CreateScope();
-        var db = scopre.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var pdfCreator = scopre.ServiceProvider.GetRequiredService<ITemplateProcessor>();
+        await using var scope = _serviceScopeFactory.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
+        var pdfCreator = scope.ServiceProvider.GetRequiredService<ITemplateProcessor>();
 
         await ProcessManometr1Async(db, pdfCreator);
     }
 
     private async Task ProcessManometr1Async(ProjDatabase db, ITemplateProcessor pdfCreator)
     {
-        var protocol = await db.ProtocolTemplates
-            .Include(p => p.VerificationMethods)
-            .FirstAsync(p => p.ProtocolGroup == ProtocolGroup.Манометр1);
-
-        var protocolVerificationMethodIds = protocol.VerificationMethods!
-            .Select(m => m.Id)
-            .ToArray();
-
-        var dbVerifications = db.SuccessInitialVerifications
+        var verifications = await db.SuccessInitialVerifications
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
+                    .ThenInclude(dt => dt!.VerificationMethod)
+                        .ThenInclude(vm => vm!.ProtocolTemplate)
             .Include(v => v.Etalons)
-            .Where(v => v.ProtocolNumber != null &&
-                        v.OwnerINN != null &&
-                        v.Worker != null &&
-                        v.Location != null &&
-                        v.Pressure != null &&
-                        v.Temperature != null &&
-                        v.Humidity != null &&
-                        v.MeasurementMin != null &&
-                        v.MeasurementMax != null &&
-                        v.MeasurementUnit != null &&
-                        v.Accuracy != null &&
-                        v.Device!.DeviceType!.VerificationMethodId != null)
-            .Where(v => protocolVerificationMethodIds.Any(id => id == v.Device!.DeviceType!.VerificationMethodId))
-            .AsEnumerable()
-            .Where(v => protocol.VerificationMethods!.Any(m => m.Aliases.Contains(v.VerificationTypeName)))
-            .ToArray();
+            .VerificationIsFilled()
+            .Where(v => v.Device!.DeviceType!.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1)
+            .ToArrayAsync();
 
-        var dbVerificationMethods = db.VerificationMethods
-            .AsEnumerable()
-            .Where(m => m.Aliases.Any(a => dbVerifications.Any(v => a == v.VerificationTypeName)))
-            .ToArray();
+        if (verifications.Length == 0) return;
 
         var addCount = 0;
         var failedCount = 0;
 
-        foreach (var verification in dbVerifications)
+        foreach (var vrf in verifications)
         {
-            var manometrVerification = Manometr1Calculations.ToManometr1(_logger, verification, dbVerificationMethods);
-
-            var result = await pdfCreator.CreatePDFAsync(protocol, manometrVerification);
+            var manometrVrf = Manometr1Calculations.ToManometr1(_logger, vrf);
+            var result = await pdfCreator.CreatePDFAsync(manometrVrf);
 
             if (result.Error != null)
             {
                 _logger.LogError("Группа {Group}. Поверка {Verification}. Не удалось создать pdf и завершить регистрацию поверки. {Error}",
-                                 verification.VerificationGroup, verification, result.Error);
+                                 manometrVrf.VerificationGroup, manometrVrf, result.Error);
 
                 failedCount++;
                 continue;
             }
 
-            db.SuccessInitialVerifications.Remove(verification);
-            db.Manometr1Verifications.Add(manometrVerification);
+            db.SuccessInitialVerifications.Remove(vrf);
+            db.Manometr1Verifications.Add(manometrVrf);
             addCount++;
         }
 
         await db.SaveChangesAsync();
-        _logger.LogInformation("Группа {Group}. Успешно добавлено {AddCount} поверок. Не удалось обработать поверок {FailedCount}", protocol.VerificationGroup, addCount, failedCount);
+
+        var group = verifications.First().VerificationGroup!;
+        _logger.LogInformation("Группа {Group}. Успешно добавлено {AddCount} поверок. Не удалось обработать поверок {FailedCount}", group, addCount, failedCount);
     }
 }

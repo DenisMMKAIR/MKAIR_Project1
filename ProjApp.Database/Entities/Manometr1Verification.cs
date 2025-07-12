@@ -42,7 +42,6 @@ public class Manometr1Verification : DatabaseEntity, IVerificationBase
 
     // Navigation properties
     public Device? Device { get; set; }
-    public VerificationMethod? VerificationMethod { get; set; }
     public ICollection<Etalon>? Etalons { get; set; }
 
     public override string ToString()

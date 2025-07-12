@@ -1,3 +1,4 @@
+using System.Linq.Expressions;
 using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
@@ -84,4 +85,36 @@ public class FailedInitialVerification : DatabaseEntity, IInitialVerification
     // Navigation properties
     public Device? Device { get; set; }
     public ICollection<Etalon>? Etalons { get; set; }
+}
+
+public static class InitialVerificationExtensions
+{
+    private static readonly Expression<Func<IInitialVerification, bool>> _allFieldFilledExpression =
+        v => v.VerificationGroup != null &&
+             v.ProtocolNumber != null &&
+             v.OwnerINN != null &&
+             v.Worker != null &&
+             v.Location != null &&
+             v.Pressure != null &&
+             v.Temperature != null &&
+             v.Humidity != null &&
+             v.MeasurementMin != null &&
+             v.MeasurementMax != null &&
+             v.MeasurementUnit != null &&
+             v.Accuracy != null;
+
+    private static readonly Func<IInitialVerification, bool> _compiledAllFieldFilled =
+        _allFieldFilledExpression.Compile();
+
+    public static IQueryable<T> VerificationIsFilled<T>(this IQueryable<T> query) where T : IInitialVerification
+    {
+        return query.Cast<IInitialVerification>()
+            .Where(_allFieldFilledExpression)
+            .Cast<T>();
+    }
+
+    public static bool VerificationIsFilled<T>(this T verification) where T : IInitialVerification
+    {
+        return _compiledAllFieldFilled(verification);
+    }
 }

@@ -9,4 +9,5 @@ public enum BackgroundEvents
     ChangedOwner,
     AddedValuesInitialVerification,
     NewProtocolTemplate,
+    ChangedProtocolTemplate,
 }

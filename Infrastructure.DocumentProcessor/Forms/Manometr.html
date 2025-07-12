@@ -6,19 +6,19 @@
     <title>Manometr form</title>
   </head>
   <body>
-    <p class="v-center">
+    <p class="vh-center">
       Общество с ограниченной ответственностью "Многоцелевая Компания.
       Автоматизация. Исследования. Разработки"
     </p>
-    <p class="v-center" id="setValue_address">
+    <p class="vh-center" id="setValue_address">
       Ханты-Мансийский автономный округ - Югра, г.о. Нижневартовск, г
       Нижневартовск, ул Индустриальная, зд. 32, стр. 1, кабинет 14
     </p>
-    <p class="v-center">
+    <p class="vh-center">
       Уникальный номер записи об аккредитации в реестре аккредитованных лиц
       №RA.RU.314356
     </p>
-    <p class="v-center bold spread-header">
+    <p class="vh-center bold spread-header">
       ПРОТОКОЛ ПЕРИОДИЧЕСКОЙ ПОВЕРКИ №
       <span id="setValue_protocolNumber">25/012/22</span>
     </p>
@@ -29,7 +29,7 @@
           деформационные с трубчатой пружиной 2 Манометры деформационные с
           трубчатой пружиной 2
         </p>
-        <p class="v-center h-bottom" id="setValue_deviceTypeModification">
+        <p class="v-bottom h-center" id="setValue_deviceModification">
           213.40.063
         </p>
       </div>
@@ -40,7 +40,7 @@
     </div>
     <div class="spread-bottom">
       <div class="line">
-        <p class="v-center" id="setValue_deviceTypeNumber">55984-13</p>
+        <p class="vh-center" id="setValue_deviceTypeNumber">55984-13</p>
       </div>
       <p class="undertext">номер по Государственному реестру СИ РФ</p>
     </div>
@@ -48,7 +48,7 @@
       <div></div>
       <div>
         <div class="line">
-          <p class="v-center" id="setValue_deviceSerial">05322</p>
+          <p class="vh-center" id="setValue_deviceSerial">05322</p>
         </div>
         <p class="undertext">
           заводской номер (все цифры и буквы заводского номера)
@@ -60,7 +60,7 @@
         <p>Год выпуска:</p>
       </div>
       <div class="line">
-        <p class="v-center" id="setValue_manufactureYear">2015</p>
+        <p class="vh-center" id="setValue_manufactureYear">2015</p>
       </div>
     </div>
     <div class="split-20 spread-bottom">
@@ -88,7 +88,8 @@
       <div>
         <div class="line">
           <p class="p-small" id="mainLine_verifications">
-            МИ 2124-90 «ГСИ. Манометры, вакуумметры, мановакуумметры, напоромеры,
+            МИ 2124-90 «ГСИ. Манометры, вакуумметры, мановакуумметры,
+            напоромеры,
           </p>
         </div>
         <p class="undertext">наименование и номер документа</p>
@@ -126,9 +127,12 @@
       <div>
         <p class="line" style="display: flex; gap: 15px">
           <span>температура окружающего воздуха</span>
-          <span><span id="setValue_temperature">22,8</span>°С</span>
+          <span
+            ><span id="setValue_temperature" data-format="N1">22,9</span
+            >°С</span
+          >
           <span>относительная влажность</span>
-          <span><span id="setValue_humidity">42</span>%</span>
+          <span><span id="setValue_humidity" data-format="N0">42</span>%</span>
         </p>
         <p class="undertext">
           Указываются влияющие факторы, нормированные в НД на методику поверки,
@@ -147,23 +151,26 @@
     </div>
     <div class="split-30 spread-bottom">
       <p>1.Результаты внешнего осмотра:</p>
-      <p class="line" id="setValue_verificationVisualCheckup">
-        соответствует п. 5.1 методики поверки
+      <p class="line">
+        соответствует п.
+        <span id="setValue_verificationVisualCheckup">5.1</span> методики
+        поверки
       </p>
     </div>
     <div class="split-30 spread-bottom">
       <p>2.Результаты опробования:</p>
-      <p class="line" id="setValue_verificationResultCheckup">
-        соответствует п. 5.2.3 методики поверки
+      <p class="line">
+        соответствует п.
+        <span id="setValue_verificationResultCheckup">5.2.3</span> методики
+        поверки
       </p>
     </div>
     <p class="spread-botton-large">
-      <span>3.Определение основной погрешности и вариации </span
-      ><span id="setValue_verificationAccuracyCheckup"
-        >в соответствии с п. 5.3 методики поверки</span
-      >
+      3.Определение основной погрешности и вариации в соответствии с п.
+      <span id="setValue_verificationAccuracyCheckup">5.3</span> методики
+      поверки
     </p>
-    <table class="spread-botton-large">
+    <table class="spread-botton-large" id="valuesTable">
       <thead>
         <tr>
           <th colspan="2">Показания поверяемого СИ</th>
@@ -207,7 +214,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -218,7 +225,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -229,7 +236,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -240,7 +247,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -251,7 +258,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -262,7 +269,7 @@
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>-</td>
+          <td>0</td>
         </tr>
         <tr>
           <td>0</td>
@@ -291,13 +298,13 @@
     </div>
     <br class="spread-botton-large" />
     <div class="split-15 spread-bottom">
-      <p>Поверитель:</p>
+      <p class="h-left v-center">Поверитель:</p>
       <div>
-        <div class="line" style="display: flex; justify-content: space-around">
-          <div>
-            <img alt="ПОДПИСЬ" id="sign" src="большаков с.н. 1.png1"/>
+        <div class="line" style="display: flex; justify-content: space-around; margin-top: 20px;">
+          <div class="sign-wrapper">
+            <img alt="ПОДПИСЬ" id="sign" src="большаков с.н. 1.png" />
           </div>
-          <p id="setValue_worker">Иванов Иван Иванович</p>
+          <p class="v-bottom" id="setValue_worker">Иванов Иван Иванович</p>
         </div>
         <div
           class="undertext"
@@ -402,7 +409,12 @@
       flex: 0 0 40%;
     }
     .v-center {
-      text-align: center;
+      display: flex;
+      align-items: center;
+    }
+    .v-bottom {
+      display: flex;
+      align-items: flex-end;
     }
     .h-center {
       display: flex;
@@ -411,6 +423,11 @@
     .h-bottom {
       display: flex;
       align-items: flex-end;
+      justify-content: center;
+    }
+    .vh-center {
+      display: flex;
+      align-items: center;
       justify-content: center;
     }
     .p-small {
@@ -430,6 +447,17 @@
     }
     .line {
       border-bottom: 1px solid black;
+    }
+    .sign-wrapper {
+      position: relative;
+    }
+    #sign {
+      position: absolute;
+      top: 0%;
+      left: 200;
+      transform: translateY(0%);
+      height: 20px;
+      width: auto;
     }
   </style>
 </html>

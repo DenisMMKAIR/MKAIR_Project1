@@ -1,7 +1,7 @@
+using System.Reflection;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using System.Reflection;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -35,7 +35,7 @@ internal abstract class DocumentCreatorBase<T>
             var id = idValueElement.Id!["setValue_".Length..].ToLower();
             var prop = TypeProps.FirstOrDefault(t => t.Name.Equals(id, StringComparison.OrdinalIgnoreCase));
             if (prop == null) return HTMLCreationResult.Failure($"Data property {id} not found");
-            idValueElement.InnerHtml = prop.GetValue(data)!.ToString()!;
+            SetElementValue(idValueElement, prop.GetValue(data)!.ToString()!);
         }
 
         var result = SetVerification(document, data);
@@ -47,13 +47,33 @@ internal abstract class DocumentCreatorBase<T>
         result = await SetSignAsync(document, data);
         if (result != null) return HTMLCreationResult.Failure(result);
 
-        var specifiResult = await SetSpecificAsync(document, data);
+        var specifiResult = SetSpecific(document, data);
         if (specifiResult != null) return HTMLCreationResult.Failure(specifiResult);
 
         return HTMLCreationResult.Success(document.DocumentElement.OuterHtml);
     }
 
-    protected abstract Task<string?> SetSpecificAsync(IDocument document, T data);
+    protected abstract string? SetSpecific(IDocument document, T data);
+
+    protected static void SetElementValue(IElement element, string value, string? format = null)
+    {
+        format ??= element.GetAttribute("data-format");
+        if (format != null)
+        {
+            if (format.StartsWith('N'))
+            {
+                element.InnerHtml = double.Parse(value).ToString(format);
+            }
+            else
+            {
+                throw new Exception($"Неподдерживаемый формат: {format}");
+            }
+        }
+        else
+        {
+            element.InnerHtml = value;
+        }
+    }
 
     protected string? SetLine(IHtmlParagraphElement element, int lineLength, ref string text)
     {
@@ -81,9 +101,9 @@ internal abstract class DocumentCreatorBase<T>
 
     private string? SetVerification(IDocument document, T data)
     {
-        var verificationList = (IReadOnlyList<string>)TypeProps.First(p => p.Name == "VerificationsName").GetValue(data)!;
-        var verificationsText = string.Join("; ", verificationList);
-
+        var prop = TypeProps.First(p => p.Name.Equals("verificationsinfo", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return "Data property verificationsinfo not found";
+        var verificationsText = prop.GetValue(data)!.ToString()!;
         var mainLine = document.QuerySelector<IHtmlParagraphElement>("#mainLine_verifications")!;
         var result = SetLine(mainLine, VerificationLineLength, ref verificationsText);
         if (result != null) return result;
@@ -109,8 +129,9 @@ internal abstract class DocumentCreatorBase<T>
 
     private string? SetEtalons(IDocument document, T data)
     {
-        var etalonsList = (IReadOnlyList<string>)TypeProps.First(p => p.Name == "Etalons").GetValue(data)!;
-        var etalonsText = string.Join("; ", etalonsList);
+        var prop = TypeProps.FirstOrDefault(p => p.Name.Equals("EtalonsInfo", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return "Data property EtalonsInfo not found";
+        var etalonsText = prop.GetValue(data)!.ToString()!;
 
         var mainLine = document.QuerySelector<IHtmlParagraphElement>("#mainLine_etalons")!;
         var result = SetLine(mainLine, EtalonLineLength, ref etalonsText);
@@ -157,12 +178,15 @@ internal abstract class DocumentCreatorBase<T>
             }
         }
 
-        var signsCount = _signsCache.Where(s => s.Key == worker).Count();
+        var signsCount = _signsCache.Where(s => s.Key.StartsWith(worker)).Count();
         var randomSignIndex = Random.Shared.Next(1, signsCount);
         var key = $"{worker} {randomSignIndex}";
         var _ = _signsCache.TryGetValue(key, out var sign);
 
         var imgElement = document.QuerySelector<IHtmlImageElement>("#sign")!;
+        var randomLeft = Random.Shared.Next(0, 200);
+        imgElement.SetAttribute("style", $"position: absolute; top: 50%; transform: translateY(-50%); left: {randomLeft}px; height: 20px; width: auto;");
+
         imgElement.Source = sign;
 
         return null;

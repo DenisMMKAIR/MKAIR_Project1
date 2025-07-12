@@ -1,4 +1,3 @@
-using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
@@ -7,9 +6,13 @@ namespace ProjApp.ProtocolCalculations;
 
 internal static class Manometr1Calculations
 {
-    public static Manometr1Verification ToManometr1(ILogger logger, SuccessInitialVerification v, VerificationMethod[] vrfMeth)
+    public static Manometr1Verification ToManometr1(ILogger logger, SuccessInitialVerification v)
     {
-        var vms = vrfMeth.First(m => m.Aliases.Contains(v.VerificationTypeName));
+        if (v.Device is null) throw new Exception("Устройство не добавлено в выборку");
+        if (v.Device.DeviceType is null) throw new Exception("Тип устройства не добавлен в выборку");
+        if (v.Device.DeviceType.VerificationMethod is null) throw new Exception("Метод проверки не добавлен в выборку");
+
+        var method = v.Device.DeviceType.VerificationMethod;
 
         var newVrf = new Manometr1Verification
         {
@@ -27,9 +30,9 @@ internal static class Manometr1Calculations
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
             Pressure = v.Pressure!,
-            VerificationVisualCheckup = vms.Checkups[VerificationMethodCheckups.visual],
-            VerificationResultCheckup = vms.Checkups[VerificationMethodCheckups.result],
-            VerificationAccuracyCheckup = vms.Checkups[VerificationMethodCheckups.accuracy],
+            VerificationVisualCheckup = method.Checkups[VerificationMethodCheckups.visual],
+            VerificationResultCheckup = method.Checkups[VerificationMethodCheckups.result],
+            VerificationAccuracyCheckup = method.Checkups[VerificationMethodCheckups.accuracy],
             VerificationDate = v.VerificationDate,
             Worker = v.Worker!,
 
@@ -52,7 +55,6 @@ internal static class Manometr1Calculations
             // Navigation properties
             Device = v.Device,
             Etalons = v.Etalons,
-            VerificationMethod = vms
         };
 
         CalculateValues(logger, newVrf);

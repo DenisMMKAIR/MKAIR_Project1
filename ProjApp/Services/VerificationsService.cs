@@ -129,7 +129,6 @@ public class VerificationsService
     public async Task<ServiceResult> SetValues(MemoryStream file, SetValuesRequest request)
     {
         var result = await SetValuesBaseAsync(file, request, true, true);
-        _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
         return result;
     }
 
@@ -137,7 +136,6 @@ public class VerificationsService
     {
         var request = new SetValuesRequest { DataRange = dataRange, SheetName = sheetName, VerificationTypeNum = true, Location = DeviceLocation.АнтипинскийНПЗ, Group = VerificationGroup.Манометры };
         var result = await SetValuesBaseAsync(file, request, false, false);
-        _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
         return result;
     }
 
