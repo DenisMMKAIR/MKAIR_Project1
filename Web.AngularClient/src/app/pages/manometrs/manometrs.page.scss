@@ -66,6 +66,13 @@
   }
 }
 
+.cancel-btn {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  margin-left: 8px;
+}
+
 // Table styling
 table {
   width: 100%;
@@ -123,12 +130,21 @@ table {
 
 // Status messages - using global message styles
 .error-message {
-  padding: var(--spacing-sm);
-  text-align: center;
-  border-radius: var(--border-radius-md);
-  margin-bottom: var(--spacing-md);
-  background-color: var(--error-color);
-  color: var(--text-white);
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
 }
 
 .loading-message {
@@ -138,6 +154,15 @@ table {
   margin-bottom: var(--spacing-md);
   background-color: var(--primary-light);
   color: var(--primary-color);
+}
+
+.info-message {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
 }
 
 // Responsive design

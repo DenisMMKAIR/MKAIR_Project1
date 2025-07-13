@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ManometrClient, Manometr1VerificationDto } from '../../api-client';
 import { ManometrsService } from '../../services/manometrs.service';
 import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.component';
+import { Subscription } from 'rxjs';
 
 @Component({
   selector: 'app-manometrs-page',
@@ -21,7 +22,10 @@ export class ManometrsPage implements OnInit {
   public loading = false;
   public exportLoading = false;
   public error: string | null = null;
+  public infoMessage: string | null = null;
+  public successMessage: string | null = null;
   public selectedRows = new Set<number>();
+  private exportSubscription: Subscription | null = null;
 
   ngOnInit(): void {
     this.manometrsService.setPageChangeCallback(() => this.loadManometrs());
@@ -107,21 +111,81 @@ export class ManometrsPage implements OnInit {
     if (this.selectedRows.size === 0 || this.exportLoading) {
       return;
     }
-    
     this.exportLoading = true;
+    this.error = null;
+    this.infoMessage = null;
+    this.successMessage = null;
     const selectedManometrs = Array.from(this.selectedRows).map(index => this.manometrs[index]);
-    
-    console.log('Export to PDF clicked', selectedManometrs);
-    // TODO: Implement PDF export functionality with selected items
-    // This would typically call the backend API to export the selected data
-    
-    // Simulate API call - replace with actual API call
-    setTimeout(() => {
+    const ids = selectedManometrs.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    if (ids.length === 0) {
+      this.error = 'Нет выбранных записей для экспорта.';
       this.exportLoading = false;
-      // Clear selected rows on successful export
-      this.selectedRows.clear();
-      // Handle success/error here
-    }, 2000);
+      return;
+    }
+    this.exportSubscription = this.manometrClient.exportToPdf(ids).subscribe({
+      next: (response: any) => {
+        if (response?.message) {
+          this.error = null;
+          this.successMessage = response.message;
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 5000);
+        } else if (response?.error) {
+          this.error = response.error;
+        } else {
+          this.error = 'Неожиданный ответ от сервера.';
+        }
+        this.exportLoading = false;
+        this.selectedRows.clear();
+        this.exportSubscription = null;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
+        this.exportLoading = false;
+        this.exportSubscription = null;
+      }
+    });
+  }
+
+  public exportAllToPdf(): void {
+    if (this.exportLoading) {
+      return;
+    }
+    this.exportLoading = true;
+    this.error = null;
+    this.infoMessage = null;
+    this.successMessage = null;
+    this.exportSubscription = this.manometrClient.exportAllToPdf().subscribe({
+      next: (response: any) => {
+        if (response?.message) {
+          this.error = null;
+          this.successMessage = response.message;
+          setTimeout(() => {
+            this.successMessage = null;
+          }, 5000);
+        } else if (response?.error) {
+          this.error = response.error;
+        } else {
+          this.error = 'Неожиданный ответ от сервера.';
+        }
+        this.exportLoading = false;
+        this.exportSubscription = null;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
+        this.exportLoading = false;
+        this.exportSubscription = null;
+      }
+    });
+  }
+
+  public cancelExport(): void {
+    if (this.exportSubscription) {
+      this.exportSubscription.unsubscribe();
+      this.exportSubscription = null;
+      this.exportLoading = false;
+      this.infoMessage = 'Экспорт отменён пользователем.';
+    }
   }
 
   public toggleRowSelection(index: number, event: Event): void {

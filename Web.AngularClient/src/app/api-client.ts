@@ -408,7 +408,7 @@ export class ManometrClient {
             })
         };
 
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
             return this.processExportToPdf(response_);
         })).pipe(_observableCatch((response_: any) => {
             if (response_ instanceof HttpResponseBase) {
@@ -423,6 +423,54 @@ export class ManometrClient {
     }
 
     protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportAllToPdf(): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Manometr/ExportAllToPdf";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportAllToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportAllToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportAllToPdf(response: HttpResponseBase): Observable<ServiceResult> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -2262,6 +2310,7 @@ export interface IPaginatedListOfManometr1VerificationDto {
 }
 
 export class Manometr1VerificationDto implements IManometr1VerificationDto {
+    id?: string;
     protocolNumber?: string;
     deviceTypeName?: string;
     deviceModification?: string;
@@ -2303,6 +2352,7 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
 
     init(_data?: any) {
         if (_data) {
+            this.id = _data["id"];
             this.protocolNumber = _data["protocolNumber"];
             this.deviceTypeName = _data["deviceTypeName"];
             this.deviceModification = _data["deviceModification"];
@@ -2360,6 +2410,7 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
         data["protocolNumber"] = this.protocolNumber;
         data["deviceTypeName"] = this.deviceTypeName;
         data["deviceModification"] = this.deviceModification;
@@ -2410,6 +2461,7 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
 }
 
 export interface IManometr1VerificationDto {
+    id?: string;
     protocolNumber?: string;
     deviceTypeName?: string;
     deviceModification?: string;

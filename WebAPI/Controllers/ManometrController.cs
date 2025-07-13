@@ -31,10 +31,16 @@ public class ManometrController : ApiControllerBase
         return await _service.GetVerificationsAsync(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, filters.DeviceSerial, yearMonth);
     }
 
-    [HttpGet]
-    public async Task<ServiceResult> ExportToPdf([Required] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
+    [HttpPost]
+    public async Task<ServiceResult> ExportToPdf([Required][FromBody] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         return await _service.ExportToPdfAsync(ids, cancellationToken);
+    }
+
+    [HttpPost]
+    public async Task<ServiceResult> ExportAllToPdf(CancellationToken cancellationToken)
+    {
+        return await _service.ExportAllToPdfAsync(cancellationToken);
     }
 }
 

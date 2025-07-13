@@ -1,5 +1,9 @@
 <!-- Error message display -->
 <div *ngIf="error" class="error-message">{{ error }}</div>
+<!-- Success message display -->
+<div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+<!-- Info message display -->
+<div *ngIf="infoMessage" class="info-message">{{ infoMessage }}</div>
 
 <div class="table-container">
   <!-- Filter controls section -->
@@ -59,8 +63,28 @@
         (click)="exportToPdf()"
         [disabled]="loading || exportLoading || selectedRows.size === 0"
         title="Экспорт выбранных записей в PDF"
+        *ngIf="!exportLoading"
       >
-        {{ exportLoading ? 'Экспорт...' : 'Экспорт в PDF (' + selectedRows.size + ')' }}
+        Экспорт в PDF ({{ selectedRows.size }})
+      </button>
+      <button
+        type="button"
+        class="export-btn"
+        (click)="exportAllToPdf()"
+        [disabled]="loading || exportLoading"
+        title="Экспортировать все записи в PDF"
+        *ngIf="!exportLoading"
+      >
+        Экспортировать все
+      </button>
+      <button
+        type="button"
+        class="export-btn cancel-btn"
+        (click)="cancelExport()"
+        *ngIf="exportLoading"
+        title="Отменить экспорт"
+      >
+        Отменить экспорт
       </button>
     </div>
 

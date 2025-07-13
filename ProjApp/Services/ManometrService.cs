@@ -56,8 +56,23 @@ public class ManometrService
 
     public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
     {
-        var query = _database.Manometr1Verifications
-            .Where(x => ids.Contains(x.Id));
+        if (ids.Count == 0) return ServiceResult.Fail("Не выбрано ни одной записи");
+        return await ExportAsync(ids, cancellationToken);
+    }
+
+    public async Task<ServiceResult> ExportAllToPdfAsync(CancellationToken cancellationToken)
+    {
+        return await ExportAsync([], cancellationToken);
+    }
+
+    private async Task<ServiceResult> ExportAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
+    {
+        var query = _database.Manometr1Verifications.AsQueryable();
+
+        if (ids.Count > 0)
+        {
+            query = query.Where(x => ids.Contains(x.Id));
+        }
 
         var successCount = 0;
         var failedCount = 0;
