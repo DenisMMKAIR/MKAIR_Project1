@@ -752,6 +752,82 @@
         }
       }
     },
+    "/api/Manometr/GetVerifications": {
+      "get": {
+        "tags": [
+          "Manometr"
+        ],
+        "operationId": "Manometr_GetVerifications",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfManometr1VerificationDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Manometr/ExportToPdf": {
+      "get": {
+        "tags": [
+          "Manometr"
+        ],
+        "operationId": "Manometr_ExportToPdf",
+        "requestBody": {
+          "x-name": "ids",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Verifications/GetInitialVerifications": {
       "get": {
         "tags": [
@@ -1792,6 +1868,196 @@
           }
         }
       },
+      "ServicePaginatedResultOfManometr1VerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfManometr1VerificationDto"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfManometr1VerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Manometr1VerificationDto"
+            }
+          }
+        }
+      },
+      "Manometr1VerificationDto": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "protocolNumber": {
+            "type": "string"
+          },
+          "deviceTypeName": {
+            "type": "string"
+          },
+          "deviceModification": {
+            "type": "string"
+          },
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceSerial": {
+            "type": "string"
+          },
+          "manufactureYear": {
+            "type": "integer"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "ownerINN": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "verificationsInfo": {
+            "type": "string"
+          },
+          "etalonsInfo": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double"
+          },
+          "pressure": {
+            "type": "string"
+          },
+          "verificationVisualCheckup": {
+            "type": "string"
+          },
+          "verificationResultCheckup": {
+            "type": "string"
+          },
+          "verificationAccuracyCheckup": {
+            "type": "string"
+          },
+          "verificationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "verificationGroup": {
+            "$ref": "#/components/schemas/VerificationGroup"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DeviceLocation"
+          },
+          "verifiedUntilDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "measurementMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementUnit": {
+            "type": "string"
+          },
+          "validError": {
+            "type": "number",
+            "format": "double"
+          },
+          "deviceValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "etalonValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "actualError": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "actualVariation": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        }
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ]
+      },
       "ServicePaginatedResultOfSuccessInitialVerificationDto": {
         "type": "object",
         "additionalProperties": false,
@@ -1944,18 +2210,6 @@
             "nullable": true
           }
         }
-      },
-      "DeviceLocation": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ],
-        "enum": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ]
       },
       "ServicePaginatedResultOfSuccessVerificationDto": {
         "type": "object",
