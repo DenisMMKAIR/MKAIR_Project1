@@ -80,6 +80,7 @@ public class ManometrService
 
 public class Manometr1VerificationDto : IRegister
 {
+    public required Guid Id { get; set; }
     public required string ProtocolNumber { get; set; }
     public required string DeviceTypeName { get; set; }
     public required string DeviceModification { get; set; }
