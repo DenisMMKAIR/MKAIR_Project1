@@ -31,12 +31,11 @@
     <div class="selector-form">
       <label for="deviceTypeNumberFilter">Номер типа:</label>
       <input
-        id="deviceTypeNumberFilter"
-        name="deviceTypeNumberFilter"
         type="text"
+        id="deviceTypeNumberFilter"
         [(ngModel)]="deviceTypeNumberFilter"
+        (input)="deviceTypeNumberFilter = $any($event.target).value"
         placeholder="Введите номер типа"
-        autocomplete="off"
       />
     </div>
 
@@ -44,12 +43,11 @@
     <div class="selector-form">
       <label for="deviceSerialFilter">Серийный номер:</label>
       <input
-        id="deviceSerialFilter"
-        name="deviceSerialFilter"
         type="text"
+        id="deviceSerialFilter"
         [(ngModel)]="deviceSerialFilter"
+        (input)="deviceSerialFilter = $any($event.target).value"
         placeholder="Введите серийный номер"
-        autocomplete="off"
       />
     </div>
 

@@ -330,7 +330,7 @@ export class ManometrClient {
         this.baseUrl = baseUrl ?? "";
     }
 
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumber: string | null | undefined, deviceSerial: string | null | undefined, yearMonth: string | null | undefined): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
         let url_ = this.baseUrl + "/api/Manometr/GetVerifications?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -340,6 +340,12 @@ export class ManometrClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (deviceTypeNumber !== undefined && deviceTypeNumber !== null)
+            url_ += "DeviceTypeNumber=" + encodeURIComponent("" + deviceTypeNumber) + "&";
+        if (deviceSerial !== undefined && deviceSerial !== null)
+            url_ += "DeviceSerial=" + encodeURIComponent("" + deviceSerial) + "&";
+        if (yearMonth !== undefined && yearMonth !== null)
+            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {

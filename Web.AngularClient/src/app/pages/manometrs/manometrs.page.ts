@@ -66,9 +66,17 @@ export class ManometrsPage implements OnInit {
     this.loading = true;
     this.error = null;
     
+    // Prepare filter values
+    const deviceTypeNumber = this.deviceTypeNumberFilter || null;
+    const deviceSerial = this.deviceSerialFilter || null;
+    const yearMonth = !this.yearMonthFilter || this.yearMonthFilter === 'all' ? null : this.yearMonthFilter;
+    
     this.manometrClient.getVerifications(
       this.pagination.currentPage, 
-      this.pagination.pageSize
+      this.pagination.pageSize,
+      deviceTypeNumber,
+      deviceSerial,
+      yearMonth
     ).subscribe({
       next: (result) => {
         if (result.data) {
@@ -91,6 +99,9 @@ export class ManometrsPage implements OnInit {
   public onYearMonthFilterChange(): void {
     this.manometrsService.resetToFirstPage();
   }
+
+  // Note: Device filter change handlers are no longer needed
+  // as throttling is handled automatically by the service
 
   public exportToPdf(): void {
     if (this.selectedRows.size === 0 || this.exportLoading) {

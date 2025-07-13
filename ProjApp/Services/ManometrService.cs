@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
+using ProjApp.Database.SupportTypes;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Services.ServiceResults;
 
@@ -24,10 +25,24 @@ public class ManometrService
         _templateProcessor = templateProcessor;
     }
 
-    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize)
+    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize, string? deviceTypeFilter, string? deviceSerialFilter, YearMonth? dateFilter)
     {
-        var result = await _database.Manometr1Verifications
+        deviceTypeFilter ??= string.Empty;
+        deviceSerialFilter ??= string.Empty;
+
+        var query = _database.Manometr1Verifications
             .ProjectToType<Manometr1VerificationDto>(_mapper.Config)
+            .Where(dto => dto.DeviceTypeNumber.Contains(deviceTypeFilter))
+            .Where(dto => dto.DeviceSerial.Contains(deviceSerialFilter));
+
+        if (dateFilter != null)
+        {
+            query = query.Where(dto =>
+                dto.VerificationDate.Year == dateFilter.Value.Year &&
+                dto.VerificationDate.Month == dateFilter.Value.Month);
+        }
+
+        var result = await query
             .ToPaginatedAsync(page, pageSize);
 
         return ServicePaginatedResult<Manometr1VerificationDto>.Success(result);
@@ -39,7 +54,7 @@ public class ManometrService
     public Task<ServiceResult> DeleteVerificationAsync(Guid id)
         => throw new NotImplementedException();
 
-    public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids)
+    public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
     {
         var query = _database.Manometr1Verifications
             .Where(x => ids.Contains(x.Id));
@@ -49,7 +64,7 @@ public class ManometrService
 
         foreach (var vrf in query)
         {
-            var result = await _templateProcessor.CreatePDFAsync(vrf);
+            var result = await _templateProcessor.CreatePDFAsync(vrf, cancellationToken);
             if (result.Error != null)
             {
                 _logger.LogError("{Error}", result.Error);

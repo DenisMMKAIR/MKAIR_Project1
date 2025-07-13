@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using ProjApp.Database.SupportTypes;
 using ProjApp.Services;
 using ProjApp.Services.ServiceResults;
 using WebAPI.Controllers.Requests;
@@ -16,17 +17,30 @@ public class ManometrController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request)
+    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] ManometrFilterQuery filters)
     {
-        return await _service.GetVerificationsAsync(request.PageIndex, request.PageSize);
+        YearMonth? yearMonth;
+        try
+        {
+            yearMonth = YearMonth.Parse(filters.YearMonth);
+        }
+        catch (Exception e)
+        {
+            return ServicePaginatedResult<Manometr1VerificationDto>.Fail(e.Message);
+        }
+        return await _service.GetVerificationsAsync(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, filters.DeviceSerial, yearMonth);
     }
 
     [HttpGet]
-    public async Task<ServiceResult> ExportToPdf([Required] IReadOnlyList<Guid> ids)
+    public async Task<ServiceResult> ExportToPdf([Required] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
-        return await _service.ExportToPdfAsync(ids);
+        return await _service.ExportToPdfAsync(ids, cancellationToken);
     }
+}
 
-    //     public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize)
-    //    public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids)
+public class ManometrFilterQuery
+{
+    public string? DeviceTypeNumber { get; init; }
+    public string? DeviceSerial { get; init; }
+    public string? YearMonth { get; init; }
 }
