@@ -6,7 +6,6 @@ export interface IManometrsFilter {
   yearMonthFilter: string | null;
   deviceTypeNumberFilter: string | null;
   deviceSerialFilter: string | null;
-  ownerFilter: string | null;
 }
 
 @Injectable({
@@ -16,8 +15,7 @@ export class ManometrsService {
   private currentFilters: IManometrsFilter = {
     yearMonthFilter: '',
     deviceTypeNumberFilter: null,
-    deviceSerialFilter: null,
-    ownerFilter: null
+    deviceSerialFilter: null
   };
 
   private pagination: Pagination;
@@ -25,7 +23,6 @@ export class ManometrsService {
   
   private deviceTypeNumberFilterSubject = new Subject<string | null>();
   private deviceSerialFilterSubject = new Subject<string | null>();
-  private ownerFilterSubject = new Subject<string | null>();
 
   constructor() {
     this.pagination = new Pagination();
@@ -48,16 +45,6 @@ export class ManometrsService {
       )
       .subscribe(filter => {
         this.currentFilters.deviceSerialFilter = filter;
-        this.resetToFirstPage();
-      });
-
-    this.ownerFilterSubject
-      .pipe(
-        debounceTime(1000),
-        distinctUntilChanged()
-      )
-      .subscribe(filter => {
-        this.currentFilters.ownerFilter = filter;
         this.resetToFirstPage();
       });
   }
@@ -94,14 +81,6 @@ export class ManometrsService {
     this.deviceSerialFilterSubject.next(filter);
   }
 
-  public getOwnerFilter(): string | null {
-    return this.currentFilters.ownerFilter;
-  }
-
-  public setOwnerFilter(filter: string | null): void {
-    this.ownerFilterSubject.next(filter);
-  }
-
   public getPagination(): Pagination {
     return this.pagination;
   }
@@ -115,7 +94,6 @@ export class ManometrsService {
     this.currentFilters.yearMonthFilter = '';
     this.currentFilters.deviceTypeNumberFilter = null;
     this.currentFilters.deviceSerialFilter = null;
-    this.currentFilters.ownerFilter = null;
   }
 
   public resetToFirstPage(): void {

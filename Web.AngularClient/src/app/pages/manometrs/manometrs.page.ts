@@ -61,14 +61,6 @@ export class ManometrsPage implements OnInit {
     this.manometrsService.setDeviceSerialFilter(value);
   }
 
-  public get ownerFilter() {
-    return this.manometrsService.getOwnerFilter();
-  }
-
-  public set ownerFilter(value: string | null) {
-    this.manometrsService.setOwnerFilter(value);
-  }
-
   // Data loading methods
   public loadManometrs(): void {
     this.loading = true;
