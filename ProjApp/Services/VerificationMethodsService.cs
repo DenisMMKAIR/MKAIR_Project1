@@ -164,9 +164,9 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Не указаны пункты проверки");
         }
 
-        var stringNormalizer = new ComplexStringNormalizer();
+        var complexNormalizer = new ComplexStringNormalizer();
         verificationMethod.Aliases = verificationMethod.Aliases
-            .Select(stringNormalizer.Normalize)
+            .Select(complexNormalizer.Normalize)
             .OrderBy(a => a.Length)
             .ToArray();
 
@@ -175,7 +175,8 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Описание не указано или слишком короткое описание");
         }
 
-        verificationMethod.Description = stringNormalizer.Normalize(verificationMethod.Description);
+        var descNorm = new IStringNormalizer[] { new QuoteNormalizer(), new SpaceNormalizer() };
+        foreach(var norm in descNorm) verificationMethod.Description = norm.Normalize(verificationMethod.Description);
 
         if (verificationMethod.VerificationMethodFiles != null)
         {
@@ -202,7 +203,7 @@ public partial class VerificationMethodsService
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Метод поверки с псевдонимом уже существует");
 
-        var (deviceTypesCount, newAliasesCount) = await AddAllDevicesAsync(verificationMethod, stringNormalizer, transaction);
+        var (deviceTypesCount, newAliasesCount) = await AddAllDevicesAsync(verificationMethod, complexNormalizer, transaction);
 
         await transaction.CommitAsync();
 
