@@ -29,12 +29,16 @@ public class SuccessInitialVerificationDto : IRegister
     public double? MeasurementMax { get; set; }
     public string? MeasurementUnit { get; set; }
     public double? Accuracy { get; set; }
-    
+
+    // Additional properties
+    public string? VerificationMethodInfo { get; set; }
+
 
     public void Register(TypeAdapterConfig config)
     {
         config.NewConfig<SuccessInitialVerification, SuccessInitialVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
-            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number));
+            .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number))
+            .Map(dest => dest.VerificationMethodInfo, src => src.Device.DeviceType.VerificationMethod.Description);
     }
 }

@@ -1,5 +1,5 @@
 import { Component, inject, OnInit } from '@angular/core';
-import { NgFor, NgIf, DatePipe, DecimalPipe } from '@angular/common';
+import { NgFor, NgIf, DatePipe, DecimalPipe, NgClass } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { VerificationsClient, SuccessInitialVerificationDto, DeviceLocation } from '../../api-client';
 import { VerificationsService } from '../../services/verifications.service';
@@ -10,7 +10,7 @@ import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.com
   standalone: true,
   templateUrl: './verifications.page.html',
   styleUrls: ['./verifications.page.scss'],
-  imports: [NgFor, NgIf, DatePipe, FormsModule, DatesFilterComponent, DecimalPipe],
+  imports: [NgFor, NgIf, DatePipe, FormsModule, DatesFilterComponent, DecimalPipe, NgClass],
   providers: [VerificationsClient],
 })
 export class VerificationsPage implements OnInit {
@@ -20,6 +20,8 @@ export class VerificationsPage implements OnInit {
   public verifications: SuccessInitialVerificationDto[] = [];
   public loading = false;
   public error: string | null = null;
+  public successMessage: string | null = null;
+  public infoMessage: string | null = null;
 
   ngOnInit(): void {
     this.verificationsService.setPageChangeCallback(() => this.loadVerifications());

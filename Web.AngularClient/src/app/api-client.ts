@@ -3577,6 +3577,7 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
     measurementMax?: number | undefined;
     measurementUnit?: string | undefined;
     accuracy?: number | undefined;
+    verificationMethodInfo?: string | undefined;
 
     constructor(data?: ISuccessInitialVerificationDto) {
         if (data) {
@@ -3614,6 +3615,7 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
             this.measurementMax = _data["measurementMax"];
             this.measurementUnit = _data["measurementUnit"];
             this.accuracy = _data["accuracy"];
+            this.verificationMethodInfo = _data["verificationMethodInfo"];
         }
     }
 
@@ -3651,6 +3653,7 @@ export class SuccessInitialVerificationDto implements ISuccessInitialVerificatio
         data["measurementMax"] = this.measurementMax;
         data["measurementUnit"] = this.measurementUnit;
         data["accuracy"] = this.accuracy;
+        data["verificationMethodInfo"] = this.verificationMethodInfo;
         return data;
     }
 }
@@ -3677,6 +3680,7 @@ export interface ISuccessInitialVerificationDto {
     measurementMax?: number | undefined;
     measurementUnit?: string | undefined;
     accuracy?: number | undefined;
+    verificationMethodInfo?: string | undefined;
 }
 
 export class ServicePaginatedResultOfSuccessVerificationDto implements IServicePaginatedResultOfSuccessVerificationDto {

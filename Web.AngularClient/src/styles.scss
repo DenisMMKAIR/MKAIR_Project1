@@ -47,3 +47,7 @@ select {
   flex-direction: column;
   gap: 0.25rem;
 }
+
+.cell-null {
+  background-color: var(--bg-error-light);
+}

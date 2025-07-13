@@ -1,8 +1,14 @@
+<!-- Error message display -->
 <div *ngIf="error" class="error-message">{{ error }}</div>
+<!-- Success message display -->
+<div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+<!-- Info message display -->
+<div *ngIf="infoMessage" class="info-message">{{ infoMessage }}</div>
 
 <div class="table-container">
-  <!-- Page size selector -->
+  <!-- Filter controls section -->
   <div class="pagination-controls">
+    <!-- Page size selector -->
     <div class="selector-form">
       <label for="pageSize">Записей на странице:</label>
       <select
@@ -16,6 +22,7 @@
       </select>
     </div>
 
+    <!-- Date filter -->
     <div class="selector-form">
       <app-dates-filter
         [label]="'Дата:'"
@@ -24,30 +31,7 @@
       ></app-dates-filter>
     </div>
 
-    <div class="selector-form">
-      <label for="deviceTypeNumberFilter">Номер типа:</label>
-      <input
-        id="deviceTypeNumberFilter"
-        name="deviceTypeNumberFilter"
-        type="text"
-        [(ngModel)]="deviceTypeNumberFilter"
-        placeholder="Введите номер типа"
-        autocomplete="off"
-      />
-    </div>
-
-    <div class="selector-form">
-      <label for="typeInfoFilter">Тип устройства:</label>
-      <input
-        id="typeInfoFilter"
-        name="typeInfoFilter"
-        type="text"
-        [(ngModel)]="typeInfoFilter"
-        placeholder="Тип устройства"
-        autocomplete="off"
-      />
-    </div>
-
+    <!-- Location filter -->
     <div class="selector-form">
       <label for="locationFilter">Местоположение:</label>
       <select
@@ -61,57 +45,142 @@
       </select>
     </div>
 
+    <!-- Device type number filter -->
+    <div class="selector-form">
+      <label for="deviceTypeNumberFilter">Номер типа:</label>
+      <input
+        type="text"
+        id="deviceTypeNumberFilter"
+        [(ngModel)]="deviceTypeNumberFilter"
+        placeholder="Введите номер типа"
+      />
+    </div>
+
+    <!-- Device type info filter -->
+    <div class="selector-form">
+      <label for="typeInfoFilter">Тип устройства:</label>
+      <input
+        type="text"
+        id="typeInfoFilter"
+        [(ngModel)]="typeInfoFilter"
+        placeholder="Тип устройства"
+      />
+    </div>
+
+    <!-- Pagination info -->
     <div class="pagination-info">
-      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
-      + 1 }} из {{ pagination.totalCount }} записей
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex() + 1 }} из {{ pagination.totalCount }} записей
     </div>
   </div>
 
+  <!-- Loading message -->
   <div *ngIf="loading" class="loading-message">Загрузка поверок...</div>
 
+  <!-- Data table -->
   <div *ngIf="!loading && !error">
     <table>
       <thead>
         <tr>
-          <th>Номер типа</th>
-          <th>Инфо типа</th>
-          <th>Серийный</th>
-          <th>Дата поверки</th>
-          <th>До</th>
-          <th>Тип поверки</th>
-          <th>Группа поверки</th>
           <th>Номер протокола</th>
-          <th>Владелец/ИНН</th>
-          <th>Работник</th>
+          <th>Тип устройства</th>
+          <th>Серийный</th>
+          <th>
+            <div>Дата поверки</div>
+            <hr class="data-row-divider">
+            <div>До</div>
+          </th>
+          <th>Группа поверки</th>
           <th>Местоположение</th>
-          <th>Температура/Давление/Влажность</th>
+          <th>
+            <div>Владелец</div>
+            <hr class="data-row-divider">
+            <div>ИНН</div>
+          </th>
+          <th>Работник</th>
+          <th>
+            <div>Инфо поверки</div>
+          </th>
           <th>Эталоны</th>
-          <th>Диапазон/Точность</th>
+          <th>
+            <div>Температура</div>
+            <hr class="data-row-divider">
+            <div>Давление</div>
+            <hr class="data-row-divider">
+            <div>Влажность</div>
+          </th>
+          <th>
+            <div>Диапазон</div>
+            <hr class="data-row-divider">
+            <div>Точность</div>
+          </th>
         </tr>
       </thead>
       <tbody>
         <tr *ngFor="let v of verifications">
-          <td>{{ v.deviceTypeNumber }}</td>
-          <td>{{ v.deviceTypeInfo }}</td>
-          <td>{{ v.deviceSerial }}</td>
-          <td>{{ v.verificationDate | date:'yyyy-MM-dd' }}</td>
-          <td>{{ v.verifiedUntilDate | date:'yyyy-MM-dd' }}</td>
-          <td>{{ v.verificationTypeName || '-' }}</td>
-          <td>{{ v.verificationGroup || '-' }}</td>
-          <td>{{ v.protocolNumber || '-' }}</td>
-          <td>
-            <div>Владелец: {{ v.owner || '-' }}</div>
-            <div>ИНН: {{ v.ownerINN || '-' }}</div>
+
+          <!-- Protocol number -->
+          <td [ngClass]="{ 'cell-null': v.protocolNumber == null }">{{ v.protocolNumber || '-' }}</td>
+          <!-- Device type number and info -->
+          <td [ngClass]="{ 'cell-null': v.deviceTypeNumber == null || v.deviceTypeInfo == null }">
+            <div [ngClass]="{ 'cell-null': v.deviceTypeNumber == null }">{{ v.deviceTypeNumber }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.deviceTypeInfo == null }">{{ v.deviceTypeInfo }}</div>
           </td>
-          <td>{{ v.worker || '-' }}</td>
-          <td>{{ v.location || '-' }}</td>
-          <td>
-            <div>Темп: {{ v.temperature != null ? v.temperature + '°C' : '-' }}</div>
-            <div>Давл: {{ v.pressure || '-' }}</div>
-            <div>Влаж: {{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+          <!-- Device serial -->
+          <td [ngClass]="{ 'cell-null': v.deviceSerial == null }">{{ v.deviceSerial }}</td>
+
+          <!-- Verification date and Verified until date -->
+          <td [ngClass]="{ 'cell-null': v.verificationDate == null || v.verifiedUntilDate == null }">
+            <div [ngClass]="{ 'cell-null': v.verificationDate == null }">{{ v.verificationDate | date:'yyyy-MM-dd' }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.verifiedUntilDate == null }">{{ v.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
           </td>
-          <td>{{v.etalons?.join(', ')}}</td>
-          <td>{{ formatRangeAccuracy(v) }}</td>
+
+          <!-- Verification group -->
+          <td [ngClass]="{ 'cell-null': v.verificationGroup == null }">{{ v.verificationGroup || '-' }}</td>
+
+          <!-- Location -->
+          <td [ngClass]="{ 'cell-null': v.location == null }">{{ v.location || '-' }}</td>
+
+          <!-- Owner and INN -->
+          <td [ngClass]="{ 'cell-null': v.owner == null || v.ownerINN == null }">
+            <div [ngClass]="{ 'cell-null': v.owner == null }">{{ v.owner || '-' }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.ownerINN == null }">{{ v.ownerINN || '-' }}</div>
+          </td>
+
+          <!-- Worker -->
+          <td [ngClass]="{ 'cell-null': v.worker == null }">{{ v.worker || '-' }}</td>
+
+          <!-- Verification type and method info -->
+          <td [ngClass]="{ 'cell-null': v.verificationTypeName == null || v.verificationMethodInfo == null }">
+            <div [ngClass]="{ 'cell-null': v.verificationTypeName == null }">{{ v.verificationTypeName || '-' }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.verificationMethodInfo == null }">{{ v.verificationMethodInfo || '-' }}</div>
+          </td>
+
+          <!-- Etalons -->
+          <td [ngClass]="{ 'cell-null': !v.etalons || v.etalons.length === 0 }">{{v.etalons?.join(', ') || '-'}}</td>
+
+          <!-- Temperature / Pressure / Humidity -->
+          <td>
+            <div [ngClass]="{ 'cell-null': v.temperature == null }">{{ v.temperature != null ? v.temperature + '°C' : '-' }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.pressure == null }">{{ v.pressure || '-' }}</div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.humidity == null }">{{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+          </td>
+          
+          <!-- Range / Accuracy -->
+          <td [ngClass]="{ 'cell-null': v.measurementMin == null || v.measurementMax == null || v.accuracy == null }">
+            <div [ngClass]="{ 'cell-null': v.measurementMin == null || v.measurementMax == null }">
+              {{ v.measurementMin != null && v.measurementMax != null && v.measurementUnit ? v.measurementMin + '–' + v.measurementMax + ' ' + v.measurementUnit : '-' }}
+            </div>
+            <hr class="data-row-divider">
+            <div [ngClass]="{ 'cell-null': v.accuracy == null }">
+              {{ v.accuracy != null ? ('±' + v.accuracy) : '-' }}
+            </div>
+          </td>
         </tr>
       </tbody>
     </table>
