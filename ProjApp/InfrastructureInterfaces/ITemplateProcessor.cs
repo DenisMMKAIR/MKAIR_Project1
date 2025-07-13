@@ -4,7 +4,7 @@ namespace ProjApp.InfrastructureInterfaces;
 
 public interface ITemplateProcessor : IAsyncDisposable
 {
-    Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification);
+    Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification, CancellationToken? cancellationToken = null);
 }
 
 public class PDFCreationResult

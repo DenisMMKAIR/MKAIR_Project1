@@ -22,10 +22,17 @@ internal class PDFExporter : IAsyncDisposable
         GC.SuppressFinalize(this);
     }
 
-    public async Task<bool> ExportAsync(string htmlContent, string outputFilePath)
+    public async Task<bool> ExportAsync(string htmlContent, string outputFilePath, CancellationToken? cancellationToken = null)
     {
         await _setup;
         using var page = await _browser.NewPageAsync();
+
+        if (cancellationToken != null &&
+            cancellationToken.Value.IsCancellationRequested)
+        {
+            return false;
+        }
+
         await page.SetContentAsync(htmlContent);
         await page.PdfAsync(outputFilePath);
         return true;

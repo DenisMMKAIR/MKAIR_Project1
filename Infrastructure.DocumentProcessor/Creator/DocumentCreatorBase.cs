@@ -23,11 +23,11 @@ internal abstract class DocumentCreatorBase<T>
         _fileContent = File.ReadAllText(formPath);
     }
 
-    public async Task<HTMLCreationResult> CreateAsync(T data)
+    public async Task<HTMLCreationResult> CreateAsync(T data, CancellationToken? cancellationToken = null)
     {
         var config = Configuration.Default.WithDefaultLoader();
         using var context = BrowsingContext.New(config);
-        using var document = await context.OpenAsync(r => r.Content(_fileContent));
+        using var document = await context.OpenAsync(r => r.Content(_fileContent), cancellationToken ?? CancellationToken.None);
 
         foreach (var idValueElement in document.QuerySelectorAll("[id]").Where(e => e.Id!.StartsWith("setValue_")))
         {
@@ -42,6 +42,12 @@ internal abstract class DocumentCreatorBase<T>
 
         result = SetEtalons(document, data);
         if (result != null) return HTMLCreationResult.Failure(result);
+
+        if (cancellationToken.HasValue &&
+        cancellationToken.Value.IsCancellationRequested)
+        {
+            return HTMLCreationResult.Failure("Отмена");
+        }
 
         result = await SetSignAsync(document, data);
         if (result != null) return HTMLCreationResult.Failure(result);
