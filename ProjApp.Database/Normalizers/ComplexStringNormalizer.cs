@@ -10,7 +10,7 @@ public class ComplexStringNormalizer : IStringNormalizer
     public string Normalize(string value)
     {
         foreach (var normalizer in _normalizers) value = normalizer.Normalize(value);
-        value = value.Trim().ToUpper();
+        value = value.ToUpper();
         return value;
     }
 }
