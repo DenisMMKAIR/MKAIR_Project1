@@ -127,7 +127,18 @@
           </th>
           <th>Номер протокола</th>
           <th>Тип устройства</th>
-          <th>Устройство</th>
+          <th>
+            <div>Серийный</div>
+            <hr class="header-divider">
+            <div>Модификация</div>
+            <hr class="header-divider">
+            <div>Год создания</div>
+          </th>
+          <th>
+            <div>Дата поверки</div>
+            <hr class="header-divider">
+            <div>Действительна до</div>
+          </th>
           <th>
             <div>Владелец</div>
             <hr class="header-divider">
@@ -135,6 +146,8 @@
           </th>
           <th>Инфо поверки</th>
           <th>Эталоны</th>
+          <th>Работник</th>
+          <th>Местоположение</th>
           <th>
             <div>Температура</div>
             <hr class="header-divider">
@@ -142,21 +155,11 @@
             <hr class="header-divider">
             <div>Давление</div>
           </th>
-          <th>Результаты проверок</th>
-          <th>
-            <div>Дата поверки</div>
-            <hr class="header-divider">
-            <div>Действительна до</div>
-          </th>
-          <th>Работник</th>
-          <th>Группа поверки</th>
-          <th>Местоположение</th>
           <th>
             <div>Диапазон измерений</div>
             <hr class="header-divider">
             <div>Класс точности</div>
           </th>
-
           <th>Значения устройства</th>
           <th>Значения эталона</th>
           <th>Фактическая погрешность</th>
@@ -182,17 +185,24 @@
           <!-- Device type -->
           <td>
             <div>{{ m.deviceTypeNumber || '-' }}</div>
-            <hr class="device-type-divider">
+            <hr class="data-row-divider">
             <div>{{ m.deviceTypeName || '-' }}</div>
           </td>
           
           <!-- Device details -->
           <td>
             <div>{{ m.deviceSerial || '-' }}</div>
-            <hr class="device-type-divider">
+            <hr class="data-row-divider">
             <div>{{ m.deviceModification || '-' }}</div>
-            <hr class="device-type-divider">
+            <hr class="data-row-divider">
             <div>{{ m.manufactureYear || '-' }}</div>
+          </td>
+          
+          <!-- Verification dates -->
+          <td>
+            <div>{{ m.verificationDate | date:'yyyy-MM-dd' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
           </td>
           
           <!-- Owner information -->
@@ -207,6 +217,12 @@
           <!-- Etalons info -->
           <td>{{ m.etalonsInfo || '-' }}</td>
           
+          <!-- Worker -->
+          <td>{{ m.worker || '-' }}</td>
+          
+          <!-- Location -->
+          <td>{{ m.location || '-' }}</td>
+          
           <!-- Environmental conditions -->
           <td>
             <div>Темп: {{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
@@ -214,34 +230,11 @@
             <div>Давл: {{ m.pressure || '-' }}</div>
           </td>
           
-          <!-- Verification results -->
-          <td>
-            <div>Внешний осмотр: {{ m.verificationVisualCheckup || '-' }}</div>
-            <div>Результат опробывания: {{ m.verificationResultCheckup || '-' }}</div>
-            <div>Опр. осн. погрешности: {{ m.verificationAccuracyCheckup || '-' }}</div>
-          </td>
-          
-          <!-- Verification dates -->
-          <td>
-            <div>{{ m.verificationDate | date:'yyyy-MM-dd' }}</div>
-            <hr class="device-type-divider">
-            <div>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
-          </td>
-          
-          <!-- Worker -->
-          <td>{{ m.worker || '-' }}</td>
-          
-          <!-- Verification group -->
-          <td>{{ m.verificationGroup || '-' }}</td>
-          
-          <!-- Location -->
-          <td>{{ m.location || '-' }}</td>
-          
           <!-- Measurement range and accuracy -->
           <td>
             <div *ngFor="let line of formatRangeAccuracy(m).split('\n'); let i = index">
               <span>{{ line }}</span>
-              <hr *ngIf="i < 2" class="device-type-divider">
+              <hr *ngIf="i < 2" class="data-row-divider">
             </div>
           </td>
           
