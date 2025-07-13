@@ -49,6 +49,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<OwnersService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
+        serviceCollection.AddScoped<ManometrService>();
 
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan([.. assemblies.Select(Assembly.Load)]);

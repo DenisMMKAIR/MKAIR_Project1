@@ -102,7 +102,8 @@ public class Manometr1VerificationDto : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<Manometr1Verification, Manometr1VerificationDto>();
+        config.NewConfig<Manometr1Verification, Manometr1VerificationDto>()
+            .Map(dest => dest.EtalonsInfo, src => string.Join(';', src.Etalons!.Select(e => e.Number)));
     }
 }
 

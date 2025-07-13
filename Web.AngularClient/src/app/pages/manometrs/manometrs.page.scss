@@ -1,7 +1,9 @@
+// Main container
 .table-container {
   padding: var(--spacing-lg);
 }
 
+// Filter controls section
 .pagination-controls {
   display: flex;
   flex-wrap: wrap;
@@ -21,6 +23,7 @@
   align-self: center;
 }
 
+// Pagination navigation
 .pagination-navigation {
   display: flex;
   justify-content: center;
@@ -39,6 +42,7 @@
   cursor: pointer;
   min-width: 2rem;
   text-align: center;
+  transition: var(--transition-fast);
 
   &:hover:not(:disabled) {
     background: var(--secondary-hover);
@@ -62,6 +66,7 @@
   }
 }
 
+// Table styling
 table {
   width: 100%;
   border-collapse: collapse;
@@ -89,15 +94,34 @@ table {
   td {
     max-width: 200px;
     word-wrap: break-word;
+    white-space: pre-line;
   }
 
   tbody tr {
+    transition: var(--transition-fast);
+    
     &:hover {
       background: var(--bg-light);
     }
   }
 }
 
+// Divider elements
+.device-type-divider {
+  margin: var(--spacing-xs) 0;
+  border: none;
+  border-top: 1px solid var(--border-light);
+  height: 1px;
+}
+
+.header-divider {
+  margin: 2px 0;
+  border: none;
+  border-top: 1px solid var(--border-medium);
+  height: 1px;
+}
+
+// Status messages - using global message styles
 .error-message {
   padding: var(--spacing-sm);
   text-align: center;
@@ -116,7 +140,7 @@ table {
   color: var(--primary-color);
 }
 
-// Responsive design for smaller screens
+// Responsive design
 @media (max-width: 1200px) {
   .pagination-controls {
     flex-direction: column;
@@ -129,11 +153,11 @@ table {
   }
 
   table {
-    font-size: 10px;
+    font-size: var(--text-small);
     
     th,
     td {
-      padding: 2px;
+      padding: var(--spacing-xs);
     }
   }
 }
@@ -153,8 +177,56 @@ table {
   }
 
   .pagination-btn {
-    padding: 4px 6px;
-    font-size: 10px;
+    padding: var(--spacing-xs);
+    font-size: var(--text-small);
     min-width: 1.5rem;
+  }
+}
+
+// Checkbox styling
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Export button styling - consistent with global button styles
+.export-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+  border: 1px solid var(--secondary-border);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-normal);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--secondary-hover);
+    border-color: var(--secondary-border-hover);
+  }
+
+  &:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border-color: var(--border-medium);
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
   }
 } 

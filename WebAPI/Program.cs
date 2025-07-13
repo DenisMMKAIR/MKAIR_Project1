@@ -1,3 +1,4 @@
+using System.Text.Json.Serialization;
 using ProjApp.Usage;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -48,7 +49,9 @@ if (builder.Environment.IsDevelopment())
     });
 }
 
-builder.Services.AddControllers();
+builder.Services.AddControllers()
+    .AddJsonOptions(cfg => cfg.JsonSerializerOptions.NumberHandling = JsonNumberHandling.AllowNamedFloatingPointLiterals);
+
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen(cfg => cfg.SwaggerDoc("v1", new() { Title = "My API", Version = "v1" }));
 builder.Services.AddOpenApiDocument();

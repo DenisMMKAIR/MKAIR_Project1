@@ -1,8 +1,10 @@
+<!-- Error message display -->
 <div *ngIf="error" class="error-message">{{ error }}</div>
 
 <div class="table-container">
-  <!-- Page size selector -->
+  <!-- Filter controls section -->
   <div class="pagination-controls">
+    <!-- Page size selector -->
     <div class="selector-form">
       <label for="pageSize">Записей на странице:</label>
       <select
@@ -16,6 +18,7 @@
       </select>
     </div>
 
+    <!-- Date filter -->
     <div class="selector-form">
       <app-dates-filter
         [label]="'Дата:'"
@@ -24,6 +27,7 @@
       ></app-dates-filter>
     </div>
 
+    <!-- Device type number filter -->
     <div class="selector-form">
       <label for="deviceTypeNumberFilter">Номер типа:</label>
       <input
@@ -36,6 +40,7 @@
       />
     </div>
 
+    <!-- Device serial filter -->
     <div class="selector-form">
       <label for="deviceSerialFilter">Серийный номер:</label>
       <input
@@ -48,6 +53,7 @@
       />
     </div>
 
+    <!-- Owner filter -->
     <div class="selector-form">
       <label for="ownerFilter">Владелец:</label>
       <input
@@ -60,36 +66,75 @@
       />
     </div>
 
+    <!-- Export to PDF button -->
+    <div class="selector-form">
+      <button 
+        type="button" 
+        class="export-btn"
+        (click)="exportToPdf()"
+        [disabled]="loading || exportLoading || selectedRows.size === 0"
+        title="Экспорт выбранных записей в PDF"
+      >
+        {{ exportLoading ? 'Экспорт...' : 'Экспорт в PDF (' + selectedRows.size + ')' }}
+      </button>
+    </div>
+
+    <!-- Pagination info -->
     <div class="pagination-info">
       Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
       + 1 }} из {{ pagination.totalCount }} записей
     </div>
   </div>
 
+  <!-- Loading message -->
   <div *ngIf="loading" class="loading-message">Загрузка манометров...</div>
 
+  <!-- Data table -->
   <div *ngIf="!loading && !error">
     <table>
       <thead>
         <tr>
+          <th>
+            <input 
+              type="checkbox" 
+              [checked]="isAllSelected()" 
+              (change)="toggleSelectAll($event)"
+              [disabled]="loading || exportLoading"
+              title="Выбрать все"
+            />
+          </th>
           <th>Номер протокола</th>
           <th>Тип устройства</th>
-          <th>Модификация</th>
-          <th>Номер типа</th>
-          <th>Серийный номер</th>
-          <th>Год выпуска</th>
-          <th>Владелец/ИНН</th>
+          <th>Устройство</th>
+          <th>
+            <div>Владелец</div>
+            <hr class="header-divider">
+            <div>ИНН</div>
+          </th>
           <th>Инфо поверки</th>
           <th>Эталоны</th>
-          <th>Температура/Влажность/Давление</th>
+          <th>
+            <div>Температура</div>
+            <hr class="header-divider">
+            <div>Влажность</div>
+            <hr class="header-divider">
+            <div>Давление</div>
+          </th>
           <th>Результаты проверок</th>
-          <th>Дата поверки</th>
+          <th>
+            <div>Дата поверки</div>
+            <hr class="header-divider">
+            <div>Действительна до</div>
+          </th>
           <th>Работник</th>
           <th>Группа поверки</th>
           <th>Местоположение</th>
-          <th>Действительна до</th>
-          <th>Диапазон измерений</th>
-          <th>Допустимая погрешность</th>
+          <th>
+            <div>Диапазон измерений</div>
+            <hr class="header-divider">
+            <div>Класс точности</div>
+          </th>
+
           <th>Значения устройства</th>
           <th>Значения эталона</th>
           <th>Фактическая погрешность</th>
@@ -97,39 +142,98 @@
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let m of manometrs">
+        <tr *ngFor="let m of manometrs; let i = index">
+          <!-- Checkbox -->
+          <td>
+            <input 
+              type="checkbox" 
+              [checked]="selectedRows.has(i)" 
+              (change)="toggleRowSelection(i, $event)"
+              [disabled]="loading || exportLoading"
+              title="Выбрать строку"
+            />
+          </td>
+          <!-- Protocol number -->
           <td>{{ m.protocolNumber || '-' }}</td>
-          <td>{{ m.deviceTypeName || '-' }}</td>
-          <td>{{ m.deviceModification || '-' }}</td>
-          <td>{{ m.deviceTypeNumber || '-' }}</td>
-          <td>{{ m.deviceSerial || '-' }}</td>
-          <td>{{ m.manufactureYear || '-' }}</td>
+          
+          <!-- Device type -->
+          <td>
+            <div>{{ m.deviceTypeNumber || '-' }}</div>
+            <hr class="device-type-divider">
+            <div>{{ m.deviceTypeName || '-' }}</div>
+          </td>
+          
+          <!-- Device details -->
+          <td>
+            <div>{{ m.deviceSerial || '-' }}</div>
+            <hr class="device-type-divider">
+            <div>{{ m.deviceModification || '-' }}</div>
+            <hr class="device-type-divider">
+            <div>{{ m.manufactureYear || '-' }}</div>
+          </td>
+          
+          <!-- Owner information -->
           <td>
             <div>Владелец: {{ m.owner || '-' }}</div>
             <div>ИНН: {{ m.ownerINN || '-' }}</div>
           </td>
+          
+          <!-- Verification info -->
           <td>{{ m.verificationsInfo || '-' }}</td>
+          
+          <!-- Etalons info -->
           <td>{{ m.etalonsInfo || '-' }}</td>
+          
+          <!-- Environmental conditions -->
           <td>
             <div>Темп: {{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
             <div>Влаж: {{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
             <div>Давл: {{ m.pressure || '-' }}</div>
           </td>
+          
+          <!-- Verification results -->
           <td>
             <div>Внешний осмотр: {{ m.verificationVisualCheckup || '-' }}</div>
             <div>Результат опробывания: {{ m.verificationResultCheckup || '-' }}</div>
             <div>Опр. осн. погрешности: {{ m.verificationAccuracyCheckup || '-' }}</div>
           </td>
-          <td>{{ m.verificationDate | date:'yyyy-MM-dd' }}</td>
+          
+          <!-- Verification dates -->
+          <td>
+            <div>{{ m.verificationDate | date:'yyyy-MM-dd' }}</div>
+            <hr class="device-type-divider">
+            <div>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
+          </td>
+          
+          <!-- Worker -->
           <td>{{ m.worker || '-' }}</td>
+          
+          <!-- Verification group -->
           <td>{{ m.verificationGroup || '-' }}</td>
+          
+          <!-- Location -->
           <td>{{ m.location || '-' }}</td>
-          <td>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</td>
-          <td>{{ formatRangeAccuracy(m) }}</td>
-          <td>{{ m.validError != null ? '±' + m.validError : '-' }}</td>
+          
+          <!-- Measurement range and accuracy -->
+          <td>
+            <div *ngFor="let line of formatRangeAccuracy(m).split('\n'); let i = index">
+              <span>{{ line }}</span>
+              <hr *ngIf="i < 2" class="device-type-divider">
+            </div>
+          </td>
+          
+
+          
+          <!-- Device values -->
           <td>{{ formatDeviceValues(m) }}</td>
+          
+          <!-- Etalon values -->
           <td>{{ formatEtalonValues(m) }}</td>
+          
+          <!-- Actual error -->
           <td>{{ formatActualError(m) }}</td>
+          
+          <!-- Actual variation -->
           <td>{{ formatActualVariation(m) }}</td>
         </tr>
       </tbody>
