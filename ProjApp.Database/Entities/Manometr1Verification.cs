@@ -4,6 +4,7 @@ namespace ProjApp.Database.Entities;
 
 public class Manometr1Verification : DatabaseEntity, IVerificationBase
 {
+    [Obsolete(message: "Doesnt store static data")]
     public required string Address { get; set; }
     public required string ProtocolNumber { get; set; }
     public required string DeviceTypeName { get; set; }
