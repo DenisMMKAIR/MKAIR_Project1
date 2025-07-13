@@ -15,7 +15,7 @@ export class Pagination {
   public totalPages = 0;
   public hasPreviousPage = false;
   public hasNextPage = false;
-  public pageSizeOptions = [5, 10, 100];
+  public pageSizeOptions = [5, 10, 100, 500, 5000];
 
   constructor(onPageChange?: () => void) {
     this.onPageChangeCallback = onPageChange;

@@ -55,8 +55,21 @@
       />
     </div>
 
-    <!-- Export to PDF button -->
+    <!-- Delete button as filter action -->
     <div class="selector-form">
+      <button
+        type="button"
+        class="delete-btn"
+        (click)="deleteSelectedVerifications()"
+        [disabled]="loading || exportLoading || selectedRows.size === 0"
+        title="Удалить выбранные поверки"
+      >
+        Удалить ({{ selectedRows.size }})
+      </button>
+    </div>
+
+    <!-- Export buttons in column -->
+    <div class="selector-form export-column">
       <button 
         type="button" 
         class="export-btn"
@@ -148,6 +161,7 @@
           <th>Значения эталона</th>
           <th>Фактическая погрешность</th>
           <th>Фактическая вариация</th>
+          <!-- <th>Удалить</th> -->
         </tr>
       </thead>
       <tbody>
@@ -244,6 +258,7 @@
           
           <!-- Actual variation -->
           <td>{{ formatActualVariation(m) }}</td>
+          <!-- Delete button removed -->
         </tr>
       </tbody>
     </table>

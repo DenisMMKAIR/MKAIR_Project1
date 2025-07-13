@@ -1,5 +1,6 @@
 using Mapster;
 using MapsterMapper;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Entities;
@@ -51,8 +52,15 @@ public class ManometrService
     public Task<ServiceResult> ChangeVerificationAsync(ChangeManometr1VerificationRequest dto)
         => throw new NotImplementedException();
 
-    public Task<ServiceResult> DeleteVerificationAsync(Guid id)
-        => throw new NotImplementedException();
+    public async Task<ServiceResult> DeleteVerificationAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
+    {
+        cancellationToken ??= CancellationToken.None;
+        var vrfs = await _database.Manometr1Verifications.Where(x => ids.Contains(x.Id)).ToArrayAsync(cancellationToken.Value);
+        if (vrfs.Length == 0) return ServiceResult.Fail("Поверки не найдены");
+        _database.Manometr1Verifications.RemoveRange(vrfs);
+        await _database.SaveChangesAsync();
+        return ServiceResult.Success("Поверки удалены");
+    }
 
     public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
     {

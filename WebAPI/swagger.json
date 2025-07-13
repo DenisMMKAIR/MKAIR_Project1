@@ -320,6 +320,42 @@
         }
       }
     },
+    "/api/Manometr/DeleteVerifications": {
+      "post": {
+        "tags": [
+          "Manometr"
+        ],
+        "operationId": "Manometr_DeleteVerifications",
+        "requestBody": {
+          "x-name": "ids",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Owners/GetOwners": {
       "get": {
         "tags": [

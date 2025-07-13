@@ -248,6 +248,37 @@ input[type="checkbox"] {
     color: var(--text-disabled);
     cursor: not-allowed;
     border-color: var(--border-medium);
+    opacity: 0.6;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+}
+
+// Delete button styling - visually consistent with export-btn when disabled
+.delete-btn {
+  background-color: var(--error-color);
+  color: var(--text-white);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--text-normal);
+  font-weight: 500;
+  transition: var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--error-color-dark);
+  }
+
+  &:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border: 1px solid var(--border-medium);
+    opacity: 0.6;
   }
 
   &:focus {

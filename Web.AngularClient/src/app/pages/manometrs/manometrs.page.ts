@@ -282,4 +282,41 @@ export class ManometrsPage implements OnInit {
     const formatted = value.toFixed(3);
     return formatted.replace(/\.?0+$/, '');
   }
+
+  public deleteSelectedVerifications(): void {
+    if (this.selectedRows.size === 0 || this.loading || this.exportLoading) {
+      return;
+    }
+    if (!confirm('Вы уверены, что хотите удалить выбранные поверки?')) {
+      return;
+    }
+    this.loading = true;
+    this.error = null;
+    this.successMessage = null;
+    const selectedManometrs = Array.from(this.selectedRows).map(index => this.manometrs[index]);
+    const ids = selectedManometrs.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    if (ids.length === 0) {
+      this.error = 'Нет выбранных записей для удаления.';
+      this.loading = false;
+      return;
+    }
+    this.manometrClient.deleteVerifications(ids).subscribe({
+      next: (result: any) => {
+        if (result?.error) {
+          this.error = result.error;
+        } else {
+          this.successMessage = result?.message || 'Выбранные поверки удалены.';
+        }
+        this.selectedRows.clear();
+        this.loading = false;
+        this.loadManometrs();
+      },
+      error: (err: any) => {
+        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при удалении поверок.';
+        this.selectedRows.clear();
+        this.loading = false;
+        this.loadManometrs();
+      }
+    });
+  }
 }
