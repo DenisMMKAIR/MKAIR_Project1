@@ -44,4 +44,11 @@ export const routes: Routes = [
         (m) => m.FilledVerificationsPage
       ),
   },
+  {
+    path: 'manometrs',
+    loadComponent: () =>
+      import('./pages/manometrs/manometrs.page').then(
+        (m) => m.ManometrsPage
+      ),
+  },
 ];

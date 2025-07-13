@@ -320,6 +320,126 @@ export class InitialVerificationJobsClient {
 }
 
 @Injectable()
+export class ManometrClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
+        let url_ = this.baseUrl + "/api/Manometr/GetVerifications?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetVerifications(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVerifications(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfManometr1VerificationDto>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfManometr1VerificationDto>;
+        }));
+    }
+
+    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfManometr1VerificationDto.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportToPdf(ids: string[]): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Manometr/ExportToPdf";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(ids);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class OwnersClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -1133,126 +1253,6 @@ export class VerificationMethodsClient {
                 fileName = fileNameMatch && fileNameMatch.length > 1 ? fileNameMatch[1] : undefined;
             }
             return _observableOf({ fileName: fileName, data: responseBlob as any, status: status, headers: _headers });
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-}
-
-@Injectable()
-export class ManometrClient {
-    private http: HttpClient;
-    private baseUrl: string;
-    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
-
-    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
-        this.http = http;
-        this.baseUrl = baseUrl ?? "";
-    }
-
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
-        let url_ = this.baseUrl + "/api/Manometr/GetVerifications?";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetVerifications(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetVerifications(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfManometr1VerificationDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfManometr1VerificationDto>;
-        }));
-    }
-
-    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfManometr1VerificationDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServicePaginatedResultOfManometr1VerificationDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    exportToPdf(ids: string[]): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Manometr/ExportToPdf";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(ids);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportToPdf(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportToPdf(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
         } else if (status !== 200 && status !== 204) {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             return throwException("An unexpected server error occurred.", status, _responseText, _headers);
@@ -2145,6 +2145,299 @@ export class YearMonth implements IYearMonth {
 export interface IYearMonth {
     year?: number;
     month?: number;
+}
+
+export class ServicePaginatedResultOfManometr1VerificationDto implements IServicePaginatedResultOfManometr1VerificationDto {
+    message?: string | undefined;
+    error?: string | undefined;
+    data?: PaginatedListOfManometr1VerificationDto | undefined;
+
+    constructor(data?: IServicePaginatedResultOfManometr1VerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+            this.error = _data["error"];
+            this.data = _data["data"] ? PaginatedListOfManometr1VerificationDto.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfManometr1VerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfManometr1VerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        data["error"] = this.error;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfManometr1VerificationDto {
+    message?: string | undefined;
+    error?: string | undefined;
+    data?: PaginatedListOfManometr1VerificationDto | undefined;
+}
+
+export class PaginatedListOfManometr1VerificationDto implements IPaginatedListOfManometr1VerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: Manometr1VerificationDto[];
+
+    constructor(data?: IPaginatedListOfManometr1VerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+            this.totalCount = _data["totalCount"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Manometr1VerificationDto.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfManometr1VerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfManometr1VerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        data["totalCount"] = this.totalCount;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfManometr1VerificationDto {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: Manometr1VerificationDto[];
+}
+
+export class Manometr1VerificationDto implements IManometr1VerificationDto {
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    verificationVisualCheckup?: string;
+    verificationResultCheckup?: string;
+    verificationAccuracyCheckup?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    validError?: number;
+    deviceValues?: number[][];
+    etalonValues?: number[][];
+    actualError?: number[][];
+    actualVariation?: number[];
+
+    constructor(data?: IManometr1VerificationDto) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.protocolNumber = _data["protocolNumber"];
+            this.deviceTypeName = _data["deviceTypeName"];
+            this.deviceModification = _data["deviceModification"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.manufactureYear = _data["manufactureYear"];
+            this.owner = _data["owner"];
+            this.ownerINN = _data["ownerINN"];
+            this.verificationsInfo = _data["verificationsInfo"];
+            this.etalonsInfo = _data["etalonsInfo"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.pressure = _data["pressure"];
+            this.verificationVisualCheckup = _data["verificationVisualCheckup"];
+            this.verificationResultCheckup = _data["verificationResultCheckup"];
+            this.verificationAccuracyCheckup = _data["verificationAccuracyCheckup"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.worker = _data["worker"];
+            this.verificationGroup = _data["verificationGroup"];
+            this.location = _data["location"];
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            this.validError = _data["validError"];
+            if (Array.isArray(_data["deviceValues"])) {
+                this.deviceValues = [] as any;
+                for (let item of _data["deviceValues"])
+                    this.deviceValues!.push(item);
+            }
+            if (Array.isArray(_data["etalonValues"])) {
+                this.etalonValues = [] as any;
+                for (let item of _data["etalonValues"])
+                    this.etalonValues!.push(item);
+            }
+            if (Array.isArray(_data["actualError"])) {
+                this.actualError = [] as any;
+                for (let item of _data["actualError"])
+                    this.actualError!.push(item);
+            }
+            if (Array.isArray(_data["actualVariation"])) {
+                this.actualVariation = [] as any;
+                for (let item of _data["actualVariation"])
+                    this.actualVariation!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Manometr1VerificationDto {
+        data = typeof data === 'object' ? data : {};
+        let result = new Manometr1VerificationDto();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["protocolNumber"] = this.protocolNumber;
+        data["deviceTypeName"] = this.deviceTypeName;
+        data["deviceModification"] = this.deviceModification;
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["manufactureYear"] = this.manufactureYear;
+        data["owner"] = this.owner;
+        data["ownerINN"] = this.ownerINN;
+        data["verificationsInfo"] = this.verificationsInfo;
+        data["etalonsInfo"] = this.etalonsInfo;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["pressure"] = this.pressure;
+        data["verificationVisualCheckup"] = this.verificationVisualCheckup;
+        data["verificationResultCheckup"] = this.verificationResultCheckup;
+        data["verificationAccuracyCheckup"] = this.verificationAccuracyCheckup;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["worker"] = this.worker;
+        data["verificationGroup"] = this.verificationGroup;
+        data["location"] = this.location;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        data["validError"] = this.validError;
+        if (Array.isArray(this.deviceValues)) {
+            data["deviceValues"] = [];
+            for (let item of this.deviceValues)
+                data["deviceValues"].push(item);
+        }
+        if (Array.isArray(this.etalonValues)) {
+            data["etalonValues"] = [];
+            for (let item of this.etalonValues)
+                data["etalonValues"].push(item);
+        }
+        if (Array.isArray(this.actualError)) {
+            data["actualError"] = [];
+            for (let item of this.actualError)
+                data["actualError"].push(item);
+        }
+        if (Array.isArray(this.actualVariation)) {
+            data["actualVariation"] = [];
+            for (let item of this.actualVariation)
+                data["actualVariation"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IManometr1VerificationDto {
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    verificationVisualCheckup?: string;
+    verificationResultCheckup?: string;
+    verificationAccuracyCheckup?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    validError?: number;
+    deviceValues?: number[][];
+    etalonValues?: number[][];
+    actualError?: number[][];
+    actualVariation?: number[];
+}
+
+export enum DeviceLocation {
+    АнтипинскийНПЗ = "АнтипинскийНПЗ",
+    ГПНЯмал = "ГПНЯмал",
 }
 
 export class ServicePaginatedResultOfOwner implements IServicePaginatedResultOfOwner {
@@ -3042,299 +3335,6 @@ export interface IAddVerificationMethodRequest {
     description?: string;
     aliases?: string[];
     checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
-}
-
-export class ServicePaginatedResultOfManometr1VerificationDto implements IServicePaginatedResultOfManometr1VerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfManometr1VerificationDto | undefined;
-
-    constructor(data?: IServicePaginatedResultOfManometr1VerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfManometr1VerificationDto.fromJS(_data["data"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): ServicePaginatedResultOfManometr1VerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ServicePaginatedResultOfManometr1VerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IServicePaginatedResultOfManometr1VerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfManometr1VerificationDto | undefined;
-}
-
-export class PaginatedListOfManometr1VerificationDto implements IPaginatedListOfManometr1VerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: Manometr1VerificationDto[];
-
-    constructor(data?: IPaginatedListOfManometr1VerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(Manometr1VerificationDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfManometr1VerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfManometr1VerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
-        }
-        return data;
-    }
-}
-
-export interface IPaginatedListOfManometr1VerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: Manometr1VerificationDto[];
-}
-
-export class Manometr1VerificationDto implements IManometr1VerificationDto {
-    protocolNumber?: string;
-    deviceTypeName?: string;
-    deviceModification?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    manufactureYear?: number;
-    owner?: string;
-    ownerINN?: number;
-    verificationsInfo?: string;
-    etalonsInfo?: string;
-    temperature?: number;
-    humidity?: number;
-    pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
-    verificationDate?: Date;
-    worker?: string;
-    verificationGroup?: VerificationGroup;
-    location?: DeviceLocation;
-    verifiedUntilDate?: Date;
-    measurementMin?: number;
-    measurementMax?: number;
-    measurementUnit?: string;
-    validError?: number;
-    deviceValues?: number[][];
-    etalonValues?: number[][];
-    actualError?: number[][];
-    actualVariation?: number[];
-
-    constructor(data?: IManometr1VerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.protocolNumber = _data["protocolNumber"];
-            this.deviceTypeName = _data["deviceTypeName"];
-            this.deviceModification = _data["deviceModification"];
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceSerial = _data["deviceSerial"];
-            this.manufactureYear = _data["manufactureYear"];
-            this.owner = _data["owner"];
-            this.ownerINN = _data["ownerINN"];
-            this.verificationsInfo = _data["verificationsInfo"];
-            this.etalonsInfo = _data["etalonsInfo"];
-            this.temperature = _data["temperature"];
-            this.humidity = _data["humidity"];
-            this.pressure = _data["pressure"];
-            this.verificationVisualCheckup = _data["verificationVisualCheckup"];
-            this.verificationResultCheckup = _data["verificationResultCheckup"];
-            this.verificationAccuracyCheckup = _data["verificationAccuracyCheckup"];
-            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
-            this.worker = _data["worker"];
-            this.verificationGroup = _data["verificationGroup"];
-            this.location = _data["location"];
-            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
-            this.measurementMin = _data["measurementMin"];
-            this.measurementMax = _data["measurementMax"];
-            this.measurementUnit = _data["measurementUnit"];
-            this.validError = _data["validError"];
-            if (Array.isArray(_data["deviceValues"])) {
-                this.deviceValues = [] as any;
-                for (let item of _data["deviceValues"])
-                    this.deviceValues!.push(item);
-            }
-            if (Array.isArray(_data["etalonValues"])) {
-                this.etalonValues = [] as any;
-                for (let item of _data["etalonValues"])
-                    this.etalonValues!.push(item);
-            }
-            if (Array.isArray(_data["actualError"])) {
-                this.actualError = [] as any;
-                for (let item of _data["actualError"])
-                    this.actualError!.push(item);
-            }
-            if (Array.isArray(_data["actualVariation"])) {
-                this.actualVariation = [] as any;
-                for (let item of _data["actualVariation"])
-                    this.actualVariation!.push(item);
-            }
-        }
-    }
-
-    static fromJS(data: any): Manometr1VerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new Manometr1VerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["protocolNumber"] = this.protocolNumber;
-        data["deviceTypeName"] = this.deviceTypeName;
-        data["deviceModification"] = this.deviceModification;
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceSerial"] = this.deviceSerial;
-        data["manufactureYear"] = this.manufactureYear;
-        data["owner"] = this.owner;
-        data["ownerINN"] = this.ownerINN;
-        data["verificationsInfo"] = this.verificationsInfo;
-        data["etalonsInfo"] = this.etalonsInfo;
-        data["temperature"] = this.temperature;
-        data["humidity"] = this.humidity;
-        data["pressure"] = this.pressure;
-        data["verificationVisualCheckup"] = this.verificationVisualCheckup;
-        data["verificationResultCheckup"] = this.verificationResultCheckup;
-        data["verificationAccuracyCheckup"] = this.verificationAccuracyCheckup;
-        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
-        data["worker"] = this.worker;
-        data["verificationGroup"] = this.verificationGroup;
-        data["location"] = this.location;
-        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
-        data["measurementMin"] = this.measurementMin;
-        data["measurementMax"] = this.measurementMax;
-        data["measurementUnit"] = this.measurementUnit;
-        data["validError"] = this.validError;
-        if (Array.isArray(this.deviceValues)) {
-            data["deviceValues"] = [];
-            for (let item of this.deviceValues)
-                data["deviceValues"].push(item);
-        }
-        if (Array.isArray(this.etalonValues)) {
-            data["etalonValues"] = [];
-            for (let item of this.etalonValues)
-                data["etalonValues"].push(item);
-        }
-        if (Array.isArray(this.actualError)) {
-            data["actualError"] = [];
-            for (let item of this.actualError)
-                data["actualError"].push(item);
-        }
-        if (Array.isArray(this.actualVariation)) {
-            data["actualVariation"] = [];
-            for (let item of this.actualVariation)
-                data["actualVariation"].push(item);
-        }
-        return data;
-    }
-}
-
-export interface IManometr1VerificationDto {
-    protocolNumber?: string;
-    deviceTypeName?: string;
-    deviceModification?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    manufactureYear?: number;
-    owner?: string;
-    ownerINN?: number;
-    verificationsInfo?: string;
-    etalonsInfo?: string;
-    temperature?: number;
-    humidity?: number;
-    pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
-    verificationDate?: Date;
-    worker?: string;
-    verificationGroup?: VerificationGroup;
-    location?: DeviceLocation;
-    verifiedUntilDate?: Date;
-    measurementMin?: number;
-    measurementMax?: number;
-    measurementUnit?: string;
-    validError?: number;
-    deviceValues?: number[][];
-    etalonValues?: number[][];
-    actualError?: number[][];
-    actualVariation?: number[];
-}
-
-export enum DeviceLocation {
-    АнтипинскийНПЗ = "АнтипинскийНПЗ",
-    ГПНЯмал = "ГПНЯмал",
 }
 
 export class ServicePaginatedResultOfSuccessInitialVerificationDto implements IServicePaginatedResultOfSuccessInitialVerificationDto {

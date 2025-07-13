@@ -1,0 +1,186 @@
+<div *ngIf="error" class="error-message">{{ error }}</div>
+
+<div class="table-container">
+  <!-- Page size selector -->
+  <div class="pagination-controls">
+    <div class="selector-form">
+      <label for="pageSize">Записей на странице:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pagination.pageSize"
+        (change)="pagination.onPageSizeChange()"
+      >
+        <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+
+    <div class="selector-form">
+      <app-dates-filter
+        [label]="'Дата:'"
+        [(model)]="yearMonthFilter"
+        (change)="onYearMonthFilterChange()"
+      ></app-dates-filter>
+    </div>
+
+    <div class="selector-form">
+      <label for="deviceTypeNumberFilter">Номер типа:</label>
+      <input
+        id="deviceTypeNumberFilter"
+        name="deviceTypeNumberFilter"
+        type="text"
+        [(ngModel)]="deviceTypeNumberFilter"
+        placeholder="Введите номер типа"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="selector-form">
+      <label for="deviceSerialFilter">Серийный номер:</label>
+      <input
+        id="deviceSerialFilter"
+        name="deviceSerialFilter"
+        type="text"
+        [(ngModel)]="deviceSerialFilter"
+        placeholder="Введите серийный номер"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="selector-form">
+      <label for="ownerFilter">Владелец:</label>
+      <input
+        id="ownerFilter"
+        name="ownerFilter"
+        type="text"
+        [(ngModel)]="ownerFilter"
+        placeholder="Введите владельца"
+        autocomplete="off"
+      />
+    </div>
+
+    <div class="pagination-info">
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
+      + 1 }} из {{ pagination.totalCount }} записей
+    </div>
+  </div>
+
+  <div *ngIf="loading" class="loading-message">Загрузка манометров...</div>
+
+  <div *ngIf="!loading && !error">
+    <table>
+      <thead>
+        <tr>
+          <th>Номер протокола</th>
+          <th>Тип устройства</th>
+          <th>Модификация</th>
+          <th>Номер типа</th>
+          <th>Серийный номер</th>
+          <th>Год выпуска</th>
+          <th>Владелец/ИНН</th>
+          <th>Инфо поверки</th>
+          <th>Эталоны</th>
+          <th>Температура/Влажность/Давление</th>
+          <th>Результаты проверок</th>
+          <th>Дата поверки</th>
+          <th>Работник</th>
+          <th>Группа поверки</th>
+          <th>Местоположение</th>
+          <th>Действительна до</th>
+          <th>Диапазон измерений</th>
+          <th>Допустимая погрешность</th>
+          <th>Значения устройства</th>
+          <th>Значения эталона</th>
+          <th>Фактическая погрешность</th>
+          <th>Фактическая вариация</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of manometrs">
+          <td>{{ m.protocolNumber || '-' }}</td>
+          <td>{{ m.deviceTypeName || '-' }}</td>
+          <td>{{ m.deviceModification || '-' }}</td>
+          <td>{{ m.deviceTypeNumber || '-' }}</td>
+          <td>{{ m.deviceSerial || '-' }}</td>
+          <td>{{ m.manufactureYear || '-' }}</td>
+          <td>
+            <div>Владелец: {{ m.owner || '-' }}</div>
+            <div>ИНН: {{ m.ownerINN || '-' }}</div>
+          </td>
+          <td>{{ m.verificationsInfo || '-' }}</td>
+          <td>{{ m.etalonsInfo || '-' }}</td>
+          <td>
+            <div>Темп: {{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
+            <div>Влаж: {{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+            <div>Давл: {{ m.pressure || '-' }}</div>
+          </td>
+          <td>
+            <div>Внешний осмотр: {{ m.verificationVisualCheckup || '-' }}</div>
+            <div>Результат опробывания: {{ m.verificationResultCheckup || '-' }}</div>
+            <div>Опр. осн. погрешности: {{ m.verificationAccuracyCheckup || '-' }}</div>
+          </td>
+          <td>{{ m.verificationDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ m.worker || '-' }}</td>
+          <td>{{ m.verificationGroup || '-' }}</td>
+          <td>{{ m.location || '-' }}</td>
+          <td>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</td>
+          <td>{{ formatRangeAccuracy(m) }}</td>
+          <td>{{ m.validError != null ? '±' + m.validError : '-' }}</td>
+          <td>{{ formatDeviceValues(m) }}</td>
+          <td>{{ formatEtalonValues(m) }}</td>
+          <td>{{ formatActualError(m) }}</td>
+          <td>{{ formatActualVariation(m) }}</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination navigation -->
+    <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateFirst"
+        (click)="pagination.goToFirstPage()"
+        title="Первая страница"
+      >
+        «
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasPreviousPage"
+        (click)="pagination.goToPreviousPage()"
+        title="Предыдущая страница"
+      >
+        ‹
+      </button>
+
+      <button
+        *ngFor="let page of pagination.getPageNumbers()"
+        class="pagination-btn page-number"
+        [class.active]="page === pagination.currentPage"
+        (click)="pagination.goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasNextPage"
+        (click)="pagination.goToNextPage()"
+        title="Следующая страница"
+      >
+        ›
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateLast"
+        (click)="pagination.goToLastPage()"
+        title="Последняя страница"
+      >
+        »
+      </button>
+    </div>
+  </div>
+</div> 
