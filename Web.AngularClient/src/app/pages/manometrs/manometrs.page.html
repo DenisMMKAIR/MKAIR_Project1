@@ -207,8 +207,9 @@
           
           <!-- Owner information -->
           <td>
-            <div>Владелец: {{ m.owner || '-' }}</div>
-            <div>ИНН: {{ m.ownerINN || '-' }}</div>
+            <div>{{ m.owner || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.ownerINN || '-' }}</div>
           </td>
           
           <!-- Verification info -->
@@ -237,8 +238,6 @@
               <hr *ngIf="i < 2" class="data-row-divider">
             </div>
           </td>
-          
-
           
           <!-- Device values -->
           <td>{{ formatDeviceValues(m) }}</td>
