@@ -26,9 +26,9 @@ public class TemplateProcessor : ITemplateProcessor
 
     public async Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification)
     {
-        var result = await _manDocCreator.CreateAsync(verification);
+        var htmlResult = await _manDocCreator.CreateAsync(verification);
 
-        if (result.Error != null) return PDFCreationResult.Failure(result.Error);
+        if (htmlResult.Error != null) return PDFCreationResult.Failure(htmlResult.Error);
 
         var dirPath = Path.Combine(
             _protocoolsDirPath,
@@ -42,7 +42,7 @@ public class TemplateProcessor : ITemplateProcessor
         var fileName = $"{verification.VerificationDate:yyyy-MM-dd} № {verification.DeviceSerial} (МПИ-{mpi}).pdf";
         var filePath = Path.Combine(dirPath, fileName);
 
-        await _exporter.ExportAsync(result.HTMLContent!, filePath);
+        await _exporter.ExportAsync(htmlResult.HTMLContent!, filePath);
 
         return PDFCreationResult.Success(filePath, $"Файл протокола {fileName} создан");
     }
