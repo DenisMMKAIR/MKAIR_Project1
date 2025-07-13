@@ -25,7 +25,7 @@ internal static class Manometr1Calculations
             ManufactureYear = v.Device!.ManufacturedYear,
             Owner = v.Owner,
             OwnerINN = v.OwnerINN!.Value,
-            VerificationsInfo = v.VerificationTypeName,
+            VerificationsInfo = method.Description,
             EtalonsInfo = v.Etalons!.Select(e => e.FullInfo).Aggregate((a, c) => $"{a}; {c}"),
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
