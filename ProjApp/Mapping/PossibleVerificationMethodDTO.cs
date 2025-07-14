@@ -4,6 +4,17 @@ using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Mapping;
 
+public record PossibleVrfMethodDTO(
+    Guid? VerificationMethodId,
+    string DeviceTypeNumber,
+    string DeviceTypeInfo,
+    IReadOnlyList<string> DeviceModifications,
+    IReadOnlyList<PossibleVrfMethodAliasDTO> Aliases,
+    IReadOnlyList<YearMonth> Dates
+);
+
+public record PossibleVrfMethodAliasDTO(bool Exists, string Alias);
+
 public class PossibleVerificationMethodDTO : IRegister
 {
     public required string DeviceTypeNumber { get; init; }

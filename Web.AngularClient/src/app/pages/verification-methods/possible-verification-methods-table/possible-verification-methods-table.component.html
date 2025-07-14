@@ -1,4 +1,10 @@
+<!-- Error message display -->
+<div *ngIf="error" class="error-message">{{ error }}</div>
+<!-- Alias error message display -->
+<div *ngIf="aliasErrorMessage" class="error-message">{{ aliasErrorMessage }}</div>
+
 <div class="table-container">
+  <!-- Filter controls section -->
   <div class="pagination-controls">
     <div class="selector-form">
       <label for="pageSize">Записей на странице:</label>
@@ -11,6 +17,13 @@
           {{ size }}
         </option>
       </select>
+    </div>
+    <div class="selector-form">
+      <app-dates-filter
+        [label]="'Фильтр по году/месяцу:'"
+        [(model)]="yearMonthFilter"
+        (change)="onFilterChange()"
+      ></app-dates-filter>
     </div>
     <div class="selector-form">
       <label for="deviceTypeNumberFilter">Номер типа:</label>
@@ -48,49 +61,65 @@
         autocomplete="off"
       />
     </div>
-    <div class="selector-form">
-      <app-dates-filter
-        [label]="'Фильтр по году/месяцу:'"
-        [(model)]="yearMonthFilter"
-        (change)="onFilterChange()"
-      ></app-dates-filter>
-    </div>
     <div class="pagination-info">
       Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex() + 1 }} из {{ pagination.totalCount }} записей
     </div>
   </div>
-  <table>
-    <thead>
-      <tr>
-        <th>Номер типа</th>
-        <th>Инфо типа</th>
-        <th>Модификации</th>
-        <th>Названия поверки</th>
-        <th>Даты</th>
-      </tr>
-    </thead>
-    <tbody>
-      <tr *ngIf="loading">
-        <td colspan="5" class="loading-message">Загрузка возможных методов поверки...</td>
-      </tr>
-      <tr *ngIf="error && !loading">
-        <td colspan="5" class="error-message">{{ error }}</td>
-      </tr>
-      <tr *ngFor="let m of possibleVerificationMethods" [hidden]="loading || error">
-        <td>{{ m.deviceTypeNumber }}</td>
-        <td>{{ m.deviceTypeInfo }}</td>
-        <td>{{ m.deviceModifications?.join(', ') || '-' }}</td>
-        <td>{{ m.verificationTypeNames?.join(', ') || '-' }}</td>
-        <td>{{ formatDates(m.dates) }}</td>
-      </tr>
-    </tbody>
-  </table>
-  <div *ngIf="aliasErrorMessage" class="error-message">{{ aliasErrorMessage }}</div>
-  <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
-    <button class="pagination-btn" [disabled]="!pagination.canActivateFirst" (click)="pagination.goToFirstPage()" title="Первая страница">«</button>
-    <button class="pagination-btn" [disabled]="!pagination.hasPreviousPage" (click)="pagination.goToPreviousPage()" title="Предыдущая страница">‹</button>
-    <button *ngFor="let page of pagination.getPageNumbers()" class="pagination-btn page-number" [class.active]="page === pagination.currentPage" (click)="pagination.goToPage(page)">{{ page }}</button>
-    <button class="pagination-btn" [disabled]="!pagination.hasNextPage" (click)="pagination.goToNextPage()" title="Следующая страница">›</button>
-    <button class="pagination-btn" [disabled]="!pagination.canActivateLast" (click)="pagination.goToLastPage()" title="Последняя страница">»</button>
+
+  <!-- Loading message -->
+  <div *ngIf="loading" class="loading-message">Загрузка возможных методов поверки...</div>
+
+  <!-- Data table and pagination navigation -->
+  <div *ngIf="!loading && !error">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <div>Номер типа</div>
+            <hr class="header-divider">
+            <div>Название типа</div>
+          </th>
+          <th>Модификации</th>
+          <th>Псевдонимы</th>
+          <th>Даты</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of possibleVerificationMethods">
+          <td>
+            <div>{{ m.deviceTypeNumber || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.deviceTypeInfo || '-' }}</div>
+          </td>
+          <td>
+            <ng-container *ngIf="m.deviceModifications?.length; else noMods">
+              <div *ngFor="let mod of m.deviceModifications">{{ mod }}</div>
+            </ng-container>
+            <ng-template #noMods>-</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="m.aliases?.length; else noAliases">
+              <div *ngFor="let a of m.aliases">
+                {{ a.exists ? '+' : '-' }} {{ a.alias || '-' }}
+              </div>
+            </ng-container>
+            <ng-template #noAliases>-</ng-template>
+          </td>
+          <td>
+            <ng-container *ngIf="m.dates?.length; else noDates">
+              <div *ngFor="let d of m.dates">{{ d.year ?? 0 }}.{{ (d.month ?? 0) < 10 ? '0' + (d.month ?? 0) : (d.month ?? 0) }}</div>
+            </ng-container>
+            <ng-template #noDates>-</ng-template>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+    <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+      <button class="pagination-btn" [disabled]="!pagination.canActivateFirst" (click)="pagination.goToFirstPage()" title="Первая страница">«</button>
+      <button class="pagination-btn" [disabled]="!pagination.hasPreviousPage" (click)="pagination.goToPreviousPage()" title="Предыдущая страница">‹</button>
+      <button *ngFor="let page of pagination.getPageNumbers()" class="pagination-btn page-number" [class.active]="page === pagination.currentPage" (click)="pagination.goToPage(page)">{{ page }}</button>
+      <button class="pagination-btn" [disabled]="!pagination.hasNextPage" (click)="pagination.goToNextPage()" title="Следующая страница">›</button>
+      <button class="pagination-btn" [disabled]="!pagination.canActivateLast" (click)="pagination.goToLastPage()" title="Последняя страница">»</button>
+    </div>
   </div>
 </div> 

@@ -40,82 +40,95 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
-    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethodsAsync(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
+    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
     {
         var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
             .ToImmutableSortedSet();
 
-        var stringNormalizer = new ComplexStringNormalizer();
-        deviceTypeNumberFilter = deviceTypeNumberFilter != null ? stringNormalizer.Normalize(deviceTypeNumberFilter) : string.Empty;
-        verificationNameFilter = verificationNameFilter != null ? stringNormalizer.Normalize(verificationNameFilter) : string.Empty;
-        deviceTypeInfoFilter = deviceTypeInfoFilter != null ? stringNormalizer.Normalize(deviceTypeInfoFilter) : string.Empty;
+        IReadOnlyList<string> abc = ["s"];
+        var r = abc.Contains("s");
 
-        var q = _database.SuccessInitialVerifications
+        var query = _database.SuccessInitialVerifications
             .Select(v => new
             {
                 v.DeviceTypeNumber,
-                DeviceTypeInfo = $"{v.Device!.DeviceType!.Title} {v.Device!.DeviceType!.Notation}",
-                DeviceModification = v.Device!.Modification,
-                Alias = v.VerificationTypeName,
-                Date = v.VerificationDate
+                v.Device!.DeviceType!.Title,
+                v.Device.DeviceType.Notation,
+                v.Device.Modification,
+                v.VerificationTypeName,
+                v.VerificationDate,
+                v.Device.DeviceType.VerificationMethodId
             })
-            .GroupBy(v => v.DeviceTypeNumber)
+            .Union(_database.FailedInitialVerifications
+                .Select(v => new
+                {
+                    v.DeviceTypeNumber,
+                    v.Device!.DeviceType!.Title,
+                    v.Device.DeviceType.Notation,
+                    v.Device.Modification,
+                    v.VerificationTypeName,
+                    v.VerificationDate,
+                    v.Device.DeviceType.VerificationMethodId
+                }))
+            .Where(v => v.VerificationMethodId == null)
             .AsEnumerable()
-            .Select(g => new
+            .GroupBy(v => v.DeviceTypeNumber)
+            .Select(g =>
             {
-                DeviceTypeNumber = g.Key,
-                g.First().DeviceTypeInfo,
-                g.First().DeviceModification,
-                Aliases = g.Select(dto => dto.Alias)
-                    .DistinctBy(a => a.Replace(" ", ""))
-                    .OrderBy(a => a.Length)
-                    .Select(a => new { Exists = existsNames.Contains(a), Alias = a })
-                    .ToArray(),
-                Dates = g.Select(dto => (YearMonth)dto.Date)
-                    .Distinct()
-                    .Order()
-                    .ToList()
+                var first = g.First();
+                return new PossibleVrfMethodDTO
+                (
+                    first.VerificationMethodId,
+                    g.Key,
+                    $"{first.Title} {first.Notation}",
+                    g.Select(dto => dto.Modification)
+                        .DistinctBy(m => m.Replace(" ", "").ToUpper())
+                        .OrderBy(m => m.Length)
+                        .ThenBy(m => m)
+                        .ToArray(),
+                    g.Select(dto => dto.VerificationTypeName)
+                        .DistinctBy(a => a.Replace(" ", "").ToUpper())
+                        .OrderBy(a => a.Length)
+                        .Select(a => new PossibleVrfMethodAliasDTO(existsNames.Contains(a), a))
+                        .ToArray(),
+                    g.Select(dto => (YearMonth)dto.VerificationDate)
+                        .Distinct()
+                        .Order()
+                        .ToArray()
+                );
             })
-            .Where(dto => dto.Aliases.Any(a => a.Exists == false))
-            .OrderByDescending(dto => dto.Aliases.Length)
+            .Where(dto => dto.Aliases.Any(a => !a.Exists));
+
+        var stringNormalizer = new ComplexStringNormalizer();
+
+        if (deviceTypeNumberFilter != null)
+        {
+            query = query.Where(dto => dto.DeviceTypeNumber.Contains(deviceTypeNumberFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (verificationNameFilter != null)
+        {
+            query = query.Where(dto => dto.Aliases.Any(a => a.Alias.Contains(verificationNameFilter, StringComparison.OrdinalIgnoreCase)));
+        }
+
+        if (deviceTypeInfoFilter != null)
+        {
+            query = query.Where(dto => dto.DeviceTypeInfo.Contains(deviceTypeInfoFilter, StringComparison.OrdinalIgnoreCase));
+        }
+
+        if (yearMonthFilter != null)
+        {
+            query = query.Where(dto => dto.Dates.Any(d => d == yearMonthFilter.Value));
+        }
+
+        var result = query
+            .OrderByDescending(dto => dto.Aliases.Count)
             .ThenBy(dto => dto.DeviceTypeNumber)
-            .ThenBy(dto => dto.Dates[0]);
+            .ThenBy(dto => dto.Dates[0])
+            .ToPaginated(pageNumber, pageSize);
 
-        var r = q.ToList();
-
-        // var query = _database
-        //     .SuccessInitialVerifications
-        //     .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
-        //     .Union(_database
-        //     .FailedInitialVerifications
-        //     .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //     .Union(_database
-        //     .SuccessVerifications
-        //     .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //     .Union(_database
-        //     .FailedVerifications
-        //     .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //     .AsEnumerable()
-        //     .GroupBy(dto => dto.DeviceTypeNumber)
-        //     .Select(g => g.Adapt<PossibleVerificationMethodDTO>(_mapper.Config));
-
-        // if (yearMonthFilter != null)
-        // {
-        //     query = query.Where(dto => dto.Dates.Any(d => d == yearMonthFilter));
-        // }
-
-        // var result = query
-        //     .Where(dto => stringNormalizer.Normalize(dto.DeviceTypeNumber).Contains(deviceTypeNumberFilter))
-        //     .Where(dto => stringNormalizer.Normalize(dto.DeviceTypeInfo).Contains(deviceTypeInfoFilter))
-        //     .Where(dto => dto.VerificationTypeNames.Any(name => name.Contains(verificationNameFilter)))
-        //     .Where(dto => dto.VerificationTypeNames.Any(vn => !existsNames.TryGetValue(vn, out _)))
-        //     .OrderByDescending(dto => dto.VerificationTypeNames.Count)
-        //     .ThenBy(dto => dto.DeviceTypeNumber)
-        //     .ThenBy(dto => dto.Dates[0])
-        //     .ToPaginated(pageNumber, pageSize);
-
-        return ServicePaginatedResult<PossibleVerificationMethodDTO>.Success(result);
+        return ServicePaginatedResult<PossibleVrfMethodDTO>.Success(result);
     }
 
     public async Task<ServiceItemResult<VerificationMethodFile>> DownloadFileAsync(Guid fileId)

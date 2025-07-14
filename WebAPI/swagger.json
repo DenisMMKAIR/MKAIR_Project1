@@ -767,7 +767,7 @@
             "content": {
               "application/json": {
                 "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleVerificationMethodDTO"
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfPossibleVrfMethodDTO"
                 }
               }
             }
@@ -2034,7 +2034,7 @@
           }
         }
       },
-      "ServicePaginatedResultOfPossibleVerificationMethodDTO": {
+      "ServicePaginatedResultOfPossibleVrfMethodDTO": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2050,13 +2050,13 @@
             "nullable": true,
             "oneOf": [
               {
-                "$ref": "#/components/schemas/PaginatedListOfPossibleVerificationMethodDTO"
+                "$ref": "#/components/schemas/PaginatedListOfPossibleVrfMethodDTO"
               }
             ]
           }
         }
       },
-      "PaginatedListOfPossibleVerificationMethodDTO": {
+      "PaginatedListOfPossibleVrfMethodDTO": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
@@ -2081,25 +2081,25 @@
           "items": {
             "type": "array",
             "items": {
-              "$ref": "#/components/schemas/PossibleVerificationMethodDTO"
+              "$ref": "#/components/schemas/PossibleVrfMethodDTO"
             }
           }
         }
       },
-      "PossibleVerificationMethodDTO": {
+      "PossibleVrfMethodDTO": {
         "type": "object",
         "additionalProperties": false,
         "properties": {
+          "verificationMethodId": {
+            "type": "string",
+            "format": "guid",
+            "nullable": true
+          },
           "deviceTypeNumber": {
             "type": "string"
           },
           "deviceTypeInfo": {
             "type": "string"
-          },
-          "verificationMethodId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
           },
           "deviceModifications": {
             "type": "array",
@@ -2107,10 +2107,10 @@
               "type": "string"
             }
           },
-          "verificationTypeNames": {
+          "aliases": {
             "type": "array",
             "items": {
-              "type": "string"
+              "$ref": "#/components/schemas/PossibleVrfMethodAliasDTO"
             }
           },
           "dates": {
@@ -2118,6 +2118,18 @@
             "items": {
               "$ref": "#/components/schemas/YearMonth"
             }
+          }
+        }
+      },
+      "PossibleVrfMethodAliasDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "exists": {
+            "type": "boolean"
+          },
+          "alias": {
+            "type": "string"
           }
         }
       },

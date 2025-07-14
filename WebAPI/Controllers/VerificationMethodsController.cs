@@ -25,7 +25,7 @@ public class VerificationMethodsController : ApiControllerBase
     }
 
     [HttpGet]
-    public async Task<ServicePaginatedResult<PossibleVerificationMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
+    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
     {
         YearMonth? yearMonth;
         try
@@ -34,9 +34,9 @@ public class VerificationMethodsController : ApiControllerBase
         }
         catch (Exception e)
         {
-            return ServicePaginatedResult<PossibleVerificationMethodDTO>.Fail(e.Message);
+            return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail(e.Message);
         }
-        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth);
+        return _service.GetPossibleVerificationMethods(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth);
     }
 
     [HttpPost]

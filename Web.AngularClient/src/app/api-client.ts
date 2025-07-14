@@ -1086,7 +1086,7 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
-    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO> {
+    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
         let url_ = this.baseUrl + "/api/VerificationMethods/GetPossibleVerificationMethods?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -1121,14 +1121,14 @@ export class VerificationMethodsClient {
                 try {
                     return this.processGetPossibleVerificationMethods(response_ as any);
                 } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO>;
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfPossibleVrfMethodDTO>;
                 }
             } else
-                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO>;
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfPossibleVrfMethodDTO>;
         }));
     }
 
-    protected processGetPossibleVerificationMethods(response: HttpResponseBase): Observable<ServicePaginatedResultOfPossibleVerificationMethodDTO> {
+    protected processGetPossibleVerificationMethods(response: HttpResponseBase): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -1139,7 +1139,7 @@ export class VerificationMethodsClient {
             return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServicePaginatedResultOfPossibleVerificationMethodDTO.fromJS(resultData200);
+            result200 = ServicePaginatedResultOfPossibleVrfMethodDTO.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -3195,12 +3195,12 @@ export interface IVerificationMethodDTO {
     typeNumbers?: string[];
 }
 
-export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IServicePaginatedResultOfPossibleVerificationMethodDTO {
+export class ServicePaginatedResultOfPossibleVrfMethodDTO implements IServicePaginatedResultOfPossibleVrfMethodDTO {
     message?: string | undefined;
     error?: string | undefined;
-    data?: PaginatedListOfPossibleVerificationMethodDTO | undefined;
+    data?: PaginatedListOfPossibleVrfMethodDTO | undefined;
 
-    constructor(data?: IServicePaginatedResultOfPossibleVerificationMethodDTO) {
+    constructor(data?: IServicePaginatedResultOfPossibleVrfMethodDTO) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3213,13 +3213,13 @@ export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IS
         if (_data) {
             this.message = _data["message"];
             this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfPossibleVerificationMethodDTO.fromJS(_data["data"]) : <any>undefined;
+            this.data = _data["data"] ? PaginatedListOfPossibleVrfMethodDTO.fromJS(_data["data"]) : <any>undefined;
         }
     }
 
-    static fromJS(data: any): ServicePaginatedResultOfPossibleVerificationMethodDTO {
+    static fromJS(data: any): ServicePaginatedResultOfPossibleVrfMethodDTO {
         data = typeof data === 'object' ? data : {};
-        let result = new ServicePaginatedResultOfPossibleVerificationMethodDTO();
+        let result = new ServicePaginatedResultOfPossibleVrfMethodDTO();
         result.init(data);
         return result;
     }
@@ -3233,21 +3233,21 @@ export class ServicePaginatedResultOfPossibleVerificationMethodDTO implements IS
     }
 }
 
-export interface IServicePaginatedResultOfPossibleVerificationMethodDTO {
+export interface IServicePaginatedResultOfPossibleVrfMethodDTO {
     message?: string | undefined;
     error?: string | undefined;
-    data?: PaginatedListOfPossibleVerificationMethodDTO | undefined;
+    data?: PaginatedListOfPossibleVrfMethodDTO | undefined;
 }
 
-export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedListOfPossibleVerificationMethodDTO {
+export class PaginatedListOfPossibleVrfMethodDTO implements IPaginatedListOfPossibleVrfMethodDTO {
     pageIndex?: number;
     totalPages?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
     totalCount?: number;
-    items?: PossibleVerificationMethodDTO[];
+    items?: PossibleVrfMethodDTO[];
 
-    constructor(data?: IPaginatedListOfPossibleVerificationMethodDTO) {
+    constructor(data?: IPaginatedListOfPossibleVrfMethodDTO) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3266,14 +3266,14 @@ export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedL
             if (Array.isArray(_data["items"])) {
                 this.items = [] as any;
                 for (let item of _data["items"])
-                    this.items!.push(PossibleVerificationMethodDTO.fromJS(item));
+                    this.items!.push(PossibleVrfMethodDTO.fromJS(item));
             }
         }
     }
 
-    static fromJS(data: any): PaginatedListOfPossibleVerificationMethodDTO {
+    static fromJS(data: any): PaginatedListOfPossibleVrfMethodDTO {
         data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfPossibleVerificationMethodDTO();
+        let result = new PaginatedListOfPossibleVrfMethodDTO();
         result.init(data);
         return result;
     }
@@ -3294,24 +3294,24 @@ export class PaginatedListOfPossibleVerificationMethodDTO implements IPaginatedL
     }
 }
 
-export interface IPaginatedListOfPossibleVerificationMethodDTO {
+export interface IPaginatedListOfPossibleVrfMethodDTO {
     pageIndex?: number;
     totalPages?: number;
     hasPreviousPage?: boolean;
     hasNextPage?: boolean;
     totalCount?: number;
-    items?: PossibleVerificationMethodDTO[];
+    items?: PossibleVrfMethodDTO[];
 }
 
-export class PossibleVerificationMethodDTO implements IPossibleVerificationMethodDTO {
+export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
+    verificationMethodId?: string | undefined;
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
-    verificationMethodId?: string | undefined;
     deviceModifications?: string[];
-    verificationTypeNames?: string[];
+    aliases?: PossibleVrfMethodAliasDTO[];
     dates?: YearMonth[];
 
-    constructor(data?: IPossibleVerificationMethodDTO) {
+    constructor(data?: IPossibleVrfMethodDTO) {
         if (data) {
             for (var property in data) {
                 if (data.hasOwnProperty(property))
@@ -3322,18 +3322,18 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
 
     init(_data?: any) {
         if (_data) {
+            this.verificationMethodId = _data["verificationMethodId"];
             this.deviceTypeNumber = _data["deviceTypeNumber"];
             this.deviceTypeInfo = _data["deviceTypeInfo"];
-            this.verificationMethodId = _data["verificationMethodId"];
             if (Array.isArray(_data["deviceModifications"])) {
                 this.deviceModifications = [] as any;
                 for (let item of _data["deviceModifications"])
                     this.deviceModifications!.push(item);
             }
-            if (Array.isArray(_data["verificationTypeNames"])) {
-                this.verificationTypeNames = [] as any;
-                for (let item of _data["verificationTypeNames"])
-                    this.verificationTypeNames!.push(item);
+            if (Array.isArray(_data["aliases"])) {
+                this.aliases = [] as any;
+                for (let item of _data["aliases"])
+                    this.aliases!.push(PossibleVrfMethodAliasDTO.fromJS(item));
             }
             if (Array.isArray(_data["dates"])) {
                 this.dates = [] as any;
@@ -3343,27 +3343,27 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
         }
     }
 
-    static fromJS(data: any): PossibleVerificationMethodDTO {
+    static fromJS(data: any): PossibleVrfMethodDTO {
         data = typeof data === 'object' ? data : {};
-        let result = new PossibleVerificationMethodDTO();
+        let result = new PossibleVrfMethodDTO();
         result.init(data);
         return result;
     }
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
+        data["verificationMethodId"] = this.verificationMethodId;
         data["deviceTypeNumber"] = this.deviceTypeNumber;
         data["deviceTypeInfo"] = this.deviceTypeInfo;
-        data["verificationMethodId"] = this.verificationMethodId;
         if (Array.isArray(this.deviceModifications)) {
             data["deviceModifications"] = [];
             for (let item of this.deviceModifications)
                 data["deviceModifications"].push(item);
         }
-        if (Array.isArray(this.verificationTypeNames)) {
-            data["verificationTypeNames"] = [];
-            for (let item of this.verificationTypeNames)
-                data["verificationTypeNames"].push(item);
+        if (Array.isArray(this.aliases)) {
+            data["aliases"] = [];
+            for (let item of this.aliases)
+                data["aliases"].push(item ? item.toJSON() : <any>undefined);
         }
         if (Array.isArray(this.dates)) {
             data["dates"] = [];
@@ -3374,13 +3374,53 @@ export class PossibleVerificationMethodDTO implements IPossibleVerificationMetho
     }
 }
 
-export interface IPossibleVerificationMethodDTO {
+export interface IPossibleVrfMethodDTO {
+    verificationMethodId?: string | undefined;
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
-    verificationMethodId?: string | undefined;
     deviceModifications?: string[];
-    verificationTypeNames?: string[];
+    aliases?: PossibleVrfMethodAliasDTO[];
     dates?: YearMonth[];
+}
+
+export class PossibleVrfMethodAliasDTO implements IPossibleVrfMethodAliasDTO {
+    exists?: boolean;
+    alias?: string;
+
+    constructor(data?: IPossibleVrfMethodAliasDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.exists = _data["exists"];
+            this.alias = _data["alias"];
+        }
+    }
+
+    static fromJS(data: any): PossibleVrfMethodAliasDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PossibleVrfMethodAliasDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["exists"] = this.exists;
+        data["alias"] = this.alias;
+        return data;
+    }
+}
+
+export interface IPossibleVrfMethodAliasDTO {
+    exists?: boolean;
+    alias?: string;
 }
 
 export class AddVerificationMethodRequest implements IAddVerificationMethodRequest {

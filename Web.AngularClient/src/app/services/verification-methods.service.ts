@@ -38,6 +38,11 @@ export class VerificationMethodsService {
     checkupValue: '',
   };
 
+  constructor(){
+    this.paginations['verification'].pageSize = this.paginations['verification'].pageSizeOptions[0];
+    this.paginations['possible'].pageSize = this.paginations['possible'].pageSizeOptions[0];
+  }
+
   public setPageChangeCallback(key: TableKey, callback: () => void): void {
     this.paginations[key].setPageChangeCallback(callback);
   }
