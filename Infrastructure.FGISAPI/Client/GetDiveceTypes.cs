@@ -7,7 +7,7 @@ namespace Infrastructure.FGISAPI.Client;
 
 public partial class FGISAPIClient
 {
-    [Obsolete(message:"Method need to be rewritten using cache")]
+    [Obsolete(message: "Method need to be rewritten using cache")]
     public async Task<IReadOnlyList<ProjDeviceType>> GetDeviceTypesAsync(IReadOnlyList<string> deviceNumbers)
     {
         const string endpoint = "mit";
@@ -17,7 +17,8 @@ public partial class FGISAPIClient
         foreach (var deviceNumbersChunk in deviceNumbers.SplitBy(rows))
         {
             var search = deviceNumbersChunk.Aggregate((a, c) => $"{a}%20{c}");
-            var response = await GetItemListAsync<ListResponse<ProjDeviceType>>(endpoint, search, rows);
+            var response = await GetItemListAsync<ListResponse<ProjDeviceType>>(endpoint, search, rows) ??
+                throw new InvalidOperationException("Не удалось получить список типов устройств");
             result = [.. result.Union(response.Result.Items)];
         }
 
