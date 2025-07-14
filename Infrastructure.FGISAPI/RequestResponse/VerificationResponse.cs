@@ -3,7 +3,6 @@ namespace Infrastructure.FGISAPI.RequestResponse;
 public class VerificationResponse
 {
     public required VerificationResult Result { get; set; }
-
 }
 
 public class VerificationResult
