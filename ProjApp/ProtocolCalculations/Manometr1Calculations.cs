@@ -16,7 +16,6 @@ internal static class Manometr1Calculations
 
         var newVrf = new Manometr1Verification
         {
-            Address = MKAIRInfo.GetAddress(v.VerificationDate),
             ProtocolNumber = v.ProtocolNumber!,
             DeviceTypeName = $"{v.Device.DeviceType.Title} {v.Device.DeviceType.Notation}",
             DeviceModification = v.Device!.Modification,

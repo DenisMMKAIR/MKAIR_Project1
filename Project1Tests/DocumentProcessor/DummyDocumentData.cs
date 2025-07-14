@@ -18,7 +18,6 @@ public static class DummyDocumentData
 
         var data = new Manometr1Verification
         {
-            Address = "1 Ханты-Мансийский автономный округ - Югра, г.о. Нижневартовск, г Нижневартовск, ул Индустриальная, зд. 32, стр. 1, кабинет 14",
             ProtocolNumber = "05/107/24",
             DeviceTypeName = deviceTypeInfo,
             DeviceModification = deviceModification,
@@ -102,7 +101,6 @@ public static class DummyDocumentData
 
         var data = new Manometr1Verification
         {
-            Address = "1 Ханты-Мансийский автономный округ - Югра, г.о. Нижневартовск, г Нижневартовск, ул Индустриальная, зд. 32, стр. 1, кабинет 14",
             ProtocolNumber = "05/107/24",
             DeviceTypeName = deviceTypeInfo,
             DeviceModification = deviceModification,

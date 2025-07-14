@@ -2,6 +2,8 @@ using System.Reflection;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -28,6 +30,11 @@ internal abstract class DocumentCreatorBase<T>
         var config = Configuration.Default.WithDefaultLoader();
         using var context = BrowsingContext.New(config);
         using var document = await context.OpenAsync(r => r.Content(_fileContent), cancellationToken ?? CancellationToken.None);
+
+        var addressElement = document.QuerySelector("#manual_address");
+        if (addressElement == null) return HTMLCreationResult.Failure("Не найден элемент #manual_address");
+        if (data is not IVerificationBase verification) return HTMLCreationResult.Failure("Data is not IVerificationBase");
+        SetElementValue(addressElement, MKAIRInfo.GetAddress(verification.VerificationDate));
 
         foreach (var idValueElement in document.QuerySelectorAll("[id]").Where(e => e.Id!.StartsWith("setValue_")))
         {
