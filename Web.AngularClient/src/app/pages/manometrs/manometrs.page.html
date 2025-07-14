@@ -226,9 +226,9 @@
           
           <!-- Environmental conditions -->
           <td>
-            <div>Темп: {{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
-            <div>Влаж: {{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
-            <div>Давл: {{ m.pressure || '-' }}</div>
+            <div>{{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
+            <div>{{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+            <div>{{ m.pressure || '-' }}</div>
           </td>
           
           <!-- Measurement range and accuracy -->
