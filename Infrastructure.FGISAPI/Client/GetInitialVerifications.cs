@@ -35,6 +35,7 @@ public partial class FGISAPIClient
 
         _logger.LogInformation("Загрузка данных из ФГИС");
         IReadOnlyList<VerificationId> verificationIds;
+        var allDataCollected = true;
 
         if (monthResult.VerificationIdsCollected)
         {
@@ -52,7 +53,7 @@ public partial class FGISAPIClient
         }
         else
         {
-            await CollectVerifications(monthResult, db, verificationIds);
+            allDataCollected &= await CollectVerifications(monthResult, db, verificationIds);
         }
 
         var collectionVriId = verificationIds.Select(v => v.Vri_id).ToList();
@@ -64,7 +65,7 @@ public partial class FGISAPIClient
         }
         else
         {
-            await CollectEtalonsIds(monthResult, db, verifications);
+            await CollectEtalonsIds(monthResult, db, verifications, allDataCollected);
         }
 
         var etalonsIds = await db.EtalonIds.Where(e => e.Date == requestDate).ToListAsync();
@@ -75,7 +76,7 @@ public partial class FGISAPIClient
         }
         else
         {
-            await CollectEtalons(monthResult, db, etalonsIds);
+            allDataCollected &= await CollectEtalons(monthResult, db, etalonsIds, allDataCollected);
         }
 
         var collectionNums = etalonsIds.Select(e => e.RegNumber).ToList();
@@ -83,14 +84,21 @@ public partial class FGISAPIClient
 
         var projectVerification = MapAllVerifications(verifications, etalons);
 
-        monthResult.Done = true;
-        await db.SaveChangesAsync();
-        _logger.LogInformation("Загрузка данных {Date} из ФГИС завершена", monthResult.Date);
+        if (allDataCollected)
+        {
+            monthResult.Done = true;
+            await db.SaveChangesAsync();
+            _logger.LogInformation("Загрузка данных {Date} из ФГИС завершена", monthResult.Date);
+        }
+        else
+        {
+            _logger.LogError("Не удалось загрузить все данные");
+        }
 
         return projectVerification;
     }
 
-    private async Task CollectEtalons(MonthResult monthResult, FGISDatabase db, IReadOnlyList<EtalonsId> etalonsIds)
+    private async Task<bool> CollectEtalons(MonthResult monthResult, FGISDatabase db, IReadOnlyList<EtalonsId> etalonsIds, bool allDataCollected)
     {
         _logger.LogInformation("Загрузка эталонов");
 
@@ -101,56 +109,63 @@ public partial class FGISAPIClient
 
         _logger.LogInformation("В базе уже загружено эталонов {Count}", downloadedEtalonNums.Count);
 
-        var etalonIdsToDownload = etalonsIds
+        var idsToDownload = etalonsIds
             .Where(e => !downloadedEtalonNums.Contains(e.RegNumber))
             .Select(e => e.Rmieta_id)
             .ToList();
 
-        _logger.LogInformation("Нужно загрузить эталонов {Count}", etalonIdsToDownload.Count);
-        var downloadedEtalons = new List<FIGSEtalon>(etalonIdsToDownload.Count);
+        _logger.LogInformation("Нужно загрузить эталонов {Count}", idsToDownload.Count);
+        var downloadedEtalons = new List<FIGSEtalon>(idsToDownload.Count);
         const int chunkSize = 20;
 
-        foreach (var chunk in etalonIdsToDownload.SplitBy(chunkSize))
+        foreach (var chunk in idsToDownload.SplitBy(chunkSize))
         {
             var etalonsToSave = new List<FIGSEtalon>(chunkSize);
 
             foreach (var etalonId in chunk)
             {
                 var result = await GetItemAsync<EtalonResponse>("mieta", etalonId);
+                if (result == null) continue;
                 etalonsToSave.Add(result.Result);
             }
 
             downloadedEtalons.AddRange(etalonsToSave);
             db.Etalons.AddRange(etalonsToSave);
             await db.SaveChangesAsync();
-            _logger.LogInformation("Добавлено эталонов {Count}", downloadedEtalons.Count);
+            _logger.LogInformation("Добавлено эталонов {Count} из {TotalCount}", downloadedEtalons.Count, idsToDownload.Count);
         }
 
-        if (downloadedEtalons.Count != etalonIdsToDownload.Count)
+        if (downloadedEtalons.Count != idsToDownload.Count)
         {
-            throw new Exception($"Получен неполный список Эталонов. {downloadedEtalons.Count} из {etalonIdsToDownload.Count}");
+            _logger.LogError("Получен неполный список Эталонов. {EtalonsCount} из {IdsCount}", downloadedEtalons.Count, idsToDownload.Count);
+            return false;
         }
 
-        monthResult.EtalonsCollected = true;
-        await db.SaveChangesAsync();
+        if (allDataCollected)
+        {
+            monthResult.EtalonsCollected = true;
+            await db.SaveChangesAsync();
+        }
+
         _logger.LogInformation("Все эталоны сохранены в БД");
+        return true;
     }
 
-    private async Task CollectEtalonsIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<Verification> verifications)
+    private async Task CollectEtalonsIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<Verification> verifications, bool allDataCollected)
     {
         _logger.LogInformation("Загрузка ID эталонов");
         var rows = 100u;
 
-        var downloadedIds = await db.EtalonIds
+        var dbNumbers = await db.EtalonIds
             .Where(e => e.Date == monthResult.Date)
             .Select(e => e.RegNumber)
             .ToListAsync();
 
-        _logger.LogInformation("В базе уже загружено ID эталонов {Count}", downloadedIds.Count);
+        _logger.LogInformation("В базе уже загружено ID эталонов {Count}", dbNumbers.Count);
 
         var numsToDownload = verifications
             .SelectMany(v => v.Means.Mieta.Select(mi => mi.RegNumber))
-            .Where(num => !downloadedIds.Contains(num))
+            .Where(num => !dbNumbers.Contains(num))
             .Distinct()
             .ToList();
 
@@ -160,6 +175,11 @@ public partial class FGISAPIClient
         {
             var query = $"?rows={rows}&search={string.Join("%20", etalonRegNums)}";
             var result = await GetItemListAsync<ListResponse<EtalonIdResponse>>("mieta", query);
+
+            if (result == null)
+            {
+                throw new Exception("Не удалось загрузить ID эталонов");
+            }
 
             if (result.Result.Count == 0)
             {
@@ -175,12 +195,15 @@ public partial class FGISAPIClient
             await db.SaveChangesAsync();
         }
 
-        monthResult.EtalonsIdsCollected = true;
-        await db.SaveChangesAsync();
+        if (allDataCollected)
+        {
+            monthResult.EtalonsIdsCollected = true;
+            await db.SaveChangesAsync();
+        }
         _logger.LogInformation("Все ID эталонов сохранены в БД");
     }
 
-    private async Task CollectVerifications(MonthResult monthResult, FGISDatabase db, IReadOnlyList<VerificationId> verificationIds)
+    private async Task<bool> CollectVerifications(MonthResult monthResult, FGISDatabase db, IReadOnlyList<VerificationId> verificationIds)
     {
         _logger.LogInformation("Загрузка поверок");
         const int chunkSize = 20;
@@ -192,37 +215,40 @@ public partial class FGISAPIClient
 
         _logger.LogInformation("В базе уже загружено поверок {Count}", downloadedVriIds.Count);
 
-        var downloadIds = verificationIds
+        var idsToDownload = verificationIds
             .Where(vid => !downloadedVriIds.Contains(vid.Vri_id))
             .ToList();
 
-        _logger.LogInformation("Нужно загрузить поверок {Count}", downloadIds.Count);
-        var downloadedVerfs = new List<Verification>(downloadIds.Count);
+        _logger.LogInformation("Нужно загрузить поверок {Count}", idsToDownload.Count);
+        var downloadedVerfs = new List<Verification>(idsToDownload.Count);
 
-        foreach (var chunk in downloadIds.SplitBy(chunkSize))
+        foreach (var chunk in idsToDownload.SplitBy(chunkSize))
         {
             var verifsToSave = new List<Verification>(chunkSize);
 
             foreach (var verificationId in chunk)
             {
                 var result = await GetItemAsync<VerificationResponse>("vri", verificationId.Vri_id);
+                if (result == null) continue;
                 verifsToSave.Add(result.Result.ToVerification(verificationId.Vri_id));
             }
 
             db.Verifications.AddRange(verifsToSave);
             downloadedVerfs.AddRange(verifsToSave);
             await db.SaveChangesAsync();
-            _logger.LogInformation("Добавлено поверок {Count}", downloadedVerfs.Count);
+            _logger.LogInformation("Загружено поверок {Count} из {TotalCount}", downloadedVerfs.Count, idsToDownload.Count);
         }
 
-        if (downloadIds.Count != downloadedVerfs.Count)
+        if (downloadedVerfs.Count != idsToDownload.Count)
         {
-            throw new Exception($"Получен неполный список поверок. {downloadedVerfs.Count} из {downloadIds.Count}");
+            _logger.LogError("Получен неполный список поверок. {VerfsCount} из {IdsCount}", downloadedVerfs.Count, idsToDownload.Count);
+            return false;
         }
 
         monthResult.VerificationsCollected = true;
         await db.SaveChangesAsync();
         _logger.LogInformation("Все поверки сохранены в БД");
+        return true;
     }
 
     private async Task<IReadOnlyList<VerificationId>> CollectVerificationIds(MonthResult monthResult, FGISDatabase db)
@@ -230,41 +256,60 @@ public partial class FGISAPIClient
         var fromDate = monthResult.Date.ToDateOnly().ToString("yyyy-MM-dd");
         var toDate = monthResult.Date.ToEndMonthDate().ToString("yyyy-MM-dd");
         var rows = 100;
-        var verificationIds = new List<VerificationId>();
         var start = 0;
-        int? count = null;
+        int? totalCount = null;
         _logger.LogInformation("Получение ID поверок со ФГИС");
+
+        var downloadedCount = 0;
+        var newIds = new List<VerificationId>();
+
+        var dbIds = await db.VerificationIds
+            .Where(v => v.Date == monthResult.Date)
+            .ToArrayAsync();
+
+        _logger.LogInformation("В базе уже загружено ID поверок {Count}", dbIds.Length);
 
         while (true)
         {
             var query = $"?org_title=ООО%20\"МКАИР\"&rows={rows}&start={start}&verification_date_start={fromDate}&verification_date_end={toDate}";
             var result = await GetItemListAsync<ListResponse<VerificationIdResponse>>("vri", query);
 
+            if (result == null)
+            {
+                throw new Exception("Не удалось загрузить ID поверок");
+            }
+
             if (result.Result.Count == 0)
             {
                 throw new Exception("Не удалось получить количество ID поверок");
             }
 
-            verificationIds.AddRange(result.Result.Items.Select(v => new VerificationId(v.Vri_Id, monthResult.Date)));
-            count ??= result.Result.Count;
+            totalCount ??= result.Result.Count;
+            downloadedCount += result.Result.Items.Count;
+
+            var items = result.Result.Items
+                .Where(v => dbIds.All(dbId => v.Vri_Id != dbId.Vri_id))
+                .Select(v => new VerificationId(v.Vri_Id, monthResult.Date));
+
+            newIds.AddRange(items);
 
             start += rows;
-            if (start >= count) break;
+            if (start >= totalCount) break;
         }
 
-        _logger.LogInformation("Получено ID поверок {Count}", verificationIds.Count);
+        _logger.LogInformation("Получено ID поверок {Count}. Новых ID поверок {NewCount}", downloadedCount, newIds.Count);
 
-        if (verificationIds.Count != count)
+        if (downloadedCount != totalCount)
         {
-            throw new Exception($"Получен неполный список ID поверок. {verificationIds.Count} из {count}");
+            throw new Exception($"Получен неполный список ID поверок. {downloadedCount} из {totalCount}");
         }
 
-        db.VerificationIds.AddRange(verificationIds);
+        db.VerificationIds.AddRange(newIds);
         monthResult.VerificationIdsCollected = true;
         await db.SaveChangesAsync();
         _logger.LogInformation("Все ID поверок сохранены в БД");
 
-        return verificationIds;
+        return dbIds.Concat(newIds).ToArray();
     }
 
     private async Task<(IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>)> GetFromCache(FGISDatabase db, MonthResult monthResult)

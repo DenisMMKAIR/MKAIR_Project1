@@ -1,6 +1,5 @@
-﻿using System.Net.Http.Json;
-using System.Runtime.Serialization;
-using System.Text;
+﻿using System.Text;
+using System.Text.Json;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
@@ -23,18 +22,18 @@ public partial class FGISAPIClient : IFGISAPI
         _httpClient.DefaultRequestHeaders.Add("User-Agent", "FGIS_API1");
     }
 
-    private async Task<T> GetItemListAsync<T>(string endpoint, string search, uint? rows = null)
+    private async Task<T?> GetItemListAsync<T>(string endpoint, string search, uint? rows = null)
     {
         var query = BuildQuery(search, rows: rows);
         return await RequestBaseAsync<T>($"/{endpoint}", query);
     }
 
-    private async Task<T> GetItemListAsync<T>(string endpoint, string query)
+    private async Task<T?> GetItemListAsync<T>(string endpoint, string query)
     {
         return await RequestBaseAsync<T>($"/{endpoint}", query);
     }
 
-    private async Task<T> GetItemAsync<T>(string endpoint, string itemId)
+    private async Task<T?> GetItemAsync<T>(string endpoint, string itemId)
     {
         return await RequestBaseAsync<T>($"/{endpoint}/", itemId);
     }
@@ -81,7 +80,7 @@ public partial class FGISAPIClient : IFGISAPI
         return query;
     }
 
-    private async Task<TResponse> RequestBaseAsync<TResponse>(string uri, string query)
+    private async Task<TResponse?> RequestBaseAsync<TResponse>(string uri, string query)
     {
         const int tryCount = 10;
 
@@ -91,8 +90,16 @@ public partial class FGISAPIClient : IFGISAPI
             {
                 await _httpQueueManager.WaitForQueue();
                 _logger.LogInformation("Запрос {APIUrl}{uri}{query}", AppConfig.APIUrl, uri, query);
-                return await _httpClient.GetFromJsonAsync<TResponse>($"{AppConfig.APIUrl}{uri}{query}", AppConfig.JsonOptions) ??
-                    throw new SerializationException("Ошибка при десериализации ответа от сервера");
+                var response = await _httpClient.GetStringAsync($"{AppConfig.APIUrl}{uri}{query}");
+                try
+                {
+                    return JsonSerializer.Deserialize<TResponse>(response, AppConfig.JsonOptions)!;
+                }
+                catch (Exception e)
+                {
+                    _logger.LogError("Ошибка при десериализации ответа от сервера. {Msg}", e.Message);
+                    return default!;
+                }
             }
             catch (HttpRequestException ex)
             {
