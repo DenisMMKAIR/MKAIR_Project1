@@ -6,4 +6,5 @@ public class PossibleVerificationMethodRequest
     public string? VerificationNameFilter { get; init; }
     public string? DeviceTypeInfoFilter { get; init; }
     public string? YearMonthFilter { get; init; }
+    public bool? ShowAllTypeNumbers { get; init; }
 }

@@ -61,6 +61,16 @@
         autocomplete="off"
       />
     </div>
+    <div class="selector-form">
+      <label>
+        <input
+          type="checkbox"
+          [(ngModel)]="showAllTypeNumbers"
+          (change)="onFilterChange()"
+        />
+        Показывать все номера типов
+      </label>
+    </div>
     <div class="pagination-info">
       Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex() + 1 }} из {{ pagination.totalCount }} записей
     </div>

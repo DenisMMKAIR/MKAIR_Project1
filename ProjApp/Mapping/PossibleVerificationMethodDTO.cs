@@ -5,7 +5,6 @@ using ProjApp.Database.SupportTypes;
 namespace ProjApp.Mapping;
 
 public record PossibleVrfMethodDTO(
-    Guid? VerificationMethodId,
     string DeviceTypeNumber,
     string DeviceTypeInfo,
     IReadOnlyList<string> DeviceModifications,

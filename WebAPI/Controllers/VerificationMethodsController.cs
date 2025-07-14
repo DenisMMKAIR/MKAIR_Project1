@@ -36,7 +36,7 @@ public class VerificationMethodsController : ApiControllerBase
         {
             return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail(e.Message);
         }
-        return _service.GetPossibleVerificationMethods(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth);
+        return _service.GetPossibleVerificationMethods(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth, query.ShowAllTypeNumbers);
     }
 
     [HttpPost]

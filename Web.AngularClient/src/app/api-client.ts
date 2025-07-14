@@ -1086,7 +1086,7 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
-    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
+    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined, showAllTypeNumbers: boolean | null | undefined): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
         let url_ = this.baseUrl + "/api/VerificationMethods/GetPossibleVerificationMethods?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -1104,6 +1104,8 @@ export class VerificationMethodsClient {
             url_ += "DeviceTypeInfoFilter=" + encodeURIComponent("" + deviceTypeInfoFilter) + "&";
         if (yearMonthFilter !== undefined && yearMonthFilter !== null)
             url_ += "YearMonthFilter=" + encodeURIComponent("" + yearMonthFilter) + "&";
+        if (showAllTypeNumbers !== undefined && showAllTypeNumbers !== null)
+            url_ += "ShowAllTypeNumbers=" + encodeURIComponent("" + showAllTypeNumbers) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3304,7 +3306,6 @@ export interface IPaginatedListOfPossibleVrfMethodDTO {
 }
 
 export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
-    verificationMethodId?: string | undefined;
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
     deviceModifications?: string[];
@@ -3322,7 +3323,6 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
 
     init(_data?: any) {
         if (_data) {
-            this.verificationMethodId = _data["verificationMethodId"];
             this.deviceTypeNumber = _data["deviceTypeNumber"];
             this.deviceTypeInfo = _data["deviceTypeInfo"];
             if (Array.isArray(_data["deviceModifications"])) {
@@ -3352,7 +3352,6 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
 
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
-        data["verificationMethodId"] = this.verificationMethodId;
         data["deviceTypeNumber"] = this.deviceTypeNumber;
         data["deviceTypeInfo"] = this.deviceTypeInfo;
         if (Array.isArray(this.deviceModifications)) {
@@ -3375,7 +3374,6 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
 }
 
 export interface IPossibleVrfMethodDTO {
-    verificationMethodId?: string | undefined;
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
     deviceModifications?: string[];

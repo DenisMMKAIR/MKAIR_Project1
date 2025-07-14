@@ -759,6 +759,15 @@
               "nullable": true
             },
             "x-position": 6
+          },
+          {
+            "name": "ShowAllTypeNumbers",
+            "in": "query",
+            "schema": {
+              "type": "boolean",
+              "nullable": true
+            },
+            "x-position": 7
           }
         ],
         "responses": {
@@ -2090,11 +2099,6 @@
         "type": "object",
         "additionalProperties": false,
         "properties": {
-          "verificationMethodId": {
-            "type": "string",
-            "format": "guid",
-            "nullable": true
-          },
           "deviceTypeNumber": {
             "type": "string"
           },

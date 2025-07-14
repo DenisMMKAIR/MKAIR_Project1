@@ -40,7 +40,7 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
-    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null)
+    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null, bool? showAllTypeNumbers = null)
     {
         var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
@@ -56,9 +56,8 @@ public partial class VerificationMethodsService
                 v.Device!.DeviceType!.Title,
                 v.Device.DeviceType.Notation,
                 v.Device.Modification,
-                v.VerificationTypeName,
-                v.VerificationDate,
-                v.Device.DeviceType.VerificationMethodId
+                VerificationTypeNames = new[] { v.VerificationTypeName },
+                v.VerificationDate
             })
             .Union(_database.FailedInitialVerifications
                 .Select(v => new
@@ -67,11 +66,19 @@ public partial class VerificationMethodsService
                     v.Device!.DeviceType!.Title,
                     v.Device.DeviceType.Notation,
                     v.Device.Modification,
-                    v.VerificationTypeName,
-                    v.VerificationDate,
-                    v.Device.DeviceType.VerificationMethodId
+                    VerificationTypeNames = new[] { v.VerificationTypeName },
+                    v.VerificationDate
                 }))
-            .Where(v => v.VerificationMethodId == null)
+            .Union(_database.Manometr1Verifications
+                .Select(v => new
+                {
+                    v.DeviceTypeNumber,
+                    v.Device!.DeviceType!.Title,
+                    v.Device.DeviceType.Notation,
+                    v.Device.Modification,
+                    VerificationTypeNames = (string[])v.Device!.DeviceType!.VerificationMethod!.Aliases,
+                    v.VerificationDate
+                }))
             .AsEnumerable()
             .GroupBy(v => v.DeviceTypeNumber)
             .Select(g =>
@@ -79,7 +86,6 @@ public partial class VerificationMethodsService
                 var first = g.First();
                 return new PossibleVrfMethodDTO
                 (
-                    first.VerificationMethodId,
                     g.Key,
                     $"{first.Title} {first.Notation}",
                     g.Select(dto => dto.Modification)
@@ -87,7 +93,7 @@ public partial class VerificationMethodsService
                         .OrderBy(m => m.Length)
                         .ThenBy(m => m)
                         .ToArray(),
-                    g.Select(dto => dto.VerificationTypeName)
+                    g.SelectMany(dto => dto.VerificationTypeNames)
                         .DistinctBy(a => a.Replace(" ", "").ToUpper())
                         .OrderBy(a => a.Length)
                         .Select(a => new PossibleVrfMethodAliasDTO(existsNames.Contains(a), a))
@@ -97,8 +103,12 @@ public partial class VerificationMethodsService
                         .Order()
                         .ToArray()
                 );
-            })
-            .Where(dto => dto.Aliases.Any(a => !a.Exists));
+            });
+
+        if (showAllTypeNumbers is not true)
+        {
+            query = query.Where(dto => dto.Aliases.Any(a => !a.Exists));
+        }
 
         var stringNormalizer = new ComplexStringNormalizer();
 

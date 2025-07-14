@@ -1,7 +1,11 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { VerificationMethodsClient, PossibleVrfMethodDTO, YearMonth } from '../../../api-client';
+import {
+  VerificationMethodsClient,
+  PossibleVrfMethodDTO,
+  YearMonth,
+} from '../../../api-client';
 import { VerificationMethodsService } from '../../../services/verification-methods.service';
 import { DatesFilterComponent } from '../../../shared/dates-filter/dates-filter.component';
 
@@ -14,17 +18,24 @@ import { DatesFilterComponent } from '../../../shared/dates-filter/dates-filter.
   providers: [VerificationMethodsClient],
 })
 export class PossibleVerificationMethodsTableComponent implements OnInit {
-  private readonly verificationMethodsClient = inject(VerificationMethodsClient);
-  private readonly verificationMethodsService = inject(VerificationMethodsService);
+  private readonly verificationMethodsClient = inject(
+    VerificationMethodsClient
+  );
+  private readonly verificationMethodsService = inject(
+    VerificationMethodsService
+  );
   private readonly key = 'possible' as const;
 
   public possibleVerificationMethods: PossibleVrfMethodDTO[] = [];
   public loading = false;
   public error: string | null = null;
   public aliasErrorMessage: string | null = null;
+  public showAllTypeNumbers = false;
 
   ngOnInit(): void {
-    this.verificationMethodsService.setPageChangeCallback(this.key, () => this.loadPossibleVerificationMethods());
+    this.verificationMethodsService.setPageChangeCallback(this.key, () =>
+      this.loadPossibleVerificationMethods()
+    );
     this.loadPossibleVerificationMethods();
   }
 
@@ -63,30 +74,36 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
     this.loading = true;
     this.error = null;
     const yearMonth = !this.yearMonthFilter ? null : this.yearMonthFilter;
-    this.verificationMethodsClient.getPossibleVerificationMethods(
-      this.pagination.currentPage,
-      this.pagination.pageSize,
-      this.deviceTypeNumberFilter || null,
-      this.verificationNameFilter,
-      this.deviceTypeInfoFilter,
-      yearMonth
-    ).subscribe({
-      next: (result) => {
-        if (result.data) {
-          this.possibleVerificationMethods = result.data.items ?? [];
-          this.verificationMethodsService.updatePaginationFromData(this.key, result.data);
-        } else {
-          this.possibleVerificationMethods = [];
-          this.verificationMethodsService.resetPagination(this.key);
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        const msg = err?.error?.error || err?.error?.message || err?.message;
-        this.error = msg || 'Не удалось загрузить возможные методы поверки';
-        this.loading = false;
-      },
-    });
+    this.verificationMethodsClient
+      .getPossibleVerificationMethods(
+        this.pagination.currentPage,
+        this.pagination.pageSize,
+        this.deviceTypeNumberFilter || null,
+        this.verificationNameFilter,
+        this.deviceTypeInfoFilter,
+        yearMonth,
+        this.showAllTypeNumbers
+      )
+      .subscribe({
+        next: (result) => {
+          if (result.data) {
+            this.possibleVerificationMethods = result.data.items ?? [];
+            this.verificationMethodsService.updatePaginationFromData(
+              this.key,
+              result.data
+            );
+          } else {
+            this.possibleVerificationMethods = [];
+            this.verificationMethodsService.resetPagination(this.key);
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.error?.message || err?.message;
+          this.error = msg || 'Не удалось загрузить возможные методы поверки';
+          this.loading = false;
+        },
+      });
   }
 
   public get pagination() {
@@ -95,15 +112,25 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
 
   public formatDates(dates?: YearMonth[]): string {
     if (!dates || dates.length === 0) return '-';
-    return dates.map(d => `${d.year ?? 0}.${(d.month ?? 0) < 10 ? '0' + (d.month ?? 0) : (d.month ?? 0)}`).join(', ');
+    return dates
+      .map(
+        (d) =>
+          `${d.year ?? 0}.${
+            (d.month ?? 0) < 10 ? '0' + (d.month ?? 0) : d.month ?? 0
+          }`
+      )
+      .join(', ');
   }
 
   public formatAliases(aliases?: { alias?: string }[]): string {
     if (!aliases || aliases.length === 0) return '-';
-    return aliases.map(a => a?.alias).filter(Boolean).join(', ');
+    return aliases
+      .map((a) => a?.alias)
+      .filter(Boolean)
+      .join(', ');
   }
 
   public reload() {
     this.loadPossibleVerificationMethods();
   }
-} 
+}
