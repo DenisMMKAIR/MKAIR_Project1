@@ -137,6 +137,11 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
 
             string genErrorMsg(string msg) => $"Файл '{fileName}', столбец '{string.Join(",", column.IncomingNames)}', строка {row.RowNum + 1}. {msg}";
 
+            if (cell == null)
+            {
+                throw new Exception(genErrorMsg("Ошибка ячейки"));
+            }
+
             string? cellValue;
 
             if (cell.CellType == CellType.Formula)
