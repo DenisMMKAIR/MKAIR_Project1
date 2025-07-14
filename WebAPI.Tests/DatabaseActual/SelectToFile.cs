@@ -4,10 +4,10 @@ using ProjApp.Database;
 
 namespace WebAPI.Tests.DatabaseActual;
 
-public class DeviceTypeNumberToMethods : DatabaseActualFixture
+public class SelectToFile : DatabaseActualFixture
 {
     [Test]
-    public async Task Test1()
+    public async Task DeviceTypeNumberToMethods()
     {
         Environment.Exit(0);
 
