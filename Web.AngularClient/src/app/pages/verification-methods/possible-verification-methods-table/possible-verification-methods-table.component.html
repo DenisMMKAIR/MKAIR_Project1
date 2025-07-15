@@ -26,6 +26,14 @@
       ></app-dates-filter>
     </div>
     <div class="selector-form">
+      <label for="showVMethods">Показать методы:</label>
+      <select id="showVMethods" [(ngModel)]="showVMethods" (change)="onShowVMethodsChange()">
+        <option [ngValue]="'Новые'">Новые</option>
+        <option [ngValue]="'Частичные'">Частичные</option>
+        <option [ngValue]="'Все'">Все</option>
+      </select>
+    </div>
+    <div class="selector-form">
       <label for="deviceTypeNumberFilter">Номер типа:</label>
       <input
         id="deviceTypeNumberFilter"

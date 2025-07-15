@@ -1,13 +1,15 @@
-import { Component, inject, OnInit } from '@angular/core';
+import { Component, inject, OnInit, OnDestroy } from '@angular/core';
 import { NgFor, NgIf } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import {
   VerificationMethodsClient,
   PossibleVrfMethodDTO,
   YearMonth,
+  ShowVMethods,
 } from '../../../api-client';
 import { VerificationMethodsService } from '../../../services/verification-methods.service';
 import { DatesFilterComponent } from '../../../shared/dates-filter/dates-filter.component';
+import { Subject, takeUntil, switchMap } from 'rxjs';
 
 @Component({
   selector: 'app-possible-verification-methods-table',
@@ -17,7 +19,7 @@ import { DatesFilterComponent } from '../../../shared/dates-filter/dates-filter.
   imports: [NgFor, NgIf, FormsModule, DatesFilterComponent],
   providers: [VerificationMethodsClient],
 })
-export class PossibleVerificationMethodsTableComponent implements OnInit {
+export class PossibleVerificationMethodsTableComponent implements OnInit, OnDestroy {
   private readonly verificationMethodsClient = inject(
     VerificationMethodsClient
   );
@@ -25,17 +27,58 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
     VerificationMethodsService
   );
   private readonly key = 'possible' as const;
+  private readonly destroy$ = new Subject<void>();
+  private readonly request$ = new Subject<void>();
 
   public possibleVerificationMethods: PossibleVrfMethodDTO[] = [];
   public loading = false;
   public error: string | null = null;
   public aliasErrorMessage: string | null = null;
   public showAllTypeNumbers = false;
+  public showVMethods: ShowVMethods = ShowVMethods.Новые;
 
   ngOnInit(): void {
     this.verificationMethodsService.setPageChangeCallback(this.key, () =>
       this.loadPossibleVerificationMethods()
     );
+    this.request$
+      .pipe(
+        takeUntil(this.destroy$),
+        switchMap(() => {
+          this.loading = true;
+          this.error = null;
+          const yearMonth = !this.yearMonthFilter ? null : this.yearMonthFilter;
+          return this.verificationMethodsClient.getPossibleVerificationMethods(
+            this.pagination.currentPage,
+            this.pagination.pageSize,
+            this.showVMethods,
+            this.deviceTypeNumberFilter || null,
+            this.verificationNameFilter,
+            this.deviceTypeInfoFilter,
+            yearMonth
+          );
+        })
+      )
+      .subscribe({
+        next: (result) => {
+          if (result.data) {
+            this.possibleVerificationMethods = result.data.items ?? [];
+            this.verificationMethodsService.updatePaginationFromData(
+              this.key,
+              result.data
+            );
+          } else {
+            this.possibleVerificationMethods = [];
+            this.verificationMethodsService.resetPagination(this.key);
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.error?.message || err?.message;
+          this.error = msg || 'Не удалось загрузить возможные методы поверки';
+          this.loading = false;
+        },
+      });
     this.loadPossibleVerificationMethods();
   }
 
@@ -70,40 +113,13 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
     this.loadPossibleVerificationMethods();
   }
 
+  public onShowVMethodsChange(): void {
+    this.verificationMethodsService.resetToFirstPage(this.key);
+    this.loadPossibleVerificationMethods();
+  }
+
   public loadPossibleVerificationMethods(): void {
-    this.loading = true;
-    this.error = null;
-    const yearMonth = !this.yearMonthFilter ? null : this.yearMonthFilter;
-    this.verificationMethodsClient
-      .getPossibleVerificationMethods(
-        this.pagination.currentPage,
-        this.pagination.pageSize,
-        this.deviceTypeNumberFilter || null,
-        this.verificationNameFilter,
-        this.deviceTypeInfoFilter,
-        yearMonth,
-        this.showAllTypeNumbers
-      )
-      .subscribe({
-        next: (result) => {
-          if (result.data) {
-            this.possibleVerificationMethods = result.data.items ?? [];
-            this.verificationMethodsService.updatePaginationFromData(
-              this.key,
-              result.data
-            );
-          } else {
-            this.possibleVerificationMethods = [];
-            this.verificationMethodsService.resetPagination(this.key);
-          }
-          this.loading = false;
-        },
-        error: (err) => {
-          const msg = err?.error?.error || err?.error?.message || err?.message;
-          this.error = msg || 'Не удалось загрузить возможные методы поверки';
-          this.loading = false;
-        },
-      });
+    this.request$.next();
   }
 
   public get pagination() {
@@ -132,5 +148,10 @@ export class PossibleVerificationMethodsTableComponent implements OnInit {
 
   public reload() {
     this.loadPossibleVerificationMethods();
+  }
+
+  ngOnDestroy(): void {
+    this.destroy$.next();
+    this.destroy$.complete();
   }
 }

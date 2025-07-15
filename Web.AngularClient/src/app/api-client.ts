@@ -1086,7 +1086,7 @@ export class VerificationMethodsClient {
         return _observableOf(null as any);
     }
 
-    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined, showAllTypeNumbers: boolean | null | undefined): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
+    getPossibleVerificationMethods(pageIndex: number | undefined, pageSize: number | undefined, showVMethods: ShowVMethods | undefined, deviceTypeNumberFilter: string | null | undefined, verificationNameFilter: string | null | undefined, deviceTypeInfoFilter: string | null | undefined, yearMonthFilter: string | null | undefined): Observable<ServicePaginatedResultOfPossibleVrfMethodDTO> {
         let url_ = this.baseUrl + "/api/VerificationMethods/GetPossibleVerificationMethods?";
         if (pageIndex === null)
             throw new Error("The parameter 'pageIndex' cannot be null.");
@@ -1096,6 +1096,10 @@ export class VerificationMethodsClient {
             throw new Error("The parameter 'pageSize' cannot be null.");
         else if (pageSize !== undefined)
             url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (showVMethods === null)
+            throw new Error("The parameter 'showVMethods' cannot be null.");
+        else if (showVMethods !== undefined)
+            url_ += "ShowVMethods=" + encodeURIComponent("" + showVMethods) + "&";
         if (deviceTypeNumberFilter !== undefined && deviceTypeNumberFilter !== null)
             url_ += "DeviceTypeNumberFilter=" + encodeURIComponent("" + deviceTypeNumberFilter) + "&";
         if (verificationNameFilter !== undefined && verificationNameFilter !== null)
@@ -1104,8 +1108,6 @@ export class VerificationMethodsClient {
             url_ += "DeviceTypeInfoFilter=" + encodeURIComponent("" + deviceTypeInfoFilter) + "&";
         if (yearMonthFilter !== undefined && yearMonthFilter !== null)
             url_ += "YearMonthFilter=" + encodeURIComponent("" + yearMonthFilter) + "&";
-        if (showAllTypeNumbers !== undefined && showAllTypeNumbers !== null)
-            url_ += "ShowAllTypeNumbers=" + encodeURIComponent("" + showAllTypeNumbers) + "&";
         url_ = url_.replace(/[?&]$/, "");
 
         let options_ : any = {
@@ -3419,6 +3421,12 @@ export class PossibleVrfMethodAliasDTO implements IPossibleVrfMethodAliasDTO {
 export interface IPossibleVrfMethodAliasDTO {
     exists?: boolean;
     alias?: string;
+}
+
+export enum ShowVMethods {
+    Новые = "Новые",
+    Частичные = "Частичные",
+    Все = "Все",
 }
 
 export class AddVerificationMethodRequest implements IAddVerificationMethodRequest {

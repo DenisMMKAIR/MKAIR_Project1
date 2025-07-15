@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using ProjApp.Database.Entities;
 using ProjApp.Database.SupportTypes;
@@ -25,7 +26,7 @@ public class VerificationMethodsController : ApiControllerBase
     }
 
     [HttpGet]
-    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
+    public async Task<ServicePaginatedResult<PossibleVrfMethodDTO>> GetPossibleVerificationMethods([Required][FromQuery] GetPaginatedRequest request, [FromQuery] PossibleVerificationMethodRequest query)
     {
         YearMonth? yearMonth;
         try
@@ -36,7 +37,7 @@ public class VerificationMethodsController : ApiControllerBase
         {
             return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail(e.Message);
         }
-        return _service.GetPossibleVerificationMethods(request.PageIndex, request.PageSize, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth, query.ShowAllTypeNumbers);
+        return await _service.GetPossibleVerificationMethodsAsync(request.PageIndex, request.PageSize, query.ShowVMethods, query.DeviceTypeNumberFilter, query.VerificationNameFilter, query.DeviceTypeInfoFilter, yearMonth);
     }
 
     [HttpPost]

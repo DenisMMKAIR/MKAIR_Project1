@@ -8,6 +8,7 @@ using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.Normalizers;
 using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
@@ -40,16 +41,31 @@ public partial class VerificationMethodsService
         return ServicePaginatedResult<VerificationMethodDTO>.Success(result);
     }
 
-    public ServicePaginatedResult<PossibleVrfMethodDTO> GetPossibleVerificationMethods(int pageNumber, int pageSize, string? deviceTypeNumberFilter = null, string? verificationNameFilter = null, string? deviceTypeInfoFilter = null, YearMonth? yearMonthFilter = null, bool? showAllTypeNumbers = null)
+    public async Task<ServicePaginatedResult<PossibleVrfMethodDTO>> GetPossibleVerificationMethodsAsync(
+        int pageNumber,
+        int pageSize,
+        ShowVMethods showVMethods,
+        string? deviceTypeNumberFilter = null,
+        string? verificationNameFilter = null,
+        string? deviceTypeInfoFilter = null,
+        YearMonth? yearMonthFilter = null,
+        CancellationToken? cancellationToken = null)
     {
+        cancellationToken ??= CancellationToken.None;
+
         var existsNames = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
             .ToImmutableSortedSet();
 
+        if (cancellationToken.Value.IsCancellationRequested)
+        {
+            return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail("Операция отменена");
+        }
+
         IReadOnlyList<string> abc = ["s"];
         var r = abc.Contains("s");
 
-        var query = _database.SuccessInitialVerifications
+        var serverResult = await _database.SuccessInitialVerifications
             .Select(v => new
             {
                 v.DeviceTypeNumber,
@@ -79,7 +95,9 @@ public partial class VerificationMethodsService
                     VerificationTypeNames = (string[])v.Device!.DeviceType!.VerificationMethod!.Aliases,
                     v.VerificationDate
                 }))
-            .AsEnumerable()
+            .ToArrayAsync(cancellationToken.Value);
+
+        var clientQuery = serverResult
             .GroupBy(v => v.DeviceTypeNumber)
             .Select(g =>
             {
@@ -105,38 +123,48 @@ public partial class VerificationMethodsService
                 );
             });
 
-        if (showAllTypeNumbers is not true)
+        switch (showVMethods)
         {
-            query = query.Where(dto => dto.Aliases.Any(a => !a.Exists));
+            case ShowVMethods.Новые:
+                clientQuery = clientQuery.Where(dto => dto.Aliases.All(a => !a.Exists));
+                break;
+            case ShowVMethods.Частичные:
+                clientQuery = clientQuery.Where(dto => dto.Aliases.Any(a => !a.Exists));
+                break;
         }
 
         var stringNormalizer = new ComplexStringNormalizer();
 
         if (deviceTypeNumberFilter != null)
         {
-            query = query.Where(dto => dto.DeviceTypeNumber.Contains(deviceTypeNumberFilter, StringComparison.OrdinalIgnoreCase));
+            clientQuery = clientQuery.Where(dto => dto.DeviceTypeNumber.Contains(deviceTypeNumberFilter, StringComparison.OrdinalIgnoreCase));
         }
 
         if (verificationNameFilter != null)
         {
-            query = query.Where(dto => dto.Aliases.Any(a => a.Alias.Contains(verificationNameFilter, StringComparison.OrdinalIgnoreCase)));
+            clientQuery = clientQuery.Where(dto => dto.Aliases.Any(a => a.Alias.Contains(verificationNameFilter, StringComparison.OrdinalIgnoreCase)));
         }
 
         if (deviceTypeInfoFilter != null)
         {
-            query = query.Where(dto => dto.DeviceTypeInfo.Contains(deviceTypeInfoFilter, StringComparison.OrdinalIgnoreCase));
+            clientQuery = clientQuery.Where(dto => dto.DeviceTypeInfo.Contains(deviceTypeInfoFilter, StringComparison.OrdinalIgnoreCase));
         }
 
         if (yearMonthFilter != null)
         {
-            query = query.Where(dto => dto.Dates.Any(d => d == yearMonthFilter.Value));
+            clientQuery = clientQuery.Where(dto => dto.Dates.Any(d => d == yearMonthFilter.Value));
         }
 
-        var result = query
+        var result = clientQuery
             .OrderByDescending(dto => dto.Aliases.Count)
             .ThenBy(dto => dto.DeviceTypeNumber)
             .ThenBy(dto => dto.Dates[0])
             .ToPaginated(pageNumber, pageSize);
+
+        if (cancellationToken.Value.IsCancellationRequested)
+        {
+            return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail("Операция отменена");
+        }
 
         return ServicePaginatedResult<PossibleVrfMethodDTO>.Success(result);
     }

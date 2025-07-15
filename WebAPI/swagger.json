@@ -725,16 +725,15 @@
             "x-position": 2
           },
           {
-            "name": "DeviceTypeNumberFilter",
+            "name": "ShowVMethods",
             "in": "query",
             "schema": {
-              "type": "string",
-              "nullable": true
+              "$ref": "#/components/schemas/ShowVMethods"
             },
             "x-position": 3
           },
           {
-            "name": "VerificationNameFilter",
+            "name": "DeviceTypeNumberFilter",
             "in": "query",
             "schema": {
               "type": "string",
@@ -743,7 +742,7 @@
             "x-position": 4
           },
           {
-            "name": "DeviceTypeInfoFilter",
+            "name": "VerificationNameFilter",
             "in": "query",
             "schema": {
               "type": "string",
@@ -752,7 +751,7 @@
             "x-position": 5
           },
           {
-            "name": "YearMonthFilter",
+            "name": "DeviceTypeInfoFilter",
             "in": "query",
             "schema": {
               "type": "string",
@@ -761,10 +760,10 @@
             "x-position": 6
           },
           {
-            "name": "ShowAllTypeNumbers",
+            "name": "YearMonthFilter",
             "in": "query",
             "schema": {
-              "type": "boolean",
+              "type": "string",
               "nullable": true
             },
             "x-position": 7
@@ -2136,6 +2135,20 @@
             "type": "string"
           }
         }
+      },
+      "ShowVMethods": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Новые",
+          "Частичные",
+          "Все"
+        ],
+        "enum": [
+          "Новые",
+          "Частичные",
+          "Все"
+        ]
       },
       "AddVerificationMethodRequest": {
         "type": "object",
