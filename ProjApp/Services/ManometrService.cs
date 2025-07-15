@@ -75,7 +75,11 @@ public class ManometrService
 
     private async Task<ServiceResult> ExportAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
     {
-        var query = _database.Manometr1Verifications.AsQueryable();
+        var query = _database.Manometr1Verifications
+            .Include(v => v.Device!)
+                .ThenInclude(d => d.DeviceType!)
+            .Include(v => v.Etalons!)
+            .AsQueryable();
 
         if (ids.Count > 0)
         {

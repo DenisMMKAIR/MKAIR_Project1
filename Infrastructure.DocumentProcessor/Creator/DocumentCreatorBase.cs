@@ -14,6 +14,7 @@ internal abstract class DocumentCreatorBase<T>
     private readonly Dictionary<string, string> _signsCache;
     private readonly string _signsDirPath;
     protected abstract IReadOnlyList<PropertyInfo> TypeProps { get; init; }
+    protected int DeviceInfoLineLength { get; init; } = 100;
     protected abstract int VerificationLineLength { get; init; }
     protected abstract int EtalonLineLength { get; init; }
     protected abstract int AdditionalLineLength { get; init; }
@@ -35,6 +36,9 @@ internal abstract class DocumentCreatorBase<T>
         if (addressElement == null) return HTMLCreationResult.Failure("Не найден элемент #manual_address");
         if (data is not IVerificationBase verification) return HTMLCreationResult.Failure("Data is not IVerificationBase");
         SetElementValue(addressElement, MKAIRInfo.GetAddress(verification.VerificationDate));
+
+        var deviceInfoResult = SetDeviceInfo(document, verification);
+        if (deviceInfoResult != null) return HTMLCreationResult.Failure(deviceInfoResult);
 
         foreach (var idValueElement in document.QuerySelectorAll("[id]").Where(e => e.Id!.StartsWith("setValue_")))
         {
@@ -76,6 +80,10 @@ internal abstract class DocumentCreatorBase<T>
             {
                 element.InnerHtml = double.Parse(value).ToString(format);
             }
+            else if (format == "0%")
+            {
+                element.InnerHtml = double.Parse(value).ToString(format);
+            }
             else
             {
                 throw new Exception($"Неподдерживаемый формат: {format}");
@@ -109,6 +117,29 @@ internal abstract class DocumentCreatorBase<T>
         }
 
         return "Нет возможности разделить текст. Пробелы отсутствуют.";
+    }
+
+    private string? SetDeviceInfo(IDocument document, IVerificationBase verification)
+    {
+        var deviceTypeNameElement = document.QuerySelector<IHtmlParagraphElement>("#manual_deviceInfo");
+        if (deviceTypeNameElement == null) return "manual_deviceInfo not found";
+        var insertAfterDeviceNameElement = deviceTypeNameElement.NextSibling;
+        if (insertAfterDeviceNameElement == null) return "manual_deviceInfo sibling not found";
+        var device = verification.Device!;
+        var deviceInfo = $"{device.DeviceType!.Title} {device.DeviceType!.Notation}; {device.Modification}";
+        var deviceNameError = SetLine(deviceTypeNameElement, DeviceInfoLineLength, ref deviceInfo);
+        if (deviceNameError != null) return deviceNameError;
+
+        while (deviceInfo.Length > 0)
+        {
+            var newDeviceNameLineElement = (IHtmlParagraphElement)deviceTypeNameElement.Clone(false);
+            deviceNameError = SetLine(newDeviceNameLineElement, DeviceInfoLineLength, ref deviceInfo);
+            if (deviceNameError != null) return deviceNameError;
+            insertAfterDeviceNameElement.InsertAfter(newDeviceNameLineElement);
+            insertAfterDeviceNameElement = newDeviceNameLineElement;
+        }
+
+        return null;
     }
 
     private string? SetVerification(IDocument document, T data)
