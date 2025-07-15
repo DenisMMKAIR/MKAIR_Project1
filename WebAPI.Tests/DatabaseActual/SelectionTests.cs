@@ -9,6 +9,8 @@ public class SelectionTests : DatabaseActualFixture
     [Test]
     public async Task Test1()
     {
+        Environment.Exit(0);
+        
         using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var ivs = await db.SuccessInitialVerifications

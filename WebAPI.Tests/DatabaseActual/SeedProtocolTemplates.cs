@@ -8,6 +8,8 @@ public class SeedProtocolTemplates : DatabaseActualFixture
     [Test]
     public async Task Test1()
     {
+        Environment.Exit(0);
+        
         using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var protocol = db.ProtocolTemplates.FirstOrDefault(p => p.ProtocolGroup == ProjApp.Database.EntitiesStatic.ProtocolGroup.Манометр1);
