@@ -62,9 +62,6 @@ public partial class VerificationMethodsService
             return ServicePaginatedResult<PossibleVrfMethodDTO>.Fail("Операция отменена");
         }
 
-        IReadOnlyList<string> abc = ["s"];
-        var r = abc.Contains("s");
-
         var serverResult = await _database.SuccessInitialVerifications
             .Select(v => new
             {
