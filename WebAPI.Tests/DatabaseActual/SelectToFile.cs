@@ -5,8 +5,13 @@ using ProjApp.Database.SupportTypes;
 
 namespace WebAPI.Tests.DatabaseActual;
 
-public class SelectToFile : DatabaseActualFixture
+public partial class SelectToFile : DatabaseActualFixture
 {
+    [GeneratedRegex("^МИ|^МП|МИ$|МП$", RegexOptions.IgnoreCase)]
+    private static partial Regex VrfNameTrimRegex();
+    [GeneratedRegex("[^А-Яа-яA-Za-z0-9]", RegexOptions.IgnoreCase)]
+    private static partial Regex VrfNameBannedSymbolsRegex();
+
     [Test]
     public async Task DeviceTypeNumberToMethods()
     {
@@ -16,13 +21,21 @@ public class SelectToFile : DatabaseActualFixture
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
         CancellationToken? cancellationToken = CancellationToken.None;
 
-        var vrfNameRegex = new Regex("^МИ|^МП|МИ$|МП$| |-|«|»|\"", RegexOptions.Compiled | RegexOptions.IgnoreCase);
+        static string Normalize(string s)
+        {
+            foreach (var r in new[] { VrfNameBannedSymbolsRegex, VrfNameTrimRegex, })
+            {
+                s = r().Replace(s, "");
+            }
+            return $"'{s.ToUpper()}'";
+        }
 
         var result = db.Verifications
             .Select(v => new
             {
                 TypeNumber = v.MiInfo.SingleMI.MitypeNumber,
-                TypeInfo = $"{v.MiInfo.SingleMI.MitypeTitle} {v.MiInfo.SingleMI.MitypeType}",
+                TypeTitle = v.MiInfo.SingleMI.MitypeTitle.ToLower().Trim(),
+                TypeNotation = v.MiInfo.SingleMI.MitypeType.ToLower().Trim(),
                 DeviceSerial = v.MiInfo.SingleMI.ManufactureNum,
                 DeviceModification = v.MiInfo.SingleMI.Modification,
                 Date = v.VriInfo.VrfDate,
@@ -30,98 +43,93 @@ public class SelectToFile : DatabaseActualFixture
             })
             .AsEnumerable()
             .GroupBy(v => v.TypeNumber)
-            .Select(g =>
-            {
-                var first = g.First();
-                return new
-                {
-                    TypeNumber = g.Key,
-                    first.TypeInfo,
-                    Vrf = g.Select(dto => new
-                    {
-                        dto.VrfName,
-                        VrfNameNormal = $"'{vrfNameRegex.Replace(dto.VrfName.ToUpper(), "")}'",
-                        dto.DeviceSerial,
-                        dto.DeviceModification,
-                        dto.Date,
-                    })
-                    .GroupBy(dto => dto.VrfNameNormal)
-                    .OrderBy(g => g.First().VrfNameNormal.Length)
-                    .Select(g =>
-                    {
-                        return new
-                        {
-                            NormalName = g.Key,
-                            Names = g.Select(dto => dto.VrfName)
-                                .Distinct()
-                                .OrderBy(n => n.Length)
-                                .ToArray(),
-                            Serials = g.Select(dto => dto.DeviceSerial)
-                                .Distinct()
-                                .OrderBy(s => s.Length)
-                                .ToArray(),
-                            Modifications = g.Select(dto => dto.DeviceModification)
-                                .Distinct()
-                                .OrderBy(m => m.Length)
-                                .ToArray(),
-                            Dates = g.Select(dto => (YearMonth)dto.Date)
-                                .Distinct()
-                                .OrderBy(d => d)
-                                .ToArray(),
-                        };
-                    })
+            .Select(g => new TypeDTO(
+                TypeNumber: g.Key,
+                TypeInfos: g.GroupBy(dto => dto.TypeTitle)
+                    .Select(g => new TypeInfoDTO(
+                        TypeTitle: g.Key,
+                        TypeNotation: g.Select(dto => dto.TypeNotation)
+                            .Distinct()
+                            .OrderBy(n => n.Length)
+                            .ThenBy(n => n)
+                            .ToArray()
+                    ))
                     .ToArray(),
-                };
-            })
+                Vrf: g.Select(dto => new
+                {
+                    dto.VrfName,
+                    VrfNameNormal = Normalize(dto.VrfName),
+                    dto.DeviceSerial,
+                    dto.DeviceModification,
+                    dto.Date,
+                })
+                .GroupBy(dto => dto.VrfNameNormal)
+                .Select(g => new VrfDTO(
+                    NormalName: g.Key,
+                    Names: g.Select(dto => dto.VrfName)
+                        .Distinct()
+                        .OrderBy(n => n.Length)
+                        .ThenBy(n => n)
+                        .ToArray(),
+                    Serials: g.Select(dto => dto.DeviceSerial)
+                        .Distinct()
+                        .OrderBy(s => s.Length)
+                        .ThenBy(s => s)
+                        .ToArray(),
+                    Modifications: g.Select(dto => dto.DeviceModification)
+                        .DistinctBy(m => Normalize(m))
+                        .OrderBy(m => m.Length)
+                        .ThenBy(m => m)
+                        .ToArray(),
+                    Dates: g.Select(dto => (YearMonth)dto.Date)
+                        .Distinct()
+                        .OrderBy(d => d)
+                        .ToArray()
+                ))
+                .OrderBy(dto => dto.NormalName.Length)
+                .ThenBy(dto => dto.NormalName)
+                .ToArray()
+            ))
             .OrderByDescending(dto => dto.Vrf.Length)
             .ToArray();
 
-        {
-            using var fs = File.OpenWrite(Path.Combine(
-                Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                "Все. Методики по номеру типа.txt"));
+        WriteFile("Все. Методики по номеру типа.txt", result);
+        WriteFile("Больше 1 методики. Методики по номеру типа.txt", result.Where(dto => dto.Vrf.Length > 1));
+        WriteFile("Больше 1 описания типа. Методики по номеру типа.txt", result.Where(dto => dto.TypeInfos.Count > 1));
+    }
 
-            using var sw = new StreamWriter(fs);
-
-            foreach (var dto in result)
-            {
-                sw.WriteLine($"{dto.TypeNumber} {dto.TypeInfo}");
-                sw.WriteLine(new string('-', 5));
-                foreach (var vrf in dto.Vrf)
-                {
-                    // sw.WriteLine("\t" + "Обопщение имен методик по " + vrf.NormalName);
-                    sw.WriteLine("\t" + "Методики " + string.Join("; ", vrf.Names));
-                    sw.WriteLine("\t" + "Серийные " + string.Join("; ", vrf.Serials));
-                    sw.WriteLine("\t" + "Модификации " + string.Join("; ", vrf.Modifications));
-                    sw.WriteLine("\t" + "Даты " + string.Join("; ", vrf.Dates));
-                    sw.WriteLine(new string('-', 5));
-                }
-                sw.WriteLine(new string('-', 20));
-            }
-        }
-
-        {
-            using var fs = File.OpenWrite(Path.Combine(
+    private static void WriteFile(string fileName, IEnumerable<TypeDTO> result)
+    {
+        using var fs = File.OpenWrite(Path.Combine(
                     Environment.GetFolderPath(Environment.SpecialFolder.Desktop),
-                    "Больше 1 методики. Методики по номеру типа.txt"));
+                    fileName));
 
-            using var sw = new StreamWriter(fs);
+        using var sw = new StreamWriter(fs);
 
-            foreach (var dto in result.Where(dto => dto.Vrf.Length > 1))
+        foreach (var dto in result)
+        {
+            sw.WriteLine(dto.TypeNumber);
+            foreach (var typeInfo in dto.TypeInfos)
             {
-                sw.WriteLine($"{dto.TypeNumber} {dto.TypeInfo}");
-                sw.WriteLine(new string('-', 5));
-                foreach (var vrf in dto.Vrf)
-                {
-                    // sw.WriteLine("\t" + "Обопщение имен методик по " + vrf.NormalName);
-                    sw.WriteLine("\t" + "Методики " + string.Join("; ", vrf.Names));
-                    sw.WriteLine("\t" + "Серийные " + string.Join("; ", vrf.Serials));
-                    sw.WriteLine("\t" + "Модификации " + string.Join("; ", vrf.Modifications));
-                    sw.WriteLine("\t" + "Даты " + string.Join("; ", vrf.Dates));
-                    sw.WriteLine(new string('-', 5));
-                }
-                sw.WriteLine(new string('-', 20));
+                sw.WriteLine($"\t{typeInfo.TypeTitle}");
+                sw.Write("\t\t");
+                sw.WriteLine(string.Join("\n\t\t", typeInfo.TypeNotation));
             }
+            sw.WriteLine(new string('-', 5));
+            foreach (var vrf in dto.Vrf)
+            {
+                // sw.WriteLine("\t" + "Обопщение имен методик по " + vrf.NormalName);
+                sw.WriteLine("\t" + "Методики " + string.Join("; ", vrf.Names));
+                sw.WriteLine("\t" + "Серийные " + string.Join("; ", vrf.Serials));
+                sw.WriteLine("\t" + "Модификации " + string.Join("; ", vrf.Modifications));
+                sw.WriteLine("\t" + "Даты " + string.Join("; ", vrf.Dates));
+                sw.WriteLine(new string('-', 5));
+            }
+            sw.WriteLine(new string('-', 20));
         }
     }
+
+    private record TypeDTO(string TypeNumber, IReadOnlyList<TypeInfoDTO> TypeInfos, VrfDTO[] Vrf);
+    private record TypeInfoDTO(string TypeTitle, IReadOnlyList<string> TypeNotation);
+    private record VrfDTO(string NormalName, IReadOnlyList<string> Names, IReadOnlyList<string> Serials, IReadOnlyList<string> Modifications, IReadOnlyList<YearMonth> Dates);
 }
