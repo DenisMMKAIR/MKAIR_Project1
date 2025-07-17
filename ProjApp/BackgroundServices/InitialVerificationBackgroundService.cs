@@ -48,33 +48,39 @@ public class InitialVerificationBackgroundService : EventSubscriberBase, IHosted
         var addFailedVerificationsCommand = scope.ServiceProvider.GetRequiredService<AddInitialVerificationCommand<FailedInitialVerification>>();
         var vService = scope.ServiceProvider.GetRequiredService<VerificationsService>();
         var jobs = await db.InitialVerificationJobs.ToListAsync();
-        foreach (var job in jobs)
+        try
         {
-            try
+            foreach (var job in jobs)
             {
                 _logger.LogInformation("Загрузка данных за {Date}", job.Date);
-                var (vrfGood, vdfFailed) = await _fgisAPI.GetInitialVerifications(job.Date);
+                var result = await _fgisAPI.GetInitialVerificationsAsync(job.Date);
+
+                if (result.Error != null)
+                {
+                    _logger.LogError("{Error}", result.Error);
+                    continue;
+                }
 
                 _logger.LogInformation("Сохранение исправных устройств");
-                var saveGood = await addGoodVerificationsCommand.ExecuteAsync(vrfGood);
+                var saveGood = await addGoodVerificationsCommand.ExecuteAsync(result.SuccessInitialVerifications!);
                 _logger.LogInformation("Поверки исправных устройств {Msg}", saveGood.Message);
 
                 _logger.LogInformation("Сохранение неисправных устройств");
-                var saveFailed = await addFailedVerificationsCommand.ExecuteAsync(vdfFailed);
+                var saveFailed = await addFailedVerificationsCommand.ExecuteAsync(result.FailedInitialVerifications!);
                 _logger.LogInformation("Поверки неисправных устройств {Msg}", saveFailed.Message);
 
-                _ = await vService.AddVerificationMethodsAsync(vrfGood);
-                _ = await vService.AddVerificationMethodsAsync(vdfFailed);
+                _ = await vService.AddVerificationMethodsAsync(result.SuccessInitialVerifications!);
+                _ = await vService.AddVerificationMethodsAsync(result.FailedInitialVerifications!);
 
                 db.InitialVerificationJobs.Remove(job);
                 await db.SaveChangesAsync();
                 _logger.LogInformation("Загрузка данных за {Date} завершена", job.Date);
                 _keeper.Signal(BackgroundEvents.DoneInitialVerificationJob);
             }
-            catch (Exception e)
-            {
-                _logger.LogError("{Msg}", e.Message);
-            }
+        }
+        catch (Exception e)
+        {
+            _logger.LogError("{Msg}", e.Message);
         }
     }
 }

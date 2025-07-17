@@ -7,7 +7,11 @@ public class GetInitialVerificationsTests : FGISAPIFixture
     [Test]
     public async Task Test1()
     {
-        var (good, failed) = await Client.GetInitialVerifications(new DateOnly(2024, 2, 1));
+        var result = await Client.GetInitialVerificationsAsync(new DateOnly(2024, 2, 1));
+        Assert.That(result.Error, Is.Null, result.Error);
+
+        var good = result.SuccessInitialVerifications!;
+        var failed = result.FailedInitialVerifications!;
 
         var etalons = good
             .SelectMany(v => v.Etalons!)
