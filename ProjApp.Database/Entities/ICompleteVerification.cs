@@ -22,7 +22,6 @@ public interface ICompleteVerification : IVerificationBase
 
     // Navigation properties
     ProtocolTemplate? ProtocolTemplate { get; set; }
-    // TODO: CHeck EF Handles proper tables creation
     ICollection<VerificationMethod>? VerificationMethods { get; set; }
     // Device? Device { get; set; } - inherited
     // ICollection<Etalon>? Etalons { get; set; } - inherited
