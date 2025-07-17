@@ -80,7 +80,11 @@ public static class DummyDocumentData
                             ProtocolGroup = ProtocolGroup.Манометр1,
                             VerificationGroup = VerificationGroup.Манометры,
                         }
-                    }
+                    },
+                    
+                    MethodUrls = [],
+                    SpecUrls = [],
+                    Manufacturers = ["Example Manufacturer"],
                 },
             },
         };
@@ -163,7 +167,11 @@ public static class DummyDocumentData
                             ProtocolGroup = ProtocolGroup.Манометр1,
                             VerificationGroup = VerificationGroup.Манометры,
                         }
-                    }
+                    },
+                    
+                    MethodUrls = [],
+                    SpecUrls = [],
+                    Manufacturers = ["Example Manufacturer"],
                 },
             },
         };

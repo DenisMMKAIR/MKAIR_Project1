@@ -163,6 +163,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("id");
 
+                    b.PrimitiveCollection<string[]>("Manufacturers")
+                        .HasColumnType("text[]")
+                        .HasColumnName("manufacturers");
+
+                    b.PrimitiveCollection<string[]>("MethodUrls")
+                        .HasColumnType("text[]")
+                        .HasColumnName("method_urls");
+
                     b.Property<string>("Notation")
                         .IsRequired()
                         .HasColumnType("text")
@@ -172,6 +180,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("number");
+
+                    b.PrimitiveCollection<string[]>("SpecUrls")
+                        .HasColumnType("text[]")
+                        .HasColumnName("spec_urls");
 
                     b.Property<string>("Title")
                         .IsRequired()

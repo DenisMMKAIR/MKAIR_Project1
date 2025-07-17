@@ -7,6 +7,7 @@ using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
 using ProjApp.Database.SupportTypes;
 using FIGSEtalon = Infrastructure.FGIS.Database.Entities.Etalon;
+using FIGSDeviceType = Infrastructure.FGIS.Database.Entities.DeviceType;
 using ProjectDevice = ProjApp.Database.Entities.Device;
 using ProjectDeviceType = ProjApp.Database.Entities.DeviceType;
 using ProjectEtalon = ProjApp.Database.Entities.Etalon;
@@ -40,7 +41,7 @@ public partial class FGISAPIClient
         if (monthResult.VerificationIdsCollected)
         {
             _logger.LogInformation("ID поверок уже загружены");
-            verificationIds = await db.VerificationIds.Where(v => v.Date == requestDate).ToListAsync();
+            verificationIds = await db.VerificationIds.Where(v => v.Date == requestDate).ToArrayAsync();
         }
         else
         {
@@ -57,7 +58,7 @@ public partial class FGISAPIClient
         }
 
         var collectionVriId = verificationIds.Select(v => v.Vri_id).ToList();
-        var verifications = await db.Verifications.Where(v => collectionVriId.Contains(v.Vri_id)).ToListAsync();
+        var verifications = await db.Verifications.Where(v => collectionVriId.Contains(v.Vri_id)).ToArrayAsync();
 
         if (monthResult.EtalonsIdsCollected)
         {
@@ -68,7 +69,7 @@ public partial class FGISAPIClient
             await CollectEtalonsIds(monthResult, db, verifications, allDataCollected);
         }
 
-        var etalonsIds = await db.EtalonIds.Where(e => e.Date == requestDate).ToListAsync();
+        var etalonsIds = await db.EtalonIds.Where(e => e.Date == requestDate).ToArrayAsync();
 
         if (monthResult.EtalonsCollected)
         {
@@ -80,9 +81,34 @@ public partial class FGISAPIClient
         }
 
         var collectionNums = etalonsIds.Select(e => e.RegNumber).ToList();
-        var etalons = await db.Etalons.Where(e => collectionNums.Contains(e.Number)).ToListAsync();
+        var etalons = await db.Etalons.Where(e => collectionNums.Contains(e.Number)).ToArrayAsync();
 
-        var projectVerification = MapAllVerifications(verifications, etalons);
+        if (monthResult.DeviceTypeIdsCollected)
+        {
+            _logger.LogInformation("ID типов устройств уже загружены");
+        }
+        else
+        {
+            await CollectDeviceTypeIds(monthResult, db, verifications, allDataCollected);
+        }
+
+        if (monthResult.DeviceTypesCollected)
+        {
+            _logger.LogInformation("Типы устройств уже загружены");
+        }
+        else
+        {
+            allDataCollected &= await CollectDeviceTypes(monthResult, db, allDataCollected);
+        }
+
+        var deviceTypes = await db.DeviceTypeIds
+            .Join(db.DeviceTypes,
+                  dtId => dtId.MIT_UUID,
+                  dt => dt.Id,
+                  (dtId, dt) => dt)
+            .ToArrayAsync();
+
+        var projectVerification = MapAllVerifications(verifications, etalons, deviceTypes);
 
         if (allDataCollected)
         {
@@ -98,19 +124,122 @@ public partial class FGISAPIClient
         return projectVerification;
     }
 
+    private async Task<bool> CollectDeviceTypes(MonthResult monthResult, FGISDatabase db, bool allDataCollected)
+    {
+        _logger.LogInformation("Загрузка типов устройств");
+
+        var dbIds = await db.DeviceTypes
+            .Select(dt => dt.Number)
+            .ToArrayAsync();
+
+        _logger.LogInformation("В базе уже загружено Типов устройств {Count}", dbIds.Length);
+
+        var idsToDownload = await db.DeviceTypeIds
+            .Where(e => !dbIds.Contains(e.Number))
+            .Select(e => e.MIT_UUID)
+            .ToArrayAsync();
+
+        _logger.LogInformation("Нужно загрузить Типов устройств {Count}", idsToDownload.Length);
+
+        var downloadedDeviceTypes = new List<FIGSDeviceType>(idsToDownload.Length);
+        const int chunkSize = 20;
+
+        foreach (var chunk in idsToDownload.SplitBy(chunkSize))
+        {
+            var deviceTypesToSave = new List<FIGSDeviceType>(chunkSize);
+
+            foreach (var deviceId in chunk)
+            {
+                var result = await GetItemAsync<DeviceTypeResponse>("mit", deviceId.ToString());
+                if (result == null) continue;
+                deviceTypesToSave.Add(result.ToDeviceType());
+            }
+
+            downloadedDeviceTypes.AddRange(deviceTypesToSave);
+            db.DeviceTypes.AddRange(deviceTypesToSave);
+            await db.SaveChangesAsync();
+            _logger.LogInformation("Добавлено типов устройств {Count} из {TotalCount}", downloadedDeviceTypes.Count, idsToDownload.Length);
+        }
+
+        if (downloadedDeviceTypes.Count != idsToDownload.Length)
+        {
+            _logger.LogError("Получен неполный список типов устройств. {DeviceTypesCount} из {IdsCount}", downloadedDeviceTypes.Count, idsToDownload.Length);
+            return false;
+        }
+
+        if (allDataCollected)
+        {
+            monthResult.DeviceTypesCollected = true;
+            await db.SaveChangesAsync();
+        }
+
+        _logger.LogInformation("Все типы устройств сохранены в БД");
+        return true;
+    }
+
+    private async Task CollectDeviceTypeIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<Verification> verifications, bool allDataCollected)
+    {
+        _logger.LogInformation("Загрузка ID типов устройств");
+        var rows = 100u;
+
+        var dbDeviceIds = await db.DeviceTypeIds
+            .ToArrayAsync();
+
+        _logger.LogInformation("В базе уже загружено ID типов устройств {Count}", dbDeviceIds.Length);
+
+        var numsToDownload = verifications
+            .Select(v => v.MiInfo.SingleMI.MitypeNumber)
+            .Where(num => dbDeviceIds.All(dId => dId.Number != num))
+            .Distinct()
+            .ToArray();
+
+        _logger.LogInformation("Нужно загрузить ID типов устройств {Count}", numsToDownload.Length);
+
+        foreach (var deviceNums in numsToDownload.SplitBy(rows))
+        {
+            var query = $"?rows={rows}&search={string.Join("%20", deviceNums)}";
+            var result = await GetItemListAsync<ListResponse<DeviceTypeIdResponse>>("mit", query);
+
+            if (result == null)
+            {
+                throw new Exception("Не удалось загрузить ID типов устройств");
+            }
+
+            if (result.Result.Count == 0)
+            {
+                throw new Exception("Не удалось получить количество ID типов устройств");
+            }
+
+            if (result.Result.Count != deviceNums.Count)
+            {
+                throw new Exception($"Получен неполный список ID типов устройств. {result.Result.Count} из {deviceNums.Count}");
+            }
+
+            db.DeviceTypeIds.AddRange(result.Result.Items.Select(e => new DeviceTypeId(e.MIT_UUID, e.Number)));
+            await db.SaveChangesAsync();
+        }
+
+        if (allDataCollected)
+        {
+            monthResult.DeviceTypeIdsCollected = true;
+            await db.SaveChangesAsync();
+        }
+        _logger.LogInformation("Все ID типов устройств сохранены в БД");
+    }
+
     private async Task<bool> CollectEtalons(MonthResult monthResult, FGISDatabase db, IReadOnlyList<EtalonsId> etalonsIds, bool allDataCollected)
     {
         _logger.LogInformation("Загрузка эталонов");
 
-        var downloadedEtalonNums = await db.Etalons
+        var dbEtalonNums = await db.Etalons
             .Select(e => e.Number)
             .Distinct()
             .ToListAsync();
 
-        _logger.LogInformation("В базе уже загружено эталонов {Count}", downloadedEtalonNums.Count);
+        _logger.LogInformation("В базе уже загружено эталонов {Count}", dbEtalonNums.Count);
 
         var idsToDownload = etalonsIds
-            .Where(e => !downloadedEtalonNums.Contains(e.RegNumber))
+            .Where(e => !dbEtalonNums.Contains(e.RegNumber))
             .Select(e => e.Rmieta_id)
             .ToList();
 
@@ -318,23 +447,32 @@ public partial class FGISAPIClient
 
         var fgisVerification = await db.Verifications
             .Where(v => v.VriInfo.VrfDate.Year == monthResult.Date.Year && v.VriInfo.VrfDate.Month == monthResult.Date.Month)
-            .ToListAsync();
+            .ToArrayAsync();
 
         var etalonNums = fgisVerification
             .SelectMany(v => v.Means.Mieta.Select(mi => mi.RegNumber))
             .Distinct()
-            .ToList();
+            .ToArray();
 
         var fgisEtalons = await db.Etalons
             .Where(e => etalonNums.Contains(e.Number))
-            .ToListAsync();
+            .ToArrayAsync();
 
-        return MapAllVerifications(fgisVerification, fgisEtalons);
+        var deviceTypeNums = fgisVerification
+            .Select(v => v.MiInfo.SingleMI.MitypeNumber)
+            .ToArray();
+
+        var fgisDeviceTypes = await db.DeviceTypes
+            .Where(dt => deviceTypeNums.Contains(dt.Number))
+            .ToArrayAsync();
+
+        return MapAllVerifications(fgisVerification, fgisEtalons, fgisDeviceTypes);
     }
 
     private static (IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>) MapAllVerifications(
         IReadOnlyList<Verification> fgisVerification,
-        IReadOnlyList<FIGSEtalon> fgisEtalons)
+        IReadOnlyList<FIGSEtalon> fgisEtalons,
+        IReadOnlyList<FIGSDeviceType> fgisDeviceTypes)
     {
 
         var goodVrfs = fgisVerification
@@ -375,24 +513,29 @@ public partial class FGISAPIClient
             };
         }
 
-        return (MapToInitialVerifications(goodVrfs, fgisEtalons, MapGood),
-                MapToInitialVerifications(failedVrfs, fgisEtalons, MapFailed));
+        return (MapToInitialVerifications(goodVrfs, fgisEtalons, fgisDeviceTypes, MapGood),
+                MapToInitialVerifications(failedVrfs, fgisEtalons, fgisDeviceTypes, MapFailed));
     }
 
     private static IReadOnlyList<T> MapToInitialVerifications<T>(
         IReadOnlyList<Verification> FGISVerifications,
         IReadOnlyList<FIGSEtalon> FGISEtalons,
+        IReadOnlyList<FIGSDeviceType> FGISDeviceTypes,
         Func<Verification, ProjectDeviceType, ProjectDevice, IReadOnlyList<ProjectEtalon>, T> map)
         where T : IInitialVerification
     {
         var projEtalons = FGISEtalons
             .SelectMany(FGISEtalonToProjectEtalon)
-            .ToList();
+            .ToArray();
+
+        var projDeviceTypes = FGISDeviceTypes
+            .Select(FGISDeviceTypeToProjectDeviceType)
+            .ToArray();
 
         var projVerifications = FGISVerifications
             .Select(v =>
             {
-                var deviceType = new ProjectDeviceType { Number = v.MiInfo.SingleMI.MitypeNumber, Title = v.MiInfo.SingleMI.MitypeTitle, Notation = v.MiInfo.SingleMI.MitypeType };
+                var deviceType = projDeviceTypes.Single(dt => dt.Number == v.MiInfo.SingleMI.MitypeNumber);
 
                 var device = new ProjectDevice { DeviceType = deviceType, DeviceTypeNumber = deviceType.Number, Serial = v.MiInfo.SingleMI.ManufactureNum, ManufacturedYear = (uint)v.MiInfo.SingleMI.ManufactureYear, Modification = v.MiInfo.SingleMI.Modification };
 
@@ -434,5 +577,18 @@ public partial class FGISAPIClient
                     FullInfo = fullInfo,
                 };
             });
+    }
+
+    private static ProjectDeviceType FGISDeviceTypeToProjectDeviceType(FIGSDeviceType dt)
+    {
+        return new ProjectDeviceType
+        {
+            Number = dt.Number,
+            Title = dt.Title,
+            Notation = string.Join("; ", dt.Notation),
+            MethodUrls = dt.Meth?.Select(m => m.DocUrl).ToArray() ?? [],
+            SpecUrls = dt.Spec?.Select(s => s.DocUrl).ToArray() ?? [],
+            Manufacturers = dt.Manufacturer?.Select(m => m.Title).ToArray() ?? [],
+        };
     }
 }

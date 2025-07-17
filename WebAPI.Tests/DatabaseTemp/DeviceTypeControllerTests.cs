@@ -10,8 +10,26 @@ public class DeviceTypeControllerTests : ControllersFixture
     {
         using var scope = ScopeFactory.CreateScope();
         var controller = scope.ServiceProvider.GetRequiredService<DeviceTypeController>();
-        var response1 = await controller.AddDeviceType(new() { Name = "test", Number = "test", Notation = "test" });
-        var response2 = await controller.AddDeviceType(new() { Name = "test", Number = "test", Notation = "test" });
+        var response1 = await controller.AddDeviceType(new()
+        {
+            Title = "test",
+            Number = "test",
+            Notation = "test",
+            MPI = 0,
+            MethodUrls = [],
+            SpecUrls = [],
+            Manufacturers = []
+        });
+        var response2 = await controller.AddDeviceType(new()
+        {
+            Title = "test",
+            Number = "test",
+            Notation = "test",
+            MPI = 0,
+            MethodUrls = [],
+            SpecUrls = [],
+            Manufacturers = []
+        });
         Assert.Multiple(() =>
         {
             Assert.That(response1.Message, Is.EqualTo("Тип устройства test успешно добавлен"));

@@ -13,6 +13,8 @@ public class FGISDatabase : DbContext
     public DbSet<Verification> Verifications => Set<Verification>();
     public DbSet<EtalonsId> EtalonIds => Set<EtalonsId>();
     public DbSet<Etalon> Etalons => Set<Etalon>();
+    public DbSet<DeviceTypeId> DeviceTypeIds => Set<DeviceTypeId>();
+    public DbSet<DeviceType> DeviceTypes => Set<DeviceType>();
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -36,5 +38,14 @@ public class FGISDatabase : DbContext
         modelBuilder.Entity<Etalon>().HasKey(x => x.Number);
         // Also they ALWAYS lazy load
         modelBuilder.Entity<Etalon>().OwnsMany(e => e.CResults);
+
+        modelBuilder.Entity<DeviceTypeId>().HasKey(x => x.MIT_UUID);
+        modelBuilder.Entity<DeviceTypeId>().HasIndex(x => x.Number).IsUnique();
+
+        modelBuilder.Entity<DeviceType>().HasKey(x => x.Id);
+        modelBuilder.Entity<DeviceType>().HasIndex(x => x.Number).IsUnique();
+        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Meth);
+        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Spec);
+        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Manufacturer);
     }
 }

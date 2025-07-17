@@ -3,6 +3,7 @@ using System;
 using Infrastructure.FGIS.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    partial class FGISDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20250717101848_AddDeviceType")]
+    partial class AddDeviceType
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -408,7 +411,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                             b1.HasKey("VerificationVri_id");
 
-                            b1.ToTable("verifications", (string)null);
+                            b1.ToTable("verifications");
 
                             b1.WithOwner()
                                 .HasForeignKey("VerificationVri_id")
@@ -423,7 +426,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                             b1.HasKey("VerificationVri_id");
 
-                            b1.ToTable("verifications", (string)null);
+                            b1.ToTable("verifications");
 
                             b1.WithOwner()
                                 .HasForeignKey("VerificationVri_id")
@@ -522,7 +525,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                             b1.HasKey("VerificationVri_id");
 
-                            b1.ToTable("verifications", (string)null);
+                            b1.ToTable("verifications");
 
                             b1.WithOwner()
                                 .HasForeignKey("VerificationVri_id")
@@ -570,7 +573,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                                     b2.HasKey("MiInfoClassVerificationVri_id");
 
-                                    b2.ToTable("verifications", (string)null);
+                                    b2.ToTable("verifications");
 
                                     b2.WithOwner()
                                         .HasForeignKey("MiInfoClassVerificationVri_id")
@@ -622,7 +625,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                             b1.HasKey("VerificationVri_id");
 
-                            b1.ToTable("verifications", (string)null);
+                            b1.ToTable("verifications");
 
                             b1.WithOwner()
                                 .HasForeignKey("VerificationVri_id")
@@ -649,7 +652,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                                     b2.HasKey("VriInfoClassVerificationVri_id");
 
-                                    b2.ToTable("verifications", (string)null);
+                                    b2.ToTable("verifications");
 
                                     b2.WithOwner()
                                         .HasForeignKey("VriInfoClassVerificationVri_id")
@@ -669,7 +672,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                                     b2.HasKey("VriInfoClassVerificationVri_id");
 
-                                    b2.ToTable("verifications", (string)null);
+                                    b2.ToTable("verifications");
 
                                     b2.WithOwner()
                                         .HasForeignKey("VriInfoClassVerificationVri_id")
