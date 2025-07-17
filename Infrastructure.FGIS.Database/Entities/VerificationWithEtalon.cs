@@ -1,12 +1,8 @@
-namespace Infrastructure.FGISAPI.RequestResponse;
+namespace Infrastructure.FGIS.Database.Entities;
 
-public class VerificationResponse
+public class VerificationWithEtalon
 {
-    public required VerificationResult Result { get; set; }
-}
-
-public class VerificationResult
-{
+    public required string Vri_id { get; set; }
     public required MiInfoClass MiInfo { get; set; }
     public required VriInfoClass VriInfo { get; set; }
     public required MeansClass Means { get; set; }
@@ -32,8 +28,7 @@ public class VerificationResult
 
     public class MeansClass
     {
-        public IReadOnlyList<Mietum>? Mieta { get; set; }
-        public IReadOnlyList<Sample>? Ses { get; set; }
+        public required IReadOnlyList<Mietum> Mieta { get; set; }
     }
 
     public class InfoClass
@@ -42,16 +37,16 @@ public class VerificationResult
         public string? Additional_Info { get; set; }
     }
 
+    public class Inapplicable
+    {
+        public required string NoticeNum { get; set; }
+    }
+
     public class Applicable
     {
         public required string CertNum { get; set; }
         public required bool SignPass { get; set; }
         public required bool SignMi { get; set; }
-    }
-
-    public class Inapplicable
-    {
-        public required string NoticeNum { get; set; }
     }
 
     public class Mietum
@@ -68,14 +63,6 @@ public class VerificationResult
         public required string RankCode { get; set; }
         public required string RankTitle { get; set; }
         public required string SchemaTitle { get; set; }
-    }
-    
-    public class Sample
-    {
-        public required string Number { get; set; }
-        public required string Title { get; set; }
-        public required string SeURL { get; set; }
-        public required int ManufactureYear { get; set; }
     }
 
     public class SingleMI

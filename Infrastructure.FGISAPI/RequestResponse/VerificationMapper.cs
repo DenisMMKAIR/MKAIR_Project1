@@ -4,7 +4,7 @@ namespace Infrastructure.FGISAPI.RequestResponse;
 
 public static class VerificationMapper
 {
-    public static Verification ToVerification(this VerificationResult verification, string vri_id)
+    public static VerificationWithEtalon ToEtaVerification(this VerificationResult verification, string vri_id)
     {
         var goodVrf = verification.VriInfo.Applicable != null;
         var failedVrf = verification.VriInfo.Inapplicable != null;
@@ -14,12 +14,12 @@ public static class VerificationMapper
             throw new Exception("Поверка должна быть либо хорошая, либо неудачная");
         }
 
-        return new Verification
+        return new VerificationWithEtalon
         {
             Vri_id = vri_id,
-            MiInfo = new Verification.MiInfoClass
+            MiInfo = new VerificationWithEtalon.MiInfoClass
             {
-                SingleMI = new Verification.SingleMI
+                SingleMI = new VerificationWithEtalon.SingleMI
                 {
                     MitypeNumber = verification.MiInfo.SingleMI.MitypeNumber,
                     MitypeURL = verification.MiInfo.SingleMI.MitypeURL,
@@ -30,7 +30,7 @@ public static class VerificationMapper
                     Modification = verification.MiInfo.SingleMI.Modification
                 }
             },
-            VriInfo = new Verification.VriInfoClass
+            VriInfo = new VerificationWithEtalon.VriInfoClass
             {
                 Organization = verification.VriInfo.Organization,
                 SignCipher = verification.VriInfo.SignCipher,
@@ -40,22 +40,22 @@ public static class VerificationMapper
                 VriType = verification.VriInfo.VriType,
                 DocTitle = verification.VriInfo.DocTitle,
 
-                Applicable = goodVrf ? new Verification.Applicable
+                Applicable = goodVrf ? new VerificationWithEtalon.Applicable
                 {
                     CertNum = verification.VriInfo.Applicable!.CertNum,
                     SignPass = verification.VriInfo.Applicable.SignPass,
                     SignMi = verification.VriInfo.Applicable.SignMi
                 } : null,
 
-                Inapplicable = failedVrf ? new Verification.Inapplicable
+                Inapplicable = failedVrf ? new VerificationWithEtalon.Inapplicable
                 {
                     NoticeNum = verification.VriInfo.Inapplicable!.NoticeNum
                 } : null,
             },
-            Means = new Verification.MeansClass
+            Means = new VerificationWithEtalon.MeansClass
             {
-                Mieta = verification.Means.Mieta
-                    .Select(m => new Verification.Mietum
+                Mieta = verification.Means.Mieta!
+                    .Select(m => new VerificationWithEtalon.Mietum
                     {
                         RegNumber = m.RegNumber,
                         MietaURL = m.MietaURL,
@@ -71,7 +71,7 @@ public static class VerificationMapper
                         SchemaTitle = m.SchemaTitle
                     }).ToList()
             },
-            Info = new Verification.InfoClass
+            Info = new VerificationWithEtalon.InfoClass
             {
                 BriefIndicator = verification.Info.BriefIndicator,
                 Additional_Info = verification.Info.Additional_Info
@@ -79,7 +79,7 @@ public static class VerificationMapper
         };
     }
 
-    public static VerificationResult ToVerificationResult(this Verification verification)
+    public static VerificationWithSes ToSesVerification(this VerificationResult verification, string vri_id)
     {
         var goodVrf = verification.VriInfo.Applicable != null;
         var failedVrf = verification.VriInfo.Inapplicable != null;
@@ -89,11 +89,12 @@ public static class VerificationMapper
             throw new Exception("Поверка должна быть либо хорошая, либо неудачная");
         }
 
-        return new VerificationResult
+        return new VerificationWithSes
         {
-            MiInfo = new VerificationResult.MiInfoClass
+            Vri_id = vri_id,
+            MiInfo = new VerificationWithSes.MiInfoClass
             {
-                SingleMI = new VerificationResult.SingleMI
+                SingleMI = new VerificationWithSes.SingleMI
                 {
                     MitypeNumber = verification.MiInfo.SingleMI.MitypeNumber,
                     MitypeURL = verification.MiInfo.SingleMI.MitypeURL,
@@ -104,7 +105,7 @@ public static class VerificationMapper
                     Modification = verification.MiInfo.SingleMI.Modification
                 }
             },
-            VriInfo = new VerificationResult.VriInfoClass
+            VriInfo = new VerificationWithSes.VriInfoClass
             {
                 Organization = verification.VriInfo.Organization,
                 SignCipher = verification.VriInfo.SignCipher,
@@ -114,38 +115,30 @@ public static class VerificationMapper
                 VriType = verification.VriInfo.VriType,
                 DocTitle = verification.VriInfo.DocTitle,
 
-                Applicable = goodVrf ? new VerificationResult.Applicable
+                Applicable = goodVrf ? new VerificationWithSes.Applicable
                 {
                     CertNum = verification.VriInfo.Applicable!.CertNum,
                     SignPass = verification.VriInfo.Applicable.SignPass,
                     SignMi = verification.VriInfo.Applicable.SignMi
                 } : null,
 
-                Inapplicable = failedVrf ? new VerificationResult.Inapplicable
+                Inapplicable = failedVrf ? new VerificationWithSes.Inapplicable
                 {
                     NoticeNum = verification.VriInfo.Inapplicable!.NoticeNum
                 } : null,
             },
-            Means = new VerificationResult.MeansClass
+            Means = new VerificationWithSes.MeansClass
             {
-                Mieta = verification.Means.Mieta
-                    .Select(m => new VerificationResult.Mietum
+                Ses = verification.Means.Ses!
+                    .Select(m => new VerificationWithSes.Sample
                     {
-                        RegNumber = m.RegNumber,
-                        MietaURL = m.MietaURL,
-                        MitypeNumber = m.MitypeNumber,
-                        MitypeURL = m.MitypeURL,
-                        MitypeTitle = m.MitypeTitle,
-                        Notation = m.Notation,
-                        Modification = m.Modification,
-                        ManufactureNum = m.ManufactureNum,
-                        ManufactureYear = m.ManufactureYear,
-                        RankCode = m.RankCode,
-                        RankTitle = m.RankTitle,
-                        SchemaTitle = m.SchemaTitle
+                        Number = m.Number,
+                        Title = m.Title,
+                        SeURL = m.SeURL,
+                        ManufactureYear = m.ManufactureYear
                     }).ToList()
             },
-            Info = new VerificationResult.InfoClass
+            Info = new VerificationWithSes.InfoClass
             {
                 BriefIndicator = verification.Info.BriefIndicator,
                 Additional_Info = verification.Info.Additional_Info

@@ -5,16 +5,16 @@
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     /// <inheritdoc />
-    public partial class MakeAdditionalInfoOptional : Migration
+    public partial class FixSes : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AlterColumn<string>(
-                name: "info_additional_info",
-                table: "verifications",
-                type: "text",
-                nullable: true,
+            migrationBuilder.AlterColumn<int>(
+                name: "manufacture_year",
+                table: "sample",
+                type: "integer",
+                nullable: false,
                 oldClrType: typeof(string),
                 oldType: "text");
         }
@@ -23,14 +23,12 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.AlterColumn<string>(
-                name: "info_additional_info",
-                table: "verifications",
+                name: "manufacture_year",
+                table: "sample",
                 type: "text",
                 nullable: false,
-                defaultValue: "",
-                oldClrType: typeof(string),
-                oldType: "text",
-                oldNullable: true);
+                oldClrType: typeof(int),
+                oldType: "integer");
         }
     }
 }

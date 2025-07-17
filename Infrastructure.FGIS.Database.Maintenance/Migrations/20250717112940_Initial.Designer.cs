@@ -3,6 +3,7 @@ using System;
 using Infrastructure.FGIS.Database;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    partial class FGISDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20250717112940_Initial")]
+    partial class Initial
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -758,8 +761,9 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 
                                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
 
-                                    b2.Property<int>("ManufactureYear")
-                                        .HasColumnType("integer")
+                                    b2.Property<string>("ManufactureYear")
+                                        .IsRequired()
+                                        .HasColumnType("text")
                                         .HasColumnName("manufacture_year");
 
                                     b2.Property<string>("Number")

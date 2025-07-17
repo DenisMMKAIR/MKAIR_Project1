@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    [Migration("20250717101848_AddDeviceType")]
-    partial class AddDeviceType
+    [Migration("20250717114149_FixSes")]
+    partial class FixSes
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -210,18 +210,6 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     b.ToTable("month_results", (string)null);
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Verification", b =>
-                {
-                    b.Property<string>("Vri_id")
-                        .HasColumnType("text")
-                        .HasColumnName("vri_id");
-
-                    b.HasKey("Vri_id")
-                        .HasName("pk_verifications");
-
-                    b.ToTable("verifications", (string)null);
-                });
-
             modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.VerificationId", b =>
                 {
                     b.Property<string>("Vri_id")
@@ -236,6 +224,30 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                         .HasName("pk_verification_ids");
 
                     b.ToTable("verification_ids", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon", b =>
+                {
+                    b.Property<string>("Vri_id")
+                        .HasColumnType("text")
+                        .HasColumnName("vri_id");
+
+                    b.HasKey("Vri_id")
+                        .HasName("pk_verifications_with_etalon");
+
+                    b.ToTable("verifications_with_etalon", (string)null);
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.VerificationWithSes", b =>
+                {
+                    b.Property<string>("Vri_id")
+                        .HasColumnType("text")
+                        .HasColumnName("vri_id");
+
+                    b.HasKey("Vri_id")
+                        .HasName("pk_verifications_witht_ses");
+
+                    b.ToTable("verifications_witht_ses", (string)null);
                 });
 
             modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.DeviceType", b =>
@@ -393,11 +405,11 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     b.Navigation("CResults");
                 });
 
-            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.Verification", b =>
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon", b =>
                 {
-                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+InfoClass", "Info", b1 =>
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+InfoClass", "Info", b1 =>
                         {
-                            b1.Property<string>("VerificationVri_id")
+                            b1.Property<string>("VerificationWithEtalonVri_id")
                                 .HasColumnType("text")
                                 .HasColumnName("vri_id");
 
@@ -409,34 +421,34 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                 .HasColumnType("boolean")
                                 .HasColumnName("info_brief_indicator");
 
-                            b1.HasKey("VerificationVri_id");
+                            b1.HasKey("VerificationWithEtalonVri_id");
 
-                            b1.ToTable("verifications");
+                            b1.ToTable("verifications_with_etalon");
 
                             b1.WithOwner()
-                                .HasForeignKey("VerificationVri_id")
-                                .HasConstraintName("fk_verifications_verifications_vri_id");
+                                .HasForeignKey("VerificationWithEtalonVri_id")
+                                .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
                         });
 
-                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+MeansClass", "Means", b1 =>
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+MeansClass", "Means", b1 =>
                         {
-                            b1.Property<string>("VerificationVri_id")
+                            b1.Property<string>("VerificationWithEtalonVri_id")
                                 .HasColumnType("text")
                                 .HasColumnName("vri_id");
 
-                            b1.HasKey("VerificationVri_id");
+                            b1.HasKey("VerificationWithEtalonVri_id");
 
-                            b1.ToTable("verifications");
+                            b1.ToTable("verifications_with_etalon");
 
                             b1.WithOwner()
-                                .HasForeignKey("VerificationVri_id")
-                                .HasConstraintName("fk_verifications_verifications_vri_id");
+                                .HasForeignKey("VerificationWithEtalonVri_id")
+                                .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
 
-                            b1.OwnsMany("Infrastructure.FGIS.Database.Entities.Verification+Mietum", "Mieta", b2 =>
+                            b1.OwnsMany("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+Mietum", "Mieta", b2 =>
                                 {
-                                    b2.Property<string>("MeansClassVerificationVri_id")
+                                    b2.Property<string>("MeansClassVerificationWithEtalonVri_id")
                                         .HasColumnType("text")
-                                        .HasColumnName("means_class_verification_vri_id");
+                                        .HasColumnName("means_class_verification_with_etalon_vri_id");
 
                                     b2.Property<int>("Id")
                                         .ValueGeneratedOnAdd()
@@ -504,36 +516,36 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                         .HasColumnType("text")
                                         .HasColumnName("schema_title");
 
-                                    b2.HasKey("MeansClassVerificationVri_id", "Id")
+                                    b2.HasKey("MeansClassVerificationWithEtalonVri_id", "Id")
                                         .HasName("pk_mietum");
 
                                     b2.ToTable("mietum", (string)null);
 
                                     b2.WithOwner()
-                                        .HasForeignKey("MeansClassVerificationVri_id")
-                                        .HasConstraintName("fk_mietum_verifications_means_class_verification_vri_id");
+                                        .HasForeignKey("MeansClassVerificationWithEtalonVri_id")
+                                        .HasConstraintName("fk_mietum_verifications_with_etalon_means_class_verification_w");
                                 });
 
                             b1.Navigation("Mieta");
                         });
 
-                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+MiInfoClass", "MiInfo", b1 =>
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+MiInfoClass", "MiInfo", b1 =>
                         {
-                            b1.Property<string>("VerificationVri_id")
+                            b1.Property<string>("VerificationWithEtalonVri_id")
                                 .HasColumnType("text")
                                 .HasColumnName("vri_id");
 
-                            b1.HasKey("VerificationVri_id");
+                            b1.HasKey("VerificationWithEtalonVri_id");
 
-                            b1.ToTable("verifications");
+                            b1.ToTable("verifications_with_etalon");
 
                             b1.WithOwner()
-                                .HasForeignKey("VerificationVri_id")
-                                .HasConstraintName("fk_verifications_verifications_vri_id");
+                                .HasForeignKey("VerificationWithEtalonVri_id")
+                                .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
 
-                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+SingleMI", "SingleMI", b2 =>
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+SingleMI", "SingleMI", b2 =>
                                 {
-                                    b2.Property<string>("MiInfoClassVerificationVri_id")
+                                    b2.Property<string>("MiInfoClassVerificationWithEtalonVri_id")
                                         .HasColumnType("text")
                                         .HasColumnName("vri_id");
 
@@ -571,22 +583,22 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                         .HasColumnType("text")
                                         .HasColumnName("mi_info_single_mi_modification");
 
-                                    b2.HasKey("MiInfoClassVerificationVri_id");
+                                    b2.HasKey("MiInfoClassVerificationWithEtalonVri_id");
 
-                                    b2.ToTable("verifications");
+                                    b2.ToTable("verifications_with_etalon");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("MiInfoClassVerificationVri_id")
-                                        .HasConstraintName("fk_verifications_verifications_vri_id");
+                                        .HasForeignKey("MiInfoClassVerificationWithEtalonVri_id")
+                                        .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
                                 });
 
                             b1.Navigation("SingleMI")
                                 .IsRequired();
                         });
 
-                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+VriInfoClass", "VriInfo", b1 =>
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+VriInfoClass", "VriInfo", b1 =>
                         {
-                            b1.Property<string>("VerificationVri_id")
+                            b1.Property<string>("VerificationWithEtalonVri_id")
                                 .HasColumnType("text")
                                 .HasColumnName("vri_id");
 
@@ -623,17 +635,17 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                 .HasColumnType("text")
                                 .HasColumnName("vri_info_vri_type");
 
-                            b1.HasKey("VerificationVri_id");
+                            b1.HasKey("VerificationWithEtalonVri_id");
 
-                            b1.ToTable("verifications");
+                            b1.ToTable("verifications_with_etalon");
 
                             b1.WithOwner()
-                                .HasForeignKey("VerificationVri_id")
-                                .HasConstraintName("fk_verifications_verifications_vri_id");
+                                .HasForeignKey("VerificationWithEtalonVri_id")
+                                .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
 
-                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+Applicable", "Applicable", b2 =>
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+Applicable", "Applicable", b2 =>
                                 {
-                                    b2.Property<string>("VriInfoClassVerificationVri_id")
+                                    b2.Property<string>("VriInfoClassVerificationWithEtalonVri_id")
                                         .HasColumnType("text")
                                         .HasColumnName("vri_id");
 
@@ -650,18 +662,18 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                         .HasColumnType("boolean")
                                         .HasColumnName("vri_info_applicable_sign_pass");
 
-                                    b2.HasKey("VriInfoClassVerificationVri_id");
+                                    b2.HasKey("VriInfoClassVerificationWithEtalonVri_id");
 
-                                    b2.ToTable("verifications");
+                                    b2.ToTable("verifications_with_etalon");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("VriInfoClassVerificationVri_id")
-                                        .HasConstraintName("fk_verifications_verifications_vri_id");
+                                        .HasForeignKey("VriInfoClassVerificationWithEtalonVri_id")
+                                        .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
                                 });
 
-                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.Verification+Inapplicable", "Inapplicable", b2 =>
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithEtalon+Inapplicable", "Inapplicable", b2 =>
                                 {
-                                    b2.Property<string>("VriInfoClassVerificationVri_id")
+                                    b2.Property<string>("VriInfoClassVerificationWithEtalonVri_id")
                                         .HasColumnType("text")
                                         .HasColumnName("vri_id");
 
@@ -670,13 +682,277 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                                         .HasColumnType("text")
                                         .HasColumnName("vri_info_inapplicable_notice_num");
 
-                                    b2.HasKey("VriInfoClassVerificationVri_id");
+                                    b2.HasKey("VriInfoClassVerificationWithEtalonVri_id");
 
-                                    b2.ToTable("verifications");
+                                    b2.ToTable("verifications_with_etalon");
 
                                     b2.WithOwner()
-                                        .HasForeignKey("VriInfoClassVerificationVri_id")
-                                        .HasConstraintName("fk_verifications_verifications_vri_id");
+                                        .HasForeignKey("VriInfoClassVerificationWithEtalonVri_id")
+                                        .HasConstraintName("fk_verifications_with_etalon_verifications_with_etalon_vri_id");
+                                });
+
+                            b1.Navigation("Applicable");
+
+                            b1.Navigation("Inapplicable");
+                        });
+
+                    b.Navigation("Info")
+                        .IsRequired();
+
+                    b.Navigation("Means")
+                        .IsRequired();
+
+                    b.Navigation("MiInfo")
+                        .IsRequired();
+
+                    b.Navigation("VriInfo")
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("Infrastructure.FGIS.Database.Entities.VerificationWithSes", b =>
+                {
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+InfoClass", "Info", b1 =>
+                        {
+                            b1.Property<string>("VerificationWithSesVri_id")
+                                .HasColumnType("text")
+                                .HasColumnName("vri_id");
+
+                            b1.Property<string>("Additional_Info")
+                                .HasColumnType("text")
+                                .HasColumnName("info_additional_info");
+
+                            b1.Property<bool>("BriefIndicator")
+                                .HasColumnType("boolean")
+                                .HasColumnName("info_brief_indicator");
+
+                            b1.HasKey("VerificationWithSesVri_id");
+
+                            b1.ToTable("verifications_witht_ses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VerificationWithSesVri_id")
+                                .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+                        });
+
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+MeansClass", "Means", b1 =>
+                        {
+                            b1.Property<string>("VerificationWithSesVri_id")
+                                .HasColumnType("text")
+                                .HasColumnName("vri_id");
+
+                            b1.HasKey("VerificationWithSesVri_id");
+
+                            b1.ToTable("verifications_witht_ses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VerificationWithSesVri_id")
+                                .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+
+                            b1.OwnsMany("Infrastructure.FGIS.Database.Entities.VerificationWithSes+Sample", "Ses", b2 =>
+                                {
+                                    b2.Property<string>("MeansClassVerificationWithSesVri_id")
+                                        .HasColumnType("text")
+                                        .HasColumnName("means_class_verification_with_ses_vri_id");
+
+                                    b2.Property<int>("Id")
+                                        .ValueGeneratedOnAdd()
+                                        .HasColumnType("integer")
+                                        .HasColumnName("id");
+
+                                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b2.Property<int>("Id"));
+
+                                    b2.Property<int>("ManufactureYear")
+                                        .HasColumnType("integer")
+                                        .HasColumnName("manufacture_year");
+
+                                    b2.Property<string>("Number")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("number");
+
+                                    b2.Property<string>("SeURL")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("se_url");
+
+                                    b2.Property<string>("Title")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("title");
+
+                                    b2.HasKey("MeansClassVerificationWithSesVri_id", "Id")
+                                        .HasName("pk_sample");
+
+                                    b2.ToTable("sample", (string)null);
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("MeansClassVerificationWithSesVri_id")
+                                        .HasConstraintName("fk_sample_verifications_witht_ses_means_class_verification_wit");
+                                });
+
+                            b1.Navigation("Ses");
+                        });
+
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+MiInfoClass", "MiInfo", b1 =>
+                        {
+                            b1.Property<string>("VerificationWithSesVri_id")
+                                .HasColumnType("text")
+                                .HasColumnName("vri_id");
+
+                            b1.HasKey("VerificationWithSesVri_id");
+
+                            b1.ToTable("verifications_witht_ses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VerificationWithSesVri_id")
+                                .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+SingleMI", "SingleMI", b2 =>
+                                {
+                                    b2.Property<string>("MiInfoClassVerificationWithSesVri_id")
+                                        .HasColumnType("text")
+                                        .HasColumnName("vri_id");
+
+                                    b2.Property<string>("ManufactureNum")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_manufacture_num");
+
+                                    b2.Property<int>("ManufactureYear")
+                                        .HasColumnType("integer")
+                                        .HasColumnName("mi_info_single_mi_manufacture_year");
+
+                                    b2.Property<string>("MitypeNumber")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_mitype_number");
+
+                                    b2.Property<string>("MitypeTitle")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_mitype_title");
+
+                                    b2.Property<string>("MitypeType")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_mitype_type");
+
+                                    b2.Property<string>("MitypeURL")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_mitype_url");
+
+                                    b2.Property<string>("Modification")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("mi_info_single_mi_modification");
+
+                                    b2.HasKey("MiInfoClassVerificationWithSesVri_id");
+
+                                    b2.ToTable("verifications_witht_ses");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("MiInfoClassVerificationWithSesVri_id")
+                                        .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+                                });
+
+                            b1.Navigation("SingleMI")
+                                .IsRequired();
+                        });
+
+                    b.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+VriInfoClass", "VriInfo", b1 =>
+                        {
+                            b1.Property<string>("VerificationWithSesVri_id")
+                                .HasColumnType("text")
+                                .HasColumnName("vri_id");
+
+                            b1.Property<string>("DocTitle")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("vri_info_doc_title");
+
+                            b1.Property<string>("MiOwner")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("vri_info_mi_owner");
+
+                            b1.Property<string>("Organization")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("vri_info_organization");
+
+                            b1.Property<string>("SignCipher")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("vri_info_sign_cipher");
+
+                            b1.Property<DateOnly?>("ValidDate")
+                                .HasColumnType("date")
+                                .HasColumnName("vri_info_valid_date");
+
+                            b1.Property<DateOnly>("VrfDate")
+                                .HasColumnType("date")
+                                .HasColumnName("vri_info_vrf_date");
+
+                            b1.Property<string>("VriType")
+                                .IsRequired()
+                                .HasColumnType("text")
+                                .HasColumnName("vri_info_vri_type");
+
+                            b1.HasKey("VerificationWithSesVri_id");
+
+                            b1.ToTable("verifications_witht_ses");
+
+                            b1.WithOwner()
+                                .HasForeignKey("VerificationWithSesVri_id")
+                                .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+Applicable", "Applicable", b2 =>
+                                {
+                                    b2.Property<string>("VriInfoClassVerificationWithSesVri_id")
+                                        .HasColumnType("text")
+                                        .HasColumnName("vri_id");
+
+                                    b2.Property<string>("CertNum")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("vri_info_applicable_cert_num");
+
+                                    b2.Property<bool>("SignMi")
+                                        .HasColumnType("boolean")
+                                        .HasColumnName("vri_info_applicable_sign_mi");
+
+                                    b2.Property<bool>("SignPass")
+                                        .HasColumnType("boolean")
+                                        .HasColumnName("vri_info_applicable_sign_pass");
+
+                                    b2.HasKey("VriInfoClassVerificationWithSesVri_id");
+
+                                    b2.ToTable("verifications_witht_ses");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VriInfoClassVerificationWithSesVri_id")
+                                        .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
+                                });
+
+                            b1.OwnsOne("Infrastructure.FGIS.Database.Entities.VerificationWithSes+Inapplicable", "Inapplicable", b2 =>
+                                {
+                                    b2.Property<string>("VriInfoClassVerificationWithSesVri_id")
+                                        .HasColumnType("text")
+                                        .HasColumnName("vri_id");
+
+                                    b2.Property<string>("NoticeNum")
+                                        .IsRequired()
+                                        .HasColumnType("text")
+                                        .HasColumnName("vri_info_inapplicable_notice_num");
+
+                                    b2.HasKey("VriInfoClassVerificationWithSesVri_id");
+
+                                    b2.ToTable("verifications_witht_ses");
+
+                                    b2.WithOwner()
+                                        .HasForeignKey("VriInfoClassVerificationWithSesVri_id")
+                                        .HasConstraintName("fk_verifications_witht_ses_verifications_witht_ses_vri_id");
                                 });
 
                             b1.Navigation("Applicable");

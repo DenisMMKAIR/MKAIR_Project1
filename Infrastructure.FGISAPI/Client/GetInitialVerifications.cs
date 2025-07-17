@@ -58,7 +58,7 @@ public partial class FGISAPIClient
         }
 
         var collectionVriId = verificationIds.Select(v => v.Vri_id).ToList();
-        var verifications = await db.Verifications.Where(v => collectionVriId.Contains(v.Vri_id)).ToArrayAsync();
+        var verifications = await db.VerificationsWithEtalon.Where(v => collectionVriId.Contains(v.Vri_id)).ToArrayAsync();
 
         if (monthResult.EtalonsIdsCollected)
         {
@@ -141,7 +141,7 @@ public partial class FGISAPIClient
 
         _logger.LogInformation("Нужно загрузить Типов устройств {Count}", idsToDownload.Length);
 
-        var downloadedDeviceTypes = new List<FIGSDeviceType>(idsToDownload.Length);
+        var downloadedDeviceTypesCount = 0;
         const int chunkSize = 20;
 
         foreach (var chunk in idsToDownload.SplitBy(chunkSize))
@@ -155,15 +155,15 @@ public partial class FGISAPIClient
                 deviceTypesToSave.Add(result.ToDeviceType());
             }
 
-            downloadedDeviceTypes.AddRange(deviceTypesToSave);
             db.DeviceTypes.AddRange(deviceTypesToSave);
+            downloadedDeviceTypesCount += deviceTypesToSave.Count;
             await db.SaveChangesAsync();
-            _logger.LogInformation("Добавлено типов устройств {Count} из {TotalCount}", downloadedDeviceTypes.Count, idsToDownload.Length);
+            _logger.LogInformation("Добавлено типов устройств {Count} из {TotalCount}", downloadedDeviceTypesCount, idsToDownload.Length);
         }
 
-        if (downloadedDeviceTypes.Count != idsToDownload.Length)
+        if (downloadedDeviceTypesCount != idsToDownload.Length)
         {
-            _logger.LogError("Получен неполный список типов устройств. {DeviceTypesCount} из {IdsCount}", downloadedDeviceTypes.Count, idsToDownload.Length);
+            _logger.LogError("Получен неполный список типов устройств. {DeviceTypesCount} из {IdsCount}", downloadedDeviceTypesCount, idsToDownload.Length);
             return false;
         }
 
@@ -177,7 +177,7 @@ public partial class FGISAPIClient
         return true;
     }
 
-    private async Task CollectDeviceTypeIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<Verification> verifications, bool allDataCollected)
+    private async Task CollectDeviceTypeIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<VerificationWithEtalon> verifications, bool allDataCollected)
     {
         _logger.LogInformation("Загрузка ID типов устройств");
         var rows = 100u;
@@ -244,7 +244,7 @@ public partial class FGISAPIClient
             .ToList();
 
         _logger.LogInformation("Нужно загрузить эталонов {Count}", idsToDownload.Count);
-        var downloadedEtalons = new List<FIGSEtalon>(idsToDownload.Count);
+        var downloadedEtalonsCount = 0;
         const int chunkSize = 20;
 
         foreach (var chunk in idsToDownload.SplitBy(chunkSize))
@@ -258,15 +258,15 @@ public partial class FGISAPIClient
                 etalonsToSave.Add(result.Result);
             }
 
-            downloadedEtalons.AddRange(etalonsToSave);
             db.Etalons.AddRange(etalonsToSave);
+            downloadedEtalonsCount += etalonsToSave.Count;
             await db.SaveChangesAsync();
-            _logger.LogInformation("Добавлено эталонов {Count} из {TotalCount}", downloadedEtalons.Count, idsToDownload.Count);
+            _logger.LogInformation("Добавлено эталонов {Count} из {TotalCount}", downloadedEtalonsCount, idsToDownload.Count);
         }
 
-        if (downloadedEtalons.Count != idsToDownload.Count)
+        if (downloadedEtalonsCount != idsToDownload.Count)
         {
-            _logger.LogError("Получен неполный список Эталонов. {EtalonsCount} из {IdsCount}", downloadedEtalons.Count, idsToDownload.Count);
+            _logger.LogError("Получен неполный список Эталонов. {EtalonsCount} из {IdsCount}", downloadedEtalonsCount, idsToDownload.Count);
             return false;
         }
 
@@ -280,7 +280,7 @@ public partial class FGISAPIClient
         return true;
     }
 
-    private async Task CollectEtalonsIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<Verification> verifications, bool allDataCollected)
+    private async Task CollectEtalonsIds(MonthResult monthResult, FGISDatabase db, IReadOnlyList<VerificationWithEtalon> verifications, bool allDataCollected)
     {
         _logger.LogInformation("Загрузка ID эталонов");
         var rows = 100u;
@@ -337,7 +337,7 @@ public partial class FGISAPIClient
         _logger.LogInformation("Загрузка поверок");
         const int chunkSize = 20;
 
-        var downloadedVriIds = await db.Verifications
+        var downloadedVriIds = await db.VerificationsWithEtalon
             .Where(v => v.VriInfo.VrfDate.Year == monthResult.Date.Year && v.VriInfo.VrfDate.Month == monthResult.Date.Month)
             .Select(v => v.Vri_id)
             .ToListAsync();
@@ -349,28 +349,44 @@ public partial class FGISAPIClient
             .ToList();
 
         _logger.LogInformation("Нужно загрузить поверок {Count}", idsToDownload.Count);
-        var downloadedVerfs = new List<Verification>(idsToDownload.Count);
+        var downloadedEtaVrfs = 0;
+        var downloadedSesVrfs = 0;
+        var downloadedMutualVrfs = 0;
 
         foreach (var chunk in idsToDownload.SplitBy(chunkSize))
         {
-            var verifsToSave = new List<Verification>(chunkSize);
+            var etaVrfsToSave = new List<VerificationWithEtalon>(chunkSize);
+            var sesVrfsTosave = new List<VerificationWithSes>(chunkSize);
 
             foreach (var verificationId in chunk)
             {
                 var result = await GetItemAsync<VerificationResponse>("vri", verificationId.Vri_id);
                 if (result == null) continue;
-                verifsToSave.Add(result.Result.ToVerification(verificationId.Vri_id));
+                switch (result.Result.Means)
+                {
+                    case { Mieta.Count: > 0 }:
+                        etaVrfsToSave.Add(result.Result.ToEtaVerification(verificationId.Vri_id));
+                        break;
+                    case { Ses.Count: > 0 }:
+                        sesVrfsTosave.Add(result.Result.ToSesVerification(verificationId.Vri_id));
+                        break;
+                    default:
+                        continue;
+                }
             }
 
-            db.Verifications.AddRange(verifsToSave);
-            downloadedVerfs.AddRange(verifsToSave);
+            db.VerificationsWithEtalon.AddRange(etaVrfsToSave);
+            db.VerificationsWithtSes.AddRange(sesVrfsTosave);
+            downloadedEtaVrfs += etaVrfsToSave.Count;
+            downloadedSesVrfs += sesVrfsTosave.Count;
+            downloadedMutualVrfs += etaVrfsToSave.Count + sesVrfsTosave.Count;
             await db.SaveChangesAsync();
-            _logger.LogInformation("Загружено поверок {Count} из {TotalCount}", downloadedVerfs.Count, idsToDownload.Count);
+            _logger.LogInformation("Загружено поверок с эталонами {EtaCount}. Загружено поверок с образцами {SesCount}. {MutualCount} из {TotalCount}", downloadedEtaVrfs, downloadedSesVrfs, downloadedMutualVrfs, idsToDownload.Count);
         }
 
-        if (downloadedVerfs.Count != idsToDownload.Count)
+        if (downloadedMutualVrfs != idsToDownload.Count)
         {
-            _logger.LogError("Получен неполный список поверок. {VerfsCount} из {IdsCount}", downloadedVerfs.Count, idsToDownload.Count);
+            _logger.LogError("Получен неполный список поверок. {VerfsCount} из {IdsCount}", downloadedMutualVrfs, idsToDownload.Count);
             return false;
         }
 
@@ -445,7 +461,7 @@ public partial class FGISAPIClient
     {
         _logger.LogInformation("Данные на {Date} возвращены из кэша", monthResult.Date);
 
-        var fgisVerification = await db.Verifications
+        var fgisVerification = await db.VerificationsWithEtalon
             .Where(v => v.VriInfo.VrfDate.Year == monthResult.Date.Year && v.VriInfo.VrfDate.Month == monthResult.Date.Month)
             .ToArrayAsync();
 
@@ -470,7 +486,7 @@ public partial class FGISAPIClient
     }
 
     private static (IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<FailedInitialVerification>) MapAllVerifications(
-        IReadOnlyList<Verification> fgisVerification,
+        IReadOnlyList<VerificationWithEtalon> fgisVerification,
         IReadOnlyList<FIGSEtalon> fgisEtalons,
         IReadOnlyList<FIGSDeviceType> fgisDeviceTypes)
     {
@@ -483,7 +499,7 @@ public partial class FGISAPIClient
             .Where(v => v.VriInfo.Inapplicable != null)
             .ToList();
 
-        static SuccessInitialVerification MapGood(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        static SuccessInitialVerification MapGood(VerificationWithEtalon v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
         {
             return new SuccessInitialVerification
             {
@@ -498,7 +514,7 @@ public partial class FGISAPIClient
             };
         }
 
-        static FailedInitialVerification MapFailed(Verification v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
+        static FailedInitialVerification MapFailed(VerificationWithEtalon v, ProjectDeviceType deviceType, ProjectDevice device, IReadOnlyList<ProjectEtalon> etalons)
         {
             return new FailedInitialVerification
             {
@@ -518,10 +534,10 @@ public partial class FGISAPIClient
     }
 
     private static IReadOnlyList<T> MapToInitialVerifications<T>(
-        IReadOnlyList<Verification> FGISVerifications,
+        IReadOnlyList<VerificationWithEtalon> FGISVerifications,
         IReadOnlyList<FIGSEtalon> FGISEtalons,
         IReadOnlyList<FIGSDeviceType> FGISDeviceTypes,
-        Func<Verification, ProjectDeviceType, ProjectDevice, IReadOnlyList<ProjectEtalon>, T> map)
+        Func<VerificationWithEtalon, ProjectDeviceType, ProjectDevice, IReadOnlyList<ProjectEtalon>, T> map)
         where T : IInitialVerification
     {
         var projEtalons = FGISEtalons

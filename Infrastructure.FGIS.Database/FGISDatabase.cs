@@ -10,7 +10,8 @@ public class FGISDatabase : DbContext
 
     public DbSet<MonthResult> MonthResults => Set<MonthResult>();
     public DbSet<VerificationId> VerificationIds => Set<VerificationId>();
-    public DbSet<Verification> Verifications => Set<Verification>();
+    public DbSet<VerificationWithEtalon> VerificationsWithEtalon => Set<VerificationWithEtalon>();
+    public DbSet<VerificationWithSes> VerificationsWithtSes => Set<VerificationWithSes>();
     public DbSet<EtalonsId> EtalonIds => Set<EtalonsId>();
     public DbSet<Etalon> Etalons => Set<Etalon>();
     public DbSet<DeviceTypeId> DeviceTypeIds => Set<DeviceTypeId>();
@@ -24,13 +25,20 @@ public class FGISDatabase : DbContext
         modelBuilder.Entity<VerificationId>().HasKey(x => x.Vri_id);
         modelBuilder.Entity<VerificationId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
 
-        modelBuilder.Entity<Verification>().HasKey(x => x.Vri_id);
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Info));
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Inapplicable)));
+        modelBuilder.Entity<VerificationWithEtalon>().HasKey(x => x.Vri_id);
+        modelBuilder.Entity<VerificationWithEtalon>(x => x.OwnsOne(e => e.Info));
+        modelBuilder.Entity<VerificationWithEtalon>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
+        modelBuilder.Entity<VerificationWithEtalon>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
+        modelBuilder.Entity<VerificationWithEtalon>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Inapplicable)));
         // Also they ALWAYS lazy load
-        modelBuilder.Entity<Verification>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
+        modelBuilder.Entity<VerificationWithEtalon>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Mieta)));
+
+        modelBuilder.Entity<VerificationWithSes>().HasKey(x => x.Vri_id);
+        modelBuilder.Entity<VerificationWithSes>(x => x.OwnsOne(e => e.Info));
+        modelBuilder.Entity<VerificationWithSes>(x => x.OwnsOne(e => e.MiInfo, mi => mi.OwnsOne(m => m.SingleMI)));
+        modelBuilder.Entity<VerificationWithSes>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Applicable)));
+        modelBuilder.Entity<VerificationWithSes>(x => x.OwnsOne(e => e.VriInfo, vr => vr.OwnsOne(v => v.Inapplicable)));
+        modelBuilder.Entity<VerificationWithSes>(x => x.OwnsOne(e => e.Means, m => m.OwnsMany(mm => mm.Ses)));
 
         modelBuilder.Entity<EtalonsId>().HasKey(x => new { x.Rmieta_id, x.Date });
         modelBuilder.Entity<EtalonsId>().Property(x => x.Date).HasConversion(new YearMonthConverter());
