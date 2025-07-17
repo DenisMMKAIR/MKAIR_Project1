@@ -12,11 +12,9 @@ public partial class SelectToFile : DatabaseActualFixture
     [GeneratedRegex("[^А-Яа-яA-Za-z0-9]", RegexOptions.IgnoreCase)]
     private static partial Regex VrfNameBannedSymbolsRegex();
 
-    [Test]
+    // [Test]
     public async Task DeviceTypeNumberToMethods()
     {
-        return;
-
         await using var scope = ScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
         CancellationToken? cancellationToken = CancellationToken.None;

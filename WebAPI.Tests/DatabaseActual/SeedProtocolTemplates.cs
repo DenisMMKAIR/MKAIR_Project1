@@ -5,11 +5,9 @@ namespace WebAPI.Tests.DatabaseActual;
 
 public class SeedProtocolTemplates : DatabaseActualFixture
 {
-    [Test]
+    // [Test]
     public async Task Test1()
     {
-        return;
-        
         using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var protocol = db.ProtocolTemplates.FirstOrDefault(p => p.ProtocolGroup == ProjApp.Database.EntitiesStatic.ProtocolGroup.Манометр1);

@@ -6,11 +6,9 @@ namespace WebAPI.Tests.DatabaseActual;
 
 public class SelectionTests : DatabaseActualFixture
 {
-    [Test]
+    // [Test]
     public async Task Test1()
     {
-        return;
-        
         using var scope = ScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var ivs = await db.SuccessInitialVerifications
