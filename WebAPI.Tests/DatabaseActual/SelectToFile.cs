@@ -28,7 +28,7 @@ public partial class SelectToFile : DatabaseActualFixture
             return $"'{s.ToUpper()}'";
         }
 
-        var result = db.Verifications
+        var result = db.VerificationsWithEtalon
             .Select(v => new
             {
                 TypeNumber = v.MiInfo.SingleMI.MitypeNumber,
