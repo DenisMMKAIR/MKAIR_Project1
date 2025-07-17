@@ -292,7 +292,7 @@ namespace Infrastructure.FGIS.Database.Maintenance.Migrations
                     number = table.Column<string>(type: "text", nullable: false),
                     title = table.Column<string>(type: "text", nullable: false),
                     se_url = table.Column<string>(type: "text", nullable: false),
-                    manufacture_year = table.Column<string>(type: "text", nullable: false)
+                    manufacture_year = table.Column<int>(type: "integer", nullable: false)
                 },
                 constraints: table =>
                 {

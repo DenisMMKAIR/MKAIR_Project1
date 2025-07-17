@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace Infrastructure.FGIS.Database.Maintenance.Migrations
 {
     [DbContext(typeof(FGISDatabase))]
-    [Migration("20250717114149_FixSes")]
-    partial class FixSes
+    [Migration("20250717145652_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
