@@ -15,7 +15,7 @@ public partial class SelectToFile : DatabaseActualFixture
     [Test]
     public async Task DeviceTypeNumberToMethods()
     {
-        Environment.Exit(0);
+        return;
 
         await using var scope = ScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
