@@ -25,4 +25,6 @@ public class DeviceTypeUniqComparer : IEqualityComparer<DeviceType>
     {
         return HashCode.Combine(obj.Number);
     }
+
+    public static IEqualityComparer<DeviceType> Instance { get; } = new DeviceTypeUniqComparer();
 }
