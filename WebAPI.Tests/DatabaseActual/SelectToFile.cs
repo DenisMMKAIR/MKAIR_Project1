@@ -2,16 +2,12 @@ using System.Text.RegularExpressions;
 using Infrastructure.FGIS.Database;
 using Microsoft.Extensions.DependencyInjection;
 using ProjApp.Database.SupportTypes;
+using ProjApp.Normalizers;
 
 namespace WebAPI.Tests.DatabaseActual;
 
 public partial class SelectToFile : DatabaseActualFixture
 {
-    [GeneratedRegex("^МИ|^МП|МИ$|МП$", RegexOptions.IgnoreCase)]
-    private static partial Regex VrfNameTrimRegex();
-    [GeneratedRegex("[^А-Яа-яA-Za-z0-9]", RegexOptions.IgnoreCase)]
-    private static partial Regex VrfNameBannedSymbolsRegex();
-
     // [Test]
     public async Task DeviceTypeNumberToMethods()
     {
@@ -19,13 +15,10 @@ public partial class SelectToFile : DatabaseActualFixture
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
         CancellationToken? cancellationToken = CancellationToken.None;
 
-        static string Normalize(string s)
+        var n = VerificationMethodAliasNormalizer.Instance;
+        string Normalize(string s)
         {
-            foreach (var r in new[] { VrfNameBannedSymbolsRegex, VrfNameTrimRegex, })
-            {
-                s = r().Replace(s, "");
-            }
-            return $"'{s.ToUpper()}'";
+            return $"'{n.Normalize(s)}'";
         }
 
         var result = db.VerificationsWithEtalon
