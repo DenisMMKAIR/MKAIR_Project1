@@ -40,6 +40,7 @@ public class TemplateProcessor : ITemplateProcessor
 
         var mpi = verification.VerifiedUntilDate.Year - verification.VerificationDate.Year;
         var fileName = $"{verification.VerificationDate:yyyy-MM-dd} № {verification.DeviceSerial} (МПИ-{mpi}).pdf";
+        fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c, '_'));
         var filePath = Path.Combine(dirPath, fileName);
 
         await _exporter.ExportAsync(htmlResult.HTMLContent!, filePath, cancellationToken);
