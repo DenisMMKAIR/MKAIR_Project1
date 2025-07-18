@@ -43,13 +43,11 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var pdfCreator = scope.ServiceProvider.GetRequiredService<ITemplateProcessor>();
-
-        return;
-        await ProcessManometr1Async(db, pdfCreator);
+        
+        await ProcessManometr1Async(db);
     }
 
-    private async Task ProcessManometr1Async(ProjDatabase db, ITemplateProcessor pdfCreator)
+    private async Task ProcessManometr1Async(ProjDatabase db)
     {
         var verifications = await db.SuccessInitialVerifications
             .Include(v => v.Device)
