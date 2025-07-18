@@ -37,7 +37,8 @@ public class InitialVerificationsControllerTests : ControllersFixture
         var valid = db.Devices.Count(d => d.DeviceType == null) +
                     db.SuccessInitialVerifications.Count(i => i.Device == null) +
                     db.FailedInitialVerifications.Count(f => f.Device == null) +
-                    db.SuccessInitialVerifications.Count(i => i.Etalons!.Count == 0);
+                    db.SuccessInitialVerifications.Count(i => i.Etalons!.Count == 0) +
+                    db.FailedInitialVerifications.Count(i => i.Etalons!.Count == 0);
 
         Assert.Multiple(() =>
         {

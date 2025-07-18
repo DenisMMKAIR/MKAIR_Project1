@@ -34,22 +34,6 @@ public class VerificationsController : ApiControllerBase
         return await _service.GetInitialVerifications(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, yearMonthFilter, filters.TypeInfo, filters.Location);
     }
 
-    [HttpGet]
-    public async Task<ServicePaginatedResult<SuccessVerificationDto>> GetVerifications([Required][FromQuery] GetPaginatedRequest request, [FromQuery] VerificationsFiltersQuery filters)
-    {
-        YearMonth? yearMonthFilter;
-        try
-        {
-            yearMonthFilter = YearMonth.Parse(filters.YearMonth);
-        }
-        catch (Exception e)
-        {
-            return ServicePaginatedResult<SuccessVerificationDto>.Fail(e.Message);
-        }
-
-        return await _service.GetVerifications(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, yearMonthFilter, filters.TypeInfo, filters.Location);
-    }
-
     [HttpPatch]
     public Task<ServiceResult> SetValues([Required] IFormFile excelFile, [Required][FromForm] SetValuesRequest request)
     {

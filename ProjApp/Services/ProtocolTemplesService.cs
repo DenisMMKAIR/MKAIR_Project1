@@ -90,8 +90,8 @@ public class ProtocolTemplesService
             .SelectMany(template =>
                 _database.SuccessInitialVerifications
                     .Where(v => v.VerificationGroup == template.VerificationGroup)
-                    .Where(v => v.Device!.DeviceType!.VerificationMethodId != null)
-                    .Select(v => v.Device!.DeviceType!.VerificationMethodId!)
+                    .Where(v => v.VerificationMethod != null)
+                    .Select(v => v.VerificationMethod!.Id)
                     .Distinct()
                     .Join(
                         _database.VerificationMethods,

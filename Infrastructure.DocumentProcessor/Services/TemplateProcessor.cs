@@ -47,11 +47,6 @@ public class TemplateProcessor : ITemplateProcessor
         return PDFCreationResult.Success(filePath, $"Файл протокола {fileName} создан");
     }
 
-    public Task<PDFCreationResult> CreatePDFAsync(ProtocolTemplate template, FailedCompleteVerification verification)
-    {
-        throw new NotImplementedException();
-    }
-
     public async ValueTask DisposeAsync()
     {
         if (_disposed) return;

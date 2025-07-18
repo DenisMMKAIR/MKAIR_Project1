@@ -12,5 +12,7 @@ public class VerificationMethod : DatabaseEntity
     public Guid? ProtocolTemplateId { get; set; }
     public ProtocolTemplate? ProtocolTemplate { get; set; }
     public ICollection<VerificationMethodFile>? VerificationMethodFiles { get; set; }
-    public ICollection<DeviceType>? DeviceTypes { get; set; }
+    public ICollection<SuccessInitialVerification>? SuccessInitialVerifications { get; set; }
+    public ICollection<FailedInitialVerification>? FailedInitialVerifications { get; set; }
+    public ICollection<Manometr1Verification>? Manometr1Verifications { get; set; }
 }

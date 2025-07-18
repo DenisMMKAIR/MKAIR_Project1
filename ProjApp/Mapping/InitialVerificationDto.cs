@@ -39,6 +39,6 @@ public class SuccessInitialVerificationDto : IRegister
         config.NewConfig<SuccessInitialVerification, SuccessInitialVerificationDto>()
             .Map(dest => dest.DeviceTypeInfo, src => $"{src.Device!.DeviceType!.Title} {src.Device.DeviceType.Notation}")
             .Map(dest => dest.Etalons, src => src.Etalons!.Select(e => e.Number))
-            .Map(dest => dest.VerificationMethodInfo, src => src.Device!.DeviceType!.VerificationMethod!.Description);
+            .Map(dest => dest.VerificationMethodInfo, src => src.VerificationMethod!.Description);
     }
 }

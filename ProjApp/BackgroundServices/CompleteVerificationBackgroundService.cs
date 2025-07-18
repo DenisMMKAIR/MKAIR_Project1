@@ -53,11 +53,11 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         var verifications = await db.SuccessInitialVerifications
             .Include(v => v.Device)
                 .ThenInclude(d => d!.DeviceType)
-                    .ThenInclude(dt => dt!.VerificationMethod)
-                        .ThenInclude(vm => vm!.ProtocolTemplate)
+            .Include(v => v.VerificationMethod)
+                .ThenInclude(vm => vm!.ProtocolTemplate)
             .Include(v => v.Etalons)
             .VerificationIsFilled()
-            .Where(v => v.Device!.DeviceType!.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1)
+            .Where(v => v.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1)
             .ToArrayAsync();
 
         if (verifications.Length == 0) return;

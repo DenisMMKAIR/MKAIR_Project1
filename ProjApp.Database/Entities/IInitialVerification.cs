@@ -27,6 +27,7 @@ public interface IInitialVerification : IVerificationBase
 
     // Navigation properties
     // Device? Device { get; set; } - inherited
+    // VerificationMethod? VerificationMethod { get; set; } - inherited
     // ICollection<Etalon>? Etalons { get; set; } - inherited
 }
 
@@ -56,6 +57,7 @@ public class SuccessInitialVerification : DatabaseEntity, IInitialVerification
 
     // Navigation properties
     public Device? Device { get; set; }
+    public VerificationMethod? VerificationMethod { get; set; }
     public ICollection<Etalon>? Etalons { get; set; }
 }
 
@@ -84,6 +86,7 @@ public class FailedInitialVerification : DatabaseEntity, IInitialVerification
 
     // Navigation properties
     public Device? Device { get; set; }
+    public VerificationMethod? VerificationMethod { get; set; }
     public ICollection<Etalon>? Etalons { get; set; }
 }
 
@@ -101,7 +104,11 @@ public static class InitialVerificationExtensions
              v.MeasurementMin != null &&
              v.MeasurementMax != null &&
              v.MeasurementUnit != null &&
-             v.Accuracy != null;
+             v.Accuracy != null &&
+             v.Device != null &&
+             v.Device!.DeviceType! != null &&
+             v.VerificationMethod != null &&
+             v.Etalons != null && v.Etalons.Count > 0;
 
     private static readonly Func<IInitialVerification, bool> _compiledAllFieldFilled =
         _allFieldFilledExpression.Compile();

@@ -1,3 +1,4 @@
+using System.Collections.Immutable;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
@@ -7,10 +8,10 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
-using ProjApp.Database.Normalizers;
 using ProjApp.Database.SupportTypes;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Mapping;
+using ProjApp.Normalizers;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -78,46 +79,6 @@ public class VerificationsService
             .ToPaginatedAsync(page, pageSize);
 
         return ServicePaginatedResult<SuccessInitialVerificationDto>.Success(result);
-    }
-
-    public async Task<ServicePaginatedResult<SuccessVerificationDto>> GetVerifications(
-        int page,
-        int pageSize,
-        string? deviceTypeNumberFilter,
-        YearMonth? yearMonthFilter,
-        string? typeInfoFilter,
-        DeviceLocation? locationFilter)
-    {
-        var query = _database.SuccessVerifications.AsQueryable();
-
-        if (deviceTypeNumberFilter != null)
-        {
-            query = query.Where(v => v.DeviceTypeNumber.Contains(deviceTypeNumberFilter));
-        }
-
-        if (yearMonthFilter != null)
-        {
-            query = query.Where(v => v.VerificationDate.Year == yearMonthFilter.Value.Year &&
-                                     v.VerificationDate.Month == yearMonthFilter.Value.Month);
-        }
-
-        if (typeInfoFilter != null)
-        {
-            query = query.Where(v => v.Device!.DeviceType!.Title.ToUpper().Contains(typeInfoFilter.ToUpper()));
-        }
-
-        if (locationFilter != null)
-        {
-            query = query.Where(v => v.Location == locationFilter);
-        }
-
-        var result = await query
-            .OrderBy(v => v.VerificationDate)
-            .ThenBy(v => v.DeviceTypeNumber)
-            .ProjectToType<SuccessVerificationDto>(_mapper.Config)
-            .ToPaginatedAsync(page, pageSize);
-
-        return ServicePaginatedResult<SuccessVerificationDto>.Success(result);
     }
 
     public async Task<ServiceResult> AddInitialVerification(SuccessInitialVerification iv)
@@ -250,24 +211,30 @@ public class VerificationsService
 
     public async Task<ServiceResult> AddVerificationMethodsAsync(IReadOnlyList<IInitialVerification> verifications)
     {
-        var norm = new ComplexStringNormalizer();
-        var aliases = verifications
+        var norm = VerificationMethodAliasNormalizer.Instance;
+        bool methodHasAlias(VerificationMethod m, string a) => m.Aliases.Select(norm.Normalize).Contains(norm.Normalize(a));
+        bool methodHasAliases(VerificationMethod m, ImmutableSortedSet<string> a) => m.Aliases.Select(norm.Normalize).Any(a.Contains);
+
+        var normAliases = verifications
             .Select(v => norm.Normalize(v.VerificationTypeName))
-            .Distinct()
-            .ToArray();
+            .ToImmutableSortedSet();
 
         var vms = _database.VerificationMethods
-            .Where(m => m.Aliases.Any(a => aliases.Contains(a)))
+            .Include(m => m.SuccessInitialVerifications)
+            .Include(m => m.FailedInitialVerifications)
+            .AsEnumerable()
+            .Where(m => methodHasAliases(m, normAliases))
             .ToArray();
 
-        if (vms.Length == 0) return ServiceResult.Success("Методики поверок не найдены");
+        if (vms.Length == 0) return ServiceResult.Fail($"Не найдены методики поверок");
 
         foreach (var v in verifications)
         {
-            var m = vms.FirstOrDefault(m => m.Aliases.Contains(norm.Normalize(v.VerificationTypeName)));
+            var m = vms.FirstOrDefault(m => methodHasAlias(m, v.VerificationTypeName));
             if (m == null) continue;
-            v.Device!.DeviceType!.VerificationMethod = m;
+            v.VerificationMethod = m;
         }
+
         await _database.SaveChangesAsync();
         return ServiceResult.Success("Методики поверок добавлены");
     }

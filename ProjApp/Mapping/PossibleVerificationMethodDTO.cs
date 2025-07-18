@@ -4,6 +4,7 @@ using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Mapping;
 
+[Obsolete("Change this")]
 public record PossibleVrfMethodDTO(
     string DeviceTypeNumber,
     string DeviceTypeInfo,
@@ -49,6 +50,6 @@ public class PossibleVerificationMethodPreSelectDTO : IRegister
         config.NewConfig<IVerificationBase, PossibleVerificationMethodPreSelectDTO>()
             .Map(dest => dest.DeviceTypeInfo, src => src.Device!.DeviceType!.Title + " " + src.Device!.DeviceType!.Notation)
             .Map(dest => dest.DeviceModification, src => src.Device!.Modification)
-            .Map(dest => dest.VerificationMethodId, src => src.Device!.DeviceType!.VerificationMethodId);
+            .Map(dest => dest.VerificationMethodId, src => src.VerificationMethod!.Id);
     }
 }

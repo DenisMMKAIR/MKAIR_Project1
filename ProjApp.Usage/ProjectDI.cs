@@ -34,8 +34,6 @@ public static class ProjectDI
         serviceCollection.AddTransient<AddInitialVerificationCommand<FailedInitialVerification>>();
         serviceCollection.AddTransient<AddVerificationMethodCommand>();
         serviceCollection.AddTransient<AddOwnerCommand>();
-        serviceCollection.AddTransient<AddVerificationCommand<SuccessVerification>>();
-        serviceCollection.AddTransient<AddVerificationCommand<FailedVerification>>();
         serviceCollection.AddTransient<AddProtocolTemplateCommand>();
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();

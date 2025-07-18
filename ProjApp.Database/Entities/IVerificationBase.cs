@@ -8,5 +8,6 @@ public interface IVerificationBase
 
     // Navigation properties
     Device? Device { get; set; }
+    VerificationMethod? VerificationMethod { get; set; }
     ICollection<Etalon>? Etalons { get; set; }
 }

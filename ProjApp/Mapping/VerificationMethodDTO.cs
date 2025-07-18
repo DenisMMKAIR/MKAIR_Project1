@@ -3,6 +3,7 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.Mapping;
 
+[Obsolete("Change this")]
 public record VerificationMethodDTO : IRegister
 {
     public required Guid Id { get; init; }
@@ -13,9 +14,9 @@ public record VerificationMethodDTO : IRegister
 
     public void Register(TypeAdapterConfig config)
     {
-        config.NewConfig<VerificationMethod, VerificationMethodDTO>()
-            .Map(dest => dest.Files, src => src.VerificationMethodFiles!.Select(f => f.FileName))
-            .Map(dest => dest.TypeNumbers, src => src.DeviceTypes!.Select(t => t.Number).Order())
-            .Map(dest => dest.Aliases, src => src.Aliases!.OrderBy(a => a.Length));
+        config.NewConfig<VerificationMethod, VerificationMethodDTO>();
+            // .Map(dest => dest.Files, src => src.VerificationMethodFiles!.Select(f => f.FileName))
+            // .Map(dest => dest.TypeNumbers, src => src.DeviceTypes!.Select(t => t.Number).Order())
+            // .Map(dest => dest.Aliases, src => src.Aliases!.OrderBy(a => a.Length));
     }
 }

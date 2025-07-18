@@ -10,6 +10,4 @@ public class DeviceType : DatabaseEntity
     public IReadOnlyList<string>? Manufacturers { get; set; }
 
     // Navigation properties
-    public Guid? VerificationMethodId { get; set; }
-    public VerificationMethod? VerificationMethod { get; set; }
 }

@@ -22,9 +22,6 @@ public class ProjDatabase : DbContext
 
     public DbSet<SuccessInitialVerification> SuccessInitialVerifications => Set<SuccessInitialVerification>();
     public DbSet<FailedInitialVerification> FailedInitialVerifications => Set<FailedInitialVerification>();
-    public DbSet<SuccessVerification> SuccessVerifications => Set<SuccessVerification>();
-    public DbSet<FailedVerification> FailedVerifications => Set<FailedVerification>();
-
     public DbSet<Manometr1Verification> Manometr1Verifications => Set<Manometr1Verification>();
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new();

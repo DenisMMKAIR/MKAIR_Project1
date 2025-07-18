@@ -10,9 +10,9 @@ internal static class Manometr1Calculations
     {
         if (v.Device is null) throw new Exception("Устройство не добавлено в выборку");
         if (v.Device.DeviceType is null) throw new Exception("Тип устройства не добавлен в выборку");
-        if (v.Device.DeviceType.VerificationMethod is null) throw new Exception("Метод проверки не добавлен в выборку");
+        if (v.VerificationMethod is null) throw new Exception("Метод проверки не добавлен в выборку");
 
-        var method = v.Device.DeviceType.VerificationMethod;
+        var method = v.VerificationMethod;
 
         var newVrf = new Manometr1Verification
         {

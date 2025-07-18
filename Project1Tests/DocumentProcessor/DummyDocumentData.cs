@@ -66,26 +66,26 @@ public static class DummyDocumentData
                     Title = deviceTypeTitle,
                     Notation = deviceTypeNotation,
 
-                    VerificationMethod = new VerificationMethod
-                    {
-                        Aliases = ["МИ 2124-90"],
-                        Checkups = new Dictionary<VerificationMethodCheckups, string>{
-                            { VerificationMethodCheckups.внешний_осмотр, "5.1" },
-                            { VerificationMethodCheckups.результат_опробывания, "5.2.3" },
-                            { VerificationMethodCheckups.опр_осн_поргрешности, "5.3" } },
-                        Description = "",
-
-                        ProtocolTemplate = new ProtocolTemplate
-                        {
-                            ProtocolGroup = ProtocolGroup.Манометр1,
-                            VerificationGroup = VerificationGroup.Манометры,
-                        }
-                    },
-                    
                     MethodUrls = [],
                     SpecUrls = [],
                     Manufacturers = ["Example Manufacturer"],
                 },
+            },
+
+            VerificationMethod = new VerificationMethod
+            {
+                Aliases = ["МИ 2124-90"],
+                Checkups = new Dictionary<VerificationMethodCheckups, string>{
+                            { VerificationMethodCheckups.внешний_осмотр, "5.1" },
+                            { VerificationMethodCheckups.результат_опробывания, "5.2.3" },
+                            { VerificationMethodCheckups.опр_осн_поргрешности, "5.3" } },
+                Description = "",
+
+                ProtocolTemplate = new ProtocolTemplate
+                {
+                    ProtocolGroup = ProtocolGroup.Манометр1,
+                    VerificationGroup = VerificationGroup.Манометры,
+                }
             },
         };
 
@@ -153,26 +153,26 @@ public static class DummyDocumentData
                     Title = deviceTypeTitle,
                     Notation = deviceTypeNotation,
 
-                    VerificationMethod = new VerificationMethod
-                    {
-                        Aliases = ["МИ 2124-90"],
-                        Checkups = new Dictionary<VerificationMethodCheckups, string>{
-                            { VerificationMethodCheckups.внешний_осмотр, "5.1" },
-                            { VerificationMethodCheckups.результат_опробывания, "5.2.3" },
-                            { VerificationMethodCheckups.опр_осн_поргрешности, "5.3" } },
-                        Description = "",
-
-                        ProtocolTemplate = new ProtocolTemplate
-                        {
-                            ProtocolGroup = ProtocolGroup.Манометр1,
-                            VerificationGroup = VerificationGroup.Манометры,
-                        }
-                    },
-                    
                     MethodUrls = [],
                     SpecUrls = [],
                     Manufacturers = ["Example Manufacturer"],
                 },
+            },
+
+            VerificationMethod = new VerificationMethod
+            {
+                Aliases = ["МИ 2124-90"],
+                Checkups = new Dictionary<VerificationMethodCheckups, string>{
+                            { VerificationMethodCheckups.внешний_осмотр, "5.1" },
+                            { VerificationMethodCheckups.результат_опробывания, "5.2.3" },
+                            { VerificationMethodCheckups.опр_осн_поргрешности, "5.3" } },
+                Description = "",
+
+                ProtocolTemplate = new ProtocolTemplate
+                {
+                    ProtocolGroup = ProtocolGroup.Манометр1,
+                    VerificationGroup = VerificationGroup.Манометры,
+                }
             },
         };
 

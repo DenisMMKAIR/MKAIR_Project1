@@ -49,8 +49,6 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         var vrfDB = _database.SuccessInitialVerifications
                          .AsEnumerable<IVerificationBase>()
                          .Union(_database.FailedInitialVerifications)
-                         .Union(_database.SuccessVerifications)
-                         .Union(_database.FailedVerifications)
                          .Union(_database.Manometr1Verifications);
 
         items = items.Except(vrfDB, VerificationUniqComparer.Instance).Cast<T>().ToArray();

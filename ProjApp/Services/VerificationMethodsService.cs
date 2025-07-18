@@ -89,7 +89,7 @@ public partial class VerificationMethodsService
                     v.Device!.DeviceType!.Title,
                     v.Device.DeviceType.Notation,
                     v.Device.Modification,
-                    VerificationTypeNames = (string[])v.Device!.DeviceType!.VerificationMethod!.Aliases,
+                    VerificationTypeNames = (string[])v.VerificationMethod!.Aliases,
                     v.VerificationDate
                 }))
             .ToArrayAsync(cancellationToken.Value);
@@ -175,10 +175,7 @@ public partial class VerificationMethodsService
 
     public async Task<ServiceResult> DeleteVerificationMethodAsync(Guid VerificationMethodId)
     {
-        var m = await _database.VerificationMethods
-            .Include(m => m.ProtocolTemplate)
-            .Include(m => m.DeviceTypes)
-            .FirstOrDefaultAsync(m => m.Id == VerificationMethodId);
+        var m = await _database.VerificationMethods.FirstOrDefaultAsync(m => m.Id == VerificationMethodId);
 
         if (m == null) return ServiceResult.Fail("Метод поверки не найден");
 
@@ -186,7 +183,6 @@ public partial class VerificationMethodsService
 
         try
         {
-            foreach (var dt in m.DeviceTypes!) dt.VerificationMethodId = null;
             _database.VerificationMethods.Remove(m);
             await _database.SaveChangesAsync();
             await transaction.CommitAsync();
@@ -295,54 +291,54 @@ public partial class VerificationMethodsService
     {
         int deviceTypesCount = 0, newAliasesCount = 0;
 
-        while (true)
-        {
-            var dtos = _database
-                .SuccessInitialVerifications
-                .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
-                .Union(_database
-                .FailedInitialVerifications
-                .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-                .Union(_database
-                .SuccessVerifications
-                .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-                .Union(_database
-                .FailedVerifications
-                .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-                .AsEnumerable()
-                .GroupBy(dto => dto.DeviceTypeNumber)
-                .Select(g => g.Adapt<PossibleVerificationMethodDTO>(_mapper.Config))
-                .Where(dto => dto.VerificationMethodId == null)
-                .Where(dto => dto.VerificationTypeNames.Any(dtoA => verificationMethod.Aliases.Contains(dtoA)))
-                .Select(dto => new { dto.DeviceTypeNumber, dto.VerificationTypeNames })
-                .ToArray();
+        // while (true)
+        // {
+        //     var dtos = _database
+        //         .SuccessInitialVerifications
+        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
+        //         .Union(_database
+        //         .FailedInitialVerifications
+        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
+        //         .Union(_database
+        //         .SuccessVerifications
+        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
+        //         .Union(_database
+        //         .FailedVerifications
+        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
+        //         .AsEnumerable()
+        //         .GroupBy(dto => dto.DeviceTypeNumber)
+        //         .Select(g => g.Adapt<PossibleVerificationMethodDTO>(_mapper.Config))
+        //         .Where(dto => dto.VerificationMethodId == null)
+        //         .Where(dto => dto.VerificationTypeNames.Any(dtoA => verificationMethod.Aliases.Contains(dtoA)))
+        //         .Select(dto => new { dto.DeviceTypeNumber, dto.VerificationTypeNames })
+        //         .ToArray();
 
-            var deviceTypes = _database.DeviceTypes
-                .AsEnumerable()
-                .Where(dt => dtos.Any(dto => dto.DeviceTypeNumber == dt.Number))
-                .ToArray();
+        //     var deviceTypes = _database.DeviceTypes
+        //         .AsEnumerable()
+        //         .Where(dt => dtos.Any(dto => dto.DeviceTypeNumber == dt.Number))
+        //         .ToArray();
 
-            foreach (var deviceType in deviceTypes) deviceType.VerificationMethod = verificationMethod;
+        //     foreach (var deviceType in deviceTypes) deviceType.VerificationMethod = verificationMethod;
 
-            var newAliases = dtos
-                .SelectMany(dto => dto.VerificationTypeNames)
-                .Select(stringNormalizer.Normalize)
-                .Where(a => !verificationMethod.Aliases.Contains(a))
-                .ToArray();
+        //     var newAliases = dtos
+        //         .SelectMany(dto => dto.VerificationTypeNames)
+        //         .Select(stringNormalizer.Normalize)
+        //         .Where(a => !verificationMethod.Aliases.Contains(a))
+        //         .ToArray();
 
-            verificationMethod.Aliases = verificationMethod.Aliases
-                .Concat(newAliases)
-                .Distinct()
-                .Order()
-                .ToArray();
+        //     verificationMethod.Aliases = verificationMethod.Aliases
+        //         .Concat(newAliases)
+        //         .Distinct()
+        //         .Order()
+        //         .ToArray();
 
-            if (deviceTypes.Length == 0 && newAliases.Length == 0) break;
+        //     if (deviceTypes.Length == 0 && newAliases.Length == 0) break;
 
-            deviceTypesCount += deviceTypes.Length;
-            newAliasesCount += newAliases.Length;
+        //     deviceTypesCount += deviceTypes.Length;
+        //     newAliasesCount += newAliases.Length;
 
-            await _database.SaveChangesAsync();
-        }
+        //     await _database.SaveChangesAsync();
+        // }
 
         return (deviceTypesCount, newAliasesCount);
     }
