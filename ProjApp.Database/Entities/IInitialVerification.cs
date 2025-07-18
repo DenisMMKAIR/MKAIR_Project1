@@ -108,7 +108,7 @@ public static class InitialVerificationExtensions
              v.Device != null &&
              v.Device!.DeviceType! != null &&
              v.VerificationMethod != null &&
-             v.Etalons != null && v.Etalons.Count > 0;
+             v.Etalons!.Count > 0;
 
     private static readonly Func<IInitialVerification, bool> _compiledAllFieldFilled =
         _allFieldFilledExpression.Compile();
