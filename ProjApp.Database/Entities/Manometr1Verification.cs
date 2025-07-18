@@ -2,7 +2,7 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-[Obsolete("Add initialVerificationName")]
+[Obsolete("Split db and DTO for export")]
 public class Manometr1Verification : DatabaseEntity, IVerificationBase
 {
     public required string ProtocolNumber { get; set; }
