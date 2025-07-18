@@ -35,7 +35,7 @@ export class PossibleVerificationMethodsTableComponent implements OnInit, OnDest
   public error: string | null = null;
   public aliasErrorMessage: string | null = null;
   public showAllTypeNumbers = false;
-  public showVMethods: ShowVMethods = ShowVMethods.Новые;
+  public showVMethods: ShowVMethods = ShowVMethods.Частичные;
 
   ngOnInit(): void {
     this.verificationMethodsService.setPageChangeCallback(this.key, () =>
@@ -148,6 +148,38 @@ export class PossibleVerificationMethodsTableComponent implements OnInit, OnDest
 
   public reload() {
     this.loadPossibleVerificationMethods();
+  }
+
+  public getDeviceModifications(m: PossibleVrfMethodDTO): string[] {
+    if (!m.aliasGroups || m.aliasGroups.length === 0) return [];
+    return m.aliasGroups.flatMap(g => g.modifications || []);
+  }
+
+  public getAliases(m: PossibleVrfMethodDTO): { exists?: boolean; alias?: string }[] {
+    if (!m.aliasGroups || m.aliasGroups.length === 0) return [];
+    return m.aliasGroups.flatMap(g => g.aliases || []);
+  }
+
+  public getDates(m: PossibleVrfMethodDTO): YearMonth[] {
+    if (!m.aliasGroups || m.aliasGroups.length === 0) return [];
+    return m.aliasGroups.flatMap(g => g.dates || []);
+  }
+
+  public getAllDocs(m: PossibleVrfMethodDTO): {url: string, label: string}[] {
+    const docs: {url: string, label: string}[] = [];
+    let methodCount = 1;
+    let specCount = 1;
+    if (m.methodUrls) {
+      for (const url of m.methodUrls) {
+        docs.push({ url, label: `Методика${methodCount++}` });
+      }
+    }
+    if (m.specUrls) {
+      for (const url of m.specUrls) {
+        docs.push({ url, label: `Спецификация${specCount++}` });
+      }
+    }
+    return docs;
   }
 
   ngOnDestroy(): void {

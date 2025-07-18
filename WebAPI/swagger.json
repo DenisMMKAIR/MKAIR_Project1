@@ -61,13 +61,37 @@
                     "type": "string",
                     "nullable": true
                   },
-                  "Name": {
+                  "Title": {
                     "type": "string",
                     "nullable": true
                   },
                   "Notation": {
                     "type": "string",
                     "nullable": true
+                  },
+                  "MPI": {
+                    "type": "integer"
+                  },
+                  "MethodUrls": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "SpecUrls": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
+                  },
+                  "Manufacturers": {
+                    "type": "array",
+                    "nullable": true,
+                    "items": {
+                      "type": "string"
+                    }
                   }
                 }
               }
@@ -999,86 +1023,6 @@
         }
       }
     },
-    "/api/Verifications/GetVerifications": {
-      "get": {
-        "tags": [
-          "Verifications"
-        ],
-        "operationId": "Verifications_GetVerifications",
-        "parameters": [
-          {
-            "name": "PageIndex",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "PageSize",
-            "in": "query",
-            "schema": {
-              "type": "integer",
-              "format": "int32"
-            },
-            "x-position": 2
-          },
-          {
-            "name": "DeviceTypeNumber",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 3
-          },
-          {
-            "name": "YearMonth",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 4
-          },
-          {
-            "name": "TypeInfo",
-            "in": "query",
-            "schema": {
-              "type": "string",
-              "nullable": true
-            },
-            "x-position": 5
-          },
-          {
-            "name": "Location",
-            "in": "query",
-            "schema": {
-              "nullable": true,
-              "oneOf": [
-                {
-                  "$ref": "#/components/schemas/DeviceLocation"
-                }
-              ]
-            },
-            "x-position": 6
-          }
-        ],
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServicePaginatedResultOfSuccessVerificationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Verifications/SetValues": {
       "patch": {
         "tags": [
@@ -1282,143 +1226,29 @@
               "notation": {
                 "type": "string"
               },
-              "verificationMethodId": {
-                "type": "string",
-                "format": "guid",
-                "nullable": true
-              },
-              "verificationMethod": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/VerificationMethod"
-                  }
-                ]
-              }
-            }
-          }
-        ]
-      },
-      "VerificationMethod": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DatabaseEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "aliases": {
+              "methodUrls": {
                 "type": "array",
+                "nullable": true,
                 "items": {
                   "type": "string"
                 }
               },
-              "description": {
-                "type": "string"
-              },
-              "checkups": {
-                "type": "object",
-                "x-dictionaryKey": {
-                  "$ref": "#/components/schemas/VerificationMethodCheckups"
-                },
-                "additionalProperties": {
+              "specUrls": {
+                "type": "array",
+                "nullable": true,
+                "items": {
                   "type": "string"
                 }
               },
-              "protocolTemplateId": {
-                "type": "string",
-                "format": "guid",
-                "nullable": true
-              },
-              "protocolTemplate": {
-                "nullable": true,
-                "oneOf": [
-                  {
-                    "$ref": "#/components/schemas/ProtocolTemplate"
-                  }
-                ]
-              },
-              "verificationMethodFiles": {
+              "manufacturers": {
                 "type": "array",
                 "nullable": true,
                 "items": {
-                  "$ref": "#/components/schemas/VerificationMethodFile"
-                }
-              },
-              "deviceTypes": {
-                "type": "array",
-                "nullable": true,
-                "items": {
-                  "$ref": "#/components/schemas/DeviceType"
+                  "type": "string"
                 }
               }
             }
           }
-        ]
-      },
-      "VerificationMethodCheckups": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "внешний_осмотр",
-          "результат_опробывания",
-          "опр_осн_поргрешности"
-        ],
-        "enum": [
-          "внешний_осмотр",
-          "результат_опробывания",
-          "опр_осн_поргрешности"
-        ]
-      },
-      "ProtocolTemplate": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DatabaseEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "verificationGroup": {
-                "$ref": "#/components/schemas/VerificationGroup"
-              },
-              "protocolGroup": {
-                "$ref": "#/components/schemas/ProtocolGroup"
-              },
-              "verificationMethods": {
-                "type": "array",
-                "nullable": true,
-                "items": {
-                  "$ref": "#/components/schemas/VerificationMethod"
-                }
-              }
-            }
-          }
-        ]
-      },
-      "VerificationGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ],
-        "enum": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ]
-      },
-      "ProtocolGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометр1"
-        ],
-        "enum": [
-          "Манометр1"
         ]
       },
       "DatabaseEntity": {
@@ -1431,29 +1261,6 @@
             "format": "guid"
           }
         }
-      },
-      "VerificationMethodFile": {
-        "allOf": [
-          {
-            "$ref": "#/components/schemas/DatabaseEntity"
-          },
-          {
-            "type": "object",
-            "additionalProperties": false,
-            "properties": {
-              "fileName": {
-                "type": "string"
-              },
-              "mimetype": {
-                "type": "string"
-              },
-              "content": {
-                "type": "string",
-                "format": "byte"
-              }
-            }
-          }
-        ]
       },
       "ServiceResult": {
         "type": "object",
@@ -1733,6 +1540,20 @@
           }
         }
       },
+      "VerificationGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
+      },
       "DeviceLocation": {
         "type": "string",
         "description": "",
@@ -1891,6 +1712,16 @@
           }
         }
       },
+      "ProtocolGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометр1"
+        ],
+        "enum": [
+          "Манометр1"
+        ]
+      },
       "ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -1959,6 +1790,618 @@
           }
         }
       },
+      "VerificationMethod": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "aliases": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              },
+              "description": {
+                "type": "string"
+              },
+              "checkups": {
+                "type": "object",
+                "x-dictionaryKey": {
+                  "$ref": "#/components/schemas/VerificationMethodCheckups"
+                },
+                "additionalProperties": {
+                  "type": "string"
+                }
+              },
+              "protocolTemplateId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "protocolTemplate": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/ProtocolTemplate"
+                  }
+                ]
+              },
+              "verificationMethodFiles": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VerificationMethodFile"
+                }
+              },
+              "successInitialVerifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/SuccessInitialVerification"
+                }
+              },
+              "failedInitialVerifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/FailedInitialVerification"
+                }
+              },
+              "manometr1Verifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Manometr1Verification"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VerificationMethodCheckups": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "внешний_осмотр",
+          "результат_опробывания",
+          "опр_осн_поргрешности"
+        ],
+        "enum": [
+          "внешний_осмотр",
+          "результат_опробывания",
+          "опр_осн_поргрешности"
+        ]
+      },
+      "ProtocolTemplate": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "verificationGroup": {
+                "$ref": "#/components/schemas/VerificationGroup"
+              },
+              "protocolGroup": {
+                "$ref": "#/components/schemas/ProtocolGroup"
+              },
+              "verificationMethods": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/VerificationMethod"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "VerificationMethodFile": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "fileName": {
+                "type": "string"
+              },
+              "mimetype": {
+                "type": "string"
+              },
+              "content": {
+                "type": "string",
+                "format": "byte"
+              }
+            }
+          }
+        ]
+      },
+      "SuccessInitialVerification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "verificationTypeName": {
+                "type": "string"
+              },
+              "verificationDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "verifiedUntilDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "verificationGroup": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationGroup"
+                  }
+                ]
+              },
+              "protocolNumber": {
+                "type": "string",
+                "nullable": true
+              },
+              "ownerINN": {
+                "type": "integer",
+                "format": "uint64",
+                "nullable": true
+              },
+              "worker": {
+                "type": "string",
+                "nullable": true
+              },
+              "location": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DeviceLocation"
+                  }
+                ]
+              },
+              "pressure": {
+                "type": "string",
+                "nullable": true
+              },
+              "temperature": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "humidity": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementMin": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementMax": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementUnit": {
+                "type": "string",
+                "nullable": true
+              },
+              "accuracy": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "device": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Device"
+                  }
+                ]
+              },
+              "verificationMethod": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              },
+              "etalons": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Etalon"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Device": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "serial": {
+                "type": "string"
+              },
+              "manufacturedYear": {
+                "type": "integer"
+              },
+              "modification": {
+                "type": "string"
+              },
+              "deviceType": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DeviceType"
+                  }
+                ]
+              }
+            }
+          }
+        ]
+      },
+      "Etalon": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "number": {
+                "type": "string"
+              },
+              "date": {
+                "type": "string",
+                "format": "date"
+              },
+              "toDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "fullInfo": {
+                "type": "string"
+              },
+              "successInitialVerifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/SuccessInitialVerification"
+                }
+              },
+              "failedInitialVerifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/FailedInitialVerification"
+                }
+              },
+              "manometr1Verifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Manometr1Verification"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "FailedInitialVerification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
+                "type": "string"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "verificationTypeName": {
+                "type": "string"
+              },
+              "verificationDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "failedDocNumber": {
+                "type": "string"
+              },
+              "verificationGroup": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationGroup"
+                  }
+                ]
+              },
+              "protocolNumber": {
+                "type": "string",
+                "nullable": true
+              },
+              "ownerINN": {
+                "type": "integer",
+                "format": "uint64",
+                "nullable": true
+              },
+              "worker": {
+                "type": "string",
+                "nullable": true
+              },
+              "location": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/DeviceLocation"
+                  }
+                ]
+              },
+              "pressure": {
+                "type": "string",
+                "nullable": true
+              },
+              "temperature": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "humidity": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementMin": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementMax": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "measurementUnit": {
+                "type": "string",
+                "nullable": true
+              },
+              "accuracy": {
+                "type": "number",
+                "format": "double",
+                "nullable": true
+              },
+              "device": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Device"
+                  }
+                ]
+              },
+              "verificationMethod": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              },
+              "etalons": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Etalon"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Manometr1Verification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "deprecated": true,
+            "x-deprecatedMessage": "Add initialVerificationName",
+            "additionalProperties": false,
+            "properties": {
+              "protocolNumber": {
+                "type": "string"
+              },
+              "deviceTypeName": {
+                "type": "string"
+              },
+              "deviceModification": {
+                "type": "string"
+              },
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
+                "type": "string"
+              },
+              "manufactureYear": {
+                "type": "integer"
+              },
+              "owner": {
+                "type": "string"
+              },
+              "ownerINN": {
+                "type": "integer",
+                "format": "uint64"
+              },
+              "verificationsInfo": {
+                "type": "string"
+              },
+              "etalonsInfo": {
+                "type": "string"
+              },
+              "temperature": {
+                "type": "number",
+                "format": "double"
+              },
+              "humidity": {
+                "type": "number",
+                "format": "double"
+              },
+              "pressure": {
+                "type": "string"
+              },
+              "verificationVisualCheckup": {
+                "type": "string"
+              },
+              "verificationResultCheckup": {
+                "type": "string"
+              },
+              "verificationAccuracyCheckup": {
+                "type": "string"
+              },
+              "verificationDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "worker": {
+                "type": "string"
+              },
+              "verificationGroup": {
+                "$ref": "#/components/schemas/VerificationGroup"
+              },
+              "location": {
+                "$ref": "#/components/schemas/DeviceLocation"
+              },
+              "verifiedUntilDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "initialVerificationName": {
+                "type": "string"
+              },
+              "measurementMin": {
+                "type": "number",
+                "format": "double"
+              },
+              "measurementMax": {
+                "type": "number",
+                "format": "double"
+              },
+              "measurementUnit": {
+                "type": "string"
+              },
+              "validError": {
+                "type": "number",
+                "format": "double"
+              },
+              "deviceValues": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "etalonValues": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "actualError": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "actualVariation": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "device": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Device"
+                  }
+                ]
+              },
+              "verificationMethod": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              },
+              "etalons": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Etalon"
+                }
+              }
+            }
+          }
+        ]
+      },
       "ServicePaginatedResultOfVerificationMethodDTO": {
         "type": "object",
         "additionalProperties": false,
@@ -2013,6 +2456,8 @@
       },
       "VerificationMethodDTO": {
         "type": "object",
+        "deprecated": true,
+        "x-deprecatedMessage": "Change this",
         "additionalProperties": false,
         "properties": {
           "id": {
@@ -2104,16 +2549,40 @@
           "deviceTypeInfo": {
             "type": "string"
           },
-          "deviceModifications": {
+          "methodUrls": {
             "type": "array",
             "items": {
               "type": "string"
             }
           },
+          "specUrls": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "aliasGroups": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/PossibleVrfMethodAliasGroupDTO"
+            }
+          }
+        }
+      },
+      "PossibleVrfMethodAliasGroupDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
           "aliases": {
             "type": "array",
             "items": {
               "$ref": "#/components/schemas/PossibleVrfMethodAliasDTO"
+            }
+          },
+          "modifications": {
+            "type": "array",
+            "items": {
+              "type": "string"
             }
           },
           "dates": {
@@ -2328,139 +2797,6 @@
           "verificationMethodInfo": {
             "type": "string",
             "nullable": true
-          }
-        }
-      },
-      "ServicePaginatedResultOfSuccessVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
-          },
-          "data": {
-            "nullable": true,
-            "oneOf": [
-              {
-                "$ref": "#/components/schemas/PaginatedListOfSuccessVerificationDto"
-              }
-            ]
-          }
-        }
-      },
-      "PaginatedListOfSuccessVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "pageIndex": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "totalPages": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "hasPreviousPage": {
-            "type": "boolean"
-          },
-          "hasNextPage": {
-            "type": "boolean"
-          },
-          "totalCount": {
-            "type": "integer",
-            "format": "int32"
-          },
-          "items": {
-            "type": "array",
-            "items": {
-              "$ref": "#/components/schemas/SuccessVerificationDto"
-            }
-          }
-        }
-      },
-      "SuccessVerificationDto": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "id": {
-            "type": "string",
-            "format": "guid"
-          },
-          "deviceTypeNumber": {
-            "type": "string"
-          },
-          "deviceSerial": {
-            "type": "string"
-          },
-          "verificationDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "verificationGroup": {
-            "$ref": "#/components/schemas/VerificationGroup"
-          },
-          "deviceTypeInfo": {
-            "type": "string"
-          },
-          "verifiedUntilDate": {
-            "type": "string",
-            "format": "date"
-          },
-          "verificationTypeName": {
-            "type": "string"
-          },
-          "owner": {
-            "type": "string"
-          },
-          "etalons": {
-            "type": "array",
-            "items": {
-              "type": "string"
-            }
-          },
-          "protocolNumber": {
-            "type": "string"
-          },
-          "ownerInn": {
-            "type": "integer",
-            "format": "uint64"
-          },
-          "worker": {
-            "type": "string"
-          },
-          "location": {
-            "$ref": "#/components/schemas/DeviceLocation"
-          },
-          "pressure": {
-            "type": "string"
-          },
-          "temperature": {
-            "type": "number",
-            "format": "double"
-          },
-          "humidity": {
-            "type": "number",
-            "format": "double"
-          },
-          "measurementMin": {
-            "type": "number",
-            "format": "double"
-          },
-          "measurementMax": {
-            "type": "number",
-            "format": "double"
-          },
-          "measurementUnit": {
-            "type": "string"
-          },
-          "accuracy": {
-            "type": "number",
-            "format": "double"
           }
         }
       }

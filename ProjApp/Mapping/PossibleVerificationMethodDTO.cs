@@ -4,17 +4,26 @@ using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Mapping;
 
-[Obsolete("Change this")]
 public record PossibleVrfMethodDTO(
     string DeviceTypeNumber,
     string DeviceTypeInfo,
-    IReadOnlyList<string> DeviceModifications,
+    IReadOnlyList<string> MethodUrls,
+    IReadOnlyList<string> SpecUrls,
+    IReadOnlyList<PossibleVrfMethodAliasGroupDTO> AliasGroups
+);
+
+public record PossibleVrfMethodAliasGroupDTO(
     IReadOnlyList<PossibleVrfMethodAliasDTO> Aliases,
+    IReadOnlyList<string> Modifications,
     IReadOnlyList<YearMonth> Dates
 );
 
-public record PossibleVrfMethodAliasDTO(bool Exists, string Alias);
+public record PossibleVrfMethodAliasDTO(
+    bool Exists,
+    string Alias
+);
 
+[Obsolete("Delete this")]
 public class PossibleVerificationMethodDTO : IRegister
 {
     public required string DeviceTypeNumber { get; init; }
@@ -36,6 +45,7 @@ public class PossibleVerificationMethodDTO : IRegister
     }
 }
 
+[Obsolete("Delete this")]
 public class PossibleVerificationMethodPreSelectDTO : IRegister
 {
     public required string DeviceTypeNumber { get; init; }

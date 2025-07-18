@@ -38,13 +38,6 @@ export const routes: Routes = [
       ),
   },
   {
-    path: 'filled-verifications',
-    loadComponent: () =>
-      import('./pages/filled-verifications/filled-verifications.page').then(
-        (m) => m.FilledVerificationsPage
-      ),
-  },
-  {
     path: 'manometrs',
     loadComponent: () =>
       import('./pages/manometrs/manometrs.page').then(

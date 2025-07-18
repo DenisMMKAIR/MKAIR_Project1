@@ -41,6 +41,7 @@ public static class DummyDocumentData
             VerificationGroup = VerificationGroup.Манометры,
             Location = DeviceLocation.ГПНЯмал,
             VerifiedUntilDate = verDate.AddYears(2).AddDays(-1),
+            InitialVerificationName = "МИ 2124-90",
 
             // Table values
             MeasurementMin = 0,
@@ -128,6 +129,7 @@ public static class DummyDocumentData
             VerificationGroup = VerificationGroup.Манометры,
             Location = DeviceLocation.ГПНЯмал,
             VerifiedUntilDate = verDate.AddYears(2).AddDays(-1),
+            InitialVerificationName = "МИ 2124-90",
 
             // Table values
             MeasurementMin = 0,

@@ -82,17 +82,27 @@ export class DeviceTypeClient {
         return _observableOf(null as any);
     }
 
-    addDeviceType(number: string | null | undefined, name: string | null | undefined, notation: string | null | undefined): Observable<ServiceResult> {
+    addDeviceType(number: string | null | undefined, title: string | null | undefined, notation: string | null | undefined, mPI: number | undefined, methodUrls: string[] | null | undefined, specUrls: string[] | null | undefined, manufacturers: string[] | null | undefined): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/DeviceType/AddDeviceType";
         url_ = url_.replace(/[?&]$/, "");
 
         const content_ = new FormData();
         if (number !== null && number !== undefined)
             content_.append("Number", number.toString());
-        if (name !== null && name !== undefined)
-            content_.append("Name", name.toString());
+        if (title !== null && title !== undefined)
+            content_.append("Title", title.toString());
         if (notation !== null && notation !== undefined)
             content_.append("Notation", notation.toString());
+        if (mPI === null || mPI === undefined)
+            throw new Error("The parameter 'mPI' cannot be null.");
+        else
+            content_.append("MPI", mPI.toString());
+        if (methodUrls !== null && methodUrls !== undefined)
+            methodUrls.forEach(item_ => content_.append("MethodUrls", item_.toString()));
+        if (specUrls !== null && specUrls !== undefined)
+            specUrls.forEach(item_ => content_.append("SpecUrls", item_.toString()));
+        if (manufacturers !== null && manufacturers !== undefined)
+            manufacturers.forEach(item_ => content_.append("Manufacturers", item_.toString()));
 
         let options_ : any = {
             body: content_,
@@ -1447,70 +1457,6 @@ export class VerificationsClient {
         return _observableOf(null as any);
     }
 
-    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumber: string | null | undefined, yearMonth: string | null | undefined, typeInfo: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
-        let url_ = this.baseUrl + "/api/Verifications/GetVerifications?";
-        if (pageIndex === null)
-            throw new Error("The parameter 'pageIndex' cannot be null.");
-        else if (pageIndex !== undefined)
-            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
-        if (pageSize === null)
-            throw new Error("The parameter 'pageSize' cannot be null.");
-        else if (pageSize !== undefined)
-            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
-        if (deviceTypeNumber !== undefined && deviceTypeNumber !== null)
-            url_ += "DeviceTypeNumber=" + encodeURIComponent("" + deviceTypeNumber) + "&";
-        if (yearMonth !== undefined && yearMonth !== null)
-            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
-        if (typeInfo !== undefined && typeInfo !== null)
-            url_ += "TypeInfo=" + encodeURIComponent("" + typeInfo) + "&";
-        if (location !== undefined && location !== null)
-            url_ += "Location=" + encodeURIComponent("" + location) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processGetVerifications(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processGetVerifications(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfSuccessVerificationDto>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfSuccessVerificationDto>;
-        }));
-    }
-
-    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfSuccessVerificationDto> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServicePaginatedResultOfSuccessVerificationDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
     setValues(excelFile: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined, location: string | null | undefined, group: string | null | undefined, verificationTypeNum: boolean | null | undefined, worker: boolean | null | undefined, pressure: boolean | null | undefined, temperature: boolean | null | undefined, humidity: boolean | null | undefined, measurementRange: boolean | null | undefined, accuracy: boolean | null | undefined): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/Verifications/SetValues";
         url_ = url_.replace(/[?&]$/, "");
@@ -1792,8 +1738,9 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
     number?: string;
     title?: string;
     notation?: string;
-    verificationMethodId?: string | undefined;
-    verificationMethod?: VerificationMethod | undefined;
+    methodUrls?: string[] | undefined;
+    specUrls?: string[] | undefined;
+    manufacturers?: string[] | undefined;
 
     constructor(data?: IDeviceType) {
         super(data);
@@ -1805,8 +1752,21 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
             this.number = _data["number"];
             this.title = _data["title"];
             this.notation = _data["notation"];
-            this.verificationMethodId = _data["verificationMethodId"];
-            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            if (Array.isArray(_data["methodUrls"])) {
+                this.methodUrls = [] as any;
+                for (let item of _data["methodUrls"])
+                    this.methodUrls!.push(item);
+            }
+            if (Array.isArray(_data["specUrls"])) {
+                this.specUrls = [] as any;
+                for (let item of _data["specUrls"])
+                    this.specUrls!.push(item);
+            }
+            if (Array.isArray(_data["manufacturers"])) {
+                this.manufacturers = [] as any;
+                for (let item of _data["manufacturers"])
+                    this.manufacturers!.push(item);
+            }
         }
     }
 
@@ -1822,8 +1782,21 @@ export class DeviceType extends DatabaseEntity implements IDeviceType {
         data["number"] = this.number;
         data["title"] = this.title;
         data["notation"] = this.notation;
-        data["verificationMethodId"] = this.verificationMethodId;
-        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        if (Array.isArray(this.methodUrls)) {
+            data["methodUrls"] = [];
+            for (let item of this.methodUrls)
+                data["methodUrls"].push(item);
+        }
+        if (Array.isArray(this.specUrls)) {
+            data["specUrls"] = [];
+            for (let item of this.specUrls)
+                data["specUrls"].push(item);
+        }
+        if (Array.isArray(this.manufacturers)) {
+            data["manufacturers"] = [];
+            for (let item of this.manufacturers)
+                data["manufacturers"].push(item);
+        }
         super.toJSON(data);
         return data;
     }
@@ -1833,207 +1806,9 @@ export interface IDeviceType extends IDatabaseEntity {
     number?: string;
     title?: string;
     notation?: string;
-    verificationMethodId?: string | undefined;
-    verificationMethod?: VerificationMethod | undefined;
-}
-
-export class VerificationMethod extends DatabaseEntity implements IVerificationMethod {
-    aliases?: string[];
-    description?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
-    protocolTemplateId?: string | undefined;
-    protocolTemplate?: ProtocolTemplate | undefined;
-    verificationMethodFiles?: VerificationMethodFile[] | undefined;
-    deviceTypes?: DeviceType[] | undefined;
-
-    constructor(data?: IVerificationMethod) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            if (Array.isArray(_data["aliases"])) {
-                this.aliases = [] as any;
-                for (let item of _data["aliases"])
-                    this.aliases!.push(item);
-            }
-            this.description = _data["description"];
-            if (_data["checkups"]) {
-                this.checkups = {} as any;
-                for (let key in _data["checkups"]) {
-                    if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
-                }
-            }
-            this.protocolTemplateId = _data["protocolTemplateId"];
-            this.protocolTemplate = _data["protocolTemplate"] ? ProtocolTemplate.fromJS(_data["protocolTemplate"]) : <any>undefined;
-            if (Array.isArray(_data["verificationMethodFiles"])) {
-                this.verificationMethodFiles = [] as any;
-                for (let item of _data["verificationMethodFiles"])
-                    this.verificationMethodFiles!.push(VerificationMethodFile.fromJS(item));
-            }
-            if (Array.isArray(_data["deviceTypes"])) {
-                this.deviceTypes = [] as any;
-                for (let item of _data["deviceTypes"])
-                    this.deviceTypes!.push(DeviceType.fromJS(item));
-            }
-        }
-    }
-
-    static override fromJS(data: any): VerificationMethod {
-        data = typeof data === 'object' ? data : {};
-        let result = new VerificationMethod();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        if (Array.isArray(this.aliases)) {
-            data["aliases"] = [];
-            for (let item of this.aliases)
-                data["aliases"].push(item);
-        }
-        data["description"] = this.description;
-        if (this.checkups) {
-            data["checkups"] = {};
-            for (let key in this.checkups) {
-                if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
-            }
-        }
-        data["protocolTemplateId"] = this.protocolTemplateId;
-        data["protocolTemplate"] = this.protocolTemplate ? this.protocolTemplate.toJSON() : <any>undefined;
-        if (Array.isArray(this.verificationMethodFiles)) {
-            data["verificationMethodFiles"] = [];
-            for (let item of this.verificationMethodFiles)
-                data["verificationMethodFiles"].push(item ? item.toJSON() : <any>undefined);
-        }
-        if (Array.isArray(this.deviceTypes)) {
-            data["deviceTypes"] = [];
-            for (let item of this.deviceTypes)
-                data["deviceTypes"].push(item ? item.toJSON() : <any>undefined);
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IVerificationMethod extends IDatabaseEntity {
-    aliases?: string[];
-    description?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
-    protocolTemplateId?: string | undefined;
-    protocolTemplate?: ProtocolTemplate | undefined;
-    verificationMethodFiles?: VerificationMethodFile[] | undefined;
-    deviceTypes?: DeviceType[] | undefined;
-}
-
-export enum VerificationMethodCheckups {
-    Внешний_осмотр = "внешний_осмотр",
-    Результат_опробывания = "результат_опробывания",
-    Опр_осн_поргрешности = "опр_осн_поргрешности",
-}
-
-export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {
-    verificationGroup?: VerificationGroup;
-    protocolGroup?: ProtocolGroup;
-    verificationMethods?: VerificationMethod[] | undefined;
-
-    constructor(data?: IProtocolTemplate) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.verificationGroup = _data["verificationGroup"];
-            this.protocolGroup = _data["protocolGroup"];
-            if (Array.isArray(_data["verificationMethods"])) {
-                this.verificationMethods = [] as any;
-                for (let item of _data["verificationMethods"])
-                    this.verificationMethods!.push(VerificationMethod.fromJS(item));
-            }
-        }
-    }
-
-    static override fromJS(data: any): ProtocolTemplate {
-        data = typeof data === 'object' ? data : {};
-        let result = new ProtocolTemplate();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["verificationGroup"] = this.verificationGroup;
-        data["protocolGroup"] = this.protocolGroup;
-        if (Array.isArray(this.verificationMethods)) {
-            data["verificationMethods"] = [];
-            for (let item of this.verificationMethods)
-                data["verificationMethods"].push(item ? item.toJSON() : <any>undefined);
-        }
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IProtocolTemplate extends IDatabaseEntity {
-    verificationGroup?: VerificationGroup;
-    protocolGroup?: ProtocolGroup;
-    verificationMethods?: VerificationMethod[] | undefined;
-}
-
-export enum VerificationGroup {
-    Манометры = "Манометры",
-    Датчики_давления = "Датчики_давления",
-    Термометры_биметаллические = "Термометры_биметаллические",
-}
-
-export enum ProtocolGroup {
-    Манометр1 = "Манометр1",
-}
-
-export class VerificationMethodFile extends DatabaseEntity implements IVerificationMethodFile {
-    fileName?: string;
-    mimetype?: string;
-    content?: string;
-
-    constructor(data?: IVerificationMethodFile) {
-        super(data);
-    }
-
-    override init(_data?: any) {
-        super.init(_data);
-        if (_data) {
-            this.fileName = _data["fileName"];
-            this.mimetype = _data["mimetype"];
-            this.content = _data["content"];
-        }
-    }
-
-    static override fromJS(data: any): VerificationMethodFile {
-        data = typeof data === 'object' ? data : {};
-        let result = new VerificationMethodFile();
-        result.init(data);
-        return result;
-    }
-
-    override toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["fileName"] = this.fileName;
-        data["mimetype"] = this.mimetype;
-        data["content"] = this.content;
-        super.toJSON(data);
-        return data;
-    }
-}
-
-export interface IVerificationMethodFile extends IDatabaseEntity {
-    fileName?: string;
-    mimetype?: string;
-    content?: string;
+    methodUrls?: string[] | undefined;
+    specUrls?: string[] | undefined;
+    manufacturers?: string[] | undefined;
 }
 
 export class ServiceResult implements IServiceResult {
@@ -2549,6 +2324,12 @@ export interface IManometr1VerificationDto {
     actualVariation?: number[];
 }
 
+export enum VerificationGroup {
+    Манометры = "Манометры",
+    Датчики_давления = "Датчики_давления",
+    Термометры_биметаллические = "Термометры_биметаллические",
+}
+
 export enum DeviceLocation {
     АнтипинскийНПЗ = "АнтипинскийНПЗ",
     ГПНЯмал = "ГПНЯмал",
@@ -2863,6 +2644,10 @@ export interface IProtocolTemplateDTO {
     verificationMethodsAliases?: string[];
 }
 
+export enum ProtocolGroup {
+    Манометр1 = "Манометр1",
+}
+
 export class ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO implements IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
     message?: string | undefined;
     error?: string | undefined;
@@ -3013,6 +2798,792 @@ export interface IPossibleTemplateVerificationMethodsDTO {
     protocolId?: string;
     protocolGroup?: ProtocolGroup;
     verificationMethod?: VerificationMethod;
+}
+
+export class VerificationMethod extends DatabaseEntity implements IVerificationMethod {
+    aliases?: string[];
+    description?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    protocolTemplateId?: string | undefined;
+    protocolTemplate?: ProtocolTemplate | undefined;
+    verificationMethodFiles?: VerificationMethodFile[] | undefined;
+    successInitialVerifications?: SuccessInitialVerification[] | undefined;
+    failedInitialVerifications?: FailedInitialVerification[] | undefined;
+    manometr1Verifications?: Manometr1Verification[] | undefined;
+
+    constructor(data?: IVerificationMethod) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            if (Array.isArray(_data["aliases"])) {
+                this.aliases = [] as any;
+                for (let item of _data["aliases"])
+                    this.aliases!.push(item);
+            }
+            this.description = _data["description"];
+            if (_data["checkups"]) {
+                this.checkups = {} as any;
+                for (let key in _data["checkups"]) {
+                    if (_data["checkups"].hasOwnProperty(key))
+                        (<any>this.checkups)![key] = _data["checkups"][key];
+                }
+            }
+            this.protocolTemplateId = _data["protocolTemplateId"];
+            this.protocolTemplate = _data["protocolTemplate"] ? ProtocolTemplate.fromJS(_data["protocolTemplate"]) : <any>undefined;
+            if (Array.isArray(_data["verificationMethodFiles"])) {
+                this.verificationMethodFiles = [] as any;
+                for (let item of _data["verificationMethodFiles"])
+                    this.verificationMethodFiles!.push(VerificationMethodFile.fromJS(item));
+            }
+            if (Array.isArray(_data["successInitialVerifications"])) {
+                this.successInitialVerifications = [] as any;
+                for (let item of _data["successInitialVerifications"])
+                    this.successInitialVerifications!.push(SuccessInitialVerification.fromJS(item));
+            }
+            if (Array.isArray(_data["failedInitialVerifications"])) {
+                this.failedInitialVerifications = [] as any;
+                for (let item of _data["failedInitialVerifications"])
+                    this.failedInitialVerifications!.push(FailedInitialVerification.fromJS(item));
+            }
+            if (Array.isArray(_data["manometr1Verifications"])) {
+                this.manometr1Verifications = [] as any;
+                for (let item of _data["manometr1Verifications"])
+                    this.manometr1Verifications!.push(Manometr1Verification.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): VerificationMethod {
+        data = typeof data === 'object' ? data : {};
+        let result = new VerificationMethod();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        if (Array.isArray(this.aliases)) {
+            data["aliases"] = [];
+            for (let item of this.aliases)
+                data["aliases"].push(item);
+        }
+        data["description"] = this.description;
+        if (this.checkups) {
+            data["checkups"] = {};
+            for (let key in this.checkups) {
+                if (this.checkups.hasOwnProperty(key))
+                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+            }
+        }
+        data["protocolTemplateId"] = this.protocolTemplateId;
+        data["protocolTemplate"] = this.protocolTemplate ? this.protocolTemplate.toJSON() : <any>undefined;
+        if (Array.isArray(this.verificationMethodFiles)) {
+            data["verificationMethodFiles"] = [];
+            for (let item of this.verificationMethodFiles)
+                data["verificationMethodFiles"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.successInitialVerifications)) {
+            data["successInitialVerifications"] = [];
+            for (let item of this.successInitialVerifications)
+                data["successInitialVerifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.failedInitialVerifications)) {
+            data["failedInitialVerifications"] = [];
+            for (let item of this.failedInitialVerifications)
+                data["failedInitialVerifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.manometr1Verifications)) {
+            data["manometr1Verifications"] = [];
+            for (let item of this.manometr1Verifications)
+                data["manometr1Verifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IVerificationMethod extends IDatabaseEntity {
+    aliases?: string[];
+    description?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    protocolTemplateId?: string | undefined;
+    protocolTemplate?: ProtocolTemplate | undefined;
+    verificationMethodFiles?: VerificationMethodFile[] | undefined;
+    successInitialVerifications?: SuccessInitialVerification[] | undefined;
+    failedInitialVerifications?: FailedInitialVerification[] | undefined;
+    manometr1Verifications?: Manometr1Verification[] | undefined;
+}
+
+export enum VerificationMethodCheckups {
+    Внешний_осмотр = "внешний_осмотр",
+    Результат_опробывания = "результат_опробывания",
+    Опр_осн_поргрешности = "опр_осн_поргрешности",
+}
+
+export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {
+    verificationGroup?: VerificationGroup;
+    protocolGroup?: ProtocolGroup;
+    verificationMethods?: VerificationMethod[] | undefined;
+
+    constructor(data?: IProtocolTemplate) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.verificationGroup = _data["verificationGroup"];
+            this.protocolGroup = _data["protocolGroup"];
+            if (Array.isArray(_data["verificationMethods"])) {
+                this.verificationMethods = [] as any;
+                for (let item of _data["verificationMethods"])
+                    this.verificationMethods!.push(VerificationMethod.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): ProtocolTemplate {
+        data = typeof data === 'object' ? data : {};
+        let result = new ProtocolTemplate();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["verificationGroup"] = this.verificationGroup;
+        data["protocolGroup"] = this.protocolGroup;
+        if (Array.isArray(this.verificationMethods)) {
+            data["verificationMethods"] = [];
+            for (let item of this.verificationMethods)
+                data["verificationMethods"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IProtocolTemplate extends IDatabaseEntity {
+    verificationGroup?: VerificationGroup;
+    protocolGroup?: ProtocolGroup;
+    verificationMethods?: VerificationMethod[] | undefined;
+}
+
+export class VerificationMethodFile extends DatabaseEntity implements IVerificationMethodFile {
+    fileName?: string;
+    mimetype?: string;
+    content?: string;
+
+    constructor(data?: IVerificationMethodFile) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.fileName = _data["fileName"];
+            this.mimetype = _data["mimetype"];
+            this.content = _data["content"];
+        }
+    }
+
+    static override fromJS(data: any): VerificationMethodFile {
+        data = typeof data === 'object' ? data : {};
+        let result = new VerificationMethodFile();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["fileName"] = this.fileName;
+        data["mimetype"] = this.mimetype;
+        data["content"] = this.content;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IVerificationMethodFile extends IDatabaseEntity {
+    fileName?: string;
+    mimetype?: string;
+    content?: string;
+}
+
+export class SuccessInitialVerification extends DatabaseEntity implements ISuccessInitialVerification {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    owner?: string;
+    verificationTypeName?: string;
+    verificationDate?: Date;
+    verifiedUntilDate?: Date;
+    verificationGroup?: VerificationGroup | undefined;
+    protocolNumber?: string | undefined;
+    ownerINN?: number | undefined;
+    worker?: string | undefined;
+    location?: DeviceLocation | undefined;
+    pressure?: string | undefined;
+    temperature?: number | undefined;
+    humidity?: number | undefined;
+    measurementMin?: number | undefined;
+    measurementMax?: number | undefined;
+    measurementUnit?: string | undefined;
+    accuracy?: number | undefined;
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
+
+    constructor(data?: ISuccessInitialVerification) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.owner = _data["owner"];
+            this.verificationTypeName = _data["verificationTypeName"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.verificationGroup = _data["verificationGroup"];
+            this.protocolNumber = _data["protocolNumber"];
+            this.ownerINN = _data["ownerINN"];
+            this.worker = _data["worker"];
+            this.location = _data["location"];
+            this.pressure = _data["pressure"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            this.accuracy = _data["accuracy"];
+            this.device = _data["device"] ? Device.fromJS(_data["device"]) : <any>undefined;
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(Etalon.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): SuccessInitialVerification {
+        data = typeof data === 'object' ? data : {};
+        let result = new SuccessInitialVerification();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["owner"] = this.owner;
+        data["verificationTypeName"] = this.verificationTypeName;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["verificationGroup"] = this.verificationGroup;
+        data["protocolNumber"] = this.protocolNumber;
+        data["ownerINN"] = this.ownerINN;
+        data["worker"] = this.worker;
+        data["location"] = this.location;
+        data["pressure"] = this.pressure;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        data["accuracy"] = this.accuracy;
+        data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface ISuccessInitialVerification extends IDatabaseEntity {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    owner?: string;
+    verificationTypeName?: string;
+    verificationDate?: Date;
+    verifiedUntilDate?: Date;
+    verificationGroup?: VerificationGroup | undefined;
+    protocolNumber?: string | undefined;
+    ownerINN?: number | undefined;
+    worker?: string | undefined;
+    location?: DeviceLocation | undefined;
+    pressure?: string | undefined;
+    temperature?: number | undefined;
+    humidity?: number | undefined;
+    measurementMin?: number | undefined;
+    measurementMax?: number | undefined;
+    measurementUnit?: string | undefined;
+    accuracy?: number | undefined;
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
+}
+
+export class Device extends DatabaseEntity implements IDevice {
+    deviceTypeNumber?: string;
+    serial?: string;
+    manufacturedYear?: number;
+    modification?: string;
+    deviceType?: DeviceType | undefined;
+
+    constructor(data?: IDevice) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.serial = _data["serial"];
+            this.manufacturedYear = _data["manufacturedYear"];
+            this.modification = _data["modification"];
+            this.deviceType = _data["deviceType"] ? DeviceType.fromJS(_data["deviceType"]) : <any>undefined;
+        }
+    }
+
+    static override fromJS(data: any): Device {
+        data = typeof data === 'object' ? data : {};
+        let result = new Device();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["serial"] = this.serial;
+        data["manufacturedYear"] = this.manufacturedYear;
+        data["modification"] = this.modification;
+        data["deviceType"] = this.deviceType ? this.deviceType.toJSON() : <any>undefined;
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IDevice extends IDatabaseEntity {
+    deviceTypeNumber?: string;
+    serial?: string;
+    manufacturedYear?: number;
+    modification?: string;
+    deviceType?: DeviceType | undefined;
+}
+
+export class Etalon extends DatabaseEntity implements IEtalon {
+    number?: string;
+    date?: Date;
+    toDate?: Date;
+    fullInfo?: string;
+    successInitialVerifications?: SuccessInitialVerification[] | undefined;
+    failedInitialVerifications?: FailedInitialVerification[] | undefined;
+    manometr1Verifications?: Manometr1Verification[] | undefined;
+
+    constructor(data?: IEtalon) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.number = _data["number"];
+            this.date = _data["date"] ? new Date(_data["date"].toString()) : <any>undefined;
+            this.toDate = _data["toDate"] ? new Date(_data["toDate"].toString()) : <any>undefined;
+            this.fullInfo = _data["fullInfo"];
+            if (Array.isArray(_data["successInitialVerifications"])) {
+                this.successInitialVerifications = [] as any;
+                for (let item of _data["successInitialVerifications"])
+                    this.successInitialVerifications!.push(SuccessInitialVerification.fromJS(item));
+            }
+            if (Array.isArray(_data["failedInitialVerifications"])) {
+                this.failedInitialVerifications = [] as any;
+                for (let item of _data["failedInitialVerifications"])
+                    this.failedInitialVerifications!.push(FailedInitialVerification.fromJS(item));
+            }
+            if (Array.isArray(_data["manometr1Verifications"])) {
+                this.manometr1Verifications = [] as any;
+                for (let item of _data["manometr1Verifications"])
+                    this.manometr1Verifications!.push(Manometr1Verification.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Etalon {
+        data = typeof data === 'object' ? data : {};
+        let result = new Etalon();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["number"] = this.number;
+        data["date"] = this.date ? formatDate(this.date) : <any>undefined;
+        data["toDate"] = this.toDate ? formatDate(this.toDate) : <any>undefined;
+        data["fullInfo"] = this.fullInfo;
+        if (Array.isArray(this.successInitialVerifications)) {
+            data["successInitialVerifications"] = [];
+            for (let item of this.successInitialVerifications)
+                data["successInitialVerifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.failedInitialVerifications)) {
+            data["failedInitialVerifications"] = [];
+            for (let item of this.failedInitialVerifications)
+                data["failedInitialVerifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.manometr1Verifications)) {
+            data["manometr1Verifications"] = [];
+            for (let item of this.manometr1Verifications)
+                data["manometr1Verifications"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IEtalon extends IDatabaseEntity {
+    number?: string;
+    date?: Date;
+    toDate?: Date;
+    fullInfo?: string;
+    successInitialVerifications?: SuccessInitialVerification[] | undefined;
+    failedInitialVerifications?: FailedInitialVerification[] | undefined;
+    manometr1Verifications?: Manometr1Verification[] | undefined;
+}
+
+export class FailedInitialVerification extends DatabaseEntity implements IFailedInitialVerification {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    owner?: string;
+    verificationTypeName?: string;
+    verificationDate?: Date;
+    failedDocNumber?: string;
+    verificationGroup?: VerificationGroup | undefined;
+    protocolNumber?: string | undefined;
+    ownerINN?: number | undefined;
+    worker?: string | undefined;
+    location?: DeviceLocation | undefined;
+    pressure?: string | undefined;
+    temperature?: number | undefined;
+    humidity?: number | undefined;
+    measurementMin?: number | undefined;
+    measurementMax?: number | undefined;
+    measurementUnit?: string | undefined;
+    accuracy?: number | undefined;
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
+
+    constructor(data?: IFailedInitialVerification) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.owner = _data["owner"];
+            this.verificationTypeName = _data["verificationTypeName"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.failedDocNumber = _data["failedDocNumber"];
+            this.verificationGroup = _data["verificationGroup"];
+            this.protocolNumber = _data["protocolNumber"];
+            this.ownerINN = _data["ownerINN"];
+            this.worker = _data["worker"];
+            this.location = _data["location"];
+            this.pressure = _data["pressure"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            this.accuracy = _data["accuracy"];
+            this.device = _data["device"] ? Device.fromJS(_data["device"]) : <any>undefined;
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(Etalon.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): FailedInitialVerification {
+        data = typeof data === 'object' ? data : {};
+        let result = new FailedInitialVerification();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["owner"] = this.owner;
+        data["verificationTypeName"] = this.verificationTypeName;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["failedDocNumber"] = this.failedDocNumber;
+        data["verificationGroup"] = this.verificationGroup;
+        data["protocolNumber"] = this.protocolNumber;
+        data["ownerINN"] = this.ownerINN;
+        data["worker"] = this.worker;
+        data["location"] = this.location;
+        data["pressure"] = this.pressure;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        data["accuracy"] = this.accuracy;
+        data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IFailedInitialVerification extends IDatabaseEntity {
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    owner?: string;
+    verificationTypeName?: string;
+    verificationDate?: Date;
+    failedDocNumber?: string;
+    verificationGroup?: VerificationGroup | undefined;
+    protocolNumber?: string | undefined;
+    ownerINN?: number | undefined;
+    worker?: string | undefined;
+    location?: DeviceLocation | undefined;
+    pressure?: string | undefined;
+    temperature?: number | undefined;
+    humidity?: number | undefined;
+    measurementMin?: number | undefined;
+    measurementMax?: number | undefined;
+    measurementUnit?: string | undefined;
+    accuracy?: number | undefined;
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
+}
+
+export class Manometr1Verification extends DatabaseEntity implements IManometr1Verification {
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    verificationVisualCheckup?: string;
+    verificationResultCheckup?: string;
+    verificationAccuracyCheckup?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    initialVerificationName?: string;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    validError?: number;
+    deviceValues?: number[][];
+    etalonValues?: number[][];
+    actualError?: number[][];
+    actualVariation?: number[];
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
+
+    constructor(data?: IManometr1Verification) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.protocolNumber = _data["protocolNumber"];
+            this.deviceTypeName = _data["deviceTypeName"];
+            this.deviceModification = _data["deviceModification"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.manufactureYear = _data["manufactureYear"];
+            this.owner = _data["owner"];
+            this.ownerINN = _data["ownerINN"];
+            this.verificationsInfo = _data["verificationsInfo"];
+            this.etalonsInfo = _data["etalonsInfo"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.pressure = _data["pressure"];
+            this.verificationVisualCheckup = _data["verificationVisualCheckup"];
+            this.verificationResultCheckup = _data["verificationResultCheckup"];
+            this.verificationAccuracyCheckup = _data["verificationAccuracyCheckup"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.worker = _data["worker"];
+            this.verificationGroup = _data["verificationGroup"];
+            this.location = _data["location"];
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.initialVerificationName = _data["initialVerificationName"];
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            this.validError = _data["validError"];
+            if (Array.isArray(_data["deviceValues"])) {
+                this.deviceValues = [] as any;
+                for (let item of _data["deviceValues"])
+                    this.deviceValues!.push(item);
+            }
+            if (Array.isArray(_data["etalonValues"])) {
+                this.etalonValues = [] as any;
+                for (let item of _data["etalonValues"])
+                    this.etalonValues!.push(item);
+            }
+            if (Array.isArray(_data["actualError"])) {
+                this.actualError = [] as any;
+                for (let item of _data["actualError"])
+                    this.actualError!.push(item);
+            }
+            if (Array.isArray(_data["actualVariation"])) {
+                this.actualVariation = [] as any;
+                for (let item of _data["actualVariation"])
+                    this.actualVariation!.push(item);
+            }
+            this.device = _data["device"] ? Device.fromJS(_data["device"]) : <any>undefined;
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(Etalon.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Manometr1Verification {
+        data = typeof data === 'object' ? data : {};
+        let result = new Manometr1Verification();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["protocolNumber"] = this.protocolNumber;
+        data["deviceTypeName"] = this.deviceTypeName;
+        data["deviceModification"] = this.deviceModification;
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["manufactureYear"] = this.manufactureYear;
+        data["owner"] = this.owner;
+        data["ownerINN"] = this.ownerINN;
+        data["verificationsInfo"] = this.verificationsInfo;
+        data["etalonsInfo"] = this.etalonsInfo;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["pressure"] = this.pressure;
+        data["verificationVisualCheckup"] = this.verificationVisualCheckup;
+        data["verificationResultCheckup"] = this.verificationResultCheckup;
+        data["verificationAccuracyCheckup"] = this.verificationAccuracyCheckup;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["worker"] = this.worker;
+        data["verificationGroup"] = this.verificationGroup;
+        data["location"] = this.location;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["initialVerificationName"] = this.initialVerificationName;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        data["validError"] = this.validError;
+        if (Array.isArray(this.deviceValues)) {
+            data["deviceValues"] = [];
+            for (let item of this.deviceValues)
+                data["deviceValues"].push(item);
+        }
+        if (Array.isArray(this.etalonValues)) {
+            data["etalonValues"] = [];
+            for (let item of this.etalonValues)
+                data["etalonValues"].push(item);
+        }
+        if (Array.isArray(this.actualError)) {
+            data["actualError"] = [];
+            for (let item of this.actualError)
+                data["actualError"].push(item);
+        }
+        if (Array.isArray(this.actualVariation)) {
+            data["actualVariation"] = [];
+            for (let item of this.actualVariation)
+                data["actualVariation"].push(item);
+        }
+        data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IManometr1Verification extends IDatabaseEntity {
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    verificationVisualCheckup?: string;
+    verificationResultCheckup?: string;
+    verificationAccuracyCheckup?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    initialVerificationName?: string;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    validError?: number;
+    deviceValues?: number[][];
+    etalonValues?: number[][];
+    actualError?: number[][];
+    actualVariation?: number[];
+    device?: Device | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    etalons?: Etalon[] | undefined;
 }
 
 export class ServicePaginatedResultOfVerificationMethodDTO implements IServicePaginatedResultOfVerificationMethodDTO {
@@ -3310,9 +3881,9 @@ export interface IPaginatedListOfPossibleVrfMethodDTO {
 export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
     deviceTypeNumber?: string;
     deviceTypeInfo?: string;
-    deviceModifications?: string[];
-    aliases?: PossibleVrfMethodAliasDTO[];
-    dates?: YearMonth[];
+    methodUrls?: string[];
+    specUrls?: string[];
+    aliasGroups?: PossibleVrfMethodAliasGroupDTO[];
 
     constructor(data?: IPossibleVrfMethodDTO) {
         if (data) {
@@ -3327,20 +3898,20 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
         if (_data) {
             this.deviceTypeNumber = _data["deviceTypeNumber"];
             this.deviceTypeInfo = _data["deviceTypeInfo"];
-            if (Array.isArray(_data["deviceModifications"])) {
-                this.deviceModifications = [] as any;
-                for (let item of _data["deviceModifications"])
-                    this.deviceModifications!.push(item);
+            if (Array.isArray(_data["methodUrls"])) {
+                this.methodUrls = [] as any;
+                for (let item of _data["methodUrls"])
+                    this.methodUrls!.push(item);
             }
-            if (Array.isArray(_data["aliases"])) {
-                this.aliases = [] as any;
-                for (let item of _data["aliases"])
-                    this.aliases!.push(PossibleVrfMethodAliasDTO.fromJS(item));
+            if (Array.isArray(_data["specUrls"])) {
+                this.specUrls = [] as any;
+                for (let item of _data["specUrls"])
+                    this.specUrls!.push(item);
             }
-            if (Array.isArray(_data["dates"])) {
-                this.dates = [] as any;
-                for (let item of _data["dates"])
-                    this.dates!.push(YearMonth.fromJS(item));
+            if (Array.isArray(_data["aliasGroups"])) {
+                this.aliasGroups = [] as any;
+                for (let item of _data["aliasGroups"])
+                    this.aliasGroups!.push(PossibleVrfMethodAliasGroupDTO.fromJS(item));
             }
         }
     }
@@ -3356,15 +3927,85 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
         data = typeof data === 'object' ? data : {};
         data["deviceTypeNumber"] = this.deviceTypeNumber;
         data["deviceTypeInfo"] = this.deviceTypeInfo;
-        if (Array.isArray(this.deviceModifications)) {
-            data["deviceModifications"] = [];
-            for (let item of this.deviceModifications)
-                data["deviceModifications"].push(item);
+        if (Array.isArray(this.methodUrls)) {
+            data["methodUrls"] = [];
+            for (let item of this.methodUrls)
+                data["methodUrls"].push(item);
         }
+        if (Array.isArray(this.specUrls)) {
+            data["specUrls"] = [];
+            for (let item of this.specUrls)
+                data["specUrls"].push(item);
+        }
+        if (Array.isArray(this.aliasGroups)) {
+            data["aliasGroups"] = [];
+            for (let item of this.aliasGroups)
+                data["aliasGroups"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IPossibleVrfMethodDTO {
+    deviceTypeNumber?: string;
+    deviceTypeInfo?: string;
+    methodUrls?: string[];
+    specUrls?: string[];
+    aliasGroups?: PossibleVrfMethodAliasGroupDTO[];
+}
+
+export class PossibleVrfMethodAliasGroupDTO implements IPossibleVrfMethodAliasGroupDTO {
+    aliases?: PossibleVrfMethodAliasDTO[];
+    modifications?: string[];
+    dates?: YearMonth[];
+
+    constructor(data?: IPossibleVrfMethodAliasGroupDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            if (Array.isArray(_data["aliases"])) {
+                this.aliases = [] as any;
+                for (let item of _data["aliases"])
+                    this.aliases!.push(PossibleVrfMethodAliasDTO.fromJS(item));
+            }
+            if (Array.isArray(_data["modifications"])) {
+                this.modifications = [] as any;
+                for (let item of _data["modifications"])
+                    this.modifications!.push(item);
+            }
+            if (Array.isArray(_data["dates"])) {
+                this.dates = [] as any;
+                for (let item of _data["dates"])
+                    this.dates!.push(YearMonth.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PossibleVrfMethodAliasGroupDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PossibleVrfMethodAliasGroupDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
         if (Array.isArray(this.aliases)) {
             data["aliases"] = [];
             for (let item of this.aliases)
                 data["aliases"].push(item ? item.toJSON() : <any>undefined);
+        }
+        if (Array.isArray(this.modifications)) {
+            data["modifications"] = [];
+            for (let item of this.modifications)
+                data["modifications"].push(item);
         }
         if (Array.isArray(this.dates)) {
             data["dates"] = [];
@@ -3375,11 +4016,9 @@ export class PossibleVrfMethodDTO implements IPossibleVrfMethodDTO {
     }
 }
 
-export interface IPossibleVrfMethodDTO {
-    deviceTypeNumber?: string;
-    deviceTypeInfo?: string;
-    deviceModifications?: string[];
+export interface IPossibleVrfMethodAliasGroupDTO {
     aliases?: PossibleVrfMethodAliasDTO[];
+    modifications?: string[];
     dates?: YearMonth[];
 }
 
@@ -3727,238 +4366,6 @@ export interface ISuccessInitialVerificationDto {
     measurementUnit?: string | undefined;
     accuracy?: number | undefined;
     verificationMethodInfo?: string | undefined;
-}
-
-export class ServicePaginatedResultOfSuccessVerificationDto implements IServicePaginatedResultOfSuccessVerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfSuccessVerificationDto | undefined;
-
-    constructor(data?: IServicePaginatedResultOfSuccessVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-            this.data = _data["data"] ? PaginatedListOfSuccessVerificationDto.fromJS(_data["data"]) : <any>undefined;
-        }
-    }
-
-    static fromJS(data: any): ServicePaginatedResultOfSuccessVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new ServicePaginatedResultOfSuccessVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
-        return data;
-    }
-}
-
-export interface IServicePaginatedResultOfSuccessVerificationDto {
-    message?: string | undefined;
-    error?: string | undefined;
-    data?: PaginatedListOfSuccessVerificationDto | undefined;
-}
-
-export class PaginatedListOfSuccessVerificationDto implements IPaginatedListOfSuccessVerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: SuccessVerificationDto[];
-
-    constructor(data?: IPaginatedListOfSuccessVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.pageIndex = _data["pageIndex"];
-            this.totalPages = _data["totalPages"];
-            this.hasPreviousPage = _data["hasPreviousPage"];
-            this.hasNextPage = _data["hasNextPage"];
-            this.totalCount = _data["totalCount"];
-            if (Array.isArray(_data["items"])) {
-                this.items = [] as any;
-                for (let item of _data["items"])
-                    this.items!.push(SuccessVerificationDto.fromJS(item));
-            }
-        }
-    }
-
-    static fromJS(data: any): PaginatedListOfSuccessVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new PaginatedListOfSuccessVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["pageIndex"] = this.pageIndex;
-        data["totalPages"] = this.totalPages;
-        data["hasPreviousPage"] = this.hasPreviousPage;
-        data["hasNextPage"] = this.hasNextPage;
-        data["totalCount"] = this.totalCount;
-        if (Array.isArray(this.items)) {
-            data["items"] = [];
-            for (let item of this.items)
-                data["items"].push(item ? item.toJSON() : <any>undefined);
-        }
-        return data;
-    }
-}
-
-export interface IPaginatedListOfSuccessVerificationDto {
-    pageIndex?: number;
-    totalPages?: number;
-    hasPreviousPage?: boolean;
-    hasNextPage?: boolean;
-    totalCount?: number;
-    items?: SuccessVerificationDto[];
-}
-
-export class SuccessVerificationDto implements ISuccessVerificationDto {
-    id?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    verificationDate?: Date;
-    verificationGroup?: VerificationGroup;
-    deviceTypeInfo?: string;
-    verifiedUntilDate?: Date;
-    verificationTypeName?: string;
-    owner?: string;
-    etalons?: string[];
-    protocolNumber?: string;
-    ownerInn?: number;
-    worker?: string;
-    location?: DeviceLocation;
-    pressure?: string;
-    temperature?: number;
-    humidity?: number;
-    measurementMin?: number;
-    measurementMax?: number;
-    measurementUnit?: string;
-    accuracy?: number;
-
-    constructor(data?: ISuccessVerificationDto) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.id = _data["id"];
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceSerial = _data["deviceSerial"];
-            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
-            this.verificationGroup = _data["verificationGroup"];
-            this.deviceTypeInfo = _data["deviceTypeInfo"];
-            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
-            this.verificationTypeName = _data["verificationTypeName"];
-            this.owner = _data["owner"];
-            if (Array.isArray(_data["etalons"])) {
-                this.etalons = [] as any;
-                for (let item of _data["etalons"])
-                    this.etalons!.push(item);
-            }
-            this.protocolNumber = _data["protocolNumber"];
-            this.ownerInn = _data["ownerInn"];
-            this.worker = _data["worker"];
-            this.location = _data["location"];
-            this.pressure = _data["pressure"];
-            this.temperature = _data["temperature"];
-            this.humidity = _data["humidity"];
-            this.measurementMin = _data["measurementMin"];
-            this.measurementMax = _data["measurementMax"];
-            this.measurementUnit = _data["measurementUnit"];
-            this.accuracy = _data["accuracy"];
-        }
-    }
-
-    static fromJS(data: any): SuccessVerificationDto {
-        data = typeof data === 'object' ? data : {};
-        let result = new SuccessVerificationDto();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["id"] = this.id;
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceSerial"] = this.deviceSerial;
-        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
-        data["verificationGroup"] = this.verificationGroup;
-        data["deviceTypeInfo"] = this.deviceTypeInfo;
-        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
-        data["verificationTypeName"] = this.verificationTypeName;
-        data["owner"] = this.owner;
-        if (Array.isArray(this.etalons)) {
-            data["etalons"] = [];
-            for (let item of this.etalons)
-                data["etalons"].push(item);
-        }
-        data["protocolNumber"] = this.protocolNumber;
-        data["ownerInn"] = this.ownerInn;
-        data["worker"] = this.worker;
-        data["location"] = this.location;
-        data["pressure"] = this.pressure;
-        data["temperature"] = this.temperature;
-        data["humidity"] = this.humidity;
-        data["measurementMin"] = this.measurementMin;
-        data["measurementMax"] = this.measurementMax;
-        data["measurementUnit"] = this.measurementUnit;
-        data["accuracy"] = this.accuracy;
-        return data;
-    }
-}
-
-export interface ISuccessVerificationDto {
-    id?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    verificationDate?: Date;
-    verificationGroup?: VerificationGroup;
-    deviceTypeInfo?: string;
-    verifiedUntilDate?: Date;
-    verificationTypeName?: string;
-    owner?: string;
-    etalons?: string[];
-    protocolNumber?: string;
-    ownerInn?: number;
-    worker?: string;
-    location?: DeviceLocation;
-    pressure?: string;
-    temperature?: number;
-    humidity?: number;
-    measurementMin?: number;
-    measurementMax?: number;
-    measurementUnit?: string;
-    accuracy?: number;
 }
 
 function formatDate(d: Date) {

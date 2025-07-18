@@ -45,6 +45,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
         var pdfCreator = scope.ServiceProvider.GetRequiredService<ITemplateProcessor>();
 
+        return;
         await ProcessManometr1Async(db, pdfCreator);
     }
 

@@ -96,10 +96,10 @@
             <div>Номер типа</div>
             <hr class="header-divider">
             <div>Название типа</div>
+            <hr class="header-divider">
+            <div>Документация</div>
           </th>
-          <th>Модификации</th>
           <th>Псевдонимы</th>
-          <th>Даты</th>
         </tr>
       </thead>
       <tbody>
@@ -108,26 +108,40 @@
             <div>{{ m.deviceTypeNumber || '-' }}</div>
             <hr class="data-row-divider">
             <div>{{ m.deviceTypeInfo || '-' }}</div>
-          </td>
-          <td>
-            <ng-container *ngIf="m.deviceModifications?.length; else noMods">
-              <div *ngFor="let mod of m.deviceModifications">{{ mod }}</div>
+            <hr class="data-row-divider">
+            <ng-container *ngIf="getAllDocs(m).length > 0; else noDocs">
+              <ng-container *ngFor="let doc of getAllDocs(m); let last = last">
+                <a [href]="doc.url" target="_blank">{{ doc.label }}</a><span *ngIf="!last">, </span>
+              </ng-container>
             </ng-container>
-            <ng-template #noMods>-</ng-template>
+            <ng-template #noDocs>-</ng-template>
           </td>
           <td>
-            <ng-container *ngIf="m.aliases?.length; else noAliases">
-              <div *ngFor="let a of m.aliases">
-                {{ a.exists ? '+' : '-' }} {{ a.alias || '-' }}
+            <ng-container *ngIf="m.aliasGroups && m.aliasGroups.length > 0; else noGroups">
+              <div *ngFor="let group of m.aliasGroups; let lastGroup = last" style="margin-bottom: 0.5em;">
+                <div>
+                  <div class="aliases-group">
+                    <ng-container *ngIf="group.aliases && group.aliases.length > 0; else noAliases">
+                      <span *ngFor="let a of group.aliases; let last = last">{{ a.exists ? '+' : '-' }} {{ a.alias || '-' }}<span *ngIf="!last">, </span></span>
+                    </ng-container>
+                    <ng-template #noAliases>-</ng-template>
+                  </div>
+                </div>
+                <div>
+                  <ng-container *ngIf="group.modifications && group.modifications.length > 0; else noMods">
+                    <span *ngFor="let mod of group.modifications; let last = last">{{ mod }}<span *ngIf="!last">, </span></span>
+                  </ng-container>
+                  <ng-template #noMods>-</ng-template>
+                </div>
+                <div>
+                  <ng-container *ngIf="group.dates && group.dates.length > 0; else noDates">
+                    <span *ngFor="let d of group.dates; let last = last">{{ d.year ?? 0 }}.{{ (d.month ?? 0) < 10 ? '0' + (d.month ?? 0) : d.month ?? 0 }}<span *ngIf="!last">, </span></span>
+                  </ng-container>
+                  <ng-template #noDates>-</ng-template>
+                </div>
               </div>
             </ng-container>
-            <ng-template #noAliases>-</ng-template>
-          </td>
-          <td>
-            <ng-container *ngIf="m.dates?.length; else noDates">
-              <div *ngFor="let d of m.dates">{{ d.year ?? 0 }}.{{ (d.month ?? 0) < 10 ? '0' + (d.month ?? 0) : (d.month ?? 0) }}</div>
-            </ng-container>
-            <ng-template #noDates>-</ng-template>
+            <ng-template #noGroups>-</ng-template>
           </td>
         </tr>
       </tbody>

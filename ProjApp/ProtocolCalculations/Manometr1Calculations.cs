@@ -39,6 +39,7 @@ internal static class Manometr1Calculations
             VerificationGroup = v.VerificationGroup!.Value,
             Location = v.Location!.Value,
             VerifiedUntilDate = v.VerifiedUntilDate,
+            InitialVerificationName = v.VerificationTypeName,
 
             // Table values
             MeasurementMin = v.MeasurementMin!.Value,

@@ -2,6 +2,7 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
+[Obsolete("Add initialVerificationName")]
 public class Manometr1Verification : DatabaseEntity, IVerificationBase
 {
     public required string ProtocolNumber { get; set; }
@@ -27,6 +28,7 @@ public class Manometr1Verification : DatabaseEntity, IVerificationBase
     public required VerificationGroup VerificationGroup { get; set; }
     public required DeviceLocation Location { get; set; }
     public required DateOnly VerifiedUntilDate { get; set; }
+    public required string InitialVerificationName { get; set; }
 
     // Table values
     public required double MeasurementMin { get; set; }

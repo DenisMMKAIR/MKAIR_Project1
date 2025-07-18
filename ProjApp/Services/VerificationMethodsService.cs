@@ -9,9 +9,9 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
-using ProjApp.Database.Normalizers;
 using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
+using ProjApp.Normalizers;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -22,7 +22,6 @@ public partial class VerificationMethodsService
     private readonly ProjDatabase _database;
     private readonly IMapper _mapper;
     private readonly AddVerificationMethodCommand _addCommand;
-    [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")] private static partial Regex _invalidFileChars();
 
     public VerificationMethodsService(ILogger<VerificationMethodsService> logger, ProjDatabase database, IMapper mapper, AddVerificationMethodCommand addCommand)
     {
@@ -52,9 +51,11 @@ public partial class VerificationMethodsService
         CancellationToken? cancellationToken = null)
     {
         cancellationToken ??= CancellationToken.None;
+        var aliasNormComp = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
 
-        var existsNames = _database.VerificationMethods
+        var dbNormAliases = _database.VerificationMethods
             .SelectMany(v => v.Aliases)
+            .Select(aliasNormComp)
             .ToImmutableSortedSet();
 
         if (cancellationToken.Value.IsCancellationRequested)
@@ -69,8 +70,10 @@ public partial class VerificationMethodsService
                 v.Device!.DeviceType!.Title,
                 v.Device.DeviceType.Notation,
                 v.Device.Modification,
-                VerificationTypeNames = new[] { v.VerificationTypeName },
-                v.VerificationDate
+                v.VerificationTypeName,
+                v.VerificationDate,
+                v.Device.DeviceType.MethodUrls,
+                v.Device.DeviceType.SpecUrls,
             })
             .Union(_database.FailedInitialVerifications
                 .Select(v => new
@@ -79,8 +82,10 @@ public partial class VerificationMethodsService
                     v.Device!.DeviceType!.Title,
                     v.Device.DeviceType.Notation,
                     v.Device.Modification,
-                    VerificationTypeNames = new[] { v.VerificationTypeName },
-                    v.VerificationDate
+                    v.VerificationTypeName,
+                    v.VerificationDate,
+                    v.Device.DeviceType.MethodUrls,
+                    v.Device.DeviceType.SpecUrls,
                 }))
             .Union(_database.Manometr1Verifications
                 .Select(v => new
@@ -89,48 +94,63 @@ public partial class VerificationMethodsService
                     v.Device!.DeviceType!.Title,
                     v.Device.DeviceType.Notation,
                     v.Device.Modification,
-                    VerificationTypeNames = (string[])v.VerificationMethod!.Aliases,
-                    v.VerificationDate
+                    VerificationTypeName = v.InitialVerificationName,
+                    v.VerificationDate,
+                    v.Device.DeviceType.MethodUrls,
+                    v.Device.DeviceType.SpecUrls,
                 }))
             .ToArrayAsync(cancellationToken.Value);
 
         var clientQuery = serverResult
             .GroupBy(v => v.DeviceTypeNumber)
-            .Select(g =>
-            {
-                var first = g.First();
-                return new PossibleVrfMethodDTO
+            .Select(g => new PossibleVrfMethodDTO
+            (
+                DeviceTypeNumber: g.Key,
+                DeviceTypeInfo: g.Select(dto => $"{dto.Title} {dto.Notation}").First(),
+                MethodUrls: g.SelectMany(dto => dto.MethodUrls ?? [])
+                    .Distinct()
+                    .ToArray(),
+                SpecUrls: g.SelectMany(dto => dto.SpecUrls ?? [])
+                    .Distinct()
+                    .ToArray(),
+                AliasGroups: g.Select(dto => new
+                {
+                    Name = dto.VerificationTypeName,
+                    dto.Modification,
+                    Date = dto.VerificationDate
+                })
+                .GroupBy(dto => aliasNormComp(dto.Name))
+                .Select(g => new PossibleVrfMethodAliasGroupDTO
                 (
-                    g.Key,
-                    $"{first.Title} {first.Notation}",
-                    g.Select(dto => dto.Modification)
-                        .DistinctBy(m => m.Replace(" ", "").ToUpper())
+                    Aliases: g.Select(dto => new PossibleVrfMethodAliasDTO
+                    (
+                        Exists: dbNormAliases.Contains(aliasNormComp(dto.Name)),
+                        Alias: dto.Name
+                    ))
+                    .DistinctBy(dto => dto.Alias)
+                    .ToArray(),
+                    Modifications: g.Select(dto => dto.Modification)
+                        .Distinct()
                         .OrderBy(m => m.Length)
                         .ThenBy(m => m)
                         .ToArray(),
-                    g.SelectMany(dto => dto.VerificationTypeNames)
-                        .DistinctBy(a => a.Replace(" ", "").ToUpper())
-                        .OrderBy(a => a.Length)
-                        .Select(a => new PossibleVrfMethodAliasDTO(existsNames.Contains(a), a))
-                        .ToArray(),
-                    g.Select(dto => (YearMonth)dto.VerificationDate)
+                    Dates: g.Select(dto => (YearMonth)dto.Date)
                         .Distinct()
                         .Order()
                         .ToArray()
-                );
-            });
+                ))
+                .ToArray()
+            ));
 
         switch (showVMethods)
         {
             case ShowVMethods.Новые:
-                clientQuery = clientQuery.Where(dto => dto.Aliases.All(a => !a.Exists));
+                clientQuery = clientQuery.Where(dto => dto.AliasGroups.All(ag => ag.Aliases.All(a => !a.Exists)));
                 break;
             case ShowVMethods.Частичные:
-                clientQuery = clientQuery.Where(dto => dto.Aliases.Any(a => !a.Exists));
+                clientQuery = clientQuery.Where(dto => dto.AliasGroups.Any(ag => ag.Aliases.Any(a => !a.Exists)));
                 break;
         }
-
-        var stringNormalizer = new ComplexStringNormalizer();
 
         if (deviceTypeNumberFilter != null)
         {
@@ -139,7 +159,8 @@ public partial class VerificationMethodsService
 
         if (verificationNameFilter != null)
         {
-            clientQuery = clientQuery.Where(dto => dto.Aliases.Any(a => a.Alias.Contains(verificationNameFilter, StringComparison.OrdinalIgnoreCase)));
+            clientQuery = clientQuery.Where(dto => dto.AliasGroups
+                .Any(ag => ag.Aliases.Any(a => a.Alias.Contains(verificationNameFilter, StringComparison.OrdinalIgnoreCase))));
         }
 
         if (deviceTypeInfoFilter != null)
@@ -149,13 +170,13 @@ public partial class VerificationMethodsService
 
         if (yearMonthFilter != null)
         {
-            clientQuery = clientQuery.Where(dto => dto.Dates.Any(d => d == yearMonthFilter.Value));
+            clientQuery = clientQuery.Where(dto => dto.AliasGroups.Any(ag => ag.Dates.Any(d => d == yearMonthFilter.Value)));
         }
 
         var result = clientQuery
-            .OrderByDescending(dto => dto.Aliases.Count)
+            .OrderByDescending(dto => dto.AliasGroups.Count)
             .ThenBy(dto => dto.DeviceTypeNumber)
-            .ThenBy(dto => dto.Dates[0])
+            .ThenBy(dto => dto.AliasGroups[0].Dates[0])
             .ToPaginated(pageNumber, pageSize);
 
         if (cancellationToken.Value.IsCancellationRequested)
@@ -203,10 +224,8 @@ public partial class VerificationMethodsService
 
         if (m == null) return ServiceResult.Fail("Метод поверки не найден");
 
-        var stringNormalizer = new ComplexStringNormalizer();
-
         var newAliases = aliases
-            .Select(stringNormalizer.Normalize)
+            .Select(VerificationMethodAliasVisualNormalizer.Instance.Normalize)
             .Except(m.Aliases)
             .ToArray();
 
@@ -217,11 +236,13 @@ public partial class VerificationMethodsService
             .ToArray();
 
         using var transaction = await _database.Database.BeginTransactionAsync();
-        var (deviceTypeCount, newAliasesCount) = await AddAllDevicesAsync(m, stringNormalizer, transaction);
+
+        var vrfsCount = await AddVrfAsync(m, transaction);
+
         await _database.SaveChangesAsync();
         await transaction.CommitAsync();
 
-        return ServiceResult.Success($"Псевдонимы добавлены: {newAliases.Length}. Устройства присвоены: {deviceTypeCount}.");
+        return ServiceResult.Success($"Псевдонимы добавлены: {newAliases.Length}. Поверки присвоены: {vrfsCount}.");
     }
 
     public async Task<ServiceResult> AddVerificationMethodAsync(VerificationMethod verificationMethod)
@@ -241,10 +262,10 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Не указаны пункты проверки");
         }
 
-        var complexNormalizer = new ComplexStringNormalizer();
         verificationMethod.Aliases = verificationMethod.Aliases
-            .Select(complexNormalizer.Normalize)
+            .Select(VerificationMethodAliasVisualNormalizer.Instance.Normalize)
             .OrderBy(a => a.Length)
+            .ThenBy(a => a)
             .ToArray();
 
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
@@ -252,8 +273,7 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Описание не указано или слишком короткое описание");
         }
 
-        var descNorm = new IStringNormalizer[] { new QuoteNormalizer(), new SpaceNormalizer() };
-        foreach (var norm in descNorm) verificationMethod.Description = norm.Normalize(verificationMethod.Description);
+        verificationMethod.Description = VerificationMethodDescriptionNormalizer.Instance.Normalize(verificationMethod.Description);
 
         if (verificationMethod.VerificationMethodFiles != null)
         {
@@ -280,69 +300,55 @@ public partial class VerificationMethodsService
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Метод поверки с псевдонимом уже существует");
 
-        var (deviceTypesCount, newAliasesCount) = await AddAllDevicesAsync(verificationMethod, complexNormalizer, transaction);
+        var vrfsCount = await AddVrfAsync(verificationMethod, transaction);
 
         await transaction.CommitAsync();
 
-        return ServiceResult.Success($"Метод поверки добавлен. Присвоен устройствам {deviceTypesCount}");
+        return ServiceResult.Success($"Метод поверки добавлен. Присвоен поверкам {vrfsCount}");
     }
 
-    private async Task<(int deviceTypesCount, int newAliasesCount)> AddAllDevicesAsync(VerificationMethod verificationMethod, ComplexStringNormalizer stringNormalizer, IDbContextTransaction? transaction)
+    private async Task<int> AddVrfAsync(VerificationMethod verificationMethod, IDbContextTransaction transaction)
     {
-        int deviceTypesCount = 0, newAliasesCount = 0;
+        var vrfAdded = 0;
+        var norm = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
 
-        // while (true)
-        // {
-        //     var dtos = _database
-        //         .SuccessInitialVerifications
-        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config)
-        //         .Union(_database
-        //         .FailedInitialVerifications
-        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //         .Union(_database
-        //         .SuccessVerifications
-        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //         .Union(_database
-        //         .FailedVerifications
-        //         .ProjectToType<PossibleVerificationMethodPreSelectDTO>(_mapper.Config))
-        //         .AsEnumerable()
-        //         .GroupBy(dto => dto.DeviceTypeNumber)
-        //         .Select(g => g.Adapt<PossibleVerificationMethodDTO>(_mapper.Config))
-        //         .Where(dto => dto.VerificationMethodId == null)
-        //         .Where(dto => dto.VerificationTypeNames.Any(dtoA => verificationMethod.Aliases.Contains(dtoA)))
-        //         .Select(dto => new { dto.DeviceTypeNumber, dto.VerificationTypeNames })
-        //         .ToArray();
+        var normAliases = verificationMethod.Aliases
+            .Select(norm)
+            .ToImmutableSortedSet();
 
-        //     var deviceTypes = _database.DeviceTypes
-        //         .AsEnumerable()
-        //         .Where(dt => dtos.Any(dto => dto.DeviceTypeNumber == dt.Number))
-        //         .ToArray();
+        foreach (var v in _database.SuccessInitialVerifications
+                                   .Where(v => v.VerificationMethod == null)
+                                   .AsEnumerable()
+                                   .Where(v => normAliases.Contains(norm(v.VerificationTypeName))))
+        {
+            v.VerificationMethod = verificationMethod;
+            vrfAdded++;
+        }
 
-        //     foreach (var deviceType in deviceTypes) deviceType.VerificationMethod = verificationMethod;
+        foreach (var v in _database.FailedInitialVerifications
+                                   .Where(v => v.VerificationMethod == null)
+                                   .AsEnumerable()
+                                   .Where(v => normAliases.Contains(norm(v.VerificationTypeName))))
+        {
+            v.VerificationMethod = verificationMethod;
+            vrfAdded++;
+        }
 
-        //     var newAliases = dtos
-        //         .SelectMany(dto => dto.VerificationTypeNames)
-        //         .Select(stringNormalizer.Normalize)
-        //         .Where(a => !verificationMethod.Aliases.Contains(a))
-        //         .ToArray();
+        foreach (var v in _database.Manometr1Verifications
+                                   .Where(v => v.VerificationMethod == null)
+                                   .AsEnumerable()
+                                   .Where(v => normAliases.Contains(norm(v.InitialVerificationName))))
+        {
+            v.VerificationMethod = verificationMethod;
+            vrfAdded++;
+        }
 
-        //     verificationMethod.Aliases = verificationMethod.Aliases
-        //         .Concat(newAliases)
-        //         .Distinct()
-        //         .Order()
-        //         .ToArray();
-
-        //     if (deviceTypes.Length == 0 && newAliases.Length == 0) break;
-
-        //     deviceTypesCount += deviceTypes.Length;
-        //     newAliasesCount += newAliases.Length;
-
-        //     await _database.SaveChangesAsync();
-        // }
-
-        return (deviceTypesCount, newAliasesCount);
+        await _database.SaveChangesAsync();
+        
+        return vrfAdded;
     }
 
+    [GeneratedRegex(@"[<>:""/\\|?*\x00-\x1F]")] private static partial Regex _invalidFileChars();
     private static string SanitizeFileName(string fileName)
     {
         if (string.IsNullOrEmpty(fileName)) return string.Empty;
