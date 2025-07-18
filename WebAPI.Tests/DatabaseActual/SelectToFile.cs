@@ -1,4 +1,3 @@
-using System.Text.RegularExpressions;
 using Infrastructure.FGIS.Database;
 using Microsoft.Extensions.DependencyInjection;
 using ProjApp.Database.SupportTypes;
@@ -15,10 +14,10 @@ public partial class SelectToFile : DatabaseActualFixture
         var db = scope.ServiceProvider.GetRequiredService<FGISDatabase>();
         CancellationToken? cancellationToken = CancellationToken.None;
 
-        var n = VerificationMethodAliasNormalizer.Instance;
+        var n = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
         string Normalize(string s)
         {
-            return $"'{n.Normalize(s)}'";
+            return $"'{n(s)}'";
         }
 
         var result = db.VerificationsWithEtalon

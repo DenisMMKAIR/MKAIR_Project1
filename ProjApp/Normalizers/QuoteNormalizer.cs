@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace ProjApp.Database.Normalizers;
+namespace ProjApp.Normalizers;
 
 public partial class QuoteNormalizer : IStringNormalizer
 {

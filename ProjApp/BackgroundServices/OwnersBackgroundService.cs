@@ -5,7 +5,7 @@ using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Entities;
-using ProjApp.Database.Normalizers;
+using ProjApp.Normalizers;
 
 namespace ProjApp.BackgroundServices;
 
@@ -41,29 +41,29 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
     {
         using var scope = _serviceScopeFactory.CreateScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        var norm = new SpaceNormalizer();
+        var n = new OwnerNameNormalizer();
 
-        var ownersName = db.SuccessInitialVerifications
+        var normOwnerNames = db.SuccessInitialVerifications
             .Select(iv => iv.Owner)
             .Union(db.FailedInitialVerifications
                      .Select(iv => iv.Owner))
             .Distinct()
             .AsEnumerable()
-            .Select(o => Normalize(o, norm))
-            .ToArray();
+            .Select(n.Normalize)
+            .ToImmutableSortedSet();
 
         var dbOwners = await db.Owners
-            .Where(o => o.INN != 0 && ownersName.Contains(o.Name))
+            .Where(o => o.INN != 0 && normOwnerNames.Contains(o.Name))
             .ToArrayAsync();
 
         var ivc = db.SuccessInitialVerifications
             .AsEnumerable()
-            .Where(iv => dbOwners.Any(dbo => dbo.Name.Contains(Normalize(iv.Owner, norm))))
+            .Where(iv => dbOwners.Any(dbo => dbo.Name.Contains(n.Normalize(iv.Owner))))
             .ToArray();
 
         var ivf = db.FailedInitialVerifications
             .AsEnumerable()
-            .Where(iv => dbOwners.Any(dbo => dbo.Name.Contains(Normalize(iv.Owner, norm))))
+            .Where(iv => dbOwners.Any(dbo => dbo.Name.Contains(n.Normalize(iv.Owner))))
             .ToArray();
 
         using var transaction = await db.Database.BeginTransactionAsync();
@@ -75,7 +75,7 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
             foreach (var iv in ((IReadOnlyList<IInitialVerification>)ivc)
                                .Union(ivf))
             {
-                var owner = dbOwners.FirstOrDefault(o => o.Name == Normalize(iv.Owner, norm));
+                var owner = dbOwners.FirstOrDefault(o => o.Name == n.Normalize(iv.Owner));
                 if (owner == null)
                 {
                     miss++;
@@ -97,10 +97,5 @@ public class OwnersBackgroundService : EventSubscriberBase, IHostedService
             _logger.LogError(e, "Ошибка добавления инн владельцев поверкам. {Msg}", e.Message);
             await transaction.RollbackAsync();
         }
-    }
-
-    private static string Normalize(string s, SpaceNormalizer norm)
-    {
-        return norm.Normalize(s).Trim().ToUpper();
     }
 }

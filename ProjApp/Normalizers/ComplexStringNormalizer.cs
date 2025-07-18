@@ -1,4 +1,4 @@
-namespace ProjApp.Database.Normalizers;
+namespace ProjApp.Normalizers;
 
 public class ComplexStringNormalizer : IStringNormalizer
 {

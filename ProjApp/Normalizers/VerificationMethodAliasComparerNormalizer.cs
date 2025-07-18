@@ -2,7 +2,7 @@ using System.Text.RegularExpressions;
 
 namespace ProjApp.Normalizers;
 
-public partial class VerificationMethodAliasNormalizer : IStringNormalizer
+public partial class VerificationMethodAliasComparerNormalizer : IStringNormalizer
 {
     [GeneratedRegex("[^А-Яа-яA-Za-z0-9]", RegexOptions.IgnoreCase)]
     private static partial Regex VrfNameBannedSymbolsRegex();
@@ -14,5 +14,5 @@ public partial class VerificationMethodAliasNormalizer : IStringNormalizer
         return VrfNameTrimRegex().Replace(VrfNameBannedSymbolsRegex().Replace(value, ""), "").ToUpper();
     }
 
-    public static IStringNormalizer Instance { get; } = new VerificationMethodAliasNormalizer();
+    public static IStringNormalizer Instance { get; } = new VerificationMethodAliasComparerNormalizer();
 }

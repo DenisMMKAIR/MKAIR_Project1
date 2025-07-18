@@ -1,9 +1,11 @@
 using System.Text.RegularExpressions;
 
-namespace ProjApp.Database.Normalizers;
+namespace ProjApp.Normalizers;
 
 public partial class SpaceNormalizer : IStringNormalizer
 {
     [GeneratedRegex(@"\s+")] private static partial Regex _aliasNameSpaces();
     public string Normalize(string value) => _aliasNameSpaces().Replace(value, " ").Trim();
+
+    public static IStringNormalizer Instance { get; } = new SpaceNormalizer();
 }

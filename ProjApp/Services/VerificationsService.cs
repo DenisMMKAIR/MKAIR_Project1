@@ -211,12 +211,12 @@ public class VerificationsService
 
     public async Task<ServiceResult> AddVerificationMethodsAsync(IReadOnlyList<IInitialVerification> verifications)
     {
-        var norm = VerificationMethodAliasNormalizer.Instance;
-        bool methodHasAlias(VerificationMethod m, string a) => m.Aliases.Select(norm.Normalize).Contains(norm.Normalize(a));
-        bool methodHasAliases(VerificationMethod m, ImmutableSortedSet<string> a) => m.Aliases.Select(norm.Normalize).Any(a.Contains);
+        var norm = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
+        bool methodHasAlias(VerificationMethod m, string a) => m.Aliases.Select(norm).Contains(norm(a));
+        bool methodHasAliases(VerificationMethod m, ImmutableSortedSet<string> a) => m.Aliases.Select(norm).Any(a.Contains);
 
         var normAliases = verifications
-            .Select(v => norm.Normalize(v.VerificationTypeName))
+            .Select(v => norm(v.VerificationTypeName))
             .ToImmutableSortedSet();
 
         var vms = _database.VerificationMethods

@@ -1,7 +1,6 @@
 using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
-using ProjApp.Database.Normalizers;
 
 namespace ProjApp.Database.Commands;
 
@@ -52,11 +51,10 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
                          .Union(_database.Manometr1Verifications);
 
         items = items.Except(vrfDB, VerificationUniqComparer.Instance).Cast<T>().ToArray();
-        var nameNormalizer = new ComplexStringNormalizer();
 
         foreach (var item in items)
         {
-            item.VerificationTypeName = nameNormalizer.Normalize(item.VerificationTypeName);
+            item.VerificationTypeName = item.VerificationTypeName;
             item.Device = savedDevices.Items!.Single(d => deviceUniqComparer.Equals(item.Device!, d));
             item.Etalons = [.. item.Etalons!.Select(e => savedEtalons.Items!.Single(e2 => etalonsUniqComparer.Equals(e, e2)))];
         }

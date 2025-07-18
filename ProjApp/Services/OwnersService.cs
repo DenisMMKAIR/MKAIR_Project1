@@ -3,7 +3,7 @@ using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
-using ProjApp.Database.Normalizers;
+using ProjApp.Normalizers;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -33,9 +33,8 @@ public class OwnersService
         {
             return ServiceResult.Fail("Имя не может быть пустым");
         }
-
-        var norm = new SpaceNormalizer();
-        owner.Name = norm.Normalize(owner.Name).Trim().ToUpper();
+        
+        owner.Name = OwnerNameNormalizer.Instance.Normalize(owner.Name);
 
         if (owner.Name.Length < 7)
         {
