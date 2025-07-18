@@ -17,17 +17,17 @@ internal class DeviceTypeResponse
 
   public class MethodClass
   {
-    public required string Title { get; init; }
-    public required string Doc_URL { get; init; }
+    public string? Title { get; init; }
+    public string? Doc_URL { get; init; }
   }
 
   public class SpecClass
   {
-    public required string Doc_URL { get; init; }
+    public string? Doc_URL { get; init; }
   }
 
   public class ManufacturerClass
   {
-    public required string Title { get; init; }
+    public string? Title { get; init; }
   }
 }

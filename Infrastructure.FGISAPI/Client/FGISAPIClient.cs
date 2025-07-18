@@ -181,9 +181,9 @@ public class FGISAPIClient : IFGISAPI
             Number = dt.Number,
             Title = dt.Title,
             Notation = string.Join("; ", dt.Notation),
-            MethodUrls = dt.Meth?.Select(m => m.DocUrl).ToArray() ?? [],
-            SpecUrls = dt.Spec?.Select(s => s.DocUrl).ToArray() ?? [],
-            Manufacturers = dt.Manufacturer?.Select(m => m.Title).ToArray() ?? [],
+            MethodUrls = dt.MethUrls?.ToArray(),
+            SpecUrls = dt.SpecUrls?.ToArray(),
+            Manufacturers = dt.Manufacturers?.ToArray(),
         };
     }
 }

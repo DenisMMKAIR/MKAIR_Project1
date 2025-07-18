@@ -12,14 +12,17 @@ internal static class DeviceTypeMapper
       Number = response.General.Number,
       Title = response.General.Title,
       Notation = response.General.Notation,
-      Meth = response.Meth?
-        .Select(meth => new DeviceType.MethodClass { Title = meth.Title, DocUrl = meth.Doc_URL })
+      MethUrls = response.Meth?
+        .Select(meth => meth.Doc_URL!)
+        .Where(url => url != null)
         .ToArray(),
-      Spec = response.Spec?
-        .Select(spec => new DeviceType.SpecClass { DocUrl = spec.Doc_URL })
+      SpecUrls = response.Spec?
+        .Select(spec => spec.Doc_URL!)
+        .Where(url => url != null)
         .ToArray(),
-      Manufacturer = response.Manufacturer?
-        .Select(man => new DeviceType.ManufacturerClass { Title = man.Title })
+      Manufacturers = response.Manufacturer?
+        .Select(man => man.Title!)
+        .Where(man => man != null)
         .ToArray()
     };
   }

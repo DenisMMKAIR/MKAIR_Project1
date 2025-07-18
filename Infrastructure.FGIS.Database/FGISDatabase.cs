@@ -52,8 +52,5 @@ public class FGISDatabase : DbContext
 
         modelBuilder.Entity<DeviceType>().HasKey(x => x.Id);
         modelBuilder.Entity<DeviceType>().HasIndex(x => x.Number).IsUnique();
-        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Meth);
-        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Spec);
-        modelBuilder.Entity<DeviceType>().OwnsMany(x => x.Manufacturer);
     }
 }
