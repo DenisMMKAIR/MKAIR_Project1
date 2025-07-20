@@ -209,6 +209,7 @@ public class VerificationsService
         return ServiceResult.Success("Данные добавлены");
     }
 
+    [Obsolete("Method used in Background service only")]
     public async Task<ServiceResult> AddVerificationMethodsAsync(IReadOnlyList<IInitialVerification> verifications)
     {
         var norm = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
@@ -220,8 +221,8 @@ public class VerificationsService
             .ToImmutableSortedSet();
 
         var vms = _database.VerificationMethods
-            .Include(m => m.SuccessInitialVerifications)
-            .Include(m => m.FailedInitialVerifications)
+            // .Include(m => m.SuccessInitialVerifications)
+            // .Include(m => m.FailedInitialVerifications)
             .AsEnumerable()
             .Where(m => methodHasAliases(m, normAliases))
             .ToArray();
