@@ -233,6 +233,7 @@ public partial class VerificationMethodsService
 
         m.Aliases = m.Aliases.Concat(newAliases)
             .OrderBy(a => a.Length)
+            .ThenBy(a => a)
             .ToArray();
 
         using var transaction = await _database.Database.BeginTransactionAsync();
@@ -344,7 +345,7 @@ public partial class VerificationMethodsService
         }
 
         await _database.SaveChangesAsync();
-        
+
         return vrfAdded;
     }
 
