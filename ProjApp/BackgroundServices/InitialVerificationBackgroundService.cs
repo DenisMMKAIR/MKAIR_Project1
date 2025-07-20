@@ -10,6 +10,7 @@ using ProjApp.Services;
 
 namespace ProjApp.BackgroundServices;
 
+[Obsolete("Rewrite to transaction use")]
 public class InitialVerificationBackgroundService : EventSubscriberBase, IHostedService
 {
     private readonly ILogger<InitialVerificationBackgroundService> _logger;
