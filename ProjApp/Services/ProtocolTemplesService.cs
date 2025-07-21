@@ -88,26 +88,17 @@ public class ProtocolTemplesService
     {
         var dtoList = await _database.ProtocolTemplates
             .SelectMany(template =>
-                _database.SuccessInitialVerifications
-                    .Where(v => v.VerificationGroup == template.VerificationGroup)
-                    .Where(v => v.VerificationMethod != null)
-                    .Select(v => v.VerificationMethod!.Id)
-                    .Distinct()
-                    .Join(
-                        _database.VerificationMethods,
-                        vmId => vmId,
-                        vm => vm.Id,
-                        (vmId, vm) => new PossibleTemplateVerificationMethodsDTO
-                        {
-                            ProtocolId = template.Id,
-                            ProtocolGroup = template.ProtocolGroup,
-                            VerificationMethod = vm
-                        })
+                _database.VerificationMethods
+                    .Where(m => m.ProtocolTemplate == null)
+                    .Select(m => new PossibleTemplateVerificationMethodsDTO
+                    {
+                        ProtocolId = template.Id,
+                        ProtocolGroup = template.ProtocolGroup,
+                        VerificationMethod = m
+                    })
             )
             .Where(dto => dto.VerificationMethod.ProtocolTemplateId != dto.ProtocolId)
             .ToListAsync();
-
-
 
         var result = dtoList.ToPaginated(pageIndex, pageSize);
 
