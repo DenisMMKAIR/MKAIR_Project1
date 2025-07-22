@@ -4,6 +4,7 @@ namespace ProjApp.Database.Entities;
 
 public class ProtocolTemplate : DatabaseEntity
 {
+    [Obsolete("Is this property needed?")]
     public required VerificationGroup VerificationGroup { get; set; }
     public required ProtocolGroup ProtocolGroup { get; set; }
 
