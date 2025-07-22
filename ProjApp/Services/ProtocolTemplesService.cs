@@ -97,7 +97,6 @@ public class ProtocolTemplesService
                         VerificationMethod = m
                     })
             )
-            .Where(dto => dto.VerificationMethod.ProtocolTemplateId != dto.ProtocolId)
             .ToListAsync();
 
         var result = dtoList.ToPaginated(pageIndex, pageSize);
