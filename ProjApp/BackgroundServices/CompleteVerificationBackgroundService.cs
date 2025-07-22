@@ -42,7 +42,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
     {
         await using var scope = _serviceScopeFactory.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
-        
+
         await ProcessManometr1Async(db);
     }
 
@@ -55,6 +55,7 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
                 .ThenInclude(vm => vm!.ProtocolTemplate)
             .Include(v => v.Etalons)
             .VerificationIsFilled()
+            .Where(v => v.VerificationGroup == VerificationGroup.Манометры)
             .Where(v => v.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1)
             .ToArrayAsync();
 
