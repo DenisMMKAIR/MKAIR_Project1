@@ -7,6 +7,7 @@ using ProjApp.Database.Entities;
 
 namespace ProjApp.Database.Commands;
 
+[Obsolete("Refactor to use database side queries")]
 public abstract class AddWithUniqConstraintCommand<T> where T : DatabaseEntity
 {
     private readonly ProjDatabase _db;
