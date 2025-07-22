@@ -225,6 +225,7 @@ public partial class VerificationMethodsService
         if (m == null) return ServiceResult.Fail("Метод поверки не найден");
 
         var newAliases = aliases
+            .DistinctBy(VerificationMethodAliasComparerNormalizer.Instance.Normalize)
             .Select(VerificationMethodAliasVisualNormalizer.Instance.Normalize)
             .Except(m.Aliases)
             .ToArray();
@@ -264,6 +265,7 @@ public partial class VerificationMethodsService
         }
 
         verificationMethod.Aliases = verificationMethod.Aliases
+            .DistinctBy(VerificationMethodAliasComparerNormalizer.Instance.Normalize)
             .Select(VerificationMethodAliasVisualNormalizer.Instance.Normalize)
             .OrderBy(a => a.Length)
             .ThenBy(a => a)
