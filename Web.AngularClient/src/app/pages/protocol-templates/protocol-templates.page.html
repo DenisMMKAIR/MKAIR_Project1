@@ -157,7 +157,6 @@
     <table>
       <thead>
         <tr>
-          <th>Группа протокола</th>
           <th>Метод поверки</th>
           <th>Описание</th>
           <th>Псевдонимы</th>
@@ -166,7 +165,6 @@
       </thead>
       <tbody>
         <tr *ngFor="let method of possibleMethods">
-          <td>{{ getProtocolGroupDisplayName(method.protocolGroup!) }}</td>
           <td>{{ method.verificationMethod?.id }}</td>
           <td>{{ method.verificationMethod?.description }}</td>
           <td>

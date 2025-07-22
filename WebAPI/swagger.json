@@ -1795,9 +1795,6 @@
             "type": "string",
             "format": "guid"
           },
-          "protocolGroup": {
-            "$ref": "#/components/schemas/ProtocolGroup"
-          },
           "verificationMethod": {
             "$ref": "#/components/schemas/VerificationMethod"
           }

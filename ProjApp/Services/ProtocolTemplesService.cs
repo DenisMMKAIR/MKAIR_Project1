@@ -93,7 +93,6 @@ public class ProtocolTemplesService
                     .Select(m => new PossibleTemplateVerificationMethodsDTO
                     {
                         ProtocolId = template.Id,
-                        ProtocolGroup = template.ProtocolGroup,
                         VerificationMethod = m
                     })
             )
@@ -108,6 +107,5 @@ public class ProtocolTemplesService
 public class PossibleTemplateVerificationMethodsDTO
 {
     public required Guid ProtocolId { get; init; }
-    public required ProtocolGroup ProtocolGroup { get; init; }
     public required VerificationMethod VerificationMethod { get; init; }
 }

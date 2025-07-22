@@ -2760,7 +2760,6 @@ export interface IPaginatedListOfPossibleTemplateVerificationMethodsDTO {
 
 export class PossibleTemplateVerificationMethodsDTO implements IPossibleTemplateVerificationMethodsDTO {
     protocolId?: string;
-    protocolGroup?: ProtocolGroup;
     verificationMethod?: VerificationMethod;
 
     constructor(data?: IPossibleTemplateVerificationMethodsDTO) {
@@ -2775,7 +2774,6 @@ export class PossibleTemplateVerificationMethodsDTO implements IPossibleTemplate
     init(_data?: any) {
         if (_data) {
             this.protocolId = _data["protocolId"];
-            this.protocolGroup = _data["protocolGroup"];
             this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
         }
     }
@@ -2790,7 +2788,6 @@ export class PossibleTemplateVerificationMethodsDTO implements IPossibleTemplate
     toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["protocolId"] = this.protocolId;
-        data["protocolGroup"] = this.protocolGroup;
         data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
         return data;
     }
@@ -2798,7 +2795,6 @@ export class PossibleTemplateVerificationMethodsDTO implements IPossibleTemplate
 
 export interface IPossibleTemplateVerificationMethodsDTO {
     protocolId?: string;
-    protocolGroup?: ProtocolGroup;
     verificationMethod?: VerificationMethod;
 }
 
