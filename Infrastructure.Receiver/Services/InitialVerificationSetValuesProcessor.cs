@@ -125,7 +125,9 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
                 new SingleFloatDigitColumnNormalizer(),
             ];
-            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [];
+            public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
+                new FloatPercentageVerifier(),
+            ];
             public uint ColumnIndex { get; set; }
         }
 
