@@ -31,6 +31,20 @@
       ></app-dates-filter>
     </div>
 
+    <!-- Location filter -->
+    <div class="selector-form">
+      <label for="locationFilter">Местоположение:</label>
+      <select
+        id="locationFilter"
+        [(ngModel)]="locationFilter"
+        (change)="onLocationFilterChange()"
+      >
+        <option value="all">Все</option>
+        <option value="АнтипинскийНПЗ">Антипинский НПЗ</option>
+        <option value="ГПНЯмал">ГПН Ямал</option>
+      </select>
+    </div>
+
     <!-- Device type number filter -->
     <div class="selector-form">
       <label for="deviceTypeNumberFilter">Номер типа:</label>

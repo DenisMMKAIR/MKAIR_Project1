@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using Microsoft.AspNetCore.Mvc;
+using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 using ProjApp.Services;
 using ProjApp.Services.ServiceResults;
@@ -28,7 +29,7 @@ public class ManometrController : ApiControllerBase
         {
             return ServicePaginatedResult<Manometr1VerificationDto>.Fail(e.Message);
         }
-        return await _service.GetVerificationsAsync(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, filters.DeviceSerial, yearMonth);
+        return await _service.GetVerificationsAsync(request.PageIndex, request.PageSize, filters.DeviceTypeNumber, filters.DeviceSerial, yearMonth, filters.Location);
     }
 
     [HttpPost]
@@ -55,4 +56,5 @@ public class ManometrFilterQuery
     public string? DeviceTypeNumber { get; init; }
     public string? DeviceSerial { get; init; }
     public string? YearMonth { get; init; }
+    public DeviceLocation? Location { get; init; }
 }

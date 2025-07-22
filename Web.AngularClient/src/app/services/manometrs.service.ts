@@ -6,6 +6,7 @@ export interface IManometrsFilter {
   yearMonthFilter: string | null;
   deviceTypeNumberFilter: string | null;
   deviceSerialFilter: string | null;
+  locationFilter: string | null;
 }
 
 @Injectable({
@@ -15,7 +16,8 @@ export class ManometrsService {
   private currentFilters: IManometrsFilter = {
     yearMonthFilter: '',
     deviceTypeNumberFilter: null,
-    deviceSerialFilter: null
+    deviceSerialFilter: null,
+    locationFilter: 'all'
   };
 
   private pagination: Pagination;
@@ -81,6 +83,14 @@ export class ManometrsService {
     this.deviceSerialFilterSubject.next(filter);
   }
 
+  public getLocationFilter(): string | null {
+    return this.currentFilters.locationFilter;
+  }
+
+  public setLocationFilter(filter: string | null): void {
+    this.currentFilters.locationFilter = filter;
+  }
+
   public getPagination(): Pagination {
     return this.pagination;
   }
@@ -94,6 +104,7 @@ export class ManometrsService {
     this.currentFilters.yearMonthFilter = '';
     this.currentFilters.deviceTypeNumberFilter = null;
     this.currentFilters.deviceSerialFilter = null;
+    this.currentFilters.locationFilter = 'all';
   }
 
   public resetToFirstPage(): void {

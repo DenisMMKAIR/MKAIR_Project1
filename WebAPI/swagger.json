@@ -272,6 +272,19 @@
               "nullable": true
             },
             "x-position": 5
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/DeviceLocation"
+                }
+              ]
+            },
+            "x-position": 6
           }
         ],
         "responses": {
@@ -2249,7 +2262,7 @@
           {
             "type": "object",
             "deprecated": true,
-            "x-deprecatedMessage": "Add initialVerificationName",
+            "x-deprecatedMessage": "Split db and DTO for export",
             "additionalProperties": false,
             "properties": {
               "protocolNumber": {

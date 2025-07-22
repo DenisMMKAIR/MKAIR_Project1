@@ -1,7 +1,7 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ManometrClient, Manometr1VerificationDto } from '../../api-client';
+import { ManometrClient, Manometr1VerificationDto, DeviceLocation } from '../../api-client';
 import { ManometrsService } from '../../services/manometrs.service';
 import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.component';
 import { Subscription } from 'rxjs';
@@ -65,6 +65,14 @@ export class ManometrsPage implements OnInit {
     this.manometrsService.setDeviceSerialFilter(value);
   }
 
+  public get locationFilter() {
+    return this.manometrsService.getLocationFilter();
+  }
+
+  public set locationFilter(value: string | null) {
+    this.manometrsService.setLocationFilter(value);
+  }
+
   // Data loading methods
   public loadManometrs(): void {
     this.loading = true;
@@ -74,13 +82,15 @@ export class ManometrsPage implements OnInit {
     const deviceTypeNumber = this.deviceTypeNumberFilter || null;
     const deviceSerial = this.deviceSerialFilter || null;
     const yearMonth = !this.yearMonthFilter || this.yearMonthFilter === 'all' ? null : this.yearMonthFilter;
+    const location = this.locationFilter === null || this.locationFilter === 'all' ? null : this.locationFilter as DeviceLocation;
     
     this.manometrClient.getVerifications(
       this.pagination.currentPage, 
       this.pagination.pageSize,
       deviceTypeNumber,
       deviceSerial,
-      yearMonth
+      yearMonth,
+      location
     ).subscribe({
       next: (result) => {
         if (result.data) {
@@ -101,6 +111,10 @@ export class ManometrsPage implements OnInit {
   }
 
   public onYearMonthFilterChange(): void {
+    this.manometrsService.resetToFirstPage();
+  }
+
+  public onLocationFilterChange(): void {
     this.manometrsService.resetToFirstPage();
   }
 

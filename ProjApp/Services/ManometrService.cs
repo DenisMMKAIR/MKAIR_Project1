@@ -26,21 +26,31 @@ public class ManometrService
         _templateProcessor = templateProcessor;
     }
 
-    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize, string? deviceTypeFilter, string? deviceSerialFilter, YearMonth? dateFilter)
+    public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize, string? deviceTypeFilter, string? deviceSerialFilter, YearMonth? dateFilter, DeviceLocation? locationFilter)
     {
-        deviceTypeFilter ??= string.Empty;
-        deviceSerialFilter ??= string.Empty;
-
         var query = _database.Manometr1Verifications
-            .ProjectToType<Manometr1VerificationDto>(_mapper.Config)
-            .Where(dto => dto.DeviceTypeNumber.Contains(deviceTypeFilter))
-            .Where(dto => dto.DeviceSerial.Contains(deviceSerialFilter));
+            .ProjectToType<Manometr1VerificationDto>(_mapper.Config);
+
+        if (deviceTypeFilter != null)
+        {
+            query = query.Where(dto => dto.DeviceTypeName.Contains(deviceTypeFilter));
+        }
+
+        if (deviceSerialFilter != null)
+        {
+            query = query.Where(dto => dto.DeviceSerial.Contains(deviceSerialFilter));
+        }
 
         if (dateFilter != null)
         {
             query = query.Where(dto =>
                 dto.VerificationDate.Year == dateFilter.Value.Year &&
                 dto.VerificationDate.Month == dateFilter.Value.Month);
+        }
+
+        if (locationFilter != null)
+        {
+            query = query.Where(dto => dto.Location == locationFilter);
         }
 
         var result = await query
