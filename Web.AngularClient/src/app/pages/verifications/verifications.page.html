@@ -168,7 +168,7 @@
             <hr class="data-row-divider">
             <div [ngClass]="{ 'cell-null': v.pressure == null }">{{ v.pressure || '-' }}</div>
             <hr class="data-row-divider">
-            <div [ngClass]="{ 'cell-null': v.humidity == null }">{{ v.humidity != null ? v.humidity + '%' : '-' }}</div>
+            <div [ngClass]="{ 'cell-null': v.humidity == null }">{{ v.humidity != null ? (v.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
           </td>
           
           <!-- Range / Accuracy -->
