@@ -97,7 +97,9 @@ internal class ExcelFileProcessor<TProcessData, TResultData> where TProcessData 
     {
         var processedColumns = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
 
-        for (var currentColumnIndex = startColumnIndex; currentColumnIndex <= lastColumnIndex; currentColumnIndex++)
+        for (var currentColumnIndex = startColumnIndex;
+            currentColumnIndex <= lastColumnIndex && processedColumns.Count != columnsSetup.Columns.Count;
+            currentColumnIndex++)
         {
             var currentCell = headerRow.GetCell(currentColumnIndex);
             if (currentCell == null) continue;
