@@ -67,10 +67,16 @@ public class ManometrService
     public async Task<ServiceResult> DeleteVerificationAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
     {
         cancellationToken ??= CancellationToken.None;
-        var vrfs = await _database.Manometr1Verifications.Where(x => ids.Contains(x.Id)).ToArrayAsync(cancellationToken.Value);
+
+        var vrfs = await _database.Manometr1Verifications
+            .Where(x => ids.Contains(x.Id))
+            .ToArrayAsync(cancellationToken.Value);
+
         if (vrfs.Length == 0) return ServiceResult.Fail("Поверки не найдены");
+
         _database.Manometr1Verifications.RemoveRange(vrfs);
         await _database.SaveChangesAsync();
+
         return ServiceResult.Success("Поверки удалены");
     }
 
