@@ -40,7 +40,7 @@ public static class DavlenieFormExtensions
         {
             Address = MKAIRInfo.GetAddress(vrf.VerificationDate),
             ProtocolNumber = vrf.ProtocolNumber,
-            DeviceInfo = $"{vrf.Device!.DeviceType!.Title} {vrf.Device!.DeviceType!.Notation} {vrf.Device!.Modification}",
+            DeviceInfo = $"{vrf.Device!.DeviceType!.Title} {vrf.Device!.DeviceType!.Notation}; {vrf.Device!.Modification}",
             DeviceTypeNumber = vrf.Device!.DeviceType!.Number,
             DeviceSerial = vrf.Device!.Serial,
             ManufactureYear = vrf.Device!.ManufacturedYear,
