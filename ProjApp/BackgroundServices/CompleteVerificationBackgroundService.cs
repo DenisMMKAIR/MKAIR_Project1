@@ -1,3 +1,5 @@
+using System.Collections.Immutable;
+using System.Linq.Expressions;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
@@ -44,33 +46,77 @@ public class CompleteVerificationBackgroundService : EventSubscriberBase, IHoste
         var db = scope.ServiceProvider.GetRequiredService<ProjDatabase>();
 
         await ProcessManometr1Async(db);
+        await ProcessDavlenie1Async(db);
+    }
+
+    private async Task<(IReadOnlyList<SuccessInitialVerification>, IReadOnlyList<Owner>)> GetVerificationsAsync(ProjDatabase db, Expression<Func<SuccessInitialVerification, bool>> predicate)
+    {
+        var vrfs = await db.SuccessInitialVerifications
+               .Include(v => v.Device)
+                   .ThenInclude(d => d!.DeviceType)
+               .Include(v => v.VerificationMethod)
+                   .ThenInclude(vm => vm!.ProtocolTemplate)
+               .Include(v => v.Etalons)
+               .VerificationIsFilled()
+               .Where(predicate)
+               .ToArrayAsync();
+
+        var ownerNames = vrfs.Select(v => v.Owner).Distinct().ToArray();
+
+        var owners = await db.Owners
+            .Where(o => ownerNames.Contains(o.Name))
+            .ToArrayAsync();
+
+        return (vrfs, owners);
     }
 
     private async Task ProcessManometr1Async(ProjDatabase db)
     {
-        var verifications = await db.SuccessInitialVerifications
-            .Include(v => v.Device)
-                .ThenInclude(d => d!.DeviceType)
-            .Include(v => v.VerificationMethod)
-                .ThenInclude(vm => vm!.ProtocolTemplate)
-            .Include(v => v.Etalons)
-            .VerificationIsFilled()
-            .Where(v => v.VerificationGroup == VerificationGroup.Манометры)
-            .Where(v => v.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1)
-            .ToArrayAsync();
+        Expression<Func<SuccessInitialVerification, bool>> predicate = vrf
+            => vrf.VerificationGroup == VerificationGroup.Манометры &&
+               vrf.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Манометр1;
 
-        if (verifications.Length == 0) return;
+        var (verifications, owners) = await GetVerificationsAsync(db, predicate);
+
+        if (verifications.Count == 0) return;
 
         foreach (var vrf in verifications)
         {
-            var manometrVrf = Manometr1Calculations.ToManometr1(_logger, vrf);
+            var owner = owners.FirstOrDefault(o => o.Name == vrf.Owner)
+                ?? throw new Exception($"Не найден владелец {vrf.Owner}");
+            var manometrVrf = Manometr1Calculations.ToManometr1(_logger, vrf, owner);
             db.SuccessInitialVerifications.Remove(vrf);
             db.Manometr1Verifications.Add(manometrVrf);
         }
 
         await db.SaveChangesAsync();
 
-        var group = verifications.First().VerificationGroup!;
-        _logger.LogInformation("Группа {Group}. Добавлено {AddCount} поверок", group, verifications.Length);
+        var group = verifications[0].VerificationGroup!;
+        _logger.LogInformation("Группа {Group}. Добавлено {AddCount} поверок", group, verifications.Count);
+    }
+
+    private async Task ProcessDavlenie1Async(ProjDatabase db)
+    {
+        Expression<Func<SuccessInitialVerification, bool>> predicate = vrf
+            => vrf.VerificationGroup == VerificationGroup.Датчики_давления &&
+               vrf.VerificationMethod!.ProtocolTemplate!.ProtocolGroup == ProtocolGroup.Давление1;
+
+        var (verifications, owners) = await GetVerificationsAsync(db, predicate);
+
+        if (verifications.Count == 0) return;
+
+        foreach (var vrf in verifications)
+        {
+            var owner = owners.FirstOrDefault(o => o.Name == vrf.Owner)
+                ?? throw new Exception($"Не найден владелец {vrf.Owner}");
+            var davlenieVrf = Davlenie1Calculations.ToDavlenie1(_logger, vrf, owner);
+            db.SuccessInitialVerifications.Remove(vrf);
+            db.Davlenie1Verifications.Add(davlenieVrf);
+        }
+
+        await db.SaveChangesAsync();
+
+        var group = verifications[0].VerificationGroup!;
+        _logger.LogInformation("Группа {Group}. Добавлено {AddCount} поверок", group, verifications.Count);
     }
 }

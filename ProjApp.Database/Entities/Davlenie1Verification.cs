@@ -2,7 +2,7 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-public class Manometr1Verification : DatabaseEntity, IVerificationBase, IProtocolFileInfo
+public class Davlenie1Verification : DatabaseEntity, IVerificationBase, IProtocolFileInfo
 {
     public required string ProtocolNumber { get; set; }
     public required double Temperature { get; set; }
@@ -14,7 +14,7 @@ public class Manometr1Verification : DatabaseEntity, IVerificationBase, IProtoco
     public required DateOnly VerificationDate { get; set; }
     public required string Worker { get; set; }
 
-    // Support values
+    // Support properties
     public required string DeviceTypeNumber { get; set; }
     public required string DeviceSerial { get; set; }
     public required VerificationGroup VerificationGroup { get; set; }
@@ -27,11 +27,12 @@ public class Manometr1Verification : DatabaseEntity, IVerificationBase, IProtoco
     public required double MeasurementMin { get; set; }
     public required double MeasurementMax { get; set; }
     public required string MeasurementUnit { get; set; }
-    public required double ValidError { get; set; }
+    public required IReadOnlyList<double> PressureInputs { get; set; }
+    public required IReadOnlyList<double> EtalonValues { get; set; }
     public required IReadOnlyList<IReadOnlyList<double>> DeviceValues { get; set; }
-    public required IReadOnlyList<IReadOnlyList<double>> EtalonValues { get; set; }
     public required IReadOnlyList<IReadOnlyList<double>> ActualError { get; set; }
-    public required IReadOnlyList<double> ActualVariation { get; set; }
+    public required double ValidError { get; set; }
+    public required IReadOnlyList<double> Variations { get; set; }
 
     // Navigation properties
     public Guid? DeviceId { get; set; }

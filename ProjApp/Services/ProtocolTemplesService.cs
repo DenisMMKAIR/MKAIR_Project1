@@ -4,7 +4,6 @@ using Microsoft.EntityFrameworkCore;
 using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Entities;
-using ProjApp.Database.EntitiesStatic;
 using ProjApp.Mapping;
 using ProjApp.Services.ServiceResults;
 
@@ -86,7 +85,7 @@ public class ProtocolTemplesService
 
     public async Task<ServicePaginatedResult<PossibleTemplateVerificationMethodsDTO>> GetPossibleVerificationMethodsAsync(int pageIndex, int pageSize)
     {
-        var dtoList = await _database.ProtocolTemplates
+        var query = _database.ProtocolTemplates
             .SelectMany(template =>
                 _database.VerificationMethods
                     .Where(m => m.ProtocolTemplate == null)
@@ -96,9 +95,10 @@ public class ProtocolTemplesService
                         VerificationMethod = m
                     })
             )
-            .ToListAsync();
+            .GroupBy(m => m.VerificationMethod.Id)
+            .Select(group => group.First());
 
-        var result = dtoList.ToPaginated(pageIndex, pageSize);
+        var result = await query.ToPaginatedAsync(pageIndex, pageSize);
 
         return ServicePaginatedResult<PossibleTemplateVerificationMethodsDTO>.Success(result);
     }

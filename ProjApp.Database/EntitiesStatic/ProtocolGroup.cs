@@ -6,4 +6,5 @@ namespace ProjApp.Database.EntitiesStatic;
 public enum ProtocolGroup
 {
     Манометр1,
+    Давление1
 }

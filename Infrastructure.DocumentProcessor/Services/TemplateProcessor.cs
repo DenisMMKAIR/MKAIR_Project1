@@ -1,6 +1,6 @@
 using Infrastructure.DocumentProcessor.Creator;
-using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
+using ProjApp.ProtocolForms;
 using IAppConfig = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Infrastructure.DocumentProcessor.Services;
@@ -10,7 +10,7 @@ public class TemplateProcessor : ITemplateProcessor
     private readonly Dictionary<string, string> _signsCache = [];
     private readonly PDFExporter _exporter = new();
     private readonly ManometrSuccessDocumentCreator _manDocCreator;
-    private readonly string _protocoolsDirPath;
+    private readonly DavlenieSuccessDocumentCreator _davDocCreator;
     private bool _disposed;
 
     public TemplateProcessor(IAppConfig configuration)
@@ -18,34 +18,29 @@ public class TemplateProcessor : ITemplateProcessor
         var signsDirPath = configuration["SignsDirPath"] ??
             throw new ArgumentNullException(nameof(configuration), "Директория подписей не задана в настройках");
 
-        _protocoolsDirPath = configuration["ProtocolsExportDirPath"] ??
-            throw new ArgumentNullException(nameof(configuration), "Директория протоколов не задана в настройках");
-
         _manDocCreator = new(_signsCache, signsDirPath);
+        _davDocCreator = new(_signsCache, signsDirPath);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification, CancellationToken? cancellationToken = null)
+    public async Task<PDFCreationResult> CreatePDFAsync(ManometrForm verification, string filePath, CancellationToken? cancellationToken = null)
     {
-        var htmlResult = await _manDocCreator.CreateAsync(verification, cancellationToken);
+        return await CreateAsync(_manDocCreator, verification, filePath, cancellationToken);
+    }
+
+    public async Task<PDFCreationResult> CreatePDFAsync(DavlenieForm verification, string filePath, CancellationToken? cancellationToken = null)
+    {
+        return await CreateAsync(_davDocCreator, verification, filePath, cancellationToken);
+    }
+
+    private async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath, CancellationToken? cancellationToken = null)
+    {
+        var htmlResult = await htmlCreator.CreateAsync(data, cancellationToken);
 
         if (htmlResult.Error != null) return PDFCreationResult.Failure(htmlResult.Error);
 
-        var dirPath = Path.Combine(
-            _protocoolsDirPath,
-            verification.Location.ToString(),
-            verification.VerificationGroup.ToString(),
-            verification.VerificationDate.ToString("yyyy-MM"));
-
-        if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
-
-        var mpi = verification.VerifiedUntilDate.Year - verification.VerificationDate.Year;
-        var fileName = $"{verification.VerificationDate:yyyy-MM-dd} № {verification.DeviceSerial} (МПИ-{mpi}).pdf";
-        fileName = Path.GetInvalidFileNameChars().Aggregate(fileName, (current, c) => current.Replace(c, '_'));
-        var filePath = Path.Combine(dirPath, fileName);
-
         await _exporter.ExportAsync(htmlResult.HTMLContent!, filePath, cancellationToken);
 
-        return PDFCreationResult.Success(filePath, $"Файл протокола {fileName} создан");
+        return PDFCreationResult.Success(filePath, $"Файл протокола {Path.GetFileName(filePath)} создан");
     }
 
     public async ValueTask DisposeAsync()

@@ -1,23 +1,25 @@
 using System.Reflection;
 using AngleSharp.Dom;
-using ProjApp.Database.Entities;
+using Infrastructure.DocumentProcessor.Forms;
+using ProjApp.ProtocolForms;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
-internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<Manometr1Verification>
+internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<ManometrForm>
 {
-    protected override IReadOnlyList<PropertyInfo> TypeProps { get; init; } = typeof(Manometr1Verification).GetProperties();
+    protected override IReadOnlyList<PropertyInfo> TypeProps { get; init; } = typeof(ManometrForm).GetProperties();
     protected override int VerificationLineLength { get; init; } = 75;
     protected override int EtalonLineLength { get; init; } = 100;
     protected override int AdditionalLineLength { get; init; } = 130;
 
-    public ManometrSuccessDocumentCreator(Dictionary<string, string> signsCache, string signsDirPath) : base(signsCache, signsDirPath, GetFormPath()) { }
+    public ManometrSuccessDocumentCreator(Dictionary<string, string> signsCache, string signsDirPath) : base(signsCache, signsDirPath, HTMLForms.Manometr) { }
 
-    protected override string? SetSpecific(IDocument document, Manometr1Verification data)
+    protected override string? SetSpecific(IDocument document, ManometrForm data)
     {
+        var prop = TypeProps.FirstOrDefault(p => p.Name == "MeasurementUnit");
+        if (prop == null) return "MeasurementUnit prop not found";
         var measurement1Element = document.QuerySelector("#measurementUnit1");
         if (measurement1Element == null) return "measurementUnit1 not found";
-        var prop = TypeProps.First(p => p.Name == nameof(Manometr1Verification.MeasurementUnit));
         SetElementValue(measurement1Element, prop.GetValue(data)!.ToString()!);
         var measurement2Element = document.QuerySelector("#measurementUnit2");
         if (measurement2Element == null) return "measurementUnit2 not found";
@@ -104,7 +106,4 @@ internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<Manometr1Ver
 
         return null;
     }
-
-
-    private static string GetFormPath() => Path.Combine(AppContext.BaseDirectory, "Forms", "Manometr.html");
 }

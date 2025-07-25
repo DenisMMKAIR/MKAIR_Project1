@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Manometr form</title>
+    <title>Давление форма</title>
   </head>
   <body>
     <p class="vh-center">
@@ -39,7 +39,9 @@
       <p class="undertext">номер по Государственному реестру СИ РФ</p>
     </div>
     <div class="split-20 spread-bottom">
-      <div></div>
+      <div>
+        <p>Заводской номер:</p>
+      </div>
       <div>
         <div class="line">
           <p class="vh-center" id="setValue_deviceSerial">05322</p>
@@ -77,8 +79,8 @@
         </p>
       </div>
     </div>
-    <div class="split-35 spread-bottom">
-      <p>Документ на методику поверки:</p>
+    <div class="split-37 spread-bottom">
+      <p>Нормативный документ на методику поверки:</p>
       <div>
         <div class="line">
           <p class="p-small" id="mainLine_verifications">
@@ -108,174 +110,125 @@
         </p>
       </div>
     </div>
-    <div class="spread-bottom">
+    <div class="spread-bottom-large">
       <p class="line p-small" id="additionalLine_etalons">
         2022 г. 7М-0,02-Т35; 3110; 2020; 2Р; Эталон 2-го разряда; Приказ
         Росстандарта № 2653 от 20 октября 2022 г.; их наименование,
       </p>
       <p class="undertext spread-bottom" id="addAfter_etalons">
-        номер (все цифры и буквы регистрационного номера)
+        их наименование, регистрационный номер (все цифры и буквы
+        регистрационного номера)
       </p>
     </div>
-    <div class="split-20 spread-bottom">
+    <div class="spread-bottom-large">
       <p>Условия поверки:</p>
-      <div>
-        <p class="line" style="display: flex; gap: 15px">
-          <span>температура окружающего воздуха</span>
-          <span
-            ><span id="setValue_temperature" data-format="N1">22,9</span
-            >°С</span
-          >
-          <span>относительная влажность</span>
-          <span id="setValue_humidity" data-format="0%">42</span>
-        </p>
-        <p class="undertext">
-          Указываются влияющие факторы, нормированные в НД на методику поверки,
-          с указанием конкретных показателей (значений)
-        </p>
-      </div>
     </div>
-    <div class="split-20 spread-bottom">
-      <div></div>
-      <div class="line">
-        <p style="display: flex; gap: 15px">
-          <span>атмосферное давление</span
-          ><span id="setValue_pressure">101,2 кПа</span>
-        </p>
-      </div>
+    <div class="split-45 spread-bottom">
+      <p>Температура окружающей среды</p>
+      <p><span id="setValue_temperature" data-format="N1">25</span> °С</p>
+    </div>
+    <div class="split-45 spread-bottom">
+      <p>Относительная влажность окружающей среды</p>
+      <p><span id="setValue_humidity" data-format="0%">25</span> %</p>
+    </div>
+    <div class="split-45 spread-bottom-large">
+      <p>Атмосферное давление</p>
+      <p id="setValue_pressure">25 кПа</p>
     </div>
     <div class="split-30 spread-bottom">
       <p>1.Результаты внешнего осмотра:</p>
       <p class="line">
-        соответствует п.
-        <span id="setValue_visualCheckup">5.1</span> методики
+        <span style="text-decoration-line: underline">соответствует</span> / не
+        соответствует п. <span id="setValue_visualCheckup">5.1</span> методики
         поверки
       </p>
     </div>
     <div class="split-30 spread-bottom">
       <p>2.Результаты опробования:</p>
       <p class="line">
-        соответствует п.
-        <span id="setValue_testCheckup">5.2.3</span> методики
+        <span style="text-decoration-line: underline">соответствует</span> / не
+        соответствует п. <span id="setValue_testCheckup">5.2.3</span> методики
         поверки
       </p>
     </div>
     <p class="spread-bottom-large">
       3.Определение основной погрешности и вариации в соответствии с п.
-      <span id="setValue_accuracyCalculation">5.3</span> методики
-      поверки
+      <span id="setValue_accuracyCalculation">5.3</span> методики поверки
     </p>
     <table class="spread-bottom-large" id="valuesTable">
       <thead>
         <tr>
-          <th colspan="2">Показания поверяемого СИ</th>
-          <th colspan="2">Показания эталона</th>
-          <th colspan="2" rowspan="2">Приведенная погрешность, %</th>
-          <th rowspan="3">Допустимая приведенная погрешность, %</th>
-          <th rowspan="3">Вариация показаний, %</th>
-          <th rowspan="3">Допустимая вариация, %</th>
-        </tr>
-        <tr class="units-row">
-          <th colspan="2" id="measurementUnit1">bar</th>
-          <th colspan="2" id="measurementUnit2">bar</th>
+          <th rowspan="2">№ измерения</th>
+          <th colspan="2">Задаваемое давление</th>
+          <th colspan="2">Измеренное значение сигнала, мА</th>
+          <th colspan="2">Приведенная погрешность, %</th>
+          <th rowspan="2">Допустимая приведенная погрешность, %</th>
+          <th rowspan="2">Вариация выходного сигнала γ, %</th>
         </tr>
         <tr class="header-row">
-          <th>прямой ход</th>
-          <th>обратный ход</th>
-          <th>прямой ход</th>
-          <th>обратный ход</th>
-          <th>прямой ход</th>
-          <th>обратный ход</th>
+          <th id="measurementUnit1">bar</th>
+          <th>мА</th>
+          <th>пр. ход</th>
+          <th>обр. ход</th>
+          <th>пр. ход</th>
+          <th>обр. ход</th>
         </tr>
       </thead>
       <tbody>
         <tr>
+          <td>1</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>0</td>
-          <td>-</td>
-          <td>-</td>
-        </tr>
-        <tr>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td rowspan="5">0</td>
           <td>0</td>
         </tr>
         <tr>
+          <td>2</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-        </tr>
-        <tr>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td style="display: none">0</td>
           <td>0</td>
         </tr>
         <tr>
+          <td>3</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-        </tr>
-        <tr>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td style="display: none">0</td>
           <td>0</td>
         </tr>
         <tr>
+          <td>4</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
-          <td>0</td>
-          <td>0</td>
+          <td style="display: none">0</td>
           <td>0</td>
         </tr>
         <tr>
+          <td>5</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
           <td>0</td>
+          <td style="display: none">0</td>
           <td>0</td>
-          <td>-</td>
-          <td>-</td>
         </tr>
       </tbody>
     </table>
@@ -284,13 +237,9 @@
       <span class="line">пригодным</span>/<span>непригодным</span>
       к применению
     </p>
-    <div class="split-15">
-      <p>Дата поверки:</p>
-      <div>
-        <p class="line h-center" id="setValue_verificationDate">28.03.2024</p>
-        <p class="undertext">Указывается дата поверки в формате ЧЧ.ММ.ГГГГ.</p>
-      </div>
-    </div>
+    <p>
+      Дата поверки: <span id="setValue_verificationDate">28.03.2024</span>г.
+    </p>
     <div class="split-15">
       <p class="h-left v-bottom" style="padding-bottom: 15px">Поверитель:</p>
       <div class="sign-wrapper">
@@ -393,6 +342,33 @@
     }
     .split-35 > *:last-child {
       flex: 0 0 65%;
+    }
+    .split-37 {
+      display: flex;
+    }
+    .split-37 > *:first-child {
+      flex: 0 0 37%;
+    }
+    .split-37 > *:last-child {
+      flex: 0 0 63%;
+    }
+    .split-40 {
+      display: flex;
+    }
+    .split-40 > *:first-child {
+      flex: 0 0 40%;
+    }
+    .split-40 > *:last-child {
+      flex: 0 0 60%;
+    }
+    .split-45 {
+      display: flex;
+    }
+    .split-45 > *:first-child {
+      flex: 0 0 45%;
+    }
+    .split-45 > *:last-child {
+      flex: 0 0 55%;
     }
     .split-50 {
       display: flex;

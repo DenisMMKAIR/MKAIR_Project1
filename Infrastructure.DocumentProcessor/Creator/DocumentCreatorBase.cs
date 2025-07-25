@@ -2,8 +2,6 @@ using System.Reflection;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using ProjApp.Database.Entities;
-using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -32,12 +30,7 @@ internal abstract class DocumentCreatorBase<T>
         using var context = BrowsingContext.New(config);
         using var document = await context.OpenAsync(r => r.Content(_fileContent), cancellationToken ?? CancellationToken.None);
 
-        var addressElement = document.QuerySelector("#manual_address");
-        if (addressElement == null) return HTMLCreationResult.Failure("Не найден элемент #manual_address");
-        if (data is not IVerificationBase verification) return HTMLCreationResult.Failure("Data is not IVerificationBase");
-        SetElementValue(addressElement, MKAIRInfo.GetAddress(verification.VerificationDate));
-
-        var deviceInfoResult = SetDeviceInfo(document, verification);
+        var deviceInfoResult = SetDeviceInfo(document, data);
         if (deviceInfoResult != null) return HTMLCreationResult.Failure(deviceInfoResult);
 
         foreach (var idValueElement in document.QuerySelectorAll("[id]").Where(e => e.Id!.StartsWith("setValue_")))
@@ -119,14 +112,15 @@ internal abstract class DocumentCreatorBase<T>
         return "Нет возможности разделить текст. Пробелы отсутствуют.";
     }
 
-    private string? SetDeviceInfo(IDocument document, IVerificationBase verification)
+    private string? SetDeviceInfo(IDocument document, T data)
     {
         var deviceTypeNameElement = document.QuerySelector<IHtmlParagraphElement>("#manual_deviceInfo");
         if (deviceTypeNameElement == null) return "manual_deviceInfo not found";
         var insertAfterDeviceNameElement = deviceTypeNameElement.NextSibling;
         if (insertAfterDeviceNameElement == null) return "manual_deviceInfo sibling not found";
-        var device = verification.Device!;
-        var deviceInfo = $"{device.DeviceType!.Title} {device.DeviceType!.Notation}; {device.Modification}";
+        var prop = TypeProps.FirstOrDefault(p => p.Name.Equals("deviceInfo", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return "Data property deviceInfo not found";
+        var deviceInfo = prop.GetValue(data)!.ToString()!;
         var deviceNameError = SetLine(deviceTypeNameElement, DeviceInfoLineLength, ref deviceInfo);
         if (deviceNameError != null) return deviceNameError;
 

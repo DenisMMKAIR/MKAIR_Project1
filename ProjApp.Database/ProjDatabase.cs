@@ -23,6 +23,7 @@ public class ProjDatabase : DbContext
     public DbSet<SuccessInitialVerification> SuccessInitialVerifications => Set<SuccessInitialVerification>();
     public DbSet<FailedInitialVerification> FailedInitialVerifications => Set<FailedInitialVerification>();
     public DbSet<Manometr1Verification> Manometr1Verifications => Set<Manometr1Verification>();
+    public DbSet<Davlenie1Verification> Davlenie1Verifications => Set<Davlenie1Verification>();
 
     private static readonly JsonSerializerOptions _jsonSerializerOptions = new();
 
@@ -33,6 +34,7 @@ public class ProjDatabase : DbContext
         ConfigureInitialVerifications(modelBuilder);
         ConfigureVerifications(modelBuilder);
         ConfigureManometr1Verifications(modelBuilder);
+        ConfigureDavlenie1Verifications(modelBuilder);
     }
 
     private static void ConfigureInitialVerificationJob(ModelBuilder modelBuilder)
@@ -82,6 +84,23 @@ public class ProjDatabase : DbContext
                     new List<IReadOnlyList<double>>()));
 
         modelBuilder.Entity<Manometr1Verification>()
+            .Property(e => e.ActualError)
+            .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
+                    new List<IReadOnlyList<double>>()));
+    }
+
+    private static void ConfigureDavlenie1Verifications(ModelBuilder modelBuilder)
+    {
+        modelBuilder.Entity<Davlenie1Verification>()
+            .Property(e => e.DeviceValues)
+            .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
+                v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
+                v => JsonSerializer.Deserialize<IReadOnlyList<IReadOnlyList<double>>>(v, _jsonSerializerOptions) ??
+                    new List<IReadOnlyList<double>>()));
+
+        modelBuilder.Entity<Davlenie1Verification>()
             .Property(e => e.ActualError)
             .HasConversion(new ValueConverter<IReadOnlyList<IReadOnlyList<double>>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),

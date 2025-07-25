@@ -4,25 +4,23 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.ProtocolCalculations;
 
-internal static class Manometr1Calculations
+internal static class Davlenie1Calculations
 {
-    public static Manometr1Verification ToManometr1(ILogger logger, SuccessInitialVerification v, Owner owner)
+    public static Davlenie1Verification ToDavlenie1(ILogger logger, SuccessInitialVerification v, Owner owner)
     {
         if (v.Device is null) throw new Exception("Устройство не добавлено в выборку");
         if (v.Device.DeviceType is null) throw new Exception("Тип устройства не добавлен в выборку");
         if (v.VerificationMethod is null) throw new Exception("Метод проверки не добавлен в выборку");
 
-        var method = v.VerificationMethod;
-
-        var newVrf = new Manometr1Verification
+        var newVrf = new Davlenie1Verification()
         {
             ProtocolNumber = v.ProtocolNumber!,
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
             Pressure = v.Pressure!,
-            VisualCheckup = method.Checkups[VerificationMethodCheckups.внешний_осмотр],
-            TestCheckup = method.Checkups[VerificationMethodCheckups.результат_опробывания],
-            AccuracyCalculation = method.Checkups[VerificationMethodCheckups.опр_осн_поргрешности],
+            VisualCheckup = v.VerificationMethod.Checkups[VerificationMethodCheckups.внешний_осмотр],
+            TestCheckup = v.VerificationMethod.Checkups[VerificationMethodCheckups.результат_опробывания],
+            AccuracyCalculation = v.VerificationMethod.Checkups[VerificationMethodCheckups.опр_осн_поргрешности],
             VerificationDate = v.VerificationDate,
             Worker = v.Worker!,
 
@@ -39,18 +37,18 @@ internal static class Manometr1Calculations
             MeasurementMin = v.MeasurementMin!.Value,
             MeasurementMax = v.MeasurementMax!.Value,
             MeasurementUnit = v.MeasurementUnit!,
+            PressureInputs = [],
+            EtalonValues = [],
+            DeviceValues = [],
+            ActualError = [],
             ValidError = v.Accuracy!.Value,
-
-            DeviceValues = default!,
-            EtalonValues = default!,
-            ActualError = default!,
-            ActualVariation = default!,
+            Variations = [],
 
             // Navigation properties
             Device = v.Device,
             VerificationMethod = v.VerificationMethod,
             Owner = owner,
-            Etalons = v.Etalons,
+            Etalons = v.Etalons
         };
 
         CalculateValues(logger, newVrf);
@@ -58,71 +56,55 @@ internal static class Manometr1Calculations
         return newVrf;
     }
 
-    private static void CalculateValues(ILogger logger, Manometr1Verification newVrf)
+    private static void CalculateValues(ILogger logger, Davlenie1Verification newVrf)
     {
-        var magicValues = new double[] { 4, 8, 12, 16, 20, 24, 28, 32 };
-
         var min = newVrf.MeasurementMin;
         var max = newVrf.MeasurementMax;
         var error = newVrf.ValidError;
-        var errorValue = (max - min) / 100 * error;
 
-        double[][] etalonValues = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]];
-        double[][] deviceValues = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]];
-        double[][] actualErrors = [[0, 0, 0, 0, 0, 0, 0, 0], [0, 0, 0, 0, 0, 0, 0, 0]];
-        double[] actualVariations = [double.NaN, 0, 0, 0, 0, 0, 0, double.NaN];
+        var etalonValues = newVrf.EtalonValues = [4, 8, 12, 16, 20];
+        double[] pressureInputs = [0, 0, 0, 0, 0];
+        double[][] deviceValues = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]];
+        double[][] actualErrors = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]];
+        double[] variations = [0, 0, 0, 0, 0];
 
-        for (var i = 0; i < magicValues.Length; i++)
+        for (int i = 0; i < etalonValues.Count; i++)
         {
-            var forwardEtalon = etalonValues[0][i] = (max - min) / 100 * ((magicValues[i] - 4) / 28 * 100) + min;
-
-            var minRange = Math.Max(min, forwardEtalon - errorValue * 0.7);
-            var maxRange = Math.Min(max, forwardEtalon + errorValue * 0.7);
-
+            var etalonValue = etalonValues[i];
+            pressureInputs[i] = (max - min) / 100 * ((etalonValue - 4) / 16 / 100) + min;
+            var errorValue = etalonValue / 100 * error;
+            var minRange = Math.Max(min, etalonValue - errorValue * 0.7);
+            var maxRange = Math.Min(max, etalonValue + errorValue * 0.7);
             var forwardValue = deviceValues[0][i] = minRange + (maxRange - minRange) * Random.Shared.NextDouble();
-
-            var forwardActualError = actualErrors[0][i] = (forwardValue - forwardEtalon) / (max - min) * 100;
-
+            var forwardActualError = actualErrors[0][i] = (forwardValue - etalonValue) / 16 * 100;
             if (Math.Abs(forwardActualError) > error)
             {
                 var msg = $"У {newVrf} ошибка прямого хода {forwardActualError:N3} превышает допустимую {error:N3}";
                 logger.LogError("{Msg}", msg);
                 throw new Exception(msg);
             }
-
-            var backwardEtalon = etalonValues[1][i] = (max - min) / 100 * ((magicValues[i] - 4) / 28 * 100) + min;
-
-            minRange = Math.Max(min, backwardEtalon - errorValue * 0.7);
             minRange = Math.Max(minRange, forwardValue - errorValue * 0.48);
-            maxRange = Math.Min(max, backwardEtalon + errorValue * 0.7);
             maxRange = Math.Min(maxRange, forwardValue + errorValue * 0.48);
-
             var backwardValue = deviceValues[1][i] = minRange + (maxRange - minRange) * Random.Shared.NextDouble();
-
-            var backwardActualError = actualErrors[1][i] = (backwardValue - backwardEtalon) / (max - min) * 100;
-
+            var backwardActualError = actualErrors[1][i] = (backwardValue - etalonValue) / 16 * 100;
             if (Math.Abs(backwardActualError) > error)
             {
                 var msg = $"У {newVrf} ошибка обратного хода {backwardActualError:N3} превышает допустимую {error:N3}";
                 logger.LogError("{Msg}", msg);
                 throw new Exception(msg);
             }
-
-            if (i == 0 || i == magicValues.Length - 1) continue;
-
-            var actualVariation = actualVariations[i] = (forwardValue - backwardValue) / (max - min) * 100;
-
-            if (Math.Abs(actualVariation) > error)
+            var variation = variations[i] = (forwardValue - backwardValue) / 16 * 100;
+            if (Math.Abs(variation) > error)
             {
-                var msg = $"У {newVrf} ошибка вариации {actualVariation:N3} превышает допустимую {error:N3}";
+                var msg = $"У {newVrf} ошибка вариации {variation:N3} превышает допустимую {error:N3}";
                 logger.LogError("{Msg}", msg);
                 throw new Exception(msg);
             }
         }
 
+        newVrf.PressureInputs = pressureInputs;
         newVrf.DeviceValues = deviceValues;
-        newVrf.EtalonValues = etalonValues;
         newVrf.ActualError = actualErrors;
-        newVrf.ActualVariation = actualVariations;
+        newVrf.Variations = variations;
     }
 }

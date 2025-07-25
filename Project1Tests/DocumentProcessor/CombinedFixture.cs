@@ -7,12 +7,14 @@ namespace Project1Tests.DocumentProcessor;
 internal abstract class CombinedFixture
 {
     protected ManometrSuccessDocumentCreator ManometrCreator { get; set; }
+    protected DavlenieSuccessDocumentCreator DavlenieCreator { get; set; }
     protected PDFExporter PdfExporter { get; set; }
 
     [OneTimeSetUp]
     public void Setup()
     {
         ManometrCreator = new ManometrSuccessDocumentCreator([], Tools.GetSignsDirPath());
+        DavlenieCreator = new DavlenieSuccessDocumentCreator([], Tools.GetSignsDirPath());
         PdfExporter = new PDFExporter();
     }
 

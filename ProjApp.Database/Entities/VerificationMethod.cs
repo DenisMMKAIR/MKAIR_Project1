@@ -15,4 +15,5 @@ public class VerificationMethod : DatabaseEntity
     public ICollection<SuccessInitialVerification>? SuccessInitialVerifications { get; set; }
     public ICollection<FailedInitialVerification>? FailedInitialVerifications { get; set; }
     public ICollection<Manometr1Verification>? Manometr1Verifications { get; set; }
+    public ICollection<Davlenie1Verification>? Davlenie1Verifications { get; set; }
 }

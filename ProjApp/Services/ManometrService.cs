@@ -1,12 +1,11 @@
-using Mapster;
-using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
-using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 using ProjApp.InfrastructureInterfaces;
+using ProjApp.Mapping;
+using ProjApp.ProtocolForms;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -15,25 +14,28 @@ public class ManometrService
 {
     private readonly ILogger<ManometrService> _logger;
     private readonly ProjDatabase _database;
-    private readonly IMapper _mapper;
     private readonly ITemplateProcessor _templateProcessor;
+    private readonly PDFFilePathManager _pdfFilePathManager;
 
-    public ManometrService(ILogger<ManometrService> logger, ProjDatabase database, IMapper mapper, ITemplateProcessor templateProcessor)
+    public ManometrService(
+        ILogger<ManometrService> logger,
+        ProjDatabase database,
+        ITemplateProcessor templateProcessor,
+        PDFFilePathManager pdfFilePathManager)
     {
         _logger = logger;
         _database = database;
-        _mapper = mapper;
         _templateProcessor = templateProcessor;
+        _pdfFilePathManager = pdfFilePathManager;
     }
 
     public async Task<ServicePaginatedResult<Manometr1VerificationDto>> GetVerificationsAsync(int page, int pageSize, string? deviceTypeFilter, string? deviceSerialFilter, YearMonth? dateFilter, DeviceLocation? locationFilter)
     {
-        var query = _database.Manometr1Verifications
-            .ProjectToType<Manometr1VerificationDto>(_mapper.Config);
+        var query = _database.Manometr1Verifications.ToDto();
 
         if (deviceTypeFilter != null)
         {
-            query = query.Where(dto => dto.DeviceTypeName.Contains(deviceTypeFilter));
+            query = query.Where(v => v.DeviceTypeName.Contains(deviceTypeFilter));
         }
 
         if (deviceSerialFilter != null)
@@ -89,7 +91,9 @@ public class ManometrService
             .Include(v => v.Device!)
                 .ThenInclude(d => d.DeviceType!)
             .Include(v => v.Etalons!)
-            .AsQueryable();
+            .Include(v => v.VerificationMethod!)
+            .Include(v => v.Owner)
+            .AsNoTracking();
 
         if (ids.Count > 0)
         {
@@ -99,9 +103,12 @@ public class ManometrService
         var successCount = 0;
         var failedCount = 0;
 
-        foreach (var vrf in query)
+        var vrfs = await query.ToArrayAsync();
+
+        foreach (var vrf in vrfs)
         {
-            var result = await _templateProcessor.CreatePDFAsync(vrf, cancellationToken);
+            var form = vrf.ToManometrForm();
+            var result = await _templateProcessor.CreatePDFAsync(form, _pdfFilePathManager.GetFilePath(vrf), cancellationToken);
             if (result.Error != null)
             {
                 _logger.LogError("{Error}", result.Error);
@@ -112,51 +119,6 @@ public class ManometrService
         }
 
         return ServiceResult.Success($"Экспортировано {successCount}, ошибки экспорта {failedCount}");
-    }
-}
-
-public class Manometr1VerificationDto : IRegister
-{
-    public required Guid Id { get; set; }
-    public required string ProtocolNumber { get; set; }
-    public required string DeviceTypeName { get; set; }
-    public required string DeviceModification { get; set; }
-    public required string DeviceTypeNumber { get; set; }
-    public required string DeviceSerial { get; set; }
-    public required uint ManufactureYear { get; set; }
-    public required string Owner { get; set; }
-    public required ulong OwnerINN { get; set; }
-    public required string VerificationsInfo { get; set; }
-    public required string EtalonsInfo { get; set; }
-    public required double Temperature { get; set; }
-    public required double Humidity { get; set; }
-    public required string Pressure { get; set; }
-    public required string VerificationVisualCheckup { get; set; }
-    public required string VerificationResultCheckup { get; set; }
-    public required string VerificationAccuracyCheckup { get; set; }
-    public required DateOnly VerificationDate { get; set; }
-    public required string Worker { get; set; }
-
-    // Support values
-    public required VerificationGroup VerificationGroup { get; set; }
-    public required DeviceLocation Location { get; set; }
-    public required DateOnly VerifiedUntilDate { get; set; }
-
-    // Table values
-    public required double MeasurementMin { get; set; }
-    public required double MeasurementMax { get; set; }
-    public required string MeasurementUnit { get; set; }
-    public required double ValidError { get; set; }
-
-    public required IReadOnlyList<IReadOnlyList<double>> DeviceValues { get; set; }
-    public required IReadOnlyList<IReadOnlyList<double>> EtalonValues { get; set; }
-    public required IReadOnlyList<IReadOnlyList<double>> ActualError { get; set; }
-    public required IReadOnlyList<double> ActualVariation { get; set; }
-
-    public void Register(TypeAdapterConfig config)
-    {
-        config.NewConfig<Manometr1Verification, Manometr1VerificationDto>()
-            .Map(dest => dest.EtalonsInfo, src => string.Join(';', src.Etalons!.Select(e => e.Number)));
     }
 }
 

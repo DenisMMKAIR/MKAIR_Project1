@@ -2,6 +2,7 @@
 using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 using ProjApp.Database;
@@ -11,9 +12,11 @@ using ProjApp.Database;
 namespace ProjApp.Database.Maintenance.Migrations
 {
     [DbContext(typeof(ProjDatabase))]
-    partial class ProjDatabaseModelSnapshot : ModelSnapshot
+    [Migration("20250725070030_ChManometrAddDavlenie")]
+    partial class ChManometrAddDavlenie
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -165,14 +168,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("measurement_unit");
 
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
-                    b.Property<string>("OwnerInitialName")
+                    b.Property<string>("Owner")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("owner_initial_name");
+                        .HasColumnName("owner");
 
                     b.Property<string>("Pressure")
                         .IsRequired()
@@ -238,9 +237,6 @@ namespace ProjApp.Database.Maintenance.Migrations
 
                     b.HasIndex("DeviceId")
                         .HasDatabaseName("ix_davlenie1verifications_device_id");
-
-                    b.HasIndex("OwnerId")
-                        .HasDatabaseName("ix_davlenie1verifications_owner_id");
 
                     b.HasIndex("VerificationMethodId")
                         .HasDatabaseName("ix_davlenie1verifications_verification_method_id");
@@ -551,14 +547,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("measurement_unit");
 
-                    b.Property<Guid?>("OwnerId")
-                        .HasColumnType("uuid")
-                        .HasColumnName("owner_id");
-
-                    b.Property<string>("OwnerInitialName")
+                    b.Property<string>("Owner")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("owner_initial_name");
+                        .HasColumnName("owner");
 
                     b.Property<string>("Pressure")
                         .IsRequired()
@@ -614,9 +606,6 @@ namespace ProjApp.Database.Maintenance.Migrations
 
                     b.HasIndex("DeviceId")
                         .HasDatabaseName("ix_manometr1verifications_device_id");
-
-                    b.HasIndex("OwnerId")
-                        .HasDatabaseName("ix_manometr1verifications_owner_id");
 
                     b.HasIndex("VerificationMethodId")
                         .HasDatabaseName("ix_manometr1verifications_verification_method_id");
@@ -915,19 +904,12 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasForeignKey("DeviceId")
                         .HasConstraintName("fk_davlenie1verifications_devices_device_id");
 
-                    b.HasOne("ProjApp.Database.Entities.Owner", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .HasConstraintName("fk_davlenie1verifications_owners_owner_id");
-
                     b.HasOne("ProjApp.Database.Entities.VerificationMethod", "VerificationMethod")
                         .WithMany("Davlenie1Verifications")
                         .HasForeignKey("VerificationMethodId")
                         .HasConstraintName("fk_davlenie1verifications_verification_methods_verification_me");
 
                     b.Navigation("Device");
-
-                    b.Navigation("Owner");
 
                     b.Navigation("VerificationMethod");
                 });
@@ -966,19 +948,12 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasForeignKey("DeviceId")
                         .HasConstraintName("fk_manometr1verifications_devices_device_id");
 
-                    b.HasOne("ProjApp.Database.Entities.Owner", "Owner")
-                        .WithMany()
-                        .HasForeignKey("OwnerId")
-                        .HasConstraintName("fk_manometr1verifications_owners_owner_id");
-
                     b.HasOne("ProjApp.Database.Entities.VerificationMethod", "VerificationMethod")
                         .WithMany("Manometr1Verifications")
                         .HasForeignKey("VerificationMethodId")
                         .HasConstraintName("fk_manometr1verifications_verification_methods_verification_me");
 
                     b.Navigation("Device");
-
-                    b.Navigation("Owner");
 
                     b.Navigation("VerificationMethod");
                 });

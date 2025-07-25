@@ -1473,13 +1473,13 @@
           "pressure": {
             "type": "string"
           },
-          "verificationVisualCheckup": {
+          "visualCheckup": {
             "type": "string"
           },
-          "verificationResultCheckup": {
+          "testCheckup": {
             "type": "string"
           },
-          "verificationAccuracyCheckup": {
+          "accuracyCalculation": {
             "type": "string"
           },
           "verificationDate": {
@@ -1729,10 +1729,12 @@
         "type": "string",
         "description": "",
         "x-enumNames": [
-          "Манометр1"
+          "Манометр1",
+          "Давление1"
         ],
         "enum": [
-          "Манометр1"
+          "Манометр1",
+          "Давление1"
         ]
       },
       "ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO": {
@@ -1867,6 +1869,13 @@
                 "items": {
                   "$ref": "#/components/schemas/Manometr1Verification"
                 }
+              },
+              "davlenie1Verifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Davlenie1Verification"
+                }
               }
             }
           }
@@ -1896,7 +1905,13 @@
             "additionalProperties": false,
             "properties": {
               "verificationGroup": {
-                "$ref": "#/components/schemas/VerificationGroup"
+                "deprecated": true,
+                "x-deprecatedMessage": "Is this property needed?",
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationGroup"
+                  }
+                ]
               },
               "protocolGroup": {
                 "$ref": "#/components/schemas/ProtocolGroup"
@@ -2129,6 +2144,13 @@
                 "items": {
                   "$ref": "#/components/schemas/Manometr1Verification"
                 }
+              },
+              "davlenie1Verifications": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Davlenie1Verification"
+                }
               }
             }
           }
@@ -2258,39 +2280,9 @@
           },
           {
             "type": "object",
-            "deprecated": true,
-            "x-deprecatedMessage": "Split db and DTO for export",
             "additionalProperties": false,
             "properties": {
               "protocolNumber": {
-                "type": "string"
-              },
-              "deviceTypeName": {
-                "type": "string"
-              },
-              "deviceModification": {
-                "type": "string"
-              },
-              "deviceTypeNumber": {
-                "type": "string"
-              },
-              "deviceSerial": {
-                "type": "string"
-              },
-              "manufactureYear": {
-                "type": "integer"
-              },
-              "owner": {
-                "type": "string"
-              },
-              "ownerINN": {
-                "type": "integer",
-                "format": "uint64"
-              },
-              "verificationsInfo": {
-                "type": "string"
-              },
-              "etalonsInfo": {
                 "type": "string"
               },
               "temperature": {
@@ -2304,13 +2296,13 @@
               "pressure": {
                 "type": "string"
               },
-              "verificationVisualCheckup": {
+              "visualCheckup": {
                 "type": "string"
               },
-              "verificationResultCheckup": {
+              "testCheckup": {
                 "type": "string"
               },
-              "verificationAccuracyCheckup": {
+              "accuracyCalculation": {
                 "type": "string"
               },
               "verificationDate": {
@@ -2318,6 +2310,12 @@
                 "format": "date"
               },
               "worker": {
+                "type": "string"
+              },
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
                 "type": "string"
               },
               "verificationGroup": {
@@ -2331,6 +2329,9 @@
                 "format": "date"
               },
               "initialVerificationName": {
+                "type": "string"
+              },
+              "ownerInitialName": {
                 "type": "string"
               },
               "measurementMin": {
@@ -2385,6 +2386,11 @@
                   "format": "double"
                 }
               },
+              "deviceId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
               "device": {
                 "nullable": true,
                 "oneOf": [
@@ -2393,11 +2399,196 @@
                   }
                 ]
               },
+              "verificationMethodId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
               "verificationMethod": {
                 "nullable": true,
                 "oneOf": [
                   {
                     "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              },
+              "ownerId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "owner": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Owner"
+                  }
+                ]
+              },
+              "etalons": {
+                "type": "array",
+                "nullable": true,
+                "items": {
+                  "$ref": "#/components/schemas/Etalon"
+                }
+              }
+            }
+          }
+        ]
+      },
+      "Davlenie1Verification": {
+        "allOf": [
+          {
+            "$ref": "#/components/schemas/DatabaseEntity"
+          },
+          {
+            "type": "object",
+            "additionalProperties": false,
+            "properties": {
+              "protocolNumber": {
+                "type": "string"
+              },
+              "temperature": {
+                "type": "number",
+                "format": "double"
+              },
+              "humidity": {
+                "type": "number",
+                "format": "double"
+              },
+              "pressure": {
+                "type": "string"
+              },
+              "visualCheckup": {
+                "type": "string"
+              },
+              "testCheckup": {
+                "type": "string"
+              },
+              "accuracyCalculation": {
+                "type": "string"
+              },
+              "verificationDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "worker": {
+                "type": "string"
+              },
+              "deviceTypeNumber": {
+                "type": "string"
+              },
+              "deviceSerial": {
+                "type": "string"
+              },
+              "verificationGroup": {
+                "$ref": "#/components/schemas/VerificationGroup"
+              },
+              "location": {
+                "$ref": "#/components/schemas/DeviceLocation"
+              },
+              "verifiedUntilDate": {
+                "type": "string",
+                "format": "date"
+              },
+              "initialVerificationName": {
+                "type": "string"
+              },
+              "ownerInitialName": {
+                "type": "string"
+              },
+              "measurementMin": {
+                "type": "number",
+                "format": "double"
+              },
+              "measurementMax": {
+                "type": "number",
+                "format": "double"
+              },
+              "measurementUnit": {
+                "type": "string"
+              },
+              "pressureInputs": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "etalonValues": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "deviceValues": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "actualError": {
+                "type": "array",
+                "items": {
+                  "type": "array",
+                  "items": {
+                    "type": "number",
+                    "format": "double"
+                  }
+                }
+              },
+              "validError": {
+                "type": "number",
+                "format": "double"
+              },
+              "variations": {
+                "type": "array",
+                "items": {
+                  "type": "number",
+                  "format": "double"
+                }
+              },
+              "deviceId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "device": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Device"
+                  }
+                ]
+              },
+              "verificationMethodId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "verificationMethod": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/VerificationMethod"
+                  }
+                ]
+              },
+              "ownerId": {
+                "type": "string",
+                "format": "guid",
+                "nullable": true
+              },
+              "owner": {
+                "nullable": true,
+                "oneOf": [
+                  {
+                    "$ref": "#/components/schemas/Owner"
                   }
                 ]
               },

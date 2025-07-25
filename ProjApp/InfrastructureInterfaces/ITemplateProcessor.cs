@@ -1,10 +1,11 @@
-using ProjApp.Database.Entities;
+using ProjApp.ProtocolForms;
 
 namespace ProjApp.InfrastructureInterfaces;
 
 public interface ITemplateProcessor : IAsyncDisposable
 {
-    Task<PDFCreationResult> CreatePDFAsync(Manometr1Verification verification, CancellationToken? cancellationToken = null);
+    Task<PDFCreationResult> CreatePDFAsync(ManometrForm verification, string filePath, CancellationToken? cancellationToken = null);
+    Task<PDFCreationResult> CreatePDFAsync(DavlenieForm verification, string filePath, CancellationToken? cancellationToken = null);
 }
 
 public class PDFCreationResult

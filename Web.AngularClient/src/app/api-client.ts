@@ -2157,9 +2157,9 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2199,9 +2199,9 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.verificationVisualCheckup = _data["verificationVisualCheckup"];
-            this.verificationResultCheckup = _data["verificationResultCheckup"];
-            this.verificationAccuracyCheckup = _data["verificationAccuracyCheckup"];
+            this.visualCheckup = _data["visualCheckup"];
+            this.testCheckup = _data["testCheckup"];
+            this.accuracyCalculation = _data["accuracyCalculation"];
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.verificationGroup = _data["verificationGroup"];
@@ -2257,9 +2257,9 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["verificationVisualCheckup"] = this.verificationVisualCheckup;
-        data["verificationResultCheckup"] = this.verificationResultCheckup;
-        data["verificationAccuracyCheckup"] = this.verificationAccuracyCheckup;
+        data["visualCheckup"] = this.visualCheckup;
+        data["testCheckup"] = this.testCheckup;
+        data["accuracyCalculation"] = this.accuracyCalculation;
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["verificationGroup"] = this.verificationGroup;
@@ -2308,9 +2308,9 @@ export interface IManometr1VerificationDto {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2648,6 +2648,7 @@ export interface IProtocolTemplateDTO {
 
 export enum ProtocolGroup {
     Манометр1 = "Манометр1",
+    Давление1 = "Давление1",
 }
 
 export class ServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO implements IServicePaginatedResultOfPossibleTemplateVerificationMethodsDTO {
@@ -2808,6 +2809,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
     successInitialVerifications?: SuccessInitialVerification[] | undefined;
     failedInitialVerifications?: FailedInitialVerification[] | undefined;
     manometr1Verifications?: Manometr1Verification[] | undefined;
+    davlenie1Verifications?: Davlenie1Verification[] | undefined;
 
     constructor(data?: IVerificationMethod) {
         super(data);
@@ -2850,6 +2852,11 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
                 this.manometr1Verifications = [] as any;
                 for (let item of _data["manometr1Verifications"])
                     this.manometr1Verifications!.push(Manometr1Verification.fromJS(item));
+            }
+            if (Array.isArray(_data["davlenie1Verifications"])) {
+                this.davlenie1Verifications = [] as any;
+                for (let item of _data["davlenie1Verifications"])
+                    this.davlenie1Verifications!.push(Davlenie1Verification.fromJS(item));
             }
         }
     }
@@ -2898,6 +2905,11 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
             for (let item of this.manometr1Verifications)
                 data["manometr1Verifications"].push(item ? item.toJSON() : <any>undefined);
         }
+        if (Array.isArray(this.davlenie1Verifications)) {
+            data["davlenie1Verifications"] = [];
+            for (let item of this.davlenie1Verifications)
+                data["davlenie1Verifications"].push(item ? item.toJSON() : <any>undefined);
+        }
         super.toJSON(data);
         return data;
     }
@@ -2913,6 +2925,7 @@ export interface IVerificationMethod extends IDatabaseEntity {
     successInitialVerifications?: SuccessInitialVerification[] | undefined;
     failedInitialVerifications?: FailedInitialVerification[] | undefined;
     manometr1Verifications?: Manometr1Verification[] | undefined;
+    davlenie1Verifications?: Davlenie1Verification[] | undefined;
 }
 
 export enum VerificationMethodCheckups {
@@ -3189,6 +3202,7 @@ export class Etalon extends DatabaseEntity implements IEtalon {
     successInitialVerifications?: SuccessInitialVerification[] | undefined;
     failedInitialVerifications?: FailedInitialVerification[] | undefined;
     manometr1Verifications?: Manometr1Verification[] | undefined;
+    davlenie1Verifications?: Davlenie1Verification[] | undefined;
 
     constructor(data?: IEtalon) {
         super(data);
@@ -3215,6 +3229,11 @@ export class Etalon extends DatabaseEntity implements IEtalon {
                 this.manometr1Verifications = [] as any;
                 for (let item of _data["manometr1Verifications"])
                     this.manometr1Verifications!.push(Manometr1Verification.fromJS(item));
+            }
+            if (Array.isArray(_data["davlenie1Verifications"])) {
+                this.davlenie1Verifications = [] as any;
+                for (let item of _data["davlenie1Verifications"])
+                    this.davlenie1Verifications!.push(Davlenie1Verification.fromJS(item));
             }
         }
     }
@@ -3247,6 +3266,11 @@ export class Etalon extends DatabaseEntity implements IEtalon {
             for (let item of this.manometr1Verifications)
                 data["manometr1Verifications"].push(item ? item.toJSON() : <any>undefined);
         }
+        if (Array.isArray(this.davlenie1Verifications)) {
+            data["davlenie1Verifications"] = [];
+            for (let item of this.davlenie1Verifications)
+                data["davlenie1Verifications"].push(item ? item.toJSON() : <any>undefined);
+        }
         super.toJSON(data);
         return data;
     }
@@ -3260,6 +3284,7 @@ export interface IEtalon extends IDatabaseEntity {
     successInitialVerifications?: SuccessInitialVerification[] | undefined;
     failedInitialVerifications?: FailedInitialVerification[] | undefined;
     manometr1Verifications?: Manometr1Verification[] | undefined;
+    davlenie1Verifications?: Davlenie1Verification[] | undefined;
 }
 
 export class FailedInitialVerification extends DatabaseEntity implements IFailedInitialVerification {
@@ -3385,27 +3410,21 @@ export interface IFailedInitialVerification extends IDatabaseEntity {
 
 export class Manometr1Verification extends DatabaseEntity implements IManometr1Verification {
     protocolNumber?: string;
-    deviceTypeName?: string;
-    deviceModification?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    manufactureYear?: number;
-    owner?: string;
-    ownerINN?: number;
-    verificationsInfo?: string;
-    etalonsInfo?: string;
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
     verificationGroup?: VerificationGroup;
     location?: DeviceLocation;
     verifiedUntilDate?: Date;
     initialVerificationName?: string;
+    ownerInitialName?: string;
     measurementMin?: number;
     measurementMax?: number;
     measurementUnit?: string;
@@ -3414,8 +3433,12 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
     etalonValues?: number[][];
     actualError?: number[][];
     actualVariation?: number[];
+    deviceId?: string | undefined;
     device?: Device | undefined;
+    verificationMethodId?: string | undefined;
     verificationMethod?: VerificationMethod | undefined;
+    ownerId?: string | undefined;
+    owner?: Owner | undefined;
     etalons?: Etalon[] | undefined;
 
     constructor(data?: IManometr1Verification) {
@@ -3426,27 +3449,21 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
         super.init(_data);
         if (_data) {
             this.protocolNumber = _data["protocolNumber"];
-            this.deviceTypeName = _data["deviceTypeName"];
-            this.deviceModification = _data["deviceModification"];
-            this.deviceTypeNumber = _data["deviceTypeNumber"];
-            this.deviceSerial = _data["deviceSerial"];
-            this.manufactureYear = _data["manufactureYear"];
-            this.owner = _data["owner"];
-            this.ownerINN = _data["ownerINN"];
-            this.verificationsInfo = _data["verificationsInfo"];
-            this.etalonsInfo = _data["etalonsInfo"];
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.verificationVisualCheckup = _data["verificationVisualCheckup"];
-            this.verificationResultCheckup = _data["verificationResultCheckup"];
-            this.verificationAccuracyCheckup = _data["verificationAccuracyCheckup"];
+            this.visualCheckup = _data["visualCheckup"];
+            this.testCheckup = _data["testCheckup"];
+            this.accuracyCalculation = _data["accuracyCalculation"];
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
             this.verificationGroup = _data["verificationGroup"];
             this.location = _data["location"];
             this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
             this.initialVerificationName = _data["initialVerificationName"];
+            this.ownerInitialName = _data["ownerInitialName"];
             this.measurementMin = _data["measurementMin"];
             this.measurementMax = _data["measurementMax"];
             this.measurementUnit = _data["measurementUnit"];
@@ -3471,8 +3488,12 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
                 for (let item of _data["actualVariation"])
                     this.actualVariation!.push(item);
             }
+            this.deviceId = _data["deviceId"];
             this.device = _data["device"] ? Device.fromJS(_data["device"]) : <any>undefined;
+            this.verificationMethodId = _data["verificationMethodId"];
             this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            this.ownerId = _data["ownerId"];
+            this.owner = _data["owner"] ? Owner.fromJS(_data["owner"]) : <any>undefined;
             if (Array.isArray(_data["etalons"])) {
                 this.etalons = [] as any;
                 for (let item of _data["etalons"])
@@ -3491,27 +3512,21 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
     override toJSON(data?: any) {
         data = typeof data === 'object' ? data : {};
         data["protocolNumber"] = this.protocolNumber;
-        data["deviceTypeName"] = this.deviceTypeName;
-        data["deviceModification"] = this.deviceModification;
-        data["deviceTypeNumber"] = this.deviceTypeNumber;
-        data["deviceSerial"] = this.deviceSerial;
-        data["manufactureYear"] = this.manufactureYear;
-        data["owner"] = this.owner;
-        data["ownerINN"] = this.ownerINN;
-        data["verificationsInfo"] = this.verificationsInfo;
-        data["etalonsInfo"] = this.etalonsInfo;
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["verificationVisualCheckup"] = this.verificationVisualCheckup;
-        data["verificationResultCheckup"] = this.verificationResultCheckup;
-        data["verificationAccuracyCheckup"] = this.verificationAccuracyCheckup;
+        data["visualCheckup"] = this.visualCheckup;
+        data["testCheckup"] = this.testCheckup;
+        data["accuracyCalculation"] = this.accuracyCalculation;
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
         data["verificationGroup"] = this.verificationGroup;
         data["location"] = this.location;
         data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
         data["initialVerificationName"] = this.initialVerificationName;
+        data["ownerInitialName"] = this.ownerInitialName;
         data["measurementMin"] = this.measurementMin;
         data["measurementMax"] = this.measurementMax;
         data["measurementUnit"] = this.measurementUnit;
@@ -3536,8 +3551,12 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
             for (let item of this.actualVariation)
                 data["actualVariation"].push(item);
         }
+        data["deviceId"] = this.deviceId;
         data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["verificationMethodId"] = this.verificationMethodId;
         data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        data["ownerId"] = this.ownerId;
+        data["owner"] = this.owner ? this.owner.toJSON() : <any>undefined;
         if (Array.isArray(this.etalons)) {
             data["etalons"] = [];
             for (let item of this.etalons)
@@ -3550,27 +3569,21 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
 
 export interface IManometr1Verification extends IDatabaseEntity {
     protocolNumber?: string;
-    deviceTypeName?: string;
-    deviceModification?: string;
-    deviceTypeNumber?: string;
-    deviceSerial?: string;
-    manufactureYear?: number;
-    owner?: string;
-    ownerINN?: number;
-    verificationsInfo?: string;
-    etalonsInfo?: string;
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    verificationVisualCheckup?: string;
-    verificationResultCheckup?: string;
-    verificationAccuracyCheckup?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
     verificationGroup?: VerificationGroup;
     location?: DeviceLocation;
     verifiedUntilDate?: Date;
     initialVerificationName?: string;
+    ownerInitialName?: string;
     measurementMin?: number;
     measurementMax?: number;
     measurementUnit?: string;
@@ -3579,8 +3592,217 @@ export interface IManometr1Verification extends IDatabaseEntity {
     etalonValues?: number[][];
     actualError?: number[][];
     actualVariation?: number[];
+    deviceId?: string | undefined;
     device?: Device | undefined;
+    verificationMethodId?: string | undefined;
     verificationMethod?: VerificationMethod | undefined;
+    ownerId?: string | undefined;
+    owner?: Owner | undefined;
+    etalons?: Etalon[] | undefined;
+}
+
+export class Davlenie1Verification extends DatabaseEntity implements IDavlenie1Verification {
+    protocolNumber?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
+    verificationDate?: Date;
+    worker?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    initialVerificationName?: string;
+    ownerInitialName?: string;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    pressureInputs?: number[];
+    etalonValues?: number[];
+    deviceValues?: number[][];
+    actualError?: number[][];
+    validError?: number;
+    variations?: number[];
+    deviceId?: string | undefined;
+    device?: Device | undefined;
+    verificationMethodId?: string | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    ownerId?: string | undefined;
+    owner?: Owner | undefined;
+    etalons?: Etalon[] | undefined;
+
+    constructor(data?: IDavlenie1Verification) {
+        super(data);
+    }
+
+    override init(_data?: any) {
+        super.init(_data);
+        if (_data) {
+            this.protocolNumber = _data["protocolNumber"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.pressure = _data["pressure"];
+            this.visualCheckup = _data["visualCheckup"];
+            this.testCheckup = _data["testCheckup"];
+            this.accuracyCalculation = _data["accuracyCalculation"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.worker = _data["worker"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.verificationGroup = _data["verificationGroup"];
+            this.location = _data["location"];
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.initialVerificationName = _data["initialVerificationName"];
+            this.ownerInitialName = _data["ownerInitialName"];
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            if (Array.isArray(_data["pressureInputs"])) {
+                this.pressureInputs = [] as any;
+                for (let item of _data["pressureInputs"])
+                    this.pressureInputs!.push(item);
+            }
+            if (Array.isArray(_data["etalonValues"])) {
+                this.etalonValues = [] as any;
+                for (let item of _data["etalonValues"])
+                    this.etalonValues!.push(item);
+            }
+            if (Array.isArray(_data["deviceValues"])) {
+                this.deviceValues = [] as any;
+                for (let item of _data["deviceValues"])
+                    this.deviceValues!.push(item);
+            }
+            if (Array.isArray(_data["actualError"])) {
+                this.actualError = [] as any;
+                for (let item of _data["actualError"])
+                    this.actualError!.push(item);
+            }
+            this.validError = _data["validError"];
+            if (Array.isArray(_data["variations"])) {
+                this.variations = [] as any;
+                for (let item of _data["variations"])
+                    this.variations!.push(item);
+            }
+            this.deviceId = _data["deviceId"];
+            this.device = _data["device"] ? Device.fromJS(_data["device"]) : <any>undefined;
+            this.verificationMethodId = _data["verificationMethodId"];
+            this.verificationMethod = _data["verificationMethod"] ? VerificationMethod.fromJS(_data["verificationMethod"]) : <any>undefined;
+            this.ownerId = _data["ownerId"];
+            this.owner = _data["owner"] ? Owner.fromJS(_data["owner"]) : <any>undefined;
+            if (Array.isArray(_data["etalons"])) {
+                this.etalons = [] as any;
+                for (let item of _data["etalons"])
+                    this.etalons!.push(Etalon.fromJS(item));
+            }
+        }
+    }
+
+    static override fromJS(data: any): Davlenie1Verification {
+        data = typeof data === 'object' ? data : {};
+        let result = new Davlenie1Verification();
+        result.init(data);
+        return result;
+    }
+
+    override toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["protocolNumber"] = this.protocolNumber;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["pressure"] = this.pressure;
+        data["visualCheckup"] = this.visualCheckup;
+        data["testCheckup"] = this.testCheckup;
+        data["accuracyCalculation"] = this.accuracyCalculation;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["worker"] = this.worker;
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["verificationGroup"] = this.verificationGroup;
+        data["location"] = this.location;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["initialVerificationName"] = this.initialVerificationName;
+        data["ownerInitialName"] = this.ownerInitialName;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        if (Array.isArray(this.pressureInputs)) {
+            data["pressureInputs"] = [];
+            for (let item of this.pressureInputs)
+                data["pressureInputs"].push(item);
+        }
+        if (Array.isArray(this.etalonValues)) {
+            data["etalonValues"] = [];
+            for (let item of this.etalonValues)
+                data["etalonValues"].push(item);
+        }
+        if (Array.isArray(this.deviceValues)) {
+            data["deviceValues"] = [];
+            for (let item of this.deviceValues)
+                data["deviceValues"].push(item);
+        }
+        if (Array.isArray(this.actualError)) {
+            data["actualError"] = [];
+            for (let item of this.actualError)
+                data["actualError"].push(item);
+        }
+        data["validError"] = this.validError;
+        if (Array.isArray(this.variations)) {
+            data["variations"] = [];
+            for (let item of this.variations)
+                data["variations"].push(item);
+        }
+        data["deviceId"] = this.deviceId;
+        data["device"] = this.device ? this.device.toJSON() : <any>undefined;
+        data["verificationMethodId"] = this.verificationMethodId;
+        data["verificationMethod"] = this.verificationMethod ? this.verificationMethod.toJSON() : <any>undefined;
+        data["ownerId"] = this.ownerId;
+        data["owner"] = this.owner ? this.owner.toJSON() : <any>undefined;
+        if (Array.isArray(this.etalons)) {
+            data["etalons"] = [];
+            for (let item of this.etalons)
+                data["etalons"].push(item ? item.toJSON() : <any>undefined);
+        }
+        super.toJSON(data);
+        return data;
+    }
+}
+
+export interface IDavlenie1Verification extends IDatabaseEntity {
+    protocolNumber?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
+    verificationDate?: Date;
+    worker?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    initialVerificationName?: string;
+    ownerInitialName?: string;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    pressureInputs?: number[];
+    etalonValues?: number[];
+    deviceValues?: number[][];
+    actualError?: number[][];
+    validError?: number;
+    variations?: number[];
+    deviceId?: string | undefined;
+    device?: Device | undefined;
+    verificationMethodId?: string | undefined;
+    verificationMethod?: VerificationMethod | undefined;
+    ownerId?: string | undefined;
+    owner?: Owner | undefined;
     etalons?: Etalon[] | undefined;
 }
 

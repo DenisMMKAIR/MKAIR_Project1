@@ -13,6 +13,7 @@ using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
 using ProjApp.InfrastructureInterfaces;
+using ProjApp.ProtocolForms;
 using ProjApp.Services;
 
 namespace ProjApp.Usage;
@@ -48,12 +49,14 @@ public static class ProjectDI
         serviceCollection.AddScoped<OwnersService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
         serviceCollection.AddScoped<ManometrService>();
+        serviceCollection.AddScoped<DavlenieService>();
 
         var config = TypeAdapterConfig.GlobalSettings;
         config.Scan([.. assemblies.Select(Assembly.Load)]);
         serviceCollection.AddSingleton(config);
         serviceCollection.AddScoped<IMapper, ServiceMapper>();
 
+        serviceCollection.AddSingleton<PDFFilePathManager>();
         serviceCollection.AddSingleton<EventKeeper>();
         serviceCollection.AddHostedService<InitialVerificationBackgroundService>();
         serviceCollection.AddHostedService<OwnersBackgroundService>();
