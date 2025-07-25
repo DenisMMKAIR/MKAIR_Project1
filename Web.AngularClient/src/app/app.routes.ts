@@ -44,4 +44,9 @@ export const routes: Routes = [
         (m) => m.ManometrsPage
       ),
   },
+  {
+    path: 'davlenie',
+    loadComponent: () =>
+      import('./pages/davlenie/davlenie.page').then((m) => m.DavleniePage),
+  },
 ];

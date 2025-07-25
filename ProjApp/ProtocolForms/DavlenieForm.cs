@@ -34,7 +34,7 @@ public class DavlenieForm
 
 public static class DavlenieFormExtensions
 {
-    public static DavlenieForm ToDavlenieForm(this Davlenie1Verification vrf, Owner owner)
+    public static DavlenieForm ToDavlenieForm(this Davlenie1Verification vrf)
     {
         return new()
         {
@@ -44,8 +44,8 @@ public static class DavlenieFormExtensions
             DeviceTypeNumber = vrf.Device!.DeviceType!.Number,
             DeviceSerial = vrf.Device!.Serial,
             ManufactureYear = vrf.Device!.ManufacturedYear,
-            Owner = owner.Name,
-            OwnerINN = owner.INN,
+            Owner = vrf.Owner!.Name,
+            OwnerINN = vrf.Owner!.INN,
             VerificationsInfo = $"{vrf.VerificationMethod!.Description}",
             EtalonsInfo = vrf.Etalons!.Select(e => e.FullInfo).Aggregate((a, c) => $"{a}; {c}"),
             Temperature = vrf.Temperature,

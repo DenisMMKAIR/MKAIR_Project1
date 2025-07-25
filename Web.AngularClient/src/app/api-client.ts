@@ -16,6 +16,234 @@ import { HttpClient, HttpHeaders, HttpResponse, HttpResponseBase } from '@angula
 export const API_BASE_URL = new InjectionToken<string>('API_BASE_URL');
 
 @Injectable()
+export class DavlenieClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    getVerifications(pageIndex: number | undefined, pageSize: number | undefined, deviceTypeNumber: string | null | undefined, deviceSerial: string | null | undefined, yearMonth: string | null | undefined, location: DeviceLocation | null | undefined): Observable<ServicePaginatedResultOfDavlenie1VerificationDTO> {
+        let url_ = this.baseUrl + "/api/Davlenie/GetVerifications?";
+        if (pageIndex === null)
+            throw new Error("The parameter 'pageIndex' cannot be null.");
+        else if (pageIndex !== undefined)
+            url_ += "PageIndex=" + encodeURIComponent("" + pageIndex) + "&";
+        if (pageSize === null)
+            throw new Error("The parameter 'pageSize' cannot be null.");
+        else if (pageSize !== undefined)
+            url_ += "PageSize=" + encodeURIComponent("" + pageSize) + "&";
+        if (deviceTypeNumber !== undefined && deviceTypeNumber !== null)
+            url_ += "DeviceTypeNumber=" + encodeURIComponent("" + deviceTypeNumber) + "&";
+        if (deviceSerial !== undefined && deviceSerial !== null)
+            url_ += "DeviceSerial=" + encodeURIComponent("" + deviceSerial) + "&";
+        if (yearMonth !== undefined && yearMonth !== null)
+            url_ += "YearMonth=" + encodeURIComponent("" + yearMonth) + "&";
+        if (location !== undefined && location !== null)
+            url_ += "Location=" + encodeURIComponent("" + location) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processGetVerifications(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processGetVerifications(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServicePaginatedResultOfDavlenie1VerificationDTO>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServicePaginatedResultOfDavlenie1VerificationDTO>;
+        }));
+    }
+
+    protected processGetVerifications(response: HttpResponseBase): Observable<ServicePaginatedResultOfDavlenie1VerificationDTO> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServicePaginatedResultOfDavlenie1VerificationDTO.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportToPdf(ids: string[]): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Davlenie/ExportToPdf";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(ids);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportAllToPdf(): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Davlenie/ExportAllToPdf";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportAllToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportAllToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportAllToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    deleteVerifications(ids: string[]): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Davlenie/DeleteVerifications";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(ids);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processDeleteVerifications(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processDeleteVerifications(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processDeleteVerifications(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
 export class DeviceTypeClient {
     private http: HttpClient;
     private baseUrl: string;
@@ -1594,6 +1822,361 @@ export class VerificationsClient {
     }
 }
 
+export class ServicePaginatedResultOfDavlenie1VerificationDTO implements IServicePaginatedResultOfDavlenie1VerificationDTO {
+    message?: string | undefined;
+    error?: string | undefined;
+    data?: PaginatedListOfDavlenie1VerificationDTO | undefined;
+
+    constructor(data?: IServicePaginatedResultOfDavlenie1VerificationDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+            this.error = _data["error"];
+            this.data = _data["data"] ? PaginatedListOfDavlenie1VerificationDTO.fromJS(_data["data"]) : <any>undefined;
+        }
+    }
+
+    static fromJS(data: any): ServicePaginatedResultOfDavlenie1VerificationDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServicePaginatedResultOfDavlenie1VerificationDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        data["error"] = this.error;
+        data["data"] = this.data ? this.data.toJSON() : <any>undefined;
+        return data;
+    }
+}
+
+export interface IServicePaginatedResultOfDavlenie1VerificationDTO {
+    message?: string | undefined;
+    error?: string | undefined;
+    data?: PaginatedListOfDavlenie1VerificationDTO | undefined;
+}
+
+export class PaginatedListOfDavlenie1VerificationDTO implements IPaginatedListOfDavlenie1VerificationDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: Davlenie1VerificationDTO[];
+
+    constructor(data?: IPaginatedListOfDavlenie1VerificationDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.pageIndex = _data["pageIndex"];
+            this.totalPages = _data["totalPages"];
+            this.hasPreviousPage = _data["hasPreviousPage"];
+            this.hasNextPage = _data["hasNextPage"];
+            this.totalCount = _data["totalCount"];
+            if (Array.isArray(_data["items"])) {
+                this.items = [] as any;
+                for (let item of _data["items"])
+                    this.items!.push(Davlenie1VerificationDTO.fromJS(item));
+            }
+        }
+    }
+
+    static fromJS(data: any): PaginatedListOfDavlenie1VerificationDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new PaginatedListOfDavlenie1VerificationDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["pageIndex"] = this.pageIndex;
+        data["totalPages"] = this.totalPages;
+        data["hasPreviousPage"] = this.hasPreviousPage;
+        data["hasNextPage"] = this.hasNextPage;
+        data["totalCount"] = this.totalCount;
+        if (Array.isArray(this.items)) {
+            data["items"] = [];
+            for (let item of this.items)
+                data["items"].push(item ? item.toJSON() : <any>undefined);
+        }
+        return data;
+    }
+}
+
+export interface IPaginatedListOfDavlenie1VerificationDTO {
+    pageIndex?: number;
+    totalPages?: number;
+    hasPreviousPage?: boolean;
+    hasNextPage?: boolean;
+    totalCount?: number;
+    items?: Davlenie1VerificationDTO[];
+}
+
+export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
+    id?: string;
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    pressureInputs?: number[];
+    etalonValues?: number[];
+    deviceValues?: number[][];
+    actualError?: number[][];
+    validError?: number;
+    variations?: number[];
+
+    constructor(data?: IDavlenie1VerificationDTO) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.id = _data["id"];
+            this.protocolNumber = _data["protocolNumber"];
+            this.deviceTypeName = _data["deviceTypeName"];
+            this.deviceModification = _data["deviceModification"];
+            this.deviceTypeNumber = _data["deviceTypeNumber"];
+            this.deviceSerial = _data["deviceSerial"];
+            this.manufactureYear = _data["manufactureYear"];
+            this.owner = _data["owner"];
+            this.ownerINN = _data["ownerINN"];
+            this.verificationsInfo = _data["verificationsInfo"];
+            this.etalonsInfo = _data["etalonsInfo"];
+            this.temperature = _data["temperature"];
+            this.humidity = _data["humidity"];
+            this.pressure = _data["pressure"];
+            this.visualCheckup = _data["visualCheckup"];
+            this.testCheckup = _data["testCheckup"];
+            this.accuracyCalculation = _data["accuracyCalculation"];
+            this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
+            this.worker = _data["worker"];
+            this.verificationGroup = _data["verificationGroup"];
+            this.location = _data["location"];
+            this.verifiedUntilDate = _data["verifiedUntilDate"] ? new Date(_data["verifiedUntilDate"].toString()) : <any>undefined;
+            this.measurementMin = _data["measurementMin"];
+            this.measurementMax = _data["measurementMax"];
+            this.measurementUnit = _data["measurementUnit"];
+            if (Array.isArray(_data["pressureInputs"])) {
+                this.pressureInputs = [] as any;
+                for (let item of _data["pressureInputs"])
+                    this.pressureInputs!.push(item);
+            }
+            if (Array.isArray(_data["etalonValues"])) {
+                this.etalonValues = [] as any;
+                for (let item of _data["etalonValues"])
+                    this.etalonValues!.push(item);
+            }
+            if (Array.isArray(_data["deviceValues"])) {
+                this.deviceValues = [] as any;
+                for (let item of _data["deviceValues"])
+                    this.deviceValues!.push(item);
+            }
+            if (Array.isArray(_data["actualError"])) {
+                this.actualError = [] as any;
+                for (let item of _data["actualError"])
+                    this.actualError!.push(item);
+            }
+            this.validError = _data["validError"];
+            if (Array.isArray(_data["variations"])) {
+                this.variations = [] as any;
+                for (let item of _data["variations"])
+                    this.variations!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): Davlenie1VerificationDTO {
+        data = typeof data === 'object' ? data : {};
+        let result = new Davlenie1VerificationDTO();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["id"] = this.id;
+        data["protocolNumber"] = this.protocolNumber;
+        data["deviceTypeName"] = this.deviceTypeName;
+        data["deviceModification"] = this.deviceModification;
+        data["deviceTypeNumber"] = this.deviceTypeNumber;
+        data["deviceSerial"] = this.deviceSerial;
+        data["manufactureYear"] = this.manufactureYear;
+        data["owner"] = this.owner;
+        data["ownerINN"] = this.ownerINN;
+        data["verificationsInfo"] = this.verificationsInfo;
+        data["etalonsInfo"] = this.etalonsInfo;
+        data["temperature"] = this.temperature;
+        data["humidity"] = this.humidity;
+        data["pressure"] = this.pressure;
+        data["visualCheckup"] = this.visualCheckup;
+        data["testCheckup"] = this.testCheckup;
+        data["accuracyCalculation"] = this.accuracyCalculation;
+        data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
+        data["worker"] = this.worker;
+        data["verificationGroup"] = this.verificationGroup;
+        data["location"] = this.location;
+        data["verifiedUntilDate"] = this.verifiedUntilDate ? formatDate(this.verifiedUntilDate) : <any>undefined;
+        data["measurementMin"] = this.measurementMin;
+        data["measurementMax"] = this.measurementMax;
+        data["measurementUnit"] = this.measurementUnit;
+        if (Array.isArray(this.pressureInputs)) {
+            data["pressureInputs"] = [];
+            for (let item of this.pressureInputs)
+                data["pressureInputs"].push(item);
+        }
+        if (Array.isArray(this.etalonValues)) {
+            data["etalonValues"] = [];
+            for (let item of this.etalonValues)
+                data["etalonValues"].push(item);
+        }
+        if (Array.isArray(this.deviceValues)) {
+            data["deviceValues"] = [];
+            for (let item of this.deviceValues)
+                data["deviceValues"].push(item);
+        }
+        if (Array.isArray(this.actualError)) {
+            data["actualError"] = [];
+            for (let item of this.actualError)
+                data["actualError"].push(item);
+        }
+        data["validError"] = this.validError;
+        if (Array.isArray(this.variations)) {
+            data["variations"] = [];
+            for (let item of this.variations)
+                data["variations"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IDavlenie1VerificationDTO {
+    id?: string;
+    protocolNumber?: string;
+    deviceTypeName?: string;
+    deviceModification?: string;
+    deviceTypeNumber?: string;
+    deviceSerial?: string;
+    manufactureYear?: number;
+    owner?: string;
+    ownerINN?: number;
+    verificationsInfo?: string;
+    etalonsInfo?: string;
+    temperature?: number;
+    humidity?: number;
+    pressure?: string;
+    visualCheckup?: string;
+    testCheckup?: string;
+    accuracyCalculation?: string;
+    verificationDate?: Date;
+    worker?: string;
+    verificationGroup?: VerificationGroup;
+    location?: DeviceLocation;
+    verifiedUntilDate?: Date;
+    measurementMin?: number;
+    measurementMax?: number;
+    measurementUnit?: string;
+    pressureInputs?: number[];
+    etalonValues?: number[];
+    deviceValues?: number[][];
+    actualError?: number[][];
+    validError?: number;
+    variations?: number[];
+}
+
+export enum VerificationGroup {
+    Манометры = "Манометры",
+    Датчики_давления = "Датчики_давления",
+    Термометры_биметаллические = "Термометры_биметаллические",
+}
+
+export enum DeviceLocation {
+    АнтипинскийНПЗ = "АнтипинскийНПЗ",
+    ГПНЯмал = "ГПНЯмал",
+}
+
+export class ServiceResult implements IServiceResult {
+    message?: string | undefined;
+    error?: string | undefined;
+
+    constructor(data?: IServiceResult) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.message = _data["message"];
+            this.error = _data["error"];
+        }
+    }
+
+    static fromJS(data: any): ServiceResult {
+        data = typeof data === 'object' ? data : {};
+        let result = new ServiceResult();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["message"] = this.message;
+        data["error"] = this.error;
+        return data;
+    }
+}
+
+export interface IServiceResult {
+    message?: string | undefined;
+    error?: string | undefined;
+}
+
 export class ServicePaginatedResultOfDeviceType implements IServicePaginatedResultOfDeviceType {
     message?: string | undefined;
     error?: string | undefined;
@@ -1811,46 +2394,6 @@ export interface IDeviceType extends IDatabaseEntity {
     methodUrls?: string[] | undefined;
     specUrls?: string[] | undefined;
     manufacturers?: string[] | undefined;
-}
-
-export class ServiceResult implements IServiceResult {
-    message?: string | undefined;
-    error?: string | undefined;
-
-    constructor(data?: IServiceResult) {
-        if (data) {
-            for (var property in data) {
-                if (data.hasOwnProperty(property))
-                    (<any>this)[property] = (<any>data)[property];
-            }
-        }
-    }
-
-    init(_data?: any) {
-        if (_data) {
-            this.message = _data["message"];
-            this.error = _data["error"];
-        }
-    }
-
-    static fromJS(data: any): ServiceResult {
-        data = typeof data === 'object' ? data : {};
-        let result = new ServiceResult();
-        result.init(data);
-        return result;
-    }
-
-    toJSON(data?: any) {
-        data = typeof data === 'object' ? data : {};
-        data["message"] = this.message;
-        data["error"] = this.error;
-        return data;
-    }
-}
-
-export interface IServiceResult {
-    message?: string | undefined;
-    error?: string | undefined;
 }
 
 export class ServicePaginatedResultOfInitialVerificationJob implements IServicePaginatedResultOfInitialVerificationJob {
@@ -2324,17 +2867,6 @@ export interface IManometr1VerificationDto {
     etalonValues?: number[][];
     actualError?: number[][];
     actualVariation?: number[];
-}
-
-export enum VerificationGroup {
-    Манометры = "Манометры",
-    Датчики_давления = "Датчики_давления",
-    Термометры_биметаллические = "Термометры_биметаллические",
-}
-
-export enum DeviceLocation {
-    АнтипинскийНПЗ = "АнтипинскийНПЗ",
-    ГПНЯмал = "ГПНЯмал",
 }
 
 export class ServicePaginatedResultOfOwner implements IServicePaginatedResultOfOwner {

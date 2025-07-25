@@ -6,6 +6,178 @@
     "version": "1.0.0"
   },
   "paths": {
+    "/api/Davlenie/GetVerifications": {
+      "get": {
+        "tags": [
+          "Davlenie"
+        ],
+        "operationId": "Davlenie_GetVerifications",
+        "parameters": [
+          {
+            "name": "PageIndex",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "PageSize",
+            "in": "query",
+            "schema": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "x-position": 2
+          },
+          {
+            "name": "DeviceTypeNumber",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 3
+          },
+          {
+            "name": "DeviceSerial",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 4
+          },
+          {
+            "name": "YearMonth",
+            "in": "query",
+            "schema": {
+              "type": "string",
+              "nullable": true
+            },
+            "x-position": 5
+          },
+          {
+            "name": "Location",
+            "in": "query",
+            "schema": {
+              "nullable": true,
+              "oneOf": [
+                {
+                  "$ref": "#/components/schemas/DeviceLocation"
+                }
+              ]
+            },
+            "x-position": 6
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServicePaginatedResultOfDavlenie1VerificationDTO"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Davlenie/ExportToPdf": {
+      "post": {
+        "tags": [
+          "Davlenie"
+        ],
+        "operationId": "Davlenie_ExportToPdf",
+        "requestBody": {
+          "x-name": "ids",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Davlenie/ExportAllToPdf": {
+      "post": {
+        "tags": [
+          "Davlenie"
+        ],
+        "operationId": "Davlenie_ExportAllToPdf",
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/Davlenie/DeleteVerifications": {
+      "post": {
+        "tags": [
+          "Davlenie"
+        ],
+        "operationId": "Davlenie_DeleteVerifications",
+        "requestBody": {
+          "x-name": "ids",
+          "content": {
+            "application/json": {
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "format": "guid"
+                }
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/DeviceType/GetDevicesPaginated": {
       "get": {
         "tags": [
@@ -1169,6 +1341,232 @@
   },
   "components": {
     "schemas": {
+      "ServicePaginatedResultOfDavlenie1VerificationDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          },
+          "data": {
+            "nullable": true,
+            "oneOf": [
+              {
+                "$ref": "#/components/schemas/PaginatedListOfDavlenie1VerificationDTO"
+              }
+            ]
+          }
+        }
+      },
+      "PaginatedListOfDavlenie1VerificationDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "pageIndex": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "hasPreviousPage": {
+            "type": "boolean"
+          },
+          "hasNextPage": {
+            "type": "boolean"
+          },
+          "totalCount": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "items": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/Davlenie1VerificationDTO"
+            }
+          }
+        }
+      },
+      "Davlenie1VerificationDTO": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "guid"
+          },
+          "protocolNumber": {
+            "type": "string"
+          },
+          "deviceTypeName": {
+            "type": "string"
+          },
+          "deviceModification": {
+            "type": "string"
+          },
+          "deviceTypeNumber": {
+            "type": "string"
+          },
+          "deviceSerial": {
+            "type": "string"
+          },
+          "manufactureYear": {
+            "type": "integer"
+          },
+          "owner": {
+            "type": "string"
+          },
+          "ownerINN": {
+            "type": "integer",
+            "format": "uint64"
+          },
+          "verificationsInfo": {
+            "type": "string"
+          },
+          "etalonsInfo": {
+            "type": "string"
+          },
+          "temperature": {
+            "type": "number",
+            "format": "double"
+          },
+          "humidity": {
+            "type": "number",
+            "format": "double"
+          },
+          "pressure": {
+            "type": "string"
+          },
+          "visualCheckup": {
+            "type": "string"
+          },
+          "testCheckup": {
+            "type": "string"
+          },
+          "accuracyCalculation": {
+            "type": "string"
+          },
+          "verificationDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "worker": {
+            "type": "string"
+          },
+          "verificationGroup": {
+            "$ref": "#/components/schemas/VerificationGroup"
+          },
+          "location": {
+            "$ref": "#/components/schemas/DeviceLocation"
+          },
+          "verifiedUntilDate": {
+            "type": "string",
+            "format": "date"
+          },
+          "measurementMin": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementMax": {
+            "type": "number",
+            "format": "double"
+          },
+          "measurementUnit": {
+            "type": "string"
+          },
+          "pressureInputs": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "etalonValues": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          },
+          "deviceValues": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "actualError": {
+            "type": "array",
+            "items": {
+              "type": "array",
+              "items": {
+                "type": "number",
+                "format": "double"
+              }
+            }
+          },
+          "validError": {
+            "type": "number",
+            "format": "double"
+          },
+          "variations": {
+            "type": "array",
+            "items": {
+              "type": "number",
+              "format": "double"
+            }
+          }
+        }
+      },
+      "VerificationGroup": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ],
+        "enum": [
+          "Манометры",
+          "Датчики_давления",
+          "Термометры_биметаллические"
+        ]
+      },
+      "DeviceLocation": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ],
+        "enum": [
+          "АнтипинскийНПЗ",
+          "ГПНЯмал"
+        ]
+      },
+      "ServiceResult": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "message": {
+            "type": "string",
+            "nullable": true
+          },
+          "error": {
+            "type": "string",
+            "nullable": true
+          }
+        }
+      },
       "ServicePaginatedResultOfDeviceType": {
         "type": "object",
         "additionalProperties": false,
@@ -1272,20 +1670,6 @@
           "id": {
             "type": "string",
             "format": "guid"
-          }
-        }
-      },
-      "ServiceResult": {
-        "type": "object",
-        "additionalProperties": false,
-        "properties": {
-          "message": {
-            "type": "string",
-            "nullable": true
-          },
-          "error": {
-            "type": "string",
-            "nullable": true
           }
         }
       },
@@ -1552,32 +1936,6 @@
             }
           }
         }
-      },
-      "VerificationGroup": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ],
-        "enum": [
-          "Манометры",
-          "Датчики_давления",
-          "Термометры_биметаллические"
-        ]
-      },
-      "DeviceLocation": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ],
-        "enum": [
-          "АнтипинскийНПЗ",
-          "ГПНЯмал"
-        ]
       },
       "ServicePaginatedResultOfOwner": {
         "type": "object",

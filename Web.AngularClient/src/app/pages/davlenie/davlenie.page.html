@@ -1,0 +1,325 @@
+<!-- Error message display -->
+<div *ngIf="error" class="error-message">{{ error }}</div>
+<!-- Success message display -->
+<div *ngIf="successMessage" class="success-message">{{ successMessage }}</div>
+<!-- Info message display -->
+<div *ngIf="infoMessage" class="info-message">{{ infoMessage }}</div>
+
+<div class="table-container">
+  <!-- Filter controls section -->
+  <div class="pagination-controls">
+    <!-- Page size selector -->
+    <div class="selector-form">
+      <label for="pageSize">Записей на странице:</label>
+      <select
+        id="pageSize"
+        [(ngModel)]="pagination.pageSize"
+        (change)="pagination.onPageSizeChange()"
+      >
+        <option *ngFor="let size of pagination.pageSizeOptions" [value]="size">
+          {{ size }}
+        </option>
+      </select>
+    </div>
+
+    <!-- Date filter -->
+    <div class="selector-form">
+      <app-dates-filter
+        [label]="'Дата:'"
+        [(model)]="yearMonthFilter"
+        (change)="onYearMonthFilterChange()"
+      ></app-dates-filter>
+    </div>
+
+    <!-- Location filter -->
+    <div class="selector-form">
+      <label for="locationFilter">Местоположение:</label>
+      <select
+        id="locationFilter"
+        [(ngModel)]="locationFilter"
+        (change)="onLocationFilterChange()"
+      >
+        <option value="all">Все</option>
+        <option value="АнтипинскийНПЗ">Антипинский НПЗ</option>
+        <option value="ГПНЯмал">ГПН Ямал</option>
+      </select>
+    </div>
+
+    <!-- Device type number filter -->
+    <div class="selector-form">
+      <label for="deviceTypeNumberFilter">Номер типа:</label>
+      <input
+        type="text"
+        id="deviceTypeNumberFilter"
+        [(ngModel)]="deviceTypeNumberFilter"
+        (input)="deviceTypeNumberFilter = $any($event.target).value"
+        placeholder="Введите номер типа"
+      />
+    </div>
+
+    <!-- Device serial filter -->
+    <div class="selector-form">
+      <label for="deviceSerialFilter">Серийный номер:</label>
+      <input
+        type="text"
+        id="deviceSerialFilter"
+        [(ngModel)]="deviceSerialFilter"
+        (input)="deviceSerialFilter = $any($event.target).value"
+        placeholder="Введите серийный номер"
+      />
+    </div>
+
+    <!-- Delete button as filter action -->
+    <div class="selector-form">
+      <button
+        type="button"
+        class="delete-btn"
+        (click)="deleteSelectedVerifications()"
+        [disabled]="loading || exportLoading || selectedRows.size === 0"
+        title="Удалить выбранные поверки"
+      >
+        Удалить ({{ selectedRows.size }})
+      </button>
+    </div>
+
+    <!-- Export buttons in column -->
+    <div class="selector-form export-column">
+      <button 
+        type="button" 
+        class="export-btn"
+        (click)="exportToPdf()"
+        [disabled]="loading || exportLoading || selectedRows.size === 0"
+        title="Экспорт выбранных записей в PDF"
+        *ngIf="!exportLoading"
+      >
+        Экспорт в PDF ({{ selectedRows.size }})
+      </button>
+      <button
+        type="button"
+        class="export-btn"
+        (click)="exportAllToPdf()"
+        [disabled]="loading || exportLoading"
+        title="Экспортировать все записи в PDF"
+        *ngIf="!exportLoading"
+      >
+        Экспортировать все
+      </button>
+      <button
+        type="button"
+        class="export-btn cancel-btn"
+        (click)="cancelExport()"
+        *ngIf="exportLoading"
+        title="Отменить экспорт"
+      >
+        Отменить экспорт
+      </button>
+    </div>
+
+    <!-- Pagination info -->
+    <div class="pagination-info">
+      Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
+      + 1 }} из {{ pagination.totalCount }} записей
+    </div>
+  </div>
+
+  <!-- Loading message -->
+  <div *ngIf="loading" class="loading-message">Загрузка манометров...</div>
+
+  <!-- Data table -->
+  <div *ngIf="!loading && !error">
+    <table>
+      <thead>
+        <tr>
+          <th>
+            <input 
+              type="checkbox" 
+              [checked]="isAllSelected()" 
+              (change)="toggleSelectAll($event)"
+              [disabled]="loading || exportLoading"
+              title="Выбрать все"
+            />
+          </th>
+          <th>Номер протокола</th>
+          <th>Тип устройства</th>
+          <th>
+            <div>Серийный</div>
+            <hr class="header-divider">
+            <div>Модификация</div>
+            <hr class="header-divider">
+            <div>Год создания</div>
+          </th>
+          <th>
+            <div>Дата поверки</div>
+            <hr class="header-divider">
+            <div>Действительна до</div>
+          </th>
+          <th>
+            <div>Владелец</div>
+            <hr class="header-divider">
+            <div>ИНН</div>
+          </th>
+          <th>Инфо поверки</th>
+          <th>Эталоны</th>
+          <th>Работник</th>
+          <th>Местоположение</th>
+          <th>
+            <div>Температура</div>
+            <hr class="header-divider">
+            <div>Влажность</div>
+            <hr class="header-divider">
+            <div>Давление</div>
+          </th>
+          <th>
+            <div>Диапазон измерений</div>
+            <hr class="header-divider">
+            <div>Класс точности</div>
+          </th>
+          <th>Значения устройства</th>
+          <th>Давление</th>
+          <th>Эталон</th>
+          <th>Погрешность</th>
+          <th>Вариация</th>
+          <!-- <th>Удалить</th> -->
+          <th>Входы давления</th>
+          <!-- Add more if needed -->
+        </tr>
+      </thead>
+      <tbody>
+        <tr *ngFor="let m of davlenie; let i = index">
+          <!-- Checkbox -->
+          <td>
+            <input 
+              type="checkbox" 
+              [checked]="selectedRows.has(i)" 
+              (change)="toggleRowSelection(i, $event)"
+              [disabled]="loading || exportLoading"
+              title="Выбрать строку"
+            />
+          </td>
+          <!-- Protocol number -->
+          <td>{{ m.protocolNumber || '-' }}</td>
+          
+          <!-- Device type -->
+          <td>
+            <div>{{ m.deviceTypeNumber || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.deviceTypeName || '-' }}</div>
+          </td>
+          
+          <!-- Device details -->
+          <td>
+            <div>{{ m.deviceSerial || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.deviceModification || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.manufactureYear || '-' }}</div>
+          </td>
+          
+          <!-- Verification dates -->
+          <td>
+            <div>{{ m.verificationDate | date:'yyyy-MM-dd' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
+          </td>
+          
+          <!-- Owner information -->
+          <td>
+            <div>{{ m.owner || '-' }}</div>
+            <hr class="data-row-divider">
+            <div>{{ m.ownerINN || '-' }}</div>
+          </td>
+          
+          <!-- Verification info -->
+          <td>{{ m.verificationsInfo || '-' }}</td>
+          
+          <!-- Etalons info -->
+          <td>{{ m.etalonsInfo || '-' }}</td>
+          
+          <!-- Worker -->
+          <td>{{ m.worker || '-' }}</td>
+          
+          <!-- Location -->
+          <td>{{ m.location || '-' }}</td>
+          
+          <!-- Environmental conditions -->
+          <td>
+            <div>{{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
+            <div>{{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+            <div>{{ m.pressure || '-' }}</div>
+          </td>
+          
+          <!-- Measurement range and accuracy -->
+          <td>
+            <div *ngFor="let line of formatRangeAccuracy(m).split('\n'); let i = index">
+              <span>{{ line }}</span>
+              <hr *ngIf="i < 2" class="data-row-divider">
+            </div>
+          </td>
+          
+          <!-- Device values -->
+          <td>{{ formatDeviceValues(m) }}</td>
+          <!-- Pressure inputs -->
+          <td>{{ m.pressureInputs ? m.pressureInputs.join(', ') : '-' }}</td>
+          <!-- Etalon values -->
+          <td>{{ formatEtalonValues(m) }}</td>
+          <!-- Actual error -->
+          <td>{{ formatActualError(m) }}</td>
+          <!-- Actual variation -->
+          <td>{{ formatActualVariation(m) }}</td>
+          <!-- Delete button removed -->
+          <!-- Additional Davlenie1VerificationDTO properties -->
+          <td>{{ m.pressureInputs ? m.pressureInputs.join(', ') : '-' }}</td>
+          <!-- Add more if needed -->
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- Pagination navigation -->
+    <div class="pagination-navigation" *ngIf="pagination.needsPagination()">
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateFirst"
+        (click)="pagination.goToFirstPage()"
+        title="Первая страница"
+      >
+        «
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasPreviousPage"
+        (click)="pagination.goToPreviousPage()"
+        title="Предыдущая страница"
+      >
+        ‹
+      </button>
+
+      <button
+        *ngFor="let page of pagination.getPageNumbers()"
+        class="pagination-btn page-number"
+        [class.active]="page === pagination.currentPage"
+        (click)="pagination.goToPage(page)"
+      >
+        {{ page }}
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.hasNextPage"
+        (click)="pagination.goToNextPage()"
+        title="Следующая страница"
+      >
+        ›
+      </button>
+
+      <button
+        class="pagination-btn"
+        [disabled]="!pagination.canActivateLast"
+        (click)="pagination.goToLastPage()"
+        title="Последняя страница"
+      >
+        »
+      </button>
+    </div>
+  </div>
+</div> 

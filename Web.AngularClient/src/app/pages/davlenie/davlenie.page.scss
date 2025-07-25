@@ -1,0 +1,288 @@
+// Main container
+.table-container {
+  padding: var(--spacing-lg);
+}
+
+// Filter controls section
+.pagination-controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--spacing-md);
+  align-items: flex-end;
+  margin-bottom: var(--spacing-lg);
+  padding: var(--spacing-md);
+  background: var(--bg-light);
+  border-radius: var(--border-radius-md);
+  border: 1px solid var(--border-light);
+}
+
+.pagination-info {
+  margin-left: auto;
+  color: var(--text-secondary);
+  font-size: var(--text-small);
+  align-self: center;
+}
+
+// Pagination navigation
+.pagination-navigation {
+  display: flex;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  margin-top: var(--spacing-lg);
+  padding: var(--spacing-md);
+}
+
+.pagination-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background: var(--secondary-color);
+  color: var(--text-primary);
+  font-size: var(--text-normal);
+  border: 1px solid var(--secondary-border);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  min-width: 2rem;
+  text-align: center;
+  transition: var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background: var(--secondary-hover);
+    border-color: var(--secondary-border-hover);
+  }
+
+  &:disabled {
+    background: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+  }
+
+  &.active {
+    background: var(--primary-color);
+    color: var(--text-white);
+    border-color: var(--primary-color);
+  }
+
+  &.page-number {
+    min-width: 2.5rem;
+  }
+}
+
+.cancel-btn {
+  background-color: #fff3cd;
+  color: #856404;
+  border: 1px solid #ffeeba;
+  margin-left: 8px;
+}
+
+// Table styling
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: var(--spacing-xl);
+  background: var(--bg-white);
+  border-radius: var(--border-radius-md);
+  box-shadow: 0 2px 8px var(--shadow-light);
+  overflow: hidden;
+  font-size: var(--text-small);
+
+  th,
+  td {
+    border: 1px solid var(--border-light);
+    padding: var(--spacing-xs);
+    text-align: left;
+    vertical-align: top;
+  }
+
+  th {
+    background: var(--bg-light);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  td {
+    max-width: 200px;
+    word-wrap: break-word;
+    white-space: pre-line;
+  }
+
+  tbody tr {
+    transition: var(--transition-fast);
+    
+    &:hover {
+      background: var(--bg-light);
+    }
+  }
+}
+
+// Divider elements
+.data-row-divider {
+  margin: var(--spacing-xs) 0;
+  border: none;
+  border-top: 1px solid var(--border-light);
+  height: 1px;
+}
+
+.header-divider {
+  margin: 2px 0;
+  border: none;
+  border-top: 1px solid var(--border-medium);
+  height: 1px;
+}
+
+// Status messages - using global message styles
+.error-message {
+  background-color: #f8d7da;
+  color: #721c24;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #f5c6cb;
+  border-radius: 4px;
+}
+
+.success-message {
+  background-color: #d4edda;
+  color: #155724;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #c3e6cb;
+  border-radius: 4px;
+}
+
+.loading-message {
+  padding: var(--spacing-sm);
+  text-align: center;
+  border-radius: var(--border-radius-md);
+  margin-bottom: var(--spacing-md);
+  background-color: var(--primary-light);
+  color: var(--primary-color);
+}
+
+.info-message {
+  background-color: #d1ecf1;
+  color: #0c5460;
+  padding: 10px;
+  margin: 10px 0;
+  border: 1px solid #bee5eb;
+  border-radius: 4px;
+}
+
+// Responsive design
+@media (max-width: 1200px) {
+  .pagination-controls {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .pagination-info {
+    margin-left: 0;
+    text-align: center;
+  }
+
+  table {
+    font-size: var(--text-small);
+    
+    th,
+    td {
+      padding: var(--spacing-xs);
+    }
+  }
+}
+
+@media (max-width: 768px) {
+  .table-container {
+    padding: var(--spacing-sm);
+  }
+
+  .pagination-controls {
+    gap: var(--spacing-sm);
+  }
+
+  .pagination-navigation {
+    flex-wrap: wrap;
+    gap: var(--spacing-xs);
+  }
+
+  .pagination-btn {
+    padding: var(--spacing-xs);
+    font-size: var(--text-small);
+    min-width: 1.5rem;
+  }
+}
+
+// Checkbox styling
+input[type="checkbox"] {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+  accent-color: var(--primary-color);
+  
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+  
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+}
+
+// Export button styling - consistent with global button styles
+.export-btn {
+  padding: var(--spacing-xs) var(--spacing-sm);
+  background-color: var(--secondary-color);
+  color: var(--text-primary);
+  border: 1px solid var(--secondary-border);
+  border-radius: var(--border-radius-sm);
+  font-size: var(--text-normal);
+  font-weight: 500;
+  cursor: pointer;
+  transition: var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--secondary-hover);
+    border-color: var(--secondary-border-hover);
+  }
+
+  &:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border-color: var(--border-medium);
+    opacity: 0.6;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+}
+
+// Delete button styling - visually consistent with export-btn when disabled
+.delete-btn {
+  background-color: var(--error-color);
+  color: var(--text-white);
+  border: none;
+  padding: var(--spacing-xs) var(--spacing-sm);
+  border-radius: var(--border-radius-sm);
+  cursor: pointer;
+  font-size: var(--text-normal);
+  font-weight: 500;
+  transition: var(--transition-fast);
+
+  &:hover:not(:disabled) {
+    background-color: var(--error-color-dark);
+  }
+
+  &:disabled {
+    background-color: var(--bg-disabled);
+    color: var(--text-disabled);
+    cursor: not-allowed;
+    border: 1px solid var(--border-medium);
+    opacity: 0.6;
+  }
+
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 2px var(--primary-light);
+  }
+} 
