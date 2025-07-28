@@ -119,7 +119,15 @@ public class ManometrService
 
         if (dbVrfs.Length == 0) return ServiceResult.Fail("Не найдены поверки для экспорта");
 
-        var ids = dbVrfs.Select(x => x.Id).ToArray();
+        var idsToExport = dbVrfs
+            .GroupJoin(excelVrfs,
+                       dbV => new { dbV.DeviceTypeNumber, dbV.DeviceSerial, dbV.VerificationDate },
+                       exV => new { exV.DeviceTypeNumber, exV.DeviceSerial, exV.VerificationDate },
+                       (dbV, exV) => new { dbV.Id, Exists = exV.FirstOrDefault() is not null })
+            .Where(dto => dto.Exists)
+            .Select(dto => dto.Id)
+            .ToArray();
+
         fileName = Path.GetFileNameWithoutExtension(fileName);
         Span<char> charBuffer = stackalloc char[fileName.Length];
 
@@ -131,7 +139,7 @@ public class ManometrService
 
         fileName = new string(charBuffer);
 
-        var resultExportPDF = await ExportAsync(ids, fileName, cancellationToken);
+        var resultExportPDF = await ExportAsync(idsToExport, fileName, cancellationToken);
 
         if (resultExportPDF.Error != null) return resultExportPDF;
 
@@ -139,9 +147,15 @@ public class ManometrService
             .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
             .ToArray();
 
-        var notFoundVrfsString = string.Join(" | ", notFoundVrfs);
-        
-        return ServiceResult.Success($"{resultExportPDF.Message!}. Не найдены поверки {notFoundVrfsString}");
+        var msg = resultExportPDF.Message!;
+
+        if (notFoundVrfs.Length > 0)
+        {
+            var notFoundVrfsString = string.Join(" | ", notFoundVrfs);
+            msg = $"{msg}. Не найдены поверки {notFoundVrfsString}";
+        }
+
+        return ServiceResult.Success(msg);
     }
 
     private async Task<ServiceResult> ExportAsync(IReadOnlyList<Guid> ids, string? extraDir = null, CancellationToken cancellationToken = default)

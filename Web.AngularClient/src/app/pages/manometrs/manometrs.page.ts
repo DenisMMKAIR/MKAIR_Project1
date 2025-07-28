@@ -144,9 +144,6 @@ export class ManometrsPage implements OnInit {
         if (response?.message) {
           this.error = null;
           this.successMessage = response.message;
-          setTimeout(() => {
-            this.successMessage = null;
-          }, 5000);
         } else if (response?.error) {
           this.error = response.error;
         } else {
@@ -177,9 +174,6 @@ export class ManometrsPage implements OnInit {
         if (response?.message) {
           this.error = null;
           this.successMessage = response.message;
-          setTimeout(() => {
-            this.successMessage = null;
-          }, 5000);
         } else if (response?.error) {
           this.error = response.error;
         } else {
@@ -369,7 +363,6 @@ export class ManometrsPage implements OnInit {
       next: (response: any) => {
         if (response?.message) {
           this.successMessage = response.message;
-          setTimeout(() => { this.successMessage = null; }, 5000);
         } else if (response?.error) {
           this.error = response.error;
         } else {

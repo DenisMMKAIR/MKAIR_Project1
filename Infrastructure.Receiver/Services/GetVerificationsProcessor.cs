@@ -8,14 +8,14 @@ namespace Infrastructure.Receiver.Services;
 
 public class GetVerificationsProcessor : IGetVerificationsFromExcelProcessor
 {
-    private readonly ExcelFileProcessor<ExcelData, IInitialVerification> _excelFileProcessor;
+    private readonly ExcelFileProcessor<ExcelData, VerificationBase> _excelFileProcessor;
 
     public GetVerificationsProcessor(ILogger<GetVerificationsProcessor> logger)
     {
-        _excelFileProcessor = new ExcelFileProcessor<ExcelData, IInitialVerification>(logger); ;
+        _excelFileProcessor = new ExcelFileProcessor<ExcelData, VerificationBase>(logger); ;
     }
 
-    public IReadOnlyList<IInitialVerification> GetVerificationsFromFile(Stream fileStream, string fileName, string sheetName, string dataRange)
+    public IReadOnlyList<IVerificationBase> GetVerificationsFromFile(Stream fileStream, string fileName, string sheetName, string dataRange)
     {
         return _excelFileProcessor.ReadVerificationFile(
             fileStream,
@@ -71,24 +71,30 @@ public class GetVerificationsProcessor : IGetVerificationsFromExcelProcessor
         }
     }
 
-    private partial class ExcelData : IDataItem<IInitialVerification>
+    private partial class ExcelData : IDataItem<VerificationBase>
     {
         public string DeviceTypeNumber { get; set; } = string.Empty;
         public string DeviceSerial { get; set; } = string.Empty;
         public DateOnly VerificationDate { get; set; }
 
-        public IInitialVerification PostProcess(string fileName, int rowNumber, DeviceLocation location)
+        public VerificationBase PostProcess(string fileName, int rowNumber, DeviceLocation location)
         {
-            return new SuccessInitialVerification
+            return new VerificationBase
             {
                 DeviceTypeNumber = DeviceTypeNumber,
                 DeviceSerial = DeviceSerial,
-                VerificationDate = VerificationDate,
-
-                Owner = string.Empty,
-                VerificationTypeName = string.Empty,
-                VerifiedUntilDate = default,
+                VerificationDate = VerificationDate
             };
         }
+    }
+
+    private class VerificationBase : IVerificationBase
+    {
+        public required string DeviceTypeNumber { get; set; }
+        public required string DeviceSerial { get; set; }
+        public required DateOnly VerificationDate { get; set; }
+        public Device? Device { get; set; }
+        public VerificationMethod? VerificationMethod { get; set; }
+        public ICollection<Etalon>? Etalons { get; set; }
     }
 }

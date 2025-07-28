@@ -4,5 +4,5 @@ namespace ProjApp.InfrastructureInterfaces;
 
 public interface IGetVerificationsFromExcelProcessor
 {
-    public IReadOnlyList<IInitialVerification> GetVerificationsFromFile(Stream fileStream, string fileName, string sheetName, string dataRange);
+    public IReadOnlyList<IVerificationBase> GetVerificationsFromFile(Stream fileStream, string fileName, string sheetName, string dataRange);
 }
