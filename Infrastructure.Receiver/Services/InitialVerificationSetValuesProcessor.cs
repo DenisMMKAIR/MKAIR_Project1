@@ -123,10 +123,10 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             public IReadOnlyCollection<string> IncomingNames { get; } = ["влажность"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.Humidity);
             public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
-                new SingleFloatDigitColumnNormalizer(),
+                new HumidityColumnNormalizer(),
             ];
             public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
-                new FloatPercentageVerifier(),
+                new PercentageVerifier(),
             ];
             public uint ColumnIndex { get; set; }
         }
@@ -221,7 +221,7 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             };
         }
 
-        [GeneratedRegex(@"\(([+-]*\d*[\.,]?\d+)-([+-]*\d*[\.,]?\d+)\)(.+)")]
+        [GeneratedRegex(@"\(?([+-]*\d*[\.,]?\d+)\)?-\(?([+-]*\d*[\.,]?\d+)\)?(.+)")]
         private static partial Regex MeasurementRegex();
     }
 }
