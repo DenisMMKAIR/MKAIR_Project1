@@ -13,13 +13,14 @@ public class PDFFilePathManager
             throw new ArgumentNullException(nameof(configuration), "Директория протоколов не задана в настройках");
     }
 
-    public string GetFilePath(IProtocolFileInfo form)
+    public string GetFilePath(IProtocolFileInfo form, string? extraDir = null)
     {
         var dirPath = Path.Combine(
             _protocolsDirPath,
             form.Location.ToString(),
             form.VerificationGroup.ToString(),
-            form.VerificationDate.ToString("yyyy-MM"));
+            form.VerificationDate.ToString("yyyy-MM"),
+            extraDir ?? string.Empty);
 
         if (!Directory.Exists(dirPath)) Directory.CreateDirectory(dirPath);
 

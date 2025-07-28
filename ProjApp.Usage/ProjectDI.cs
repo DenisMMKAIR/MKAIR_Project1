@@ -39,6 +39,7 @@ public static class ProjectDI
 
         serviceCollection.AddScoped<IPendingManometrVerificationsProcessor, PendingManometrVerificationExcelProcessor>();
         serviceCollection.AddScoped<IIVSetValuesProcessor, InitialVerificationSetValuesProcessor>();
+        serviceCollection.AddScoped<IGetVerificationsFromExcelProcessor, GetVerificationsProcessor>();
 
         serviceCollection.AddScoped<ITemplateProcessor, TemplateProcessor>();
 
