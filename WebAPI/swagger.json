@@ -529,6 +529,60 @@
         }
       }
     },
+    "/api/Manometr/ExportByExcelToPDF": {
+      "post": {
+        "tags": [
+          "Manometr"
+        ],
+        "operationId": "Manometr_ExportByExcelToPDF",
+        "parameters": [
+          {
+            "name": "sheetName",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 1
+          },
+          {
+            "name": "dataRange",
+            "in": "query",
+            "schema": {
+              "type": "string"
+            },
+            "x-position": 2
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "excelFile": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
     "/api/Manometr/DeleteVerifications": {
       "post": {
         "tags": [

@@ -732,6 +732,67 @@ export class ManometrClient {
         return _observableOf(null as any);
     }
 
+    exportByExcelToPDF(sheetName: string | undefined, dataRange: string | undefined, excelFile: FileParameter | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/Manometr/ExportByExcelToPDF?";
+        if (sheetName === null)
+            throw new Error("The parameter 'sheetName' cannot be null.");
+        else if (sheetName !== undefined)
+            url_ += "sheetName=" + encodeURIComponent("" + sheetName) + "&";
+        if (dataRange === null)
+            throw new Error("The parameter 'dataRange' cannot be null.");
+        else if (dataRange !== undefined)
+            url_ += "dataRange=" + encodeURIComponent("" + dataRange) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (excelFile !== null && excelFile !== undefined)
+            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportByExcelToPDF(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportByExcelToPDF(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportByExcelToPDF(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
     deleteVerifications(ids: string[]): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/Manometr/DeleteVerifications";
         url_ = url_.replace(/[?&]$/, "");

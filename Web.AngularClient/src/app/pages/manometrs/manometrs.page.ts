@@ -26,6 +26,9 @@ export class ManometrsPage implements OnInit {
   public successMessage: string | null = null;
   public selectedRows = new Set<number>();
   private exportSubscription: Subscription | null = null;
+  public excelFile: File | null = null;
+  public sheetName: string = '';
+  public dataRange: string = '';
 
   ngOnInit(): void {
     this.manometrsService.setPageChangeCallback(() => this.loadManometrs());
@@ -330,6 +333,55 @@ export class ManometrsPage implements OnInit {
         this.selectedRows.clear();
         this.loading = false;
         this.loadManometrs();
+      }
+    });
+  }
+
+  public onExcelFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.excelFile = input.files[0];
+    }
+  }
+
+  public exportAllToExcel(): void {
+    if (this.exportLoading) {
+      return;
+    }
+    if (!this.excelFile) {
+      this.error = 'Выберите Excel файл.';
+      return;
+    }
+    if (!this.sheetName.trim()) {
+      this.error = 'Укажите имя листа.';
+      return;
+    }
+    if (!this.dataRange.trim()) {
+      this.error = 'Укажите диапазон данных.';
+      return;
+    }
+    this.exportLoading = true;
+    this.error = null;
+    this.infoMessage = null;
+    this.successMessage = null;
+    const fileParam = { data: this.excelFile, fileName: this.excelFile.name };
+    this.exportSubscription = this.manometrClient.exportByExcelToPDF(this.sheetName.trim(), this.dataRange.trim(), fileParam).subscribe({
+      next: (response: any) => {
+        if (response?.message) {
+          this.successMessage = response.message;
+          setTimeout(() => { this.successMessage = null; }, 5000);
+        } else if (response?.error) {
+          this.error = response.error;
+        } else {
+          this.error = 'Неожиданный ответ от сервера.';
+        }
+        this.exportLoading = false;
+        this.exportSubscription = null;
+      },
+      error: (err: any) => {
+        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте в Excel.';
+        this.exportLoading = false;
+        this.exportSubscription = null;
       }
     });
   }

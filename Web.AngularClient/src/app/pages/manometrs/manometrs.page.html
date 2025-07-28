@@ -115,6 +115,16 @@
       </button>
     </div>
 
+    <!-- Excel export controls column -->
+    <div class="selector-form export-excel-column" style="display: flex; flex-direction: column; gap: 8px;">
+      <input type="file" id="excelFile" (change)="onExcelFileChange($event)" accept=".xls,.xlsx,.xlsm" [disabled]="exportLoading || loading" />
+      <input type="text" id="sheetName" [(ngModel)]="sheetName" [disabled]="exportLoading || loading" placeholder="Имя листа" />
+      <input type="text" id="dataRange" [(ngModel)]="dataRange" [disabled]="exportLoading || loading" placeholder="Диапазон (например, A1:Z100)" />
+      <button type="button" class="export-btn" (click)="exportAllToExcel()" [disabled]="exportLoading || loading" title="Экспортировать все в Excel">
+        Экспортировать в Excel
+      </button>
+    </div>
+
     <!-- Pagination info -->
     <div class="pagination-info">
       Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
@@ -126,7 +136,6 @@
   <div *ngIf="loading" class="loading-message">Загрузка манометров...</div>
 
   <!-- Data table -->
-  <div *ngIf="!loading && !error">
     <table>
       <thead>
         <tr>
@@ -316,5 +325,4 @@
         »
       </button>
     </div>
-  </div>
 </div> 
