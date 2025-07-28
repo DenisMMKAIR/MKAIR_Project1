@@ -46,7 +46,7 @@ public class ManometrController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ServiceResult> ExportAllToExcel([Required] IFormFile excelFile, string sheetName, string dataRange, CancellationToken cancellationToken)
+    public async Task<ServiceResult> ExportByExcelToPDF([Required] IFormFile excelFile, string sheetName, string dataRange, CancellationToken cancellationToken)
     {
         var mem = new MemoryStream();
         excelFile.CopyTo(mem);
