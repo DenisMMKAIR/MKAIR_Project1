@@ -1,5 +1,6 @@
 using Infrastructure.DocumentProcessor;
 using Infrastructure.DocumentProcessor.Creator;
+using Microsoft.Extensions.Logging;
 
 namespace Project1Tests.DocumentProcessor;
 
@@ -15,7 +16,8 @@ internal abstract class CombinedFixture
     {
         ManometrCreator = new ManometrSuccessDocumentCreator([], Tools.GetSignsDirPath());
         DavlenieCreator = new DavlenieSuccessDocumentCreator([], Tools.GetSignsDirPath());
-        PdfExporter = new PDFExporter();
+        var logger = new LoggerFactory().CreateLogger<PDFExporter>();
+        PdfExporter = new PDFExporter(logger);
     }
 
     [OneTimeTearDown]

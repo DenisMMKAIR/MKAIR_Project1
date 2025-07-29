@@ -1,4 +1,5 @@
 using Infrastructure.DocumentProcessor.Creator;
+using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.ProtocolForms;
 using IAppConfig = Microsoft.Extensions.Configuration.IConfiguration;
@@ -8,31 +9,32 @@ namespace Infrastructure.DocumentProcessor.Services;
 public class TemplateProcessor : ITemplateProcessor
 {
     private readonly Dictionary<string, string> _signsCache = [];
-    private readonly PDFExporter _exporter = new();
+    private readonly PDFExporter _exporter;
     private readonly ManometrSuccessDocumentCreator _manDocCreator;
     private readonly DavlenieSuccessDocumentCreator _davDocCreator;
     private bool _disposed;
 
-    public TemplateProcessor(IAppConfig configuration)
+    public TemplateProcessor(ILogger<TemplateProcessor> logger, IAppConfig configuration)
     {
         var signsDirPath = configuration["SignsDirPath"] ??
             throw new ArgumentNullException(nameof(configuration), "Директория подписей не задана в настройках");
 
+        _exporter = new(logger);
         _manDocCreator = new(_signsCache, signsDirPath);
         _davDocCreator = new(_signsCache, signsDirPath);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(ManometrForm verification, string filePath, CancellationToken? cancellationToken = null)
+    public async Task<PDFCreationResult> CreatePDFAsync(ManometrForm verification, string filePath, CancellationToken cancellationToken = default)
     {
         return await CreateAsync(_manDocCreator, verification, filePath, cancellationToken);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(DavlenieForm verification, string filePath, CancellationToken? cancellationToken = null)
+    public async Task<PDFCreationResult> CreatePDFAsync(DavlenieForm verification, string filePath, CancellationToken cancellationToken = default)
     {
         return await CreateAsync(_davDocCreator, verification, filePath, cancellationToken);
     }
 
-    private async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath, CancellationToken? cancellationToken = null)
+    private async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath, CancellationToken cancellationToken = default)
     {
         var htmlResult = await htmlCreator.CreateAsync(data, cancellationToken);
 

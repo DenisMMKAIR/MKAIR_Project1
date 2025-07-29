@@ -72,18 +72,18 @@ public class DavlenieService
         return ServiceResult.Success("Поверки удалены");
     }
 
-    public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
+    public async Task<ServiceResult> ExportToPdfAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken = default)
     {
         if (ids.Count == 0) return ServiceResult.Fail("Не выбрано ни одной записи");
         return await ExportAsync(ids, cancellationToken);
     }
 
-    public async Task<ServiceResult> ExportAllToPdfAsync(CancellationToken? cancellationToken = null)
+    public async Task<ServiceResult> ExportAllToPdfAsync(CancellationToken cancellationToken = default)
     {
         return await ExportAsync([], cancellationToken);
     }
 
-    private async Task<ServiceResult> ExportAsync(IReadOnlyList<Guid> ids, CancellationToken? cancellationToken = null)
+    private async Task<ServiceResult> ExportAsync(IReadOnlyList<Guid> ids, CancellationToken cancellationToken = default)
     {
         var query = _database.Davlenie1Verifications
             .Include(v => v.Device!)
