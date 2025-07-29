@@ -103,7 +103,16 @@ public class ManometrService
         string dataRange,
         CancellationToken cancellationToken = default)
     {
-        var excelVrfs = _excelGetVerificationsProcessor.GetVerificationsFromFile(excelFile, fileName, sheetName, dataRange);
+        IReadOnlyList<IVerificationBase> excelVrfs;
+
+        try
+        {
+            excelVrfs = _excelGetVerificationsProcessor.GetVerificationsFromFile(excelFile, fileName, sheetName, dataRange);
+        }
+        catch (Exception e)
+        {
+            return ServiceResult.Fail(e.Message);
+        }
 
         if (excelVrfs.Count == 0) return ServiceResult.Fail("Не найдены записи в файле для экспорта");
 
@@ -138,8 +147,16 @@ public class ManometrService
         }
 
         fileName = new string(charBuffer);
+        ServiceResult? resultExportPDF;
 
-        var resultExportPDF = await ExportAsync(idsToExport, fileName, cancellationToken);
+        try
+        {
+            resultExportPDF = await ExportAsync(idsToExport, fileName, cancellationToken);
+        }
+        catch (Exception e)
+        {
+            return ServiceResult.Fail(e.Message);
+        }
 
         if (resultExportPDF.Error != null) return resultExportPDF;
 
