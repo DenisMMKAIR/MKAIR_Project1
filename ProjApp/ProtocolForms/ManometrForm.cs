@@ -33,6 +33,7 @@ public class ManometrForm
 
 public static class ManometrFormExtensions
 {
+    [Obsolete("Use checkups from Verification method")]
     public static ManometrForm ToManometrForm(this Manometr1Verification vrf)
     {
         return new()
