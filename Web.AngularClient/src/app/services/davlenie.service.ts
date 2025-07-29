@@ -28,6 +28,7 @@ export class DavlenieService {
 
   constructor() {
     this.pagination = new Pagination();
+    this.pagination.pageSize = 5;
     this.generateYearMonthOptions();
 
     this.deviceTypeNumberFilterSubject
