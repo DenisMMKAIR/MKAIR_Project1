@@ -193,7 +193,7 @@ public class ManometrService
         var successCount = 0;
         var failedCount = 0;
 
-        var vrfs = await query.ToArrayAsync();
+        var vrfs = await query.ToArrayAsync(cancellationToken);
 
         foreach (var vrf in vrfs)
         {
