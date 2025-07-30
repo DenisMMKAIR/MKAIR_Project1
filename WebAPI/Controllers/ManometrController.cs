@@ -34,27 +34,6 @@ public class ManometrController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ServiceResult> ExportToPdf([Required][FromBody] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
-    {
-        return await _service.ExportToPdfAsync(ids, cancellationToken);
-    }
-
-    [HttpPost]
-    public async Task<ServiceResult> ExportAllToPdf(CancellationToken cancellationToken)
-    {
-        return await _service.ExportAllToPdfAsync(cancellationToken);
-    }
-
-    [HttpPost]
-    public async Task<ServiceResult> ExportByExcelToPDF([Required] IFormFile excelFile, string sheetName, string dataRange, CancellationToken cancellationToken)
-    {
-        var mem = new MemoryStream();
-        excelFile.CopyTo(mem);
-        mem.Position = 0;
-        return await _service.ExportToPdfAsync(excelFile.FileName, mem, sheetName, dataRange, cancellationToken);
-    }
-
-    [HttpPost]
     public async Task<ServiceResult> DeleteVerifications([Required][FromBody] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         return await _service.DeleteVerificationAsync(ids, cancellationToken);

@@ -90,106 +90,6 @@ export class DavlenieClient {
         return _observableOf(null as any);
     }
 
-    exportToPdf(ids: string[]): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Davlenie/ExportToPdf";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(ids);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportToPdf(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportToPdf(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    exportAllToPdf(): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Davlenie/ExportAllToPdf";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportAllToPdf(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportAllToPdf(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportAllToPdf(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
     deleteVerifications(ids: string[]): Observable<ServiceResult> {
         let url_ = this.baseUrl + "/api/Davlenie/DeleteVerifications";
         url_ = url_.replace(/[?&]$/, "");
@@ -356,6 +256,181 @@ export class DeviceTypeClient {
     }
 
     protected processAddDeviceType(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+}
+
+@Injectable()
+export class ExportToPdfClient {
+    private http: HttpClient;
+    private baseUrl: string;
+    protected jsonParseReviver: ((key: string, value: any) => any) | undefined = undefined;
+
+    constructor(@Inject(HttpClient) http: HttpClient, @Optional() @Inject(API_BASE_URL) baseUrl?: string) {
+        this.http = http;
+        this.baseUrl = baseUrl ?? "";
+    }
+
+    exportToPdf(request: ExportToPdfRequest): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/ExportToPdf/ExportToPdf";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = JSON.stringify(request);
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportAllToPdf(group: VerificationGroup | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/ExportToPdf/ExportAllToPdf?";
+        if (group === null)
+            throw new Error("The parameter 'group' cannot be null.");
+        else if (group !== undefined)
+            url_ += "group=" + encodeURIComponent("" + group) + "&";
+        url_ = url_.replace(/[?&]$/, "");
+
+        let options_ : any = {
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("get", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportAllToPdf(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportAllToPdf(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportAllToPdf(response: HttpResponseBase): Observable<ServiceResult> {
+        const status = response.status;
+        const responseBlob =
+            response instanceof HttpResponse ? response.body :
+            (response as any).error instanceof Blob ? (response as any).error : undefined;
+
+        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
+        if (status === 200) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            let result200: any = null;
+            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
+            result200 = ServiceResult.fromJS(resultData200);
+            return _observableOf(result200);
+            }));
+        } else if (status !== 200 && status !== 204) {
+            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
+            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
+            }));
+        }
+        return _observableOf(null as any);
+    }
+
+    exportByExcelToPDF(group: string | null | undefined, file: FileParameter | null | undefined, sheetName: string | null | undefined, dataRange: string | null | undefined): Observable<ServiceResult> {
+        let url_ = this.baseUrl + "/api/ExportToPdf/ExportByExcelToPDF";
+        url_ = url_.replace(/[?&]$/, "");
+
+        const content_ = new FormData();
+        if (group !== null && group !== undefined)
+            content_.append("Group", group.toString());
+        if (file !== null && file !== undefined)
+            content_.append("File", file.data, file.fileName ? file.fileName : "File");
+        if (sheetName !== null && sheetName !== undefined)
+            content_.append("SheetName", sheetName.toString());
+        if (dataRange !== null && dataRange !== undefined)
+            content_.append("DataRange", dataRange.toString());
+
+        let options_ : any = {
+            body: content_,
+            observe: "response",
+            responseType: "blob",
+            headers: new HttpHeaders({
+                "Accept": "application/json"
+            })
+        };
+
+        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
+            return this.processExportByExcelToPDF(response_);
+        })).pipe(_observableCatch((response_: any) => {
+            if (response_ instanceof HttpResponseBase) {
+                try {
+                    return this.processExportByExcelToPDF(response_ as any);
+                } catch (e) {
+                    return _observableThrow(e) as any as Observable<ServiceResult>;
+                }
+            } else
+                return _observableThrow(response_) as any as Observable<ServiceResult>;
+        }));
+    }
+
+    protected processExportByExcelToPDF(response: HttpResponseBase): Observable<ServiceResult> {
         const status = response.status;
         const responseBlob =
             response instanceof HttpResponse ? response.body :
@@ -622,167 +697,6 @@ export class ManometrClient {
             let result200: any = null;
             let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
             result200 = ServicePaginatedResultOfManometr1VerificationDto.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    exportToPdf(ids: string[]): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Manometr/ExportToPdf";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = JSON.stringify(ids);
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportToPdf(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportToPdf(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportToPdf(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    exportAllToPdf(): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Manometr/ExportAllToPdf";
-        url_ = url_.replace(/[?&]$/, "");
-
-        let options_ : any = {
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportAllToPdf(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportAllToPdf(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportAllToPdf(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
-            return _observableOf(result200);
-            }));
-        } else if (status !== 200 && status !== 204) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            return throwException("An unexpected server error occurred.", status, _responseText, _headers);
-            }));
-        }
-        return _observableOf(null as any);
-    }
-
-    exportByExcelToPDF(sheetName: string | undefined, dataRange: string | undefined, excelFile: FileParameter | null | undefined): Observable<ServiceResult> {
-        let url_ = this.baseUrl + "/api/Manometr/ExportByExcelToPDF?";
-        if (sheetName === null)
-            throw new Error("The parameter 'sheetName' cannot be null.");
-        else if (sheetName !== undefined)
-            url_ += "sheetName=" + encodeURIComponent("" + sheetName) + "&";
-        if (dataRange === null)
-            throw new Error("The parameter 'dataRange' cannot be null.");
-        else if (dataRange !== undefined)
-            url_ += "dataRange=" + encodeURIComponent("" + dataRange) + "&";
-        url_ = url_.replace(/[?&]$/, "");
-
-        const content_ = new FormData();
-        if (excelFile !== null && excelFile !== undefined)
-            content_.append("excelFile", excelFile.data, excelFile.fileName ? excelFile.fileName : "excelFile");
-
-        let options_ : any = {
-            body: content_,
-            observe: "response",
-            responseType: "blob",
-            headers: new HttpHeaders({
-                "Accept": "application/json"
-            })
-        };
-
-        return this.http.request("post", url_, options_).pipe(_observableMergeMap((response_ : any) => {
-            return this.processExportByExcelToPDF(response_);
-        })).pipe(_observableCatch((response_: any) => {
-            if (response_ instanceof HttpResponseBase) {
-                try {
-                    return this.processExportByExcelToPDF(response_ as any);
-                } catch (e) {
-                    return _observableThrow(e) as any as Observable<ServiceResult>;
-                }
-            } else
-                return _observableThrow(response_) as any as Observable<ServiceResult>;
-        }));
-    }
-
-    protected processExportByExcelToPDF(response: HttpResponseBase): Observable<ServiceResult> {
-        const status = response.status;
-        const responseBlob =
-            response instanceof HttpResponse ? response.body :
-            (response as any).error instanceof Blob ? (response as any).error : undefined;
-
-        let _headers: any = {}; if (response.headers) { for (let key of response.headers.keys()) { _headers[key] = response.headers.get(key); }}
-        if (status === 200) {
-            return blobToText(responseBlob).pipe(_observableMergeMap((_responseText: string) => {
-            let result200: any = null;
-            let resultData200 = _responseText === "" ? null : JSON.parse(_responseText, this.jsonParseReviver);
-            result200 = ServiceResult.fromJS(resultData200);
             return _observableOf(result200);
             }));
         } else if (status !== 200 && status !== 204) {
@@ -2006,9 +1920,7 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2049,9 +1961,13 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.visualCheckup = _data["visualCheckup"];
-            this.testCheckup = _data["testCheckup"];
-            this.accuracyCalculation = _data["accuracyCalculation"];
+            if (_data["checkups"]) {
+                this.checkups = {} as any;
+                for (let key in _data["checkups"]) {
+                    if (_data["checkups"].hasOwnProperty(key))
+                        (<any>this.checkups)![key] = _data["checkups"][key];
+                }
+            }
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.verificationGroup = _data["verificationGroup"];
@@ -2112,9 +2028,13 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["visualCheckup"] = this.visualCheckup;
-        data["testCheckup"] = this.testCheckup;
-        data["accuracyCalculation"] = this.accuracyCalculation;
+        if (this.checkups) {
+            data["checkups"] = {};
+            for (let key in this.checkups) {
+                if (this.checkups.hasOwnProperty(key))
+                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+            }
+        }
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["verificationGroup"] = this.verificationGroup;
@@ -2168,9 +2088,7 @@ export interface IDavlenie1VerificationDTO {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
+    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2185,6 +2103,18 @@ export interface IDavlenie1VerificationDTO {
     actualError?: number[][];
     validError?: number;
     variations?: number[];
+}
+
+export enum VerificationMethodCheckups {
+    Внешний_осмотр = "внешний_осмотр",
+    Опробование = "опробование",
+    Осн_поргрешность = "осн_поргрешность",
+    Осн_привед_погр_и_вариации = "осн_привед_погр_и_вариации",
+    Вариации_выходн_сигн = "вариации_выходн_сигн",
+    Прогр_обеспеч = "прогр_обеспеч",
+    Гермет_сист = "гермет_сист",
+    Электр_прочн_и_сопр_изоляции = "электр_прочн_и_сопр_изоляции",
+    Проверка_данных_ПО = "проверка_данных_ПО",
 }
 
 export enum VerificationGroup {
@@ -2455,6 +2385,54 @@ export interface IDeviceType extends IDatabaseEntity {
     methodUrls?: string[] | undefined;
     specUrls?: string[] | undefined;
     manufacturers?: string[] | undefined;
+}
+
+export class ExportToPdfRequest implements IExportToPdfRequest {
+    group?: VerificationGroup;
+    ids?: string[];
+
+    constructor(data?: IExportToPdfRequest) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.group = _data["group"];
+            if (Array.isArray(_data["ids"])) {
+                this.ids = [] as any;
+                for (let item of _data["ids"])
+                    this.ids!.push(item);
+            }
+        }
+    }
+
+    static fromJS(data: any): ExportToPdfRequest {
+        data = typeof data === 'object' ? data : {};
+        let result = new ExportToPdfRequest();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["group"] = this.group;
+        if (Array.isArray(this.ids)) {
+            data["ids"] = [];
+            for (let item of this.ids)
+                data["ids"].push(item);
+        }
+        return data;
+    }
+}
+
+export interface IExportToPdfRequest {
+    group?: VerificationGroup;
+    ids?: string[];
 }
 
 export class ServicePaginatedResultOfInitialVerificationJob implements IServicePaginatedResultOfInitialVerificationJob {
@@ -3521,12 +3499,6 @@ export interface IVerificationMethod extends IDatabaseEntity {
     davlenie1Verifications?: Davlenie1Verification[] | undefined;
 }
 
-export enum VerificationMethodCheckups {
-    Внешний_осмотр = "внешний_осмотр",
-    Результат_опробывания = "результат_опробывания",
-    Опр_осн_поргрешности = "опр_осн_поргрешности",
-}
-
 export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {
     verificationGroup?: VerificationGroup;
     protocolGroup?: ProtocolGroup;
@@ -4199,9 +4171,6 @@ export class Davlenie1Verification extends DatabaseEntity implements IDavlenie1V
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     deviceTypeNumber?: string;
@@ -4239,9 +4208,6 @@ export class Davlenie1Verification extends DatabaseEntity implements IDavlenie1V
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.visualCheckup = _data["visualCheckup"];
-            this.testCheckup = _data["testCheckup"];
-            this.accuracyCalculation = _data["accuracyCalculation"];
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.deviceTypeNumber = _data["deviceTypeNumber"];
@@ -4307,9 +4273,6 @@ export class Davlenie1Verification extends DatabaseEntity implements IDavlenie1V
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["visualCheckup"] = this.visualCheckup;
-        data["testCheckup"] = this.testCheckup;
-        data["accuracyCalculation"] = this.accuracyCalculation;
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["deviceTypeNumber"] = this.deviceTypeNumber;
@@ -4369,9 +4332,6 @@ export interface IDavlenie1Verification extends IDatabaseEntity {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     deviceTypeNumber?: string;

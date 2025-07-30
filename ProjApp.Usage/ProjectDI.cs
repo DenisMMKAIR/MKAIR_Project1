@@ -49,6 +49,7 @@ public static class ProjectDI
         serviceCollection.AddScoped<VerificationMethodsService>();
         serviceCollection.AddScoped<OwnersService>();
         serviceCollection.AddScoped<ProtocolTemplesService>();
+        serviceCollection.AddScoped<ExportToPDFService>();
         serviceCollection.AddScoped<ManometrService>();
         serviceCollection.AddScoped<DavlenieService>();
 

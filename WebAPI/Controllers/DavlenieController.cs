@@ -33,18 +33,6 @@ public class DavlenieController : ApiControllerBase
     }
 
     [HttpPost]
-    public async Task<ServiceResult> ExportToPdf([Required][FromBody] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
-    {
-        return await _service.ExportToPdfAsync(ids, cancellationToken);
-    }
-
-    [HttpPost]
-    public async Task<ServiceResult> ExportAllToPdf(CancellationToken cancellationToken)
-    {
-        return await _service.ExportAllToPdfAsync(cancellationToken);
-    }
-
-    [HttpPost]
     public async Task<ServiceResult> DeleteVerifications([Required][FromBody] IReadOnlyList<Guid> ids, CancellationToken cancellationToken)
     {
         return await _service.DeleteVerificationAsync(ids, cancellationToken);

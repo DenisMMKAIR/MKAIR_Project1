@@ -86,62 +86,6 @@
         }
       }
     },
-    "/api/Davlenie/ExportToPdf": {
-      "post": {
-        "tags": [
-          "Davlenie"
-        ],
-        "operationId": "Davlenie_ExportToPdf",
-        "requestBody": {
-          "x-name": "ids",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "format": "guid"
-                }
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Davlenie/ExportAllToPdf": {
-      "post": {
-        "tags": [
-          "Davlenie"
-        ],
-        "operationId": "Davlenie_ExportAllToPdf",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
     "/api/Davlenie/DeleteVerifications": {
       "post": {
         "tags": [
@@ -264,6 +208,116 @@
                     "items": {
                       "type": "string"
                     }
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ExportToPdf/ExportToPdf": {
+      "post": {
+        "tags": [
+          "ExportToPdf"
+        ],
+        "operationId": "ExportToPdf_ExportToPdf",
+        "requestBody": {
+          "x-name": "request",
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/ExportToPdfRequest"
+              }
+            }
+          },
+          "required": true,
+          "x-position": 1
+        },
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ExportToPdf/ExportAllToPdf": {
+      "get": {
+        "tags": [
+          "ExportToPdf"
+        ],
+        "operationId": "ExportToPdf_ExportAllToPdf",
+        "parameters": [
+          {
+            "name": "group",
+            "in": "query",
+            "schema": {
+              "$ref": "#/components/schemas/VerificationGroup"
+            },
+            "x-position": 1
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServiceResult"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/ExportToPdf/ExportByExcelToPDF": {
+      "post": {
+        "tags": [
+          "ExportToPdf"
+        ],
+        "operationId": "ExportToPdf_ExportByExcelToPDF",
+        "requestBody": {
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "Group": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "File": {
+                    "type": "string",
+                    "format": "binary",
+                    "nullable": true
+                  },
+                  "SheetName": {
+                    "type": "string",
+                    "nullable": true
+                  },
+                  "DataRange": {
+                    "type": "string",
+                    "nullable": true
                   }
                 }
               }
@@ -466,116 +520,6 @@
               "application/json": {
                 "schema": {
                   "$ref": "#/components/schemas/ServicePaginatedResultOfManometr1VerificationDto"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Manometr/ExportToPdf": {
-      "post": {
-        "tags": [
-          "Manometr"
-        ],
-        "operationId": "Manometr_ExportToPdf",
-        "requestBody": {
-          "x-name": "ids",
-          "content": {
-            "application/json": {
-              "schema": {
-                "type": "array",
-                "items": {
-                  "type": "string",
-                  "format": "guid"
-                }
-              }
-            }
-          },
-          "required": true,
-          "x-position": 1
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Manometr/ExportAllToPdf": {
-      "post": {
-        "tags": [
-          "Manometr"
-        ],
-        "operationId": "Manometr_ExportAllToPdf",
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
-                }
-              }
-            }
-          }
-        }
-      }
-    },
-    "/api/Manometr/ExportByExcelToPDF": {
-      "post": {
-        "tags": [
-          "Manometr"
-        ],
-        "operationId": "Manometr_ExportByExcelToPDF",
-        "parameters": [
-          {
-            "name": "sheetName",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 1
-          },
-          {
-            "name": "dataRange",
-            "in": "query",
-            "schema": {
-              "type": "string"
-            },
-            "x-position": 2
-          }
-        ],
-        "requestBody": {
-          "content": {
-            "multipart/form-data": {
-              "schema": {
-                "type": "object",
-                "properties": {
-                  "excelFile": {
-                    "type": "string",
-                    "format": "binary",
-                    "nullable": true
-                  }
-                }
-              }
-            }
-          }
-        },
-        "responses": {
-          "200": {
-            "description": "",
-            "content": {
-              "application/json": {
-                "schema": {
-                  "$ref": "#/components/schemas/ServiceResult"
                 }
               }
             }
@@ -1497,14 +1441,14 @@
           "pressure": {
             "type": "string"
           },
-          "visualCheckup": {
-            "type": "string"
-          },
-          "testCheckup": {
-            "type": "string"
-          },
-          "accuracyCalculation": {
-            "type": "string"
+          "checkups": {
+            "type": "object",
+            "x-dictionaryKey": {
+              "$ref": "#/components/schemas/VerificationMethodCheckups"
+            },
+            "additionalProperties": {
+              "type": "string"
+            }
           },
           "verificationDate": {
             "type": "string",
@@ -1580,6 +1524,32 @@
             }
           }
         }
+      },
+      "VerificationMethodCheckups": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "внешний_осмотр",
+          "опробование",
+          "осн_поргрешность",
+          "осн_привед_погр_и_вариации",
+          "вариации_выходн_сигн",
+          "прогр_обеспеч",
+          "гермет_сист",
+          "электр_прочн_и_сопр_изоляции",
+          "проверка_данных_ПО"
+        ],
+        "enum": [
+          "внешний_осмотр",
+          "опробование",
+          "осн_поргрешность",
+          "осн_привед_погр_и_вариации",
+          "вариации_выходн_сигн",
+          "прогр_обеспеч",
+          "гермет_сист",
+          "электр_прочн_и_сопр_изоляции",
+          "проверка_данных_ПО"
+        ]
       },
       "VerificationGroup": {
         "type": "string",
@@ -1724,6 +1694,22 @@
           "id": {
             "type": "string",
             "format": "guid"
+          }
+        }
+      },
+      "ExportToPdfRequest": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "group": {
+            "$ref": "#/components/schemas/VerificationGroup"
+          },
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "guid"
+            }
           }
         }
       },
@@ -2293,20 +2279,6 @@
           }
         ]
       },
-      "VerificationMethodCheckups": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "внешний_осмотр",
-          "результат_опробывания",
-          "опр_осн_поргрешности"
-        ],
-        "enum": [
-          "внешний_осмотр",
-          "результат_опробывания",
-          "опр_осн_поргрешности"
-        ]
-      },
       "ProtocolTemplate": {
         "allOf": [
           {
@@ -2692,6 +2664,8 @@
           },
           {
             "type": "object",
+            "deprecated": true,
+            "x-deprecatedMessage": "Remove checkups. get them from verification method",
             "additionalProperties": false,
             "properties": {
               "protocolNumber": {
@@ -2869,15 +2843,6 @@
                 "format": "double"
               },
               "pressure": {
-                "type": "string"
-              },
-              "visualCheckup": {
-                "type": "string"
-              },
-              "testCheckup": {
-                "type": "string"
-              },
-              "accuracyCalculation": {
                 "type": "string"
               },
               "verificationDate": {
