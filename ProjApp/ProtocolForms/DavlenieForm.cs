@@ -18,9 +18,7 @@ public class DavlenieForm
     public required double Temperature { get; init; }
     public required double Humidity { get; init; }
     public required string Pressure { get; init; }
-    public required string VisualCheckup { get; init; }
-    public required string TestCheckup { get; init; }
-    public required string AccuracyCalculation { get; init; }
+    public required IReadOnlyDictionary<VerificationMethodCheckups, string> Checkups { get; init; }
     public required string MeasurementUnit { get; init; }
     public required IReadOnlyList<double> PressureInputs { get; init; }
     public required IReadOnlyList<double> EtalonValues { get; init; }
@@ -51,9 +49,7 @@ public static class DavlenieFormExtensions
             Temperature = vrf.Temperature,
             Humidity = vrf.Humidity,
             Pressure = vrf.Pressure,
-            VisualCheckup = vrf.VisualCheckup,
-            TestCheckup = vrf.TestCheckup,
-            AccuracyCalculation = vrf.AccuracyCalculation,
+            Checkups = vrf.VerificationMethod.Checkups,
             MeasurementUnit = vrf.MeasurementUnit,
             PressureInputs = vrf.PressureInputs,
             EtalonValues = vrf.EtalonValues,

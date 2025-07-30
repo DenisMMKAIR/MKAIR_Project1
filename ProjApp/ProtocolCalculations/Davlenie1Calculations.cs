@@ -18,9 +18,6 @@ internal static class Davlenie1Calculations
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
             Pressure = v.Pressure!,
-            VisualCheckup = v.VerificationMethod.Checkups[VerificationMethodCheckups.внешний_осмотр],
-            TestCheckup = v.VerificationMethod.Checkups[VerificationMethodCheckups.результат_опробывания],
-            AccuracyCalculation = v.VerificationMethod.Checkups[VerificationMethodCheckups.опр_осн_поргрешности],
             VerificationDate = v.VerificationDate,
             Worker = v.Worker!,
 

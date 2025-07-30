@@ -120,7 +120,7 @@
         регистрационного номера)
       </p>
     </div>
-    <div class="spread-bottom-large">
+    <div class="spread-bottom">
       <p>Условия поверки:</p>
     </div>
     <div class="split-45 spread-bottom">
@@ -129,32 +129,21 @@
     </div>
     <div class="split-45 spread-bottom">
       <p>Относительная влажность окружающей среды</p>
-      <p><span id="setValue_humidity" data-format="0%">25</span> %</p>
+      <p id="setValue_humidity" data-format="0%">25%</p>
     </div>
     <div class="split-45 spread-bottom-large">
       <p>Атмосферное давление</p>
       <p id="setValue_pressure">25 кПа</p>
     </div>
-    <div class="split-30 spread-bottom">
-      <p>1.Результаты внешнего осмотра:</p>
-      <p class="line">
-        <span style="text-decoration-line: underline">соответствует</span> / не
-        соответствует п. <span id="setValue_visualCheckup">5.1</span> методики
-        поверки
+    <div class="split-30 spread-bottom" id="manual_checkup">
+      <p><span id="manual_checkupTitle"></span>:</p>
+      <p class="line text-stretch" style="font-size: 0.6rem">
+        <span style="text-decoration-line: underline">соответствует</span>/не
+        соответствует п. <span id="manual_checkupValue">5.1</span> методики
+        поверки <span id="manual_checkupVerification"></span>
       </p>
     </div>
-    <div class="split-30 spread-bottom">
-      <p>2.Результаты опробования:</p>
-      <p class="line">
-        <span style="text-decoration-line: underline">соответствует</span> / не
-        соответствует п. <span id="setValue_testCheckup">5.2.3</span> методики
-        поверки
-      </p>
-    </div>
-    <p class="spread-bottom-large">
-      3.Определение основной погрешности и вариации в соответствии с п.
-      <span id="setValue_accuracyCalculation">5.3</span> методики поверки
-    </p>
+    <div class="spread-bottom-large"></div>
     <table class="spread-bottom-large" id="valuesTable">
       <thead>
         <tr>
@@ -289,8 +278,8 @@
       text-align: center;
     }
     .spread-header {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
+      margin-top: 1.4rem;
+      margin-bottom: 1.4rem;
     }
     .spread-bottom {
       margin-bottom: 0.2rem;

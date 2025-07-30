@@ -19,9 +19,7 @@ public class Davlenie1VerificationDTO
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
     public required string Pressure { get; set; }
-    public required string VisualCheckup { get; set; }
-    public required string TestCheckup { get; set; }
-    public required string AccuracyCalculation { get; set; }
+    public required IReadOnlyDictionary<VerificationMethodCheckups, string> Checkups { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required string Worker { get; set; }
 
@@ -62,9 +60,7 @@ public static class Davlenie1VerificationDTOExtensions
             Temperature = vrf.Temperature,
             Humidity = vrf.Humidity,
             Pressure = vrf.Pressure,
-            VisualCheckup = vrf.VisualCheckup,
-            TestCheckup = vrf.TestCheckup,
-            AccuracyCalculation = vrf.AccuracyCalculation,
+            Checkups = vrf.VerificationMethod.Checkups,
             VerificationDate = vrf.VerificationDate,
             Worker = vrf.Worker,
             VerificationGroup = vrf.VerificationGroup,

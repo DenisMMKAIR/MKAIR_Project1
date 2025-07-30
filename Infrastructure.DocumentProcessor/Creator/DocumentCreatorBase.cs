@@ -2,6 +2,7 @@ using System.Reflection;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -45,6 +46,9 @@ internal abstract class DocumentCreatorBase<T>
         if (result != null) return HTMLCreationResult.Failure(result);
 
         result = SetEtalons(document, data);
+        if (result != null) return HTMLCreationResult.Failure(result);
+
+        result = SetCheckups(document, data);
         if (result != null) return HTMLCreationResult.Failure(result);
 
         if (cancellationToken.HasValue &&
@@ -189,6 +193,41 @@ internal abstract class DocumentCreatorBase<T>
             if (result != null) return result;
             addAfterElement.InsertAfter(newLine);
             addAfterElement = newLine;
+        }
+
+        return null;
+    }
+
+    private string? SetCheckups(IDocument document, T data)
+    {
+        var verificationInfoProp = TypeProps.FirstOrDefault(p => p.Name.Equals("VerificationsInfo", StringComparison.OrdinalIgnoreCase));
+        if (verificationInfoProp == null) return "Data property VerificationsInfo not found";
+        var verificationInfo = verificationInfoProp.GetValue(data)!.ToString()!;
+
+        var checkupsProp = TypeProps.FirstOrDefault(p => p.Name.Equals("Checkups", StringComparison.OrdinalIgnoreCase));
+        if (checkupsProp == null) return "Data property Checkups not found";
+        var checkups = (Dictionary<VerificationMethodCheckups, string>)checkupsProp.GetValue(data)!;
+
+        var checkupElement = document.QuerySelector<IHtmlDivElement>("#manual_checkup");
+        if (checkupElement == null) return "manual_checkup not found";
+
+        foreach(var (key, value) in checkups)
+        {
+            var checkupTitleElement = checkupElement.QuerySelector("#manual_checkupTitle");
+            if (checkupTitleElement == null) return "manual_checkupTitle not found";
+            checkupTitleElement.TextContent = key.GetDescription();
+
+            var checkupValueElement = checkupElement.QuerySelector("#manual_checkupValue");
+            if (checkupValueElement == null) return "manual_checkupValue not found";
+            checkupValueElement.TextContent = value;
+
+            var checkupVerificationElement = checkupElement.QuerySelector("#manual_checkupVerification");
+            if (checkupVerificationElement == null) return "manual_checkupVerification not found";
+            checkupVerificationElement.TextContent = verificationInfo;
+            
+            var newCheckupElement = (IHtmlDivElement)checkupElement.Clone(true);
+            checkupElement.After(newCheckupElement);
+            checkupElement = newCheckupElement;
         }
 
         return null;

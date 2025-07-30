@@ -8,9 +8,6 @@ public class Davlenie1Verification : DatabaseEntity, IVerificationBase, IProtoco
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
     public required string Pressure { get; set; }
-    public required string VisualCheckup { get; set; }
-    public required string TestCheckup { get; set; }
-    public required string AccuracyCalculation { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required string Worker { get; set; }
 
