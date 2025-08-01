@@ -1,28 +1,29 @@
-using Infrastructure.DocumentProcessor;
-using Infrastructure.DocumentProcessor.Creator;
-using Microsoft.Extensions.Logging;
+using Infrastructure.DocumentProcessor.Services;
+using Microsoft.Extensions.Configuration;
 
 namespace Project1Tests.DocumentProcessor;
 
 [TestFixture]
 internal abstract class CombinedFixture
 {
-    protected ManometrSuccessDocumentCreator ManometrCreator { get; set; }
-    protected DavlenieSuccessDocumentCreator DavlenieCreator { get; set; }
-    protected PDFExporter PdfExporter { get; set; }
+    protected TemplateProcessor Processor { get; set; }
 
     [OneTimeSetUp]
     public void Setup()
     {
-        ManometrCreator = new ManometrSuccessDocumentCreator([], Tools.GetSignsDirPath());
-        DavlenieCreator = new DavlenieSuccessDocumentCreator([], Tools.GetSignsDirPath());
-        var logger = new LoggerFactory().CreateLogger<PDFExporter>();
-        PdfExporter = new PDFExporter(logger);
+        var cfg = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                { "SignsDirPath", Tools.GetSignsDirPath() }
+            })
+            .Build();
+
+        Processor = new TemplateProcessor(cfg);
     }
 
     [OneTimeTearDown]
     public async Task TearDown()
     {
-        await PdfExporter.DisposeAsync();
+        await Processor.DisposeAsync();
     }
 }

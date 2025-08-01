@@ -1,14 +1,17 @@
 using System.Reflection;
+using System.Threading.Tasks;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
+using PuppeteerSharp;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
 // TODO: Replace reflection with the source generator
 internal abstract class DocumentCreatorBase<T>
 {
-    private readonly string _fileContent;
+    private readonly Browser _browser;
+    private readonly string _htmlForm;
     private readonly Dictionary<string, string> _signsCache;
     private readonly string _signsDirPath;
     protected abstract IReadOnlyList<PropertyInfo> TypeProps { get; init; }
@@ -17,18 +20,42 @@ internal abstract class DocumentCreatorBase<T>
     protected virtual int VerificationLineLength { get; init; } = 70;
     protected virtual int EtalonLineLength { get; init; } = 80;
 
-    public DocumentCreatorBase(Dictionary<string, string> signsCache, string signsDirPath, string formPath)
+    public DocumentCreatorBase(Browser browser, Dictionary<string, string> signsCache, string signsDirPath, string formPath)
     {
+        _browser = browser;
         _signsCache = signsCache;
         _signsDirPath = signsDirPath;
-        _fileContent = File.ReadAllText(formPath);
+        _htmlForm = File.ReadAllText(formPath);
+    }
+
+    public async Task<HTMLCreationResult> CreateAsync(T data)
+    {
+        var page = await _browser.CreatePageAsync();
+        await page.SetContentAsync(_htmlForm);
+
+        var result = await SetDeviceAsync(page, data);
+        if (result != null) return HTMLCreationResult.Failure(result);
+
+        throw new NotImplementedException();
+    }
+
+    private async Task<string?> SetDeviceAsync(IPage page, T data)
+    {
+        var prop = TypeProps.FirstOrDefault(p => p.Name.Equals("deviceInfo", StringComparison.OrdinalIgnoreCase));
+        if (prop == null) return "Data property deviceInfo not found";
+        var deviceInfo = prop.GetValue(data)!.ToString()!;
+
+        var element = await page.QuerySelectorAsync("#manual_deviceInfo");
+        if (element == null) return "manual_deviceInfo not found";
+
+        return null;
     }
 
     public async Task<HTMLCreationResult> CreateAsync(T data, CancellationToken? cancellationToken = null)
     {
         var config = Configuration.Default.WithDefaultLoader();
         using var context = BrowsingContext.New(config);
-        using var document = await context.OpenAsync(r => r.Content(_fileContent), cancellationToken ?? CancellationToken.None);
+        using var document = await context.OpenAsync(r => r.Content(_htmlForm), cancellationToken ?? CancellationToken.None);
 
         var deviceInfoResult = SetDeviceInfo(document, data);
         if (deviceInfoResult != null) return HTMLCreationResult.Failure(deviceInfoResult);
@@ -62,7 +89,8 @@ internal abstract class DocumentCreatorBase<T>
         var specifiResult = SetSpecific(document, data);
         if (specifiResult != null) return HTMLCreationResult.Failure(specifiResult);
 
-        return HTMLCreationResult.Success(document.DocumentElement.OuterHtml);
+        // return HTMLCreationResult.Success(document.DocumentElement.OuterHtml);
+        return null!;
     }
 
     protected abstract string? SetSpecific(IDocument document, T data);

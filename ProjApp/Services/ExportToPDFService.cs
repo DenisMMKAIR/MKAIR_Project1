@@ -183,7 +183,7 @@ public class ExportToPDFService
 
         foreach (var vrf in vrfs)
         {
-            var result = await _templateProcessor.CreatePDFAsync(vrf.ToProtocolForm(), _pdfFilePathManager.GetFilePath(vrf, exportDir), cancellationToken);
+            var result = await _templateProcessor.CreatePDFAsync(vrf.ToProtocolForm(), _pdfFilePathManager.GetFilePath(vrf, exportDir));
             if (result.Error != null)
             {
                 _logger.LogError("{Error}", result.Error);
