@@ -21,8 +21,8 @@ public class TemplateProcessor : ITemplateProcessor
 
         Dictionary<string, string> signsCache = [];
 
-        _manDocCreator = new(signsCache, signsDirPath);
-        _davDocCreator = new(signsCache, signsDirPath);
+        _manDocCreator = new(_browser, signsCache, signsDirPath);
+        _davDocCreator = new(_browser, signsCache, signsDirPath);
     }
 
     public async Task<PDFCreationResult> CreatePDFAsync(IProtocolForm form, string filePath)
