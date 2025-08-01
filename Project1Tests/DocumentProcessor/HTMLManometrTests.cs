@@ -5,7 +5,7 @@ internal class HTMLManometrTests : CombinedFixture
     [Test]
     public async Task Test1()
     {
-        var data = DummyManometr1Data.ManometrData2Eta();
+        var data = DummyManometr1Data.LongDeviceInfo();
         var result = await ManometrCreator.CreateAsync(data);
 
         using (Assert.EnterMultipleScope())

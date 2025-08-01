@@ -5,15 +5,27 @@ namespace Project1Tests.DocumentProcessor;
 
 public static class DummyManometr1Data
 {
-    public static ManometrForm ManometrData2Eta()
+    public static ManometrForm ShortDeviceInfo()
+    {
+        return CreateForm(
+            deviceInfo: "Манометры избыточного давления; 232.30.160"
+        );
+    }
+
+    public static ManometrForm LongDeviceInfo()
+    {
+        return CreateForm();
+    }
+
+    private static ManometrForm CreateForm(string? deviceInfo = null)
     {
         var date = new DateOnly(2024, 05, 06);
 
-        var data = new ManometrForm
+        return new()
         {
             Address = MKAIRInfo.GetAddress(date),
             ProtocolNumber = "05/107/24",
-            DeviceInfo = "Манометры избыточного давления, вакуумметры и мановакуумметры показывающие МП-Уф, ВП-Уф, МВП-Уф, ДМ8010-Уф, ДВ8010-Уф, ДА8010-Уф; 232.30.160",
+            DeviceInfo = deviceInfo ?? "Манометры избыточного давления, вакуумметры и мановакуумметры показывающие МП-Уф, ВП-Уф, МВП-Уф, ДМ8010-Уф, ДВ8010-Уф, ДА8010-Уф; 232.30.160",
             DeviceTypeNumber = "55984-13",
             DeviceSerial = "00619",
             ManufactureYear = 2013u,
@@ -39,7 +51,5 @@ public static class DummyManometr1Data
             VerificationDate = date,
             Worker = "Большаков С.Н."
         };
-
-        return data;
     }
 }

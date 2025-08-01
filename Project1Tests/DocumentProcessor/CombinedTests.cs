@@ -5,27 +5,19 @@ namespace Project1Tests.DocumentProcessor;
 internal class CombinedTests : CombinedFixture
 {
     [Test]
-    public async Task Success_PDF_Manometr2Eta()
+    public async Task Manometr_ShortDeviceInfo()
     {
-        var data = DummyManometr1Data.ManometrData2Eta();
+        var data = DummyManometr1Data.ShortDeviceInfo();
         var result = await ManometrCreator.CreateAsync(data);
-        await PDFTest(result, "Manometr2Eta.pdf");
+        await PDFTest(result, "ManometrShortDeviceInfo.pdf");
     }
 
     [Test]
-    public async Task Success_PDF_Davlenie2Eta()
+    public async Task Manometr_LongDeviceInfo()
     {
-        var data = DummyDavlenie1Data.DavlenieData2Eta();
-        var result = await DavlenieCreator.CreateAsync(data);
-        await PDFTest(result, "Davlenie2Eta.pdf");
-    }
-
-    [Test]
-    public async Task Success_PDF_Davlenie2Eta2()
-    {
-        var data = DummyDavlenie1Data.DavlenieData2Eta2();
-        var result = await DavlenieCreator.CreateAsync(data);
-        await PDFTest(result, "Davlenie2Eta2.pdf");
+        var data = DummyManometr1Data.LongDeviceInfo();
+        var result = await ManometrCreator.CreateAsync(data);
+        await PDFTest(result, "ManometrLongDeviceInfo.pdf");
     }
 
     private async Task PDFTest(HTMLCreationResult result, string fileName)
