@@ -1,8 +1,8 @@
+using System.Text.Encodings.Web;
 using System.Text.Json;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using ProjApp.Database.Entities;
-using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 
 namespace ProjApp.Database;
@@ -25,7 +25,7 @@ public class ProjDatabase : DbContext
     public DbSet<Manometr1Verification> Manometr1Verifications => Set<Manometr1Verification>();
     public DbSet<Davlenie1Verification> Davlenie1Verifications => Set<Davlenie1Verification>();
 
-    private static readonly JsonSerializerOptions _jsonSerializerOptions = new();
+    private static readonly JsonSerializerOptions _jsonSerializerOptions = new() { Encoder = JavaScriptEncoder.UnsafeRelaxedJsonEscaping };
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -53,10 +53,10 @@ public class ProjDatabase : DbContext
 
         modelBuilder.Entity<VerificationMethod>()
             .Property(e => e.Checkups)
-            .HasConversion(new ValueConverter<Dictionary<VerificationMethodCheckups, string>, string>(
+            .HasConversion(new ValueConverter<Dictionary<string, string>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<VerificationMethodCheckups, string>>(v, _jsonSerializerOptions) ??
-                    new Dictionary<VerificationMethodCheckups, string>()));
+                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, _jsonSerializerOptions) ??
+                    new Dictionary<string, string>()));
     }
 
     private static void ConfigureInitialVerifications(ModelBuilder modelBuilder)

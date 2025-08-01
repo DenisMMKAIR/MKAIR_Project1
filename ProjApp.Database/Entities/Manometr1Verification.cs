@@ -2,16 +2,12 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-[Obsolete("Remove checkups. get them from verification method")]
-public class Manometr1Verification : DatabaseEntity, IVerificationBase, IProtocolFileInfo
+public class Manometr1Verification : DatabaseEntity, ICompleteVerification
 {
     public required string ProtocolNumber { get; set; }
     public required double Temperature { get; set; }
     public required double Humidity { get; set; }
     public required string Pressure { get; set; }
-    public required string VisualCheckup { get; set; }
-    public required string TestCheckup { get; set; }
-    public required string AccuracyCalculation { get; set; }
     public required DateOnly VerificationDate { get; set; }
     public required string Worker { get; set; }
 

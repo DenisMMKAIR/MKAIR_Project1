@@ -35,7 +35,7 @@ public class ExportToPdfController : ApiControllerBase
         var mem = new MemoryStream();
         excelFile.CopyTo(mem);
         mem.Position = 0;
-        return await _service.ExportToPdfAsync(group, excelFile.FileName, mem, sheetName, dataRange, cancellationToken);
+        return await _service.ExportByExcelToPdfAsync(group, excelFile.FileName, mem, sheetName, dataRange, cancellationToken);
     }
 
     public record ExportToPdfRequest(VerificationGroup Group, IReadOnlyList<Guid> Ids);

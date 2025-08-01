@@ -2,7 +2,7 @@ using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.Database.Entities;
 
-public class Davlenie1Verification : DatabaseEntity, IVerificationBase, IProtocolFileInfo
+public class Davlenie1Verification : DatabaseEntity, ICompleteVerification
 {
     public required string ProtocolNumber { get; set; }
     public required double Temperature { get; set; }

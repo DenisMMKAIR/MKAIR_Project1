@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
-using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.ProtocolCalculations;
 
@@ -12,17 +11,12 @@ internal static class Manometr1Calculations
         if (v.Device.DeviceType is null) throw new Exception("Тип устройства не добавлен в выборку");
         if (v.VerificationMethod is null) throw new Exception("Метод проверки не добавлен в выборку");
 
-        var method = v.VerificationMethod;
-
         var newVrf = new Manometr1Verification
         {
             ProtocolNumber = v.ProtocolNumber!,
             Temperature = v.Temperature!.Value,
             Humidity = v.Humidity!.Value,
             Pressure = v.Pressure!,
-            VisualCheckup = method.Checkups[VerificationMethodCheckups.внешний_осмотр],
-            TestCheckup = method.Checkups[VerificationMethodCheckups.опробование],
-            AccuracyCalculation = method.Checkups[VerificationMethodCheckups.осн_поргрешность],
             VerificationDate = v.VerificationDate,
             Worker = v.Worker!,
 

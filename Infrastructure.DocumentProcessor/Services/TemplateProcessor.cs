@@ -24,14 +24,14 @@ public class TemplateProcessor : ITemplateProcessor
         _davDocCreator = new(_signsCache, signsDirPath);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(ManometrForm verification, string filePath, CancellationToken cancellationToken = default)
+    public async Task<PDFCreationResult> CreatePDFAsync(IProtocolForm form, string filePath, CancellationToken cancellationToken = default)
     {
-        return await CreateAsync(_manDocCreator, verification, filePath, cancellationToken);
-    }
-
-    public async Task<PDFCreationResult> CreatePDFAsync(DavlenieForm verification, string filePath, CancellationToken cancellationToken = default)
-    {
-        return await CreateAsync(_davDocCreator, verification, filePath, cancellationToken);
+        return form switch
+        {
+            ManometrForm m => await CreateAsync(_manDocCreator, m, filePath, cancellationToken),
+            DavlenieForm d => await CreateAsync(_davDocCreator, d, filePath, cancellationToken),
+            _ => PDFCreationResult.Failure("Форма не поддерживается")
+        };
     }
 
     private async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath, CancellationToken cancellationToken = default)

@@ -90,6 +90,7 @@ public class GetVerificationsProcessor : IGetVerificationsFromExcelProcessor
 
     private class VerificationBase : IVerificationBase
     {
+        public Guid Id { get; set; }
         public required string DeviceTypeNumber { get; set; }
         public required string DeviceSerial { get; set; }
         public required DateOnly VerificationDate { get; set; }

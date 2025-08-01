@@ -1,6 +1,5 @@
 using Microsoft.Extensions.Logging;
 using ProjApp.Database.Entities;
-using ProjApp.Database.EntitiesStatic;
 
 namespace ProjApp.ProtocolCalculations;
 

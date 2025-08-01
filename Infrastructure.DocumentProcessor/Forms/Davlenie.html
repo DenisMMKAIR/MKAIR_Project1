@@ -3,7 +3,7 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Давление форма</title>
+    <title>Форма датчик давления</title>
   </head>
   <body>
     <p class="vh-center">
@@ -79,30 +79,28 @@
         </p>
       </div>
     </div>
-    <div class="split-37 spread-bottom">
-      <p>Нормативный документ на методику поверки:</p>
+    <div class="split-27 spread-bottom">
+      <p>Документ на методику поверки:</p>
       <div>
         <div class="line">
-          <p class="p-small" id="mainLine_verifications">
-            МИ 2124-90 ГСИ. Манометры, вакуумметры, мановакуумметры,
-            наименование и номер
+          <p id="manual_verificationMethodMain">
+            МИ 2124-90 ГСИ. Манометры, вакуумметры, мановакуумметры, тягомеры и
           </p>
         </div>
         <p class="undertext">наименование и номер документа</p>
       </div>
     </div>
-    <div class="spread-bottom" id="addIn_verifications">
-      <p class="line p-small" id="additionalLine_verifications">
-        документа напоромеры, тягомеры и тягонапоромеры показывающие и
+    <div class="spread-bottom" id="manual_verificationMethodAdditional">
+      <!-- <p class="line">
+        тягомеры и тягонапоромеры показывающие и
         самопишущие. Методика поверки документа напоромеры, тягомеры
-      </p>
+      </p> -->
     </div>
-    <div class="split-20 spread-bottom">
+    <div class="split-17 spread-bottom">
       <p>Средства поверки:</p>
       <div>
-        <p class="line p-small" id="mainLine_etalons">
+        <p class="line" id="mainLine_etalons">
           77090.19.2Р.00761950; 77090-19; Преобразователи давления эталонные;
-          ЭЛМЕТРО-Паскаль-04, Паскаль-04;
         </p>
         <p class="undertext">
           Указываются эталоны единиц величин, обеспечивающие передачу размера
@@ -111,9 +109,9 @@
       </div>
     </div>
     <div class="spread-bottom-large">
-      <p class="line p-small" id="additionalLine_etalons">
-        2022 г. 7М-0,02-Т35; 3110; 2020; 2Р; Эталон 2-го разряда; Приказ
-        Росстандарта № 2653 от 20 октября 2022 г.; их наименование,
+      <p class="line" id="additionalLine_etalons">
+        ЭЛМЕТРО-Паскаль-04, Паскаль-04; 2022 г. 7М-0,02-Т35; 3110; 2020; 2Р;
+        Эталон 2-го разряда; Приказ Росстандарта
       </p>
       <p class="undertext spread-bottom" id="addAfter_etalons">
         их наименование, регистрационный номер (все цифры и буквы
@@ -135,12 +133,18 @@
       <p>Атмосферное давление</p>
       <p id="setValue_pressure">25 кПа</p>
     </div>
-    <div class="split-30 spread-bottom" id="manual_checkup">
-      <p><span id="manual_checkupTitle"></span>:</p>
-      <p class="line text-stretch" style="font-size: 0.6rem">
-        <span style="text-decoration-line: underline">соответствует</span>/не
+    <div class="spread-bottom">
+      <p class="text-stretch" id="manual_checkup">
+        <span id="manual_checkupNum">1. </span>
+        <span id="manual_checkupTitle"
+          >Определение основной приведенной погрешности и вариации</span
+        >: <span style="text-decoration-line: underline">соответствует</span>/не
         соответствует п. <span id="manual_checkupValue">5.1</span> методики
-        поверки <span id="manual_checkupVerification"></span>
+        поверки
+        <span id="manual_checkupVerification"
+          >ГСИ. Преобразователи давления измерительные EJX. Методика
+          поверки</span
+        >
       </p>
     </div>
     <div class="spread-bottom-large"></div>
@@ -296,6 +300,15 @@
     .split-15 > *:last-child {
       flex: 0 0 85%;
     }
+    .split-17 {
+      display: flex;
+    }
+    .split-17 > *:first-child {
+      flex: 0 0 17%;
+    }
+    .split-17 > *:last-child {
+      flex: 0 0 83%;
+    }
     .split-20 {
       display: flex;
     }
@@ -313,6 +326,15 @@
     }
     .split-25 > *:last-child {
       flex: 0 0 75%;
+    }
+    .split-27 {
+      display: flex;
+    }
+    .split-27 > *:first-child {
+      flex: 0 0 27%;
+    }
+    .split-27 > *:last-child {
+      flex: 0 0 73%;
     }
     .split-30 {
       display: flex;
@@ -396,9 +418,6 @@
       display: flex;
       align-items: center;
       justify-content: center;
-    }
-    .p-small {
-      font-size: 10px;
     }
     .undertext {
       display: flex;

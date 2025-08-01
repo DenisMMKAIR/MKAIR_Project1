@@ -8,9 +8,6 @@ namespace Infrastructure.DocumentProcessor.Creator;
 internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<ManometrForm>
 {
     protected override IReadOnlyList<PropertyInfo> TypeProps { get; init; } = typeof(ManometrForm).GetProperties();
-    protected override int VerificationLineLength { get; init; } = 75;
-    protected override int EtalonLineLength { get; init; } = 100;
-    protected override int AdditionalLineLength { get; init; } = 130;
 
     public ManometrSuccessDocumentCreator(Dictionary<string, string> signsCache, string signsDirPath) : base(signsCache, signsDirPath, HTMLForms.Manometr) { }
 

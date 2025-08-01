@@ -2,7 +2,6 @@ using System.Reflection;
 using AngleSharp;
 using AngleSharp.Dom;
 using AngleSharp.Html.Dom;
-using ProjApp.Database.EntitiesStatic;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -13,10 +12,10 @@ internal abstract class DocumentCreatorBase<T>
     private readonly Dictionary<string, string> _signsCache;
     private readonly string _signsDirPath;
     protected abstract IReadOnlyList<PropertyInfo> TypeProps { get; init; }
-    protected int DeviceInfoLineLength { get; init; } = 100;
-    protected abstract int VerificationLineLength { get; init; }
-    protected abstract int EtalonLineLength { get; init; }
-    protected abstract int AdditionalLineLength { get; init; }
+    // TODO: FIX THIS. Precise line definition needs
+    protected int FullLineLength { get; init; } = 105;
+    protected virtual int VerificationLineLength { get; init; } = 70;
+    protected virtual int EtalonLineLength { get; init; } = 80;
 
     public DocumentCreatorBase(Dictionary<string, string> signsCache, string signsDirPath, string formPath)
     {
@@ -125,13 +124,13 @@ internal abstract class DocumentCreatorBase<T>
         var prop = TypeProps.FirstOrDefault(p => p.Name.Equals("deviceInfo", StringComparison.OrdinalIgnoreCase));
         if (prop == null) return "Data property deviceInfo not found";
         var deviceInfo = prop.GetValue(data)!.ToString()!;
-        var deviceNameError = SetLine(deviceTypeNameElement, DeviceInfoLineLength, ref deviceInfo);
+        var deviceNameError = SetLine(deviceTypeNameElement, FullLineLength, ref deviceInfo);
         if (deviceNameError != null) return deviceNameError;
 
         while (deviceInfo.Length > 0)
         {
             var newDeviceNameLineElement = (IHtmlParagraphElement)deviceTypeNameElement.Clone(false);
-            deviceNameError = SetLine(newDeviceNameLineElement, DeviceInfoLineLength, ref deviceInfo);
+            deviceNameError = SetLine(newDeviceNameLineElement, FullLineLength, ref deviceInfo);
             if (deviceNameError != null) return deviceNameError;
             insertAfterDeviceNameElement.InsertAfter(newDeviceNameLineElement);
             insertAfterDeviceNameElement = newDeviceNameLineElement;
@@ -142,27 +141,22 @@ internal abstract class DocumentCreatorBase<T>
 
     private string? SetVerification(IDocument document, T data)
     {
-        var prop = TypeProps.First(p => p.Name.Equals("verificationsinfo", StringComparison.OrdinalIgnoreCase));
+        var prop = TypeProps.FirstOrDefault(p => p.Name.Equals("verificationsinfo", StringComparison.OrdinalIgnoreCase));
         if (prop == null) return "Data property verificationsinfo not found";
         var verificationsText = prop.GetValue(data)!.ToString()!;
-        var mainLine = document.QuerySelector<IHtmlParagraphElement>("#mainLine_verifications")!;
+        var mainLine = document.QuerySelector<IHtmlParagraphElement>("#manual_verificationMethodMain")!;
         var result = SetLine(mainLine, VerificationLineLength, ref verificationsText);
         if (result != null) return result;
         if (verificationsText.Length == 0) return null;
 
-        var additionalLine = document.QuerySelector<IHtmlParagraphElement>("#additionalLine_verifications")!;
-        result = SetLine(additionalLine, AdditionalLineLength, ref verificationsText);
-        if (result != null) return result;
-        if (verificationsText.Length == 0) return null;
-
-        var addInElement = document.QuerySelector("#addIn_verifications")!;
+        var vmAdditionalContainer = document.QuerySelector<IHtmlDivElement>("#manual_verificationMethodAdditional")!;
 
         while (verificationsText.Length > 0)
         {
-            var newLine = (IHtmlParagraphElement)additionalLine.Clone(false);
-            result = SetLine(newLine, AdditionalLineLength, ref verificationsText);
-            if (result != null) return result;
-            addInElement.Append(newLine);
+            var element = document.CreateElement<IHtmlParagraphElement>();
+            element.ClassName = "line";
+            vmAdditionalContainer.AppendChild(element);
+            SetLine(element, FullLineLength, ref verificationsText);
         }
 
         return null;
@@ -180,7 +174,7 @@ internal abstract class DocumentCreatorBase<T>
         if (etalonsText.Length == 0) return null;
 
         var additionalLine = document.QuerySelector<IHtmlParagraphElement>("#additionalLine_etalons")!;
-        result = SetLine(additionalLine, AdditionalLineLength, ref etalonsText);
+        result = SetLine(additionalLine, FullLineLength, ref etalonsText);
         if (result != null) return result;
         if (etalonsText.Length == 0) return null;
 
@@ -189,7 +183,7 @@ internal abstract class DocumentCreatorBase<T>
         while (etalonsText.Length > 0)
         {
             var newLine = (IHtmlParagraphElement)additionalLine.Clone(false);
-            result = SetLine(newLine, AdditionalLineLength, ref etalonsText);
+            result = SetLine(newLine, FullLineLength, ref etalonsText);
             if (result != null) return result;
             addAfterElement.InsertAfter(newLine);
             addAfterElement = newLine;
@@ -206,36 +200,48 @@ internal abstract class DocumentCreatorBase<T>
 
         var checkupsProp = TypeProps.FirstOrDefault(p => p.Name.Equals("Checkups", StringComparison.OrdinalIgnoreCase));
         if (checkupsProp == null) return "Data property Checkups not found";
-        var checkups = (Dictionary<VerificationMethodCheckups, string>)checkupsProp.GetValue(data)!;
+        var checkups = (Dictionary<string, string>)checkupsProp.GetValue(data)!;
 
-        var checkupElement = document.QuerySelector<IHtmlDivElement>("#manual_checkup");
+        var checkupElement = document.QuerySelector<IHtmlParagraphElement>("#manual_checkup");
         if (checkupElement == null) return "manual_checkup not found";
 
-        foreach(var (key, value) in checkups)
+        var checkupNum = 1;
+
+        foreach (var (key, value) in checkups)
         {
+            var checkupNumElement = checkupElement.QuerySelector("#manual_checkupNum");
+            if (checkupNumElement == null) return "manual_checkupNum not found";
+            checkupNumElement.TextContent = $"{checkupNum++}. ";
+
             var checkupTitleElement = checkupElement.QuerySelector("#manual_checkupTitle");
             if (checkupTitleElement == null) return "manual_checkupTitle not found";
-            checkupTitleElement.TextContent = key.GetDescription();
+            checkupTitleElement.TextContent = key;
 
             var checkupValueElement = checkupElement.QuerySelector("#manual_checkupValue");
             if (checkupValueElement == null) return "manual_checkupValue not found";
             checkupValueElement.TextContent = value;
 
             var checkupVerificationElement = checkupElement.QuerySelector("#manual_checkupVerification");
-            if (checkupVerificationElement == null) return "manual_checkupVerification not found";
-            checkupVerificationElement.TextContent = verificationInfo;
-            
-            var newCheckupElement = (IHtmlDivElement)checkupElement.Clone(true);
+            if (checkupVerificationElement != null)
+            {
+                checkupVerificationElement.TextContent = verificationInfo;
+            }
+
+            var newCheckupElement = (IHtmlParagraphElement)checkupElement.Clone(true);
             checkupElement.After(newCheckupElement);
             checkupElement = newCheckupElement;
         }
+
+        checkupElement.Remove();
 
         return null;
     }
 
     private async Task<string?> SetSignAsync(IDocument document, T data)
     {
-        var worker = (string)TypeProps.First(p => p.Name == "Worker").GetValue(data)!;
+        var prop = TypeProps.FirstOrDefault(p => p.Name == "Worker");
+        if (prop == null) return "Data property Worker not found";
+        var worker = (string)prop.GetValue(data)!;
         worker = worker.ToLower();
 
         if (!_signsCache.TryGetValue(worker, out var _))
