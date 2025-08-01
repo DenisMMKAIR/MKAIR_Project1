@@ -4,7 +4,7 @@ namespace ProjApp.InfrastructureInterfaces;
 
 public interface ITemplateProcessor : IAsyncDisposable
 {
-    Task<PDFCreationResult> CreatePDFAsync(IProtocolForm protocolForm, string filePath, CancellationToken cancellationToken);
+    Task<PDFCreationResult> CreatePDFAsync(IProtocolForm protocolForm, string filePath);
 }
 
 public class PDFCreationResult

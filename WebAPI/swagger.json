@@ -1441,15 +1441,6 @@
           "pressure": {
             "type": "string"
           },
-          "checkups": {
-            "type": "object",
-            "x-dictionaryKey": {
-              "$ref": "#/components/schemas/VerificationMethodCheckups"
-            },
-            "additionalProperties": {
-              "type": "string"
-            }
-          },
           "verificationDate": {
             "type": "string",
             "format": "date"
@@ -1524,32 +1515,6 @@
             }
           }
         }
-      },
-      "VerificationMethodCheckups": {
-        "type": "string",
-        "description": "",
-        "x-enumNames": [
-          "внешний_осмотр",
-          "опробование",
-          "осн_поргрешность",
-          "осн_привед_погр_и_вариации",
-          "вариации_выходн_сигн",
-          "прогр_обеспеч",
-          "гермет_сист",
-          "электр_прочн_и_сопр_изоляции",
-          "проверка_данных_ПО"
-        ],
-        "enum": [
-          "внешний_осмотр",
-          "опробование",
-          "осн_поргрешность",
-          "осн_привед_погр_и_вариации",
-          "вариации_выходн_сигн",
-          "прогр_обеспеч",
-          "гермет_сист",
-          "электр_прочн_и_сопр_изоляции",
-          "проверка_данных_ПО"
-        ]
       },
       "VerificationGroup": {
         "type": "string",
@@ -1897,15 +1862,6 @@
           "pressure": {
             "type": "string"
           },
-          "visualCheckup": {
-            "type": "string"
-          },
-          "testCheckup": {
-            "type": "string"
-          },
-          "accuracyCalculation": {
-            "type": "string"
-          },
           "verificationDate": {
             "type": "string",
             "format": "date"
@@ -2220,9 +2176,6 @@
               },
               "checkups": {
                 "type": "object",
-                "x-dictionaryKey": {
-                  "$ref": "#/components/schemas/VerificationMethodCheckups"
-                },
                 "additionalProperties": {
                   "type": "string"
                 }
@@ -2664,8 +2617,6 @@
           },
           {
             "type": "object",
-            "deprecated": true,
-            "x-deprecatedMessage": "Remove checkups. get them from verification method",
             "additionalProperties": false,
             "properties": {
               "protocolNumber": {
@@ -2680,15 +2631,6 @@
                 "format": "double"
               },
               "pressure": {
-                "type": "string"
-              },
-              "visualCheckup": {
-                "type": "string"
-              },
-              "testCheckup": {
-                "type": "string"
-              },
-              "accuracyCalculation": {
                 "type": "string"
               },
               "verificationDate": {
@@ -3212,9 +3154,6 @@
           },
           "checkups": {
             "type": "object",
-            "x-dictionaryKey": {
-              "$ref": "#/components/schemas/VerificationMethodCheckups"
-            },
             "additionalProperties": {
               "type": "string"
             }

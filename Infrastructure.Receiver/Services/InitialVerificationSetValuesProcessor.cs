@@ -91,7 +91,9 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
         {
             public IReadOnlyCollection<string> IncomingNames { get; } = ["поверитель"];
             public string InternalName { get; } = nameof(InitialVerificationDataItem.Worker);
-            public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [];
+            public IReadOnlyList<IColumnNormalizer> Normalizers { get; } = [
+                new WorkerNameNormalizer(),
+            ];
             public IReadOnlyList<IColumnVerifier> Verifiers { get; } = [
                 new WorkerNameVerifier(),
             ];

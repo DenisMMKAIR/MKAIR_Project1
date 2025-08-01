@@ -1,7 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ManometrClient, Manometr1VerificationDto, DeviceLocation } from '../../api-client';
+import {
+  ManometrClient,
+  Manometr1VerificationDto,
+  DeviceLocation,
+  ExportToPdfClient,
+  VerificationGroup,
+  ExportToPdfRequest,
+} from '../../api-client';
 import { ManometrsService } from '../../services/manometrs.service';
 import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.component';
 import { Subscription } from 'rxjs';
@@ -11,11 +18,19 @@ import { Subscription } from 'rxjs';
   standalone: true,
   templateUrl: './manometrs.page.html',
   styleUrls: ['./manometrs.page.scss'],
-  imports: [NgFor, NgIf, DatePipe, FormsModule, DatesFilterComponent, DecimalPipe],
-  providers: [ManometrClient],
+  imports: [
+    NgFor,
+    NgIf,
+    DatePipe,
+    FormsModule,
+    DatesFilterComponent,
+    DecimalPipe,
+  ],
+  providers: [ManometrClient, ExportToPdfClient],
 })
 export class ManometrsPage implements OnInit {
   private readonly manometrClient = inject(ManometrClient);
+  private readonly exportToPdfClient = inject(ExportToPdfClient);
   private readonly manometrsService = inject(ManometrsService);
 
   public manometrs: Manometr1VerificationDto[] = [];
@@ -80,37 +95,45 @@ export class ManometrsPage implements OnInit {
   public loadManometrs(): void {
     this.loading = true;
     this.error = null;
-    
+
     // Prepare filter values
     const deviceTypeNumber = this.deviceTypeNumberFilter || null;
     const deviceSerial = this.deviceSerialFilter || null;
-    const yearMonth = !this.yearMonthFilter || this.yearMonthFilter === 'all' ? null : this.yearMonthFilter;
-    const location = this.locationFilter === null || this.locationFilter === 'all' ? null : this.locationFilter as DeviceLocation;
-    
-    this.manometrClient.getVerifications(
-      this.pagination.currentPage, 
-      this.pagination.pageSize,
-      deviceTypeNumber,
-      deviceSerial,
-      yearMonth,
-      location
-    ).subscribe({
-      next: (result) => {
-        if (result.data) {
-          this.manometrs = result.data.items ?? [];
-          this.manometrsService.updatePaginationFromData(result.data);
-        } else {
-          this.manometrs = [];
-          this.manometrsService.resetPagination();
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        const msg = err?.error?.error || err?.error?.message || err?.message;
-        this.error = msg || 'Не удалось загрузить манометры';
-        this.loading = false;
-      },
-    });
+    const yearMonth =
+      !this.yearMonthFilter || this.yearMonthFilter === 'all'
+        ? null
+        : this.yearMonthFilter;
+    const location =
+      this.locationFilter === null || this.locationFilter === 'all'
+        ? null
+        : (this.locationFilter as DeviceLocation);
+
+    this.manometrClient
+      .getVerifications(
+        this.pagination.currentPage,
+        this.pagination.pageSize,
+        deviceTypeNumber,
+        deviceSerial,
+        yearMonth,
+        location
+      )
+      .subscribe({
+        next: (result) => {
+          if (result.data) {
+            this.manometrs = result.data.items ?? [];
+            this.manometrsService.updatePaginationFromData(result.data);
+          } else {
+            this.manometrs = [];
+            this.manometrsService.resetPagination();
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.error?.message || err?.message;
+          this.error = msg || 'Не удалось загрузить манометры';
+          this.loading = false;
+        },
+      });
   }
 
   public onYearMonthFilterChange(): void {
@@ -132,33 +155,45 @@ export class ManometrsPage implements OnInit {
     this.error = null;
     this.infoMessage = null;
     this.successMessage = null;
-    const selectedManometrs = Array.from(this.selectedRows).map(index => this.manometrs[index]);
-    const ids = selectedManometrs.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    const selectedManometrs = Array.from(this.selectedRows).map(
+      (index) => this.manometrs[index]
+    );
+    const ids = selectedManometrs
+      .map((m) => m.id)
+      .filter((id): id is string => typeof id === 'string');
     if (ids.length === 0) {
       this.error = 'Нет выбранных записей для экспорта.';
       this.exportLoading = false;
       return;
     }
-    this.exportSubscription = this.manometrClient.exportToPdf(ids).subscribe({
-      next: (response: any) => {
-        if (response?.message) {
-          this.error = null;
-          this.successMessage = response.message;
-        } else if (response?.error) {
-          this.error = response.error;
-        } else {
-          this.error = 'Неожиданный ответ от сервера.';
-        }
-        this.exportLoading = false;
-        this.selectedRows.clear();
-        this.exportSubscription = null;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      }
-    });
+    this.exportSubscription = this.exportToPdfClient
+      .exportToPdf(
+        new ExportToPdfRequest({ ids: ids, group: VerificationGroup.Манометры })
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.error = null;
+            this.successMessage = response.message;
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.selectedRows.clear();
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте PDF.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 
   public exportAllToPdf(): void {
@@ -169,25 +204,31 @@ export class ManometrsPage implements OnInit {
     this.error = null;
     this.infoMessage = null;
     this.successMessage = null;
-    this.exportSubscription = this.manometrClient.exportAllToPdf().subscribe({
-      next: (response: any) => {
-        if (response?.message) {
-          this.error = null;
-          this.successMessage = response.message;
-        } else if (response?.error) {
-          this.error = response.error;
-        } else {
-          this.error = 'Неожиданный ответ от сервера.';
-        }
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      }
-    });
+    this.exportSubscription = this.exportToPdfClient
+      .exportAllToPdf(VerificationGroup.Манометры)
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.error = null;
+            this.successMessage = response.message;
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте PDF.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 
   public cancelExport(): void {
@@ -223,16 +264,20 @@ export class ManometrsPage implements OnInit {
   }
 
   public isAllSelected(): boolean {
-    return this.selectedRows.size === this.manometrs.length && this.manometrs.length > 0;
+    return (
+      this.selectedRows.size === this.manometrs.length &&
+      this.manometrs.length > 0
+    );
   }
 
   // Data formatting methods
   public formatRangeAccuracy(m: Manometr1VerificationDto): string {
-    const range = (m.measurementMin != null && m.measurementMax != null && m.measurementUnit) 
-      ? `${m.measurementMin}–${m.measurementMax} ${m.measurementUnit}` 
-      : '-';
+    const range =
+      m.measurementMin != null && m.measurementMax != null && m.measurementUnit
+        ? `${m.measurementMin}–${m.measurementMax} ${m.measurementUnit}`
+        : '-';
     const accuracyClass = m.validError != null ? `±${m.validError}` : '-';
-    
+
     return `${range}\n${accuracyClass}`;
   }
 
@@ -269,10 +314,10 @@ export class ManometrsPage implements OnInit {
   // Private utility methods
   private formatTableData(data: number[][]): string {
     if (!data || data.length === 0) return '-';
-    
-    const maxColumns = Math.max(...data.map(row => row.length));
+
+    const maxColumns = Math.max(...data.map((row) => row.length));
     const tableRows: string[] = [];
-    
+
     for (let colIndex = 0; colIndex < maxColumns; colIndex++) {
       const rowValues: string[] = [];
       for (let rowIndex = 0; rowIndex < data.length; rowIndex++) {
@@ -281,7 +326,7 @@ export class ManometrsPage implements OnInit {
       }
       tableRows.push(rowValues.join(' | '));
     }
-    
+
     return tableRows.join('\n');
   }
 
@@ -304,8 +349,12 @@ export class ManometrsPage implements OnInit {
     this.loading = true;
     this.error = null;
     this.successMessage = null;
-    const selectedManometrs = Array.from(this.selectedRows).map(index => this.manometrs[index]);
-    const ids = selectedManometrs.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    const selectedManometrs = Array.from(this.selectedRows).map(
+      (index) => this.manometrs[index]
+    );
+    const ids = selectedManometrs
+      .map((m) => m.id)
+      .filter((id): id is string => typeof id === 'string');
     if (ids.length === 0) {
       this.error = 'Нет выбранных записей для удаления.';
       this.loading = false;
@@ -323,11 +372,15 @@ export class ManometrsPage implements OnInit {
         this.loadManometrs();
       },
       error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при удалении поверок.';
+        this.error =
+          err?.error?.error ||
+          err?.error?.message ||
+          err?.message ||
+          'Ошибка при удалении поверок.';
         this.selectedRows.clear();
         this.loading = false;
         this.loadManometrs();
-      }
+      },
     });
   }
 
@@ -359,23 +412,36 @@ export class ManometrsPage implements OnInit {
     this.infoMessage = null;
     this.successMessage = null;
     const fileParam = { data: this.excelFile, fileName: this.excelFile.name };
-    this.exportSubscription = this.manometrClient.exportByExcelToPDF(this.sheetName.trim(), this.dataRange.trim(), fileParam).subscribe({
-      next: (response: any) => {
-        if (response?.message) {
-          this.successMessage = response.message;
-        } else if (response?.error) {
-          this.error = response.error;
-        } else {
-          this.error = 'Неожиданный ответ от сервера.';
-        }
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте в Excel.';
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      }
-    });
+    this.sheetName = this.sheetName.trim();
+    this.dataRange = this.dataRange.trim();
+    this.exportSubscription = this.exportToPdfClient
+      .exportByExcelToPDF(
+        VerificationGroup.Манометры,
+        fileParam,
+        this.sheetName.trim(),
+        this.dataRange.trim()
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.successMessage = response.message;
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте в Excel.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 }

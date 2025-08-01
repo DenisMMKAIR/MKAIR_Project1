@@ -1,7 +1,14 @@
 import { Component, inject, OnInit } from '@angular/core';
 import { NgFor, NgIf, DatePipe, DecimalPipe } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { DavlenieClient, Davlenie1VerificationDTO, DeviceLocation } from '../../api-client';
+import {
+  DavlenieClient,
+  Davlenie1VerificationDTO,
+  DeviceLocation,
+  ExportToPdfClient,
+  ExportToPdfRequest,
+  VerificationGroup,
+} from '../../api-client';
 import { DavlenieService } from '../../services/davlenie.service';
 import { DatesFilterComponent } from '../../shared/dates-filter/dates-filter.component';
 import { Subscription } from 'rxjs';
@@ -11,11 +18,19 @@ import { Subscription } from 'rxjs';
   standalone: true,
   templateUrl: './davlenie.page.html',
   styleUrls: ['./davlenie.page.scss'],
-  imports: [NgFor, NgIf, DatePipe, FormsModule, DatesFilterComponent, DecimalPipe],
-  providers: [DavlenieClient],
+  imports: [
+    NgFor,
+    NgIf,
+    DatePipe,
+    FormsModule,
+    DatesFilterComponent,
+    DecimalPipe,
+  ],
+  providers: [DavlenieClient, ExportToPdfClient],
 })
 export class DavleniePage implements OnInit {
   private readonly davlenieClient = inject(DavlenieClient);
+  private readonly exportToPdfClient = inject(ExportToPdfClient);
   private readonly davlenieService = inject(DavlenieService);
 
   public davlenie: Davlenie1VerificationDTO[] = [];
@@ -26,6 +41,9 @@ export class DavleniePage implements OnInit {
   public successMessage: string | null = null;
   public selectedRows = new Set<number>();
   private exportSubscription: Subscription | null = null;
+  public excelFile: File | null = null;
+  public sheetName: string = '';
+  public dataRange: string = '';
 
   ngOnInit(): void {
     this.davlenieService.setPageChangeCallback(() => this.loadDavlenie());
@@ -81,33 +99,41 @@ export class DavleniePage implements OnInit {
     // Prepare filter values
     const deviceTypeNumber = this.deviceTypeNumberFilter || null;
     const deviceSerial = this.deviceSerialFilter || null;
-    const yearMonth = !this.yearMonthFilter || this.yearMonthFilter === 'all' ? null : this.yearMonthFilter;
-    const location = this.locationFilter === null || this.locationFilter === 'all' ? null : this.locationFilter as DeviceLocation;
+    const yearMonth =
+      !this.yearMonthFilter || this.yearMonthFilter === 'all'
+        ? null
+        : this.yearMonthFilter;
+    const location =
+      this.locationFilter === null || this.locationFilter === 'all'
+        ? null
+        : (this.locationFilter as DeviceLocation);
 
-    this.davlenieClient.getVerifications(
-      this.pagination.currentPage,
-      this.pagination.pageSize,
-      deviceTypeNumber,
-      deviceSerial,
-      yearMonth,
-      location
-    ).subscribe({
-      next: (result) => {
-        if (result.data) {
-          this.davlenie = result.data.items ?? [];
-          this.davlenieService.updatePaginationFromData(result.data);
-        } else {
-          this.davlenie = [];
-          this.davlenieService.resetPagination();
-        }
-        this.loading = false;
-      },
-      error: (err) => {
-        const msg = err?.error?.error || err?.error?.message || err?.message;
-        this.error = msg || 'Не удалось загрузить данные';
-        this.loading = false;
-      },
-    });
+    this.davlenieClient
+      .getVerifications(
+        this.pagination.currentPage,
+        this.pagination.pageSize,
+        deviceTypeNumber,
+        deviceSerial,
+        yearMonth,
+        location
+      )
+      .subscribe({
+        next: (result) => {
+          if (result.data) {
+            this.davlenie = result.data.items ?? [];
+            this.davlenieService.updatePaginationFromData(result.data);
+          } else {
+            this.davlenie = [];
+            this.davlenieService.resetPagination();
+          }
+          this.loading = false;
+        },
+        error: (err) => {
+          const msg = err?.error?.error || err?.error?.message || err?.message;
+          this.error = msg || 'Не удалось загрузить данные';
+          this.loading = false;
+        },
+      });
   }
 
   public onYearMonthFilterChange(): void {
@@ -126,36 +152,51 @@ export class DavleniePage implements OnInit {
     this.error = null;
     this.infoMessage = null;
     this.successMessage = null;
-    const selectedDavlenie = Array.from(this.selectedRows).map(index => this.davlenie[index]);
-    const ids = selectedDavlenie.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    const selectedDavlenie = Array.from(this.selectedRows).map(
+      (index) => this.davlenie[index]
+    );
+    const ids = selectedDavlenie
+      .map((m) => m.id)
+      .filter((id): id is string => typeof id === 'string');
     if (ids.length === 0) {
       this.error = 'Нет выбранных записей для экспорта.';
       this.exportLoading = false;
       return;
     }
-    this.exportSubscription = this.davlenieClient.exportToPdf(ids).subscribe({
-      next: (response: any) => {
-        if (response?.message) {
-          this.error = null;
-          this.successMessage = response.message;
-          setTimeout(() => {
-            this.successMessage = null;
-          }, 5000);
-        } else if (response?.error) {
-          this.error = response.error;
-        } else {
-          this.error = 'Неожиданный ответ от сервера.';
-        }
-        this.exportLoading = false;
-        this.selectedRows.clear();
-        this.exportSubscription = null;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      }
-    });
+    this.exportSubscription = this.exportToPdfClient
+      .exportToPdf(
+        new ExportToPdfRequest({
+          ids: ids,
+          group: VerificationGroup.Датчики_давления,
+        })
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.error = null;
+            this.successMessage = response.message;
+            setTimeout(() => {
+              this.successMessage = null;
+            }, 5000);
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.selectedRows.clear();
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте PDF.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 
   public exportAllToPdf(): void {
@@ -166,28 +207,34 @@ export class DavleniePage implements OnInit {
     this.error = null;
     this.infoMessage = null;
     this.successMessage = null;
-    this.exportSubscription = this.davlenieClient.exportAllToPdf().subscribe({
-      next: (response: any) => {
-        if (response?.message) {
-          this.error = null;
-          this.successMessage = response.message;
-          setTimeout(() => {
-            this.successMessage = null;
-          }, 5000);
-        } else if (response?.error) {
-          this.error = response.error;
-        } else {
-          this.error = 'Неожиданный ответ от сервера.';
-        }
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      },
-      error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при экспорте PDF.';
-        this.exportLoading = false;
-        this.exportSubscription = null;
-      }
-    });
+    this.exportSubscription = this.exportToPdfClient
+      .exportAllToPdf(VerificationGroup.Датчики_давления)
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.error = null;
+            this.successMessage = response.message;
+            setTimeout(() => {
+              this.successMessage = null;
+            }, 5000);
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте PDF.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 
   public cancelExport(): void {
@@ -223,14 +270,18 @@ export class DavleniePage implements OnInit {
   }
 
   public isAllSelected(): boolean {
-    return this.selectedRows.size === this.davlenie.length && this.davlenie.length > 0;
+    return (
+      this.selectedRows.size === this.davlenie.length &&
+      this.davlenie.length > 0
+    );
   }
 
   // Data formatting methods
   public formatRangeAccuracy(m: Davlenie1VerificationDTO): string {
-    const range = (m.measurementMin != null && m.measurementMax != null && m.measurementUnit)
-      ? `${m.measurementMin}–${m.measurementMax} ${m.measurementUnit}`
-      : '-';
+    const range =
+      m.measurementMin != null && m.measurementMax != null && m.measurementUnit
+        ? `${m.measurementMin}–${m.measurementMax} ${m.measurementUnit}`
+        : '-';
     const accuracyClass = m.validError != null ? `±${m.validError}` : '-';
     return `${range}\n${accuracyClass}`;
   }
@@ -268,13 +319,15 @@ export class DavleniePage implements OnInit {
 
   // Add helper for pressureInputs if needed
   public formatPressureInputs(m: Davlenie1VerificationDTO): string {
-    return m.pressureInputs && m.pressureInputs.length > 0 ? m.pressureInputs.join(', ') : '-';
+    return m.pressureInputs && m.pressureInputs.length > 0
+      ? m.pressureInputs.join(', ')
+      : '-';
   }
 
   // Private utility methods
   private formatTableData(data: number[][]): string {
     if (!data || data.length === 0) return '-';
-    const maxColumns = Math.max(...data.map(row => row.length));
+    const maxColumns = Math.max(...data.map((row) => row.length));
     const tableRows: string[] = [];
     for (let colIndex = 0; colIndex < maxColumns; colIndex++) {
       const rowValues: string[] = [];
@@ -306,8 +359,12 @@ export class DavleniePage implements OnInit {
     this.loading = true;
     this.error = null;
     this.successMessage = null;
-    const selectedDavlenie = Array.from(this.selectedRows).map(index => this.davlenie[index]);
-    const ids = selectedDavlenie.map(m => m.id).filter((id): id is string => typeof id === 'string');
+    const selectedDavlenie = Array.from(this.selectedRows).map(
+      (index) => this.davlenie[index]
+    );
+    const ids = selectedDavlenie
+      .map((m) => m.id)
+      .filter((id): id is string => typeof id === 'string');
     if (ids.length === 0) {
       this.error = 'Нет выбранных записей для удаления.';
       this.loading = false;
@@ -325,11 +382,76 @@ export class DavleniePage implements OnInit {
         this.loadDavlenie();
       },
       error: (err: any) => {
-        this.error = err?.error?.error || err?.error?.message || err?.message || 'Ошибка при удалении поверок.';
+        this.error =
+          err?.error?.error ||
+          err?.error?.message ||
+          err?.message ||
+          'Ошибка при удалении поверок.';
         this.selectedRows.clear();
         this.loading = false;
         this.loadDavlenie();
-      }
+      },
     });
+  }
+
+  public onExcelFileChange(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (input.files && input.files.length > 0) {
+      this.excelFile = input.files[0];
+    }
+  }
+
+  public exportAllToExcel(): void {
+    if (this.exportLoading) {
+      return;
+    }
+    if (!this.excelFile) {
+      this.error = 'Выберите Excel файл.';
+      return;
+    }
+    if (!this.sheetName.trim()) {
+      this.error = 'Укажите имя листа.';
+      return;
+    }
+    if (!this.dataRange.trim()) {
+      this.error = 'Укажите диапазон данных.';
+      return;
+    }
+    this.exportLoading = true;
+    this.error = null;
+    this.infoMessage = null;
+    this.successMessage = null;
+    const fileParam = { data: this.excelFile, fileName: this.excelFile.name };
+    this.sheetName = this.sheetName.trim();
+    this.dataRange = this.dataRange.trim();
+    this.exportSubscription = this.exportToPdfClient
+      .exportByExcelToPDF(
+        VerificationGroup.Манометры,
+        fileParam,
+        this.sheetName.trim(),
+        this.dataRange.trim()
+      )
+      .subscribe({
+        next: (response: any) => {
+          if (response?.message) {
+            this.successMessage = response.message;
+          } else if (response?.error) {
+            this.error = response.error;
+          } else {
+            this.error = 'Неожиданный ответ от сервера.';
+          }
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+        error: (err: any) => {
+          this.error =
+            err?.error?.error ||
+            err?.error?.message ||
+            err?.message ||
+            'Ошибка при экспорте в Excel.';
+          this.exportLoading = false;
+          this.exportSubscription = null;
+        },
+      });
   }
 }

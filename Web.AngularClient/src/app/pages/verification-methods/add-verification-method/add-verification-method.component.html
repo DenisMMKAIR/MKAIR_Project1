@@ -26,21 +26,38 @@
 
     <div class="form-group">
       <label for="description">Описание</label>
-      <input id="description" type="text" formControlName="description" autocomplete="off" />
+      <input
+        id="description"
+        type="text"
+        formControlName="description"
+        autocomplete="off"
+      />
     </div>
 
     <div class="form-group">
       <label for="aliasInput">Псевдонимы</label>
       <div class="alias-input-row">
-        <input id="aliasInput" type="text" placeholder="Введите псевдоним" autocomplete="off" formControlName="aliasInput" />
-        <button type="button" (click)="addAlias()" [disabled]="!aliasInputValue.trim()">Добавить</button>
+        <input
+          id="aliasInput"
+          type="text"
+          placeholder="Введите псевдоним"
+          autocomplete="off"
+          formControlName="aliasInput"
+        />
+        <button
+          type="button"
+          (click)="addAlias()"
+          [disabled]="!aliasInputValue.trim()"
+        >
+          Добавить
+        </button>
       </div>
     </div>
 
     <div class="form-group submit-group">
       <label style="visibility: hidden">&nbsp;</label>
       <button type="button" (click)="submit()" [disabled]="!isFormValid">
-        {{ loading ? 'Добавление...' : 'Добавить метод' }}
+        {{ loading ? "Добавление..." : "Добавить метод" }}
       </button>
     </div>
   </div>
@@ -49,31 +66,59 @@
     <div class="form-group">
       <label for="checkupKey">Проверки</label>
       <div class="checkup-input-row">
-        <select id="checkupKey" formControlName="checkupKey">
-          <option value="">Выберите ключ проверки</option>
-          <option *ngFor="let key of checkupKeys" [value]="key">{{ key }}</option>
-        </select>
-        <input id="checkupValue" type="text" placeholder="Значение" autocomplete="off" formControlName="checkupValue" />
-        <button type="button" (click)="addCheckup()" [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim()">Добавить</button>
+        <input
+          id="checkupKey"
+          type="text"
+          placeholder="Ключ"
+          autocomplete="off"
+          formControlName="checkupKey"
+        />
+        <input
+          id="checkupValue"
+          type="text"
+          placeholder="Значение"
+          autocomplete="off"
+          formControlName="checkupValue"
+        />
+        <button
+          type="button"
+          (click)="addCheckup()"
+          [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim()"
+        >
+          Добавить
+        </button>
       </div>
     </div>
   </div>
 
   <div *ngIf="aliases.length" class="alias-list">
-    <span *ngFor="let aliasCtrl of aliases.controls; let i = index" class="alias-item">
+    <span
+      *ngFor="let aliasCtrl of aliases.controls; let i = index"
+      class="alias-item"
+    >
       {{ aliasCtrl.value }}
       <button type="button" (click)="removeAlias(i)">×</button>
     </span>
   </div>
 
   <div *ngIf="checkups.length" class="checkup-list">
-    <span *ngFor="let checkupCtrl of checkups.controls; let i = index" class="checkup-item">
+    <span
+      *ngFor="let checkupCtrl of checkups.controls; let i = index"
+      class="checkup-item"
+    >
       {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value }}
       <button type="button" (click)="removeCheckup(i)">×</button>
     </span>
   </div>
 </div>
 
-<div *ngIf="result" class="result-message" [ngClass]="{'success': result === 'Метод успешно добавлен', 'error': result !== 'Метод успешно добавлен'}">
+<div
+  *ngIf="result"
+  class="result-message"
+  [ngClass]="{
+    success: result === 'Метод успешно добавлен',
+    error: result !== 'Метод успешно добавлен'
+  }"
+>
   {{ result }}
-</div> 
+</div>

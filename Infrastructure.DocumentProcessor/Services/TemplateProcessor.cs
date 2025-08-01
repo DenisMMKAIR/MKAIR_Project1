@@ -1,5 +1,4 @@
 using Infrastructure.DocumentProcessor.Creator;
-using Microsoft.Extensions.Logging;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.ProtocolForms;
 using IAppConfig = Microsoft.Extensions.Configuration.IConfiguration;
@@ -8,39 +7,48 @@ namespace Infrastructure.DocumentProcessor.Services;
 
 public class TemplateProcessor : ITemplateProcessor
 {
-    private readonly Dictionary<string, string> _signsCache = [];
-    private readonly PDFExporter _exporter;
+    private readonly Browser _browser;
     private readonly ManometrSuccessDocumentCreator _manDocCreator;
     private readonly DavlenieSuccessDocumentCreator _davDocCreator;
     private bool _disposed;
 
-    public TemplateProcessor(ILogger<TemplateProcessor> logger, IAppConfig configuration)
+    public TemplateProcessor(IAppConfig configuration)
     {
+        _browser = new();
+
         var signsDirPath = configuration["SignsDirPath"] ??
             throw new ArgumentNullException(nameof(configuration), "Директория подписей не задана в настройках");
 
-        _exporter = new(logger);
-        _manDocCreator = new(_signsCache, signsDirPath);
-        _davDocCreator = new(_signsCache, signsDirPath);
+        Dictionary<string, string> signsCache = [];
+
+        _manDocCreator = new(_browser, signsCache, signsDirPath);
+        _davDocCreator = new(_browser, signsCache, signsDirPath);
     }
 
-    public async Task<PDFCreationResult> CreatePDFAsync(IProtocolForm form, string filePath, CancellationToken cancellationToken = default)
+    public async Task<PDFCreationResult> CreatePDFAsync(IProtocolForm form, string filePath)
     {
         return form switch
         {
-            ManometrForm m => await CreateAsync(_manDocCreator, m, filePath, cancellationToken),
-            DavlenieForm d => await CreateAsync(_davDocCreator, d, filePath, cancellationToken),
+            ManometrForm m => await CreateAsync(_manDocCreator, m, filePath),
+            DavlenieForm d => await CreateAsync(_davDocCreator, d, filePath),
             _ => PDFCreationResult.Failure("Форма не поддерживается")
         };
     }
 
-    private async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath, CancellationToken cancellationToken = default)
+    private static async Task<PDFCreationResult> CreateAsync<T>(DocumentCreatorBase<T> htmlCreator, T data, string filePath)
     {
-        var htmlResult = await htmlCreator.CreateAsync(data, cancellationToken);
+        var htmlResult = await htmlCreator.CreateAsync(data);
 
         if (htmlResult.Error != null) return PDFCreationResult.Failure(htmlResult.Error);
 
-        await _exporter.ExportAsync(htmlResult.HTMLContent!, filePath, cancellationToken);
+        try
+        {
+            await htmlResult.HTMLPage!.PdfAsync(filePath);
+        }
+        catch (Exception e)
+        {
+            return PDFCreationResult.Failure(e.Message);
+        }
 
         return PDFCreationResult.Success(filePath, $"Файл протокола {Path.GetFileName(filePath)} создан");
     }
@@ -49,7 +57,7 @@ public class TemplateProcessor : ITemplateProcessor
     {
         if (_disposed) return;
         _disposed = true;
-        await _exporter.DisposeAsync();
+        await _browser.DisposeAsync();
         GC.SuppressFinalize(this);
     }
 }

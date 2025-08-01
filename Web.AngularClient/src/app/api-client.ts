@@ -1920,7 +1920,6 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -1961,13 +1960,6 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            if (_data["checkups"]) {
-                this.checkups = {} as any;
-                for (let key in _data["checkups"]) {
-                    if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
-                }
-            }
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.verificationGroup = _data["verificationGroup"];
@@ -2028,13 +2020,6 @@ export class Davlenie1VerificationDTO implements IDavlenie1VerificationDTO {
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        if (this.checkups) {
-            data["checkups"] = {};
-            for (let key in this.checkups) {
-                if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
-            }
-        }
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["verificationGroup"] = this.verificationGroup;
@@ -2088,7 +2073,6 @@ export interface IDavlenie1VerificationDTO {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2103,18 +2087,6 @@ export interface IDavlenie1VerificationDTO {
     actualError?: number[][];
     validError?: number;
     variations?: number[];
-}
-
-export enum VerificationMethodCheckups {
-    Внешний_осмотр = "внешний_осмотр",
-    Опробование = "опробование",
-    Осн_поргрешность = "осн_поргрешность",
-    Осн_привед_погр_и_вариации = "осн_привед_погр_и_вариации",
-    Вариации_выходн_сигн = "вариации_выходн_сигн",
-    Прогр_обеспеч = "прогр_обеспеч",
-    Гермет_сист = "гермет_сист",
-    Электр_прочн_и_сопр_изоляции = "электр_прочн_и_сопр_изоляции",
-    Проверка_данных_ПО = "проверка_данных_ПО",
 }
 
 export enum VerificationGroup {
@@ -2739,9 +2711,6 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -2781,9 +2750,6 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.visualCheckup = _data["visualCheckup"];
-            this.testCheckup = _data["testCheckup"];
-            this.accuracyCalculation = _data["accuracyCalculation"];
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.verificationGroup = _data["verificationGroup"];
@@ -2839,9 +2805,6 @@ export class Manometr1VerificationDto implements IManometr1VerificationDto {
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["visualCheckup"] = this.visualCheckup;
-        data["testCheckup"] = this.testCheckup;
-        data["accuracyCalculation"] = this.accuracyCalculation;
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["verificationGroup"] = this.verificationGroup;
@@ -2890,9 +2853,6 @@ export interface IManometr1VerificationDto {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     verificationGroup?: VerificationGroup;
@@ -3373,7 +3333,7 @@ export interface IPossibleTemplateVerificationMethodsDTO {
 export class VerificationMethod extends DatabaseEntity implements IVerificationMethod {
     aliases?: string[];
     description?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    checkups?: { [key: string]: string; };
     protocolTemplateId?: string | undefined;
     protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
@@ -3489,7 +3449,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
 export interface IVerificationMethod extends IDatabaseEntity {
     aliases?: string[];
     description?: string;
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    checkups?: { [key: string]: string; };
     protocolTemplateId?: string | undefined;
     protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
@@ -3978,9 +3938,6 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     deviceTypeNumber?: string;
@@ -4017,9 +3974,6 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
             this.temperature = _data["temperature"];
             this.humidity = _data["humidity"];
             this.pressure = _data["pressure"];
-            this.visualCheckup = _data["visualCheckup"];
-            this.testCheckup = _data["testCheckup"];
-            this.accuracyCalculation = _data["accuracyCalculation"];
             this.verificationDate = _data["verificationDate"] ? new Date(_data["verificationDate"].toString()) : <any>undefined;
             this.worker = _data["worker"];
             this.deviceTypeNumber = _data["deviceTypeNumber"];
@@ -4080,9 +4034,6 @@ export class Manometr1Verification extends DatabaseEntity implements IManometr1V
         data["temperature"] = this.temperature;
         data["humidity"] = this.humidity;
         data["pressure"] = this.pressure;
-        data["visualCheckup"] = this.visualCheckup;
-        data["testCheckup"] = this.testCheckup;
-        data["accuracyCalculation"] = this.accuracyCalculation;
         data["verificationDate"] = this.verificationDate ? formatDate(this.verificationDate) : <any>undefined;
         data["worker"] = this.worker;
         data["deviceTypeNumber"] = this.deviceTypeNumber;
@@ -4137,9 +4088,6 @@ export interface IManometr1Verification extends IDatabaseEntity {
     temperature?: number;
     humidity?: number;
     pressure?: string;
-    visualCheckup?: string;
-    testCheckup?: string;
-    accuracyCalculation?: string;
     verificationDate?: Date;
     worker?: string;
     deviceTypeNumber?: string;
@@ -4844,7 +4792,7 @@ export enum ShowVMethods {
 export class AddVerificationMethodRequest implements IAddVerificationMethodRequest {
     description?: string;
     aliases?: string[];
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    checkups?: { [key: string]: string; };
 
     constructor(data?: IAddVerificationMethodRequest) {
         if (data) {
@@ -4902,7 +4850,7 @@ export class AddVerificationMethodRequest implements IAddVerificationMethodReque
 export interface IAddVerificationMethodRequest {
     description?: string;
     aliases?: string[];
-    checkups?: { [key in keyof typeof VerificationMethodCheckups]?: string; };
+    checkups?: { [key: string]: string; };
 }
 
 export class ServicePaginatedResultOfSuccessInitialVerificationDto implements IServicePaginatedResultOfSuccessInitialVerificationDto {

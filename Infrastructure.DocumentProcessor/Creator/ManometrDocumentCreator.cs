@@ -1,7 +1,7 @@
 using System.Reflection;
-using AngleSharp.Dom;
 using Infrastructure.DocumentProcessor.Forms;
 using ProjApp.ProtocolForms;
+using PuppeteerSharp;
 
 namespace Infrastructure.DocumentProcessor.Creator;
 
@@ -9,26 +9,36 @@ internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<ManometrForm
 {
     protected override IReadOnlyList<PropertyInfo> TypeProps { get; init; } = typeof(ManometrForm).GetProperties();
 
-    public ManometrSuccessDocumentCreator(Dictionary<string, string> signsCache, string signsDirPath) : base(signsCache, signsDirPath, HTMLForms.Manometr) { }
+    public ManometrSuccessDocumentCreator(
+        Browser browser,
+        Dictionary<string, string> signsCache,
+        string signsDirPath)
+            : base(browser,
+                   signsCache,
+                   signsDirPath,
+                   HTMLForms.Manometr)
+    { }
 
-    protected override string? SetSpecific(IDocument document, ManometrForm data)
+    protected override async Task<string?> SetSpecificAsync(IPage page, ManometrForm data)
     {
         var prop = TypeProps.FirstOrDefault(p => p.Name == "MeasurementUnit");
         if (prop == null) return "MeasurementUnit prop not found";
-        var measurement1Element = document.QuerySelector("#measurementUnit1");
-        if (measurement1Element == null) return "measurementUnit1 not found";
-        SetElementValue(measurement1Element, prop.GetValue(data)!.ToString()!);
-        var measurement2Element = document.QuerySelector("#measurementUnit2");
-        if (measurement2Element == null) return "measurementUnit2 not found";
-        SetElementValue(measurement2Element, prop.GetValue(data)!.ToString()!);
 
-        var table = document.QuerySelector("#valuesTable");
+        var measurement1Element = await page.QuerySelectorAsync("#measurementUnit1");
+        if (measurement1Element == null) return "measurementUnit1 not found";
+        await measurement1Element.SetElementValueAsync(prop.GetValue(data)!.ToString()!);
+
+        var measurement2Element = await page.QuerySelectorAsync("#measurementUnit2");
+        if (measurement2Element == null) return "measurementUnit2 not found";
+        await measurement2Element.SetElementValueAsync(prop.GetValue(data)!.ToString()!);
+
+        var table = await page.QuerySelectorAsync("#valuesTable");
         if (table == null)
         {
             return "Table not found";
         }
 
-        var tbody = table.QuerySelector("tbody");
+        var tbody = await table.QuerySelectorAsync("tbody");
         if (tbody == null)
         {
             return "Table body not found";
@@ -49,55 +59,35 @@ internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<ManometrForm
 
         for (int rowIndex = 0; rowIndex < 8; rowIndex++)
         {
-            var row = tbody.QuerySelectorAll("tr")[rowIndex];
-            if (row == null)
-            {
-                continue;
-            }
+            var rows = await tbody.QuerySelectorAllAsync("tr");
+            if (rowIndex >= rows.Length) continue;
+
+            var row = rows[rowIndex];
+            if (row == null) continue;
 
             for (int colIndex = 0; colIndex < 9; colIndex++)
             {
-                var cell = row.QuerySelector($"td:nth-child({colIndex + 1})");
-                if (cell == null || cell.InnerHtml.Trim() == "-")
-                {
-                    continue;
-                }
+                var cell = await row.QuerySelectorAsync($"td:nth-child({colIndex + 1})");
+                if (cell == null) continue;
 
-                double value;
-                switch (colIndex)
-                {
-                    case 0:
-                        value = data.DeviceValues[0][rowIndex];
-                        break;
-                    case 1:
-                        value = data.DeviceValues[1][rowIndex];
-                        break;
-                    case 2:
-                        value = data.EtalonValues[0][rowIndex];
-                        break;
-                    case 3:
-                        value = data.EtalonValues[1][rowIndex];
-                        break;
-                    case 4:
-                        value = data.ActualError[0][rowIndex];
-                        break;
-                    case 5:
-                        value = data.ActualError[1][rowIndex];
-                        break;
-                    case 6:
-                        value = data.ValidError;
-                        break;
-                    case 7:
-                        value = data.ActualVariation[rowIndex];
-                        break;
-                    case 8:
-                        value = data.ValidError;
-                        break;
-                    default:
-                        return "Некорректный индекс столбца";
-                }
+                var innerHtml = await cell.EvaluateFunctionAsync<string>("el => el.innerHTML");
+                if (innerHtml.Trim() == "-") continue;
 
-                SetElementValue(cell, value.ToString(), columnFormats[colIndex]);
+                var value = colIndex switch
+                {
+                    0 => data.DeviceValues[0][rowIndex],
+                    1 => data.DeviceValues[1][rowIndex],
+                    2 => data.EtalonValues[0][rowIndex],
+                    3 => data.EtalonValues[1][rowIndex],
+                    4 => data.ActualError[0][rowIndex],
+                    5 => data.ActualError[1][rowIndex],
+                    6 => data.ValidError,
+                    7 => data.ActualVariation[rowIndex],
+                    8 => data.ValidError,
+                    _ => throw new Exception("Некорректный индекс столбца")
+                };
+
+                await cell.SetElementValueAsync(value.ToString(), columnFormats[colIndex]);
             }
         }
 

@@ -10,7 +10,6 @@
 
 	<ItemGroup>
 		<PackageReference Include="PuppeteerSharp" Version="20.1.3" />
-		<PackageReference Include="AngleSharp" Version="1.3.0" />
 	</ItemGroup>
 
 	<ItemGroup>

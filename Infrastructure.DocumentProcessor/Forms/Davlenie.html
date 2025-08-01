@@ -23,7 +23,7 @@
       <span id="setValue_protocolNumber">25/012/22</span>
     </p>
     <div class="spread-bottom">
-      <p class="line" id="manual_deviceInfo">
+      <p class="line text-center" id="manual_deviceInfo">
         Манометры деформационные с трубчатой пружиной 2 Манометры деформационные
         с трубчатой пружиной 2 Ман
       </p>
@@ -82,24 +82,22 @@
     <div class="split-27 spread-bottom">
       <p>Документ на методику поверки:</p>
       <div>
-        <div class="line">
-          <p id="manual_verificationMethodMain">
-            МИ 2124-90 ГСИ. Манометры, вакуумметры, мановакуумметры, тягомеры и
-          </p>
-        </div>
+        <p class="line" id="manual_verificationMethodMain">
+          МИ 2124-90 ГСИ. Манометры, вакуумметры, мановакуумметры, тягомеры и
+        </p>
         <p class="undertext">наименование и номер документа</p>
       </div>
     </div>
-    <div class="spread-bottom" id="manual_verificationMethodAdditional">
-      <!-- <p class="line">
-        тягомеры и тягонапоромеры показывающие и
-        самопишущие. Методика поверки документа напоромеры, тягомеры
-      </p> -->
+    <div class="spread-bottom">
+      <p class="line" id="manual_verificationMethodAdditional">
+        тягомеры и тягонапоромеры показывающие и самопишущие. Методика поверки
+        документа напоромеры, тягомеры
+      </p>
     </div>
     <div class="split-17 spread-bottom">
       <p>Средства поверки:</p>
       <div>
-        <p class="line" id="mainLine_etalons">
+        <p class="line" id="manual_etalonsMain">
           77090.19.2Р.00761950; 77090-19; Преобразователи давления эталонные;
         </p>
         <p class="undertext">
@@ -109,11 +107,11 @@
       </div>
     </div>
     <div class="spread-bottom-large">
-      <p class="line" id="additionalLine_etalons">
+      <p class="line" id="manual_etalonsAdditional">
         ЭЛМЕТРО-Паскаль-04, Паскаль-04; 2022 г. 7М-0,02-Т35; 3110; 2020; 2Р;
         Эталон 2-го разряда; Приказ Росстандарта
       </p>
-      <p class="undertext spread-bottom" id="addAfter_etalons">
+      <p class="undertext spread-bottom">
         их наименование, регистрационный номер (все цифры и буквы
         регистрационного номера)
       </p>
@@ -123,11 +121,11 @@
     </div>
     <div class="split-45 spread-bottom">
       <p>Температура окружающей среды</p>
-      <p><span id="setValue_temperature" data-format="N1">25</span> °С</p>
+      <p><span id="setValue_temperature" data-format="N1">25</span>°С</p>
     </div>
     <div class="split-45 spread-bottom">
       <p>Относительная влажность окружающей среды</p>
-      <p id="setValue_humidity" data-format="0%">25%</p>
+      <p id="setValue_humidity" data-format="0%">25</p>
     </div>
     <div class="split-45 spread-bottom-large">
       <p>Атмосферное давление</p>
@@ -159,7 +157,7 @@
           <th rowspan="2">Вариация выходного сигнала γ, %</th>
         </tr>
         <tr class="header-row">
-          <th id="measurementUnit1">bar</th>
+          <th id="measurementUnit">bar</th>
           <th>мА</th>
           <th>пр. ход</th>
           <th>обр. ход</th>
@@ -427,6 +425,9 @@
     }
     .text-stretch {
       text-align: justify;
+    }
+    .text-center {
+      text-align: center;
     }
     .bold {
       font-weight: bold;

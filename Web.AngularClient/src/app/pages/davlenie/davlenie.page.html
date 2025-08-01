@@ -84,8 +84,8 @@
 
     <!-- Export buttons in column -->
     <div class="selector-form export-column">
-      <button 
-        type="button" 
+      <button
+        type="button"
         class="export-btn"
         (click)="exportToPdf()"
         [disabled]="loading || exportLoading || selectedRows.size === 0"
@@ -115,6 +115,42 @@
       </button>
     </div>
 
+    <!-- Excel export controls column -->
+    <div
+      class="selector-form export-excel-column"
+      style="display: flex; flex-direction: column; gap: 8px"
+    >
+      <input
+        type="file"
+        id="excelFile"
+        (change)="onExcelFileChange($event)"
+        accept=".xls,.xlsx,.xlsm"
+        [disabled]="exportLoading || loading"
+      />
+      <input
+        type="text"
+        id="sheetName"
+        [(ngModel)]="sheetName"
+        [disabled]="exportLoading || loading"
+        placeholder="Имя листа"
+      />
+      <input
+        type="text"
+        id="dataRange"
+        [(ngModel)]="dataRange"
+        [disabled]="exportLoading || loading"
+        placeholder="Диапазон (например, A1:Z100)"
+      />
+      <button
+        type="button"
+        class="export-btn"
+        (click)="exportAllToExcel()"
+        [disabled]="exportLoading || loading"
+      >
+        Экспортировать
+      </button>
+    </div>
+
     <!-- Pagination info -->
     <div class="pagination-info">
       Показано {{ pagination.getStartIndex() + 1 }}-{{ pagination.getEndIndex()
@@ -131,9 +167,9 @@
       <thead>
         <tr>
           <th>
-            <input 
-              type="checkbox" 
-              [checked]="isAllSelected()" 
+            <input
+              type="checkbox"
+              [checked]="isAllSelected()"
               (change)="toggleSelectAll($event)"
               [disabled]="loading || exportLoading"
               title="Выбрать все"
@@ -143,19 +179,19 @@
           <th>Тип устройства</th>
           <th>
             <div>Серийный</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Модификация</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Год создания</div>
           </th>
           <th>
             <div>Дата поверки</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Действительна до</div>
           </th>
           <th>
             <div>Владелец</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>ИНН</div>
           </th>
           <th>Инфо поверки</th>
@@ -164,14 +200,14 @@
           <th>Местоположение</th>
           <th>
             <div>Температура</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Влажность</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Давление</div>
           </th>
           <th>
             <div>Диапазон измерений</div>
-            <hr class="header-divider">
+            <hr class="header-divider" />
             <div>Класс точности</div>
           </th>
           <th>Значения устройства</th>
@@ -188,9 +224,9 @@
         <tr *ngFor="let m of davlenie; let i = index">
           <!-- Checkbox -->
           <td>
-            <input 
-              type="checkbox" 
-              [checked]="selectedRows.has(i)" 
+            <input
+              type="checkbox"
+              [checked]="selectedRows.has(i)"
               (change)="toggleRowSelection(i, $event)"
               [disabled]="loading || exportLoading"
               title="Выбрать строку"
@@ -198,64 +234,69 @@
           </td>
           <!-- Protocol number -->
           <td>{{ m.protocolNumber || '-' }}</td>
-          
+
           <!-- Device type -->
           <td>
             <div>{{ m.deviceTypeNumber || '-' }}</div>
-            <hr class="data-row-divider">
+            <hr class="data-row-divider" />
             <div>{{ m.deviceTypeName || '-' }}</div>
           </td>
-          
+
           <!-- Device details -->
           <td>
             <div>{{ m.deviceSerial || '-' }}</div>
-            <hr class="data-row-divider">
+            <hr class="data-row-divider" />
             <div>{{ m.deviceModification || '-' }}</div>
-            <hr class="data-row-divider">
+            <hr class="data-row-divider" />
             <div>{{ m.manufactureYear || '-' }}</div>
           </td>
-          
+
           <!-- Verification dates -->
           <td>
             <div>{{ m.verificationDate | date:'yyyy-MM-dd' }}</div>
-            <hr class="data-row-divider">
+            <hr class="data-row-divider" />
             <div>{{ m.verifiedUntilDate | date:'yyyy-MM-dd' }}</div>
           </td>
-          
+
           <!-- Owner information -->
           <td>
             <div>{{ m.owner || '-' }}</div>
-            <hr class="data-row-divider">
+            <hr class="data-row-divider" />
             <div>{{ m.ownerINN || '-' }}</div>
           </td>
-          
+
           <!-- Verification info -->
           <td>{{ m.verificationsInfo || '-' }}</td>
-          
+
           <!-- Etalons info -->
           <td>{{ m.etalonsInfo || '-' }}</td>
-          
+
           <!-- Worker -->
           <td>{{ m.worker || '-' }}</td>
-          
+
           <!-- Location -->
           <td>{{ m.location || '-' }}</td>
-          
+
           <!-- Environmental conditions -->
           <td>
             <div>{{ m.temperature != null ? m.temperature + '°C' : '-' }}</div>
-            <div>{{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%' : '-' }}</div>
+            <div>
+              {{ m.humidity != null ? (m.humidity * 100 | number:'1.0-0') + '%'
+              : '-' }}
+            </div>
             <div>{{ m.pressure || '-' }}</div>
           </td>
-          
+
           <!-- Measurement range and accuracy -->
           <td>
-            <div *ngFor="let line of formatRangeAccuracy(m).split('\n'); let i = index">
+            <div
+              *ngFor="let line of formatRangeAccuracy(m).split('\n'); let i = index"
+            >
               <span>{{ line }}</span>
-              <hr *ngIf="i < 2" class="data-row-divider">
+              <hr *ngIf="i < 2" class="data-row-divider" />
             </div>
           </td>
-          
+
           <!-- Device values -->
           <td>{{ formatDeviceValues(m) }}</td>
           <!-- Pressure inputs -->
@@ -322,4 +363,4 @@
       </button>
     </div>
   </div>
-</div> 
+</div>
