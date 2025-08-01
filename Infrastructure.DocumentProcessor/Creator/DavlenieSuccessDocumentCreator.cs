@@ -97,7 +97,7 @@ internal class DavlenieSuccessDocumentCreator : DocumentCreatorBase<DavlenieForm
     //     return null;
     // }
 
-    protected override Task<string?> SetSpecific(PuppeteerSharp.IPage page, DavlenieForm data)
+    protected override Task<string?> SetSpecificAsync(PuppeteerSharp.IPage page, DavlenieForm data)
     {
         throw new NotImplementedException();
     }

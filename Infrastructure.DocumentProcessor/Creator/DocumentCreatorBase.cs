@@ -47,10 +47,13 @@ internal abstract class DocumentCreatorBase<T>
         result = await SetSignAsync(page, data);
         if (result != null) return HTMLCreationResult.Failure(result);
 
+        result = await SetSpecificAsync(page, data);
+        if (result != null) return HTMLCreationResult.Failure(result);
+
         return HTMLCreationResult.Success(page);
     }
 
-    protected abstract Task<string?> SetSpecific(IPage page, T data);
+    protected abstract Task<string?> SetSpecificAsync(IPage page, T data);
 
     private async Task<string?> SetDeviceAsync(IPage page, T data)
     {
@@ -138,29 +141,29 @@ internal abstract class DocumentCreatorBase<T>
             return await page.EvaluateFunctionAsync<string?>(@"(checkupsData) => {
             const template = document.querySelector('#manual_checkup');
             if (!template) return 'template not found';
-            
+
             const container = template.parentElement;
             if (!container) return 'container not found';
-            
+
             const checkups = Object.entries(checkupsData);
-            
+
             // Clear container and recreate template (to reset numbering)
             container.innerHTML = '';
             container.appendChild(template);
-            
+
             let checkupNum = 1;
-            
+
             for (const [key, value] of checkups) {
                 // Get or create current element
-                const currentElement = checkupNum === 1 
-                    ? template 
+                const currentElement = checkupNum === 1
+                    ? template
                     : template.cloneNode(true);
-                
+
                 // Update elements
                 const numEl = currentElement.querySelector('#manual_checkupNum');
                 const titleEl = currentElement.querySelector('#manual_checkupTitle');
                 const valueEl = currentElement.querySelector('#manual_checkupValue');
-                
+
                 if (!numEl || !titleEl || !valueEl) {
                     return 'Required checkup elements not found';
                 }
@@ -168,7 +171,7 @@ internal abstract class DocumentCreatorBase<T>
                 numEl.textContent = `${checkupNum++}. `;
                 titleEl.textContent = key;
                 valueEl.textContent = value;
-                
+
                 // Append if not the first element
                 if (checkupNum > 2) {
                     container.appendChild(currentElement);
@@ -202,8 +205,7 @@ internal abstract class DocumentCreatorBase<T>
             var bytes = await File.ReadAllBytesAsync(filePath);
             var base64 = Convert.ToBase64String(bytes);
             var signBase64 = $"data:image/png;base64,{base64}";
-            _signsCache[key] = signBase64;
-            sign = signBase64;
+            sign = _signsCache[key] = signBase64;
         }
 
         try
@@ -228,56 +230,3 @@ internal abstract class DocumentCreatorBase<T>
         return null;
     }
 }
-
-/*
-    public async Task<HTMLCreationResult> CreateAsync(T data, CancellationToken? cancellationToken = null)
-    {
-        result = await SetSignAsync(document, data);
-        if (result != null) return HTMLCreationResult.Failure(result);
-
-        var specifiResult = SetSpecific(document, data);
-        if (specifiResult != null) return HTMLCreationResult.Failure(specifiResult);
-
-        // return HTMLCreationResult.Success(document.DocumentElement.OuterHtml);
-        return null!;
-    }
-
-    private async Task<string?> SetSignAsync(IDocument document, T data)
-    {
-        var prop = TypeProps.FirstOrDefault(p => p.Name == "Worker");
-        if (prop == null) return "Data property Worker not found";
-        var worker = (string)prop.GetValue(data)!;
-        worker = worker.ToLower();
-
-        if (!_signsCache.TryGetValue(worker, out var _))
-        {
-            var signFilesPaths = Directory.GetFiles(_signsDirPath, $"{worker}*.png");
-
-            if (signFilesPaths.Length < 12) return $"Подпись сотрудника {worker} не найдена. Или вариантов меньше 12";
-
-            foreach (var filePath in signFilesPaths)
-            {
-                var bytes = await File.ReadAllBytesAsync(filePath);
-                var base64 = Convert.ToBase64String(bytes);
-                var signBase64 = $"data:image/png;base64,{base64}";
-                var cacheKey = Path.GetFileNameWithoutExtension(filePath);
-                _signsCache[cacheKey] = signBase64;
-            }
-        }
-
-        var signsCount = _signsCache.Where(s => s.Key.StartsWith(worker)).Count();
-        var randomSignIndex = Random.Shared.Next(1, signsCount);
-        var key = $"{worker} {randomSignIndex}";
-        var _ = _signsCache.TryGetValue(key, out var sign);
-
-        var imgElement = document.QuerySelector<IHtmlImageElement>("#sign")!;
-        var randomTop = Random.Shared.Next(20, 30);
-        var randomLeft = Random.Shared.Next(30, 150);
-        var randomHeight = Random.Shared.Next(31, 33);
-        imgElement.SetAttribute("style", $"top: {randomTop}px; left: {randomLeft}px;height: {randomHeight}px;");
-        imgElement.Source = sign;
-
-        return null;
-    }
-
-*/
