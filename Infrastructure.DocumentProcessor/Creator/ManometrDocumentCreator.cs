@@ -1,5 +1,4 @@
 using System.Reflection;
-using AngleSharp.Dom;
 using Infrastructure.DocumentProcessor.Forms;
 using ProjApp.ProtocolForms;
 using PuppeteerSharp;
@@ -74,39 +73,19 @@ internal class ManometrSuccessDocumentCreator : DocumentCreatorBase<ManometrForm
                 var innerHtml = await cell.EvaluateFunctionAsync<string>("el => el.innerHTML");
                 if (innerHtml.Trim() == "-") continue;
 
-                double value;
-                switch (colIndex)
+                var value = colIndex switch
                 {
-                    case 0:
-                        value = data.DeviceValues[0][rowIndex];
-                        break;
-                    case 1:
-                        value = data.DeviceValues[1][rowIndex];
-                        break;
-                    case 2:
-                        value = data.EtalonValues[0][rowIndex];
-                        break;
-                    case 3:
-                        value = data.EtalonValues[1][rowIndex];
-                        break;
-                    case 4:
-                        value = data.ActualError[0][rowIndex];
-                        break;
-                    case 5:
-                        value = data.ActualError[1][rowIndex];
-                        break;
-                    case 6:
-                        value = data.ValidError;
-                        break;
-                    case 7:
-                        value = data.ActualVariation[rowIndex];
-                        break;
-                    case 8:
-                        value = data.ValidError;
-                        break;
-                    default:
-                        return "Некорректный индекс столбца";
-                }
+                    0 => data.DeviceValues[0][rowIndex],
+                    1 => data.DeviceValues[1][rowIndex],
+                    2 => data.EtalonValues[0][rowIndex],
+                    3 => data.EtalonValues[1][rowIndex],
+                    4 => data.ActualError[0][rowIndex],
+                    5 => data.ActualError[1][rowIndex],
+                    6 => data.ValidError,
+                    7 => data.ActualVariation[rowIndex],
+                    8 => data.ValidError,
+                    _ => throw new Exception("Некорректный индекс столбца")
+                };
 
                 await cell.SetElementValueAsync(value.ToString(), columnFormats[colIndex]);
             }

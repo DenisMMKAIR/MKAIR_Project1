@@ -2,7 +2,7 @@ using ProjApp.ProtocolForms;
 
 namespace Project1Tests.DocumentProcessor;
 
-internal class ExportPDFTests : CombinedFixture
+internal class ManometrExportTests : CombinedFixture
 {
     [Test]
     public async Task Manometr_DeviceInfo_Short()
