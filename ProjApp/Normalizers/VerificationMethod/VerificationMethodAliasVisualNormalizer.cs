@@ -1,6 +1,6 @@
 using System.Text.RegularExpressions;
 
-namespace ProjApp.Normalizers;
+namespace ProjApp.Normalizers.VerificationMethod;
 
 public partial class VerificationMethodAliasVisualNormalizer : IStringNormalizer
 {

@@ -11,7 +11,7 @@ using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 using ProjApp.InfrastructureInterfaces;
 using ProjApp.Mapping;
-using ProjApp.Normalizers;
+using ProjApp.Normalizers.VerificationMethod;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;

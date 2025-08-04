@@ -122,7 +122,9 @@
                 <div>
                   <div class="aliases-group">
                     <ng-container *ngIf="group.aliases && group.aliases.length > 0; else noAliases">
-                      <span *ngFor="let a of group.aliases; let last = last">{{ a.exists ? '+' : '-' }} {{ a.alias || '-' }}<span *ngIf="!last">, </span></span>
+                      <div *ngFor="let a of group.aliases; let last = last">{{ a.exists ? '+' : '-' }} {{ a.alias || '-' }}
+                        <!-- <span *ngIf="!last">, </span> -->
+                      </div>
                     </ng-container>
                     <ng-template #noAliases>-</ng-template>
                   </div>

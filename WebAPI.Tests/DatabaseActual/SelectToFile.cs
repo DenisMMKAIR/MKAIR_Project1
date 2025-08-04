@@ -1,7 +1,7 @@
 using Infrastructure.FGIS.Database;
 using Microsoft.Extensions.DependencyInjection;
 using ProjApp.Database.SupportTypes;
-using ProjApp.Normalizers;
+using ProjApp.Normalizers.VerificationMethod;
 
 namespace WebAPI.Tests.DatabaseActual;
 

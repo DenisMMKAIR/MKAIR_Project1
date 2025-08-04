@@ -3,7 +3,6 @@ using System.Text.RegularExpressions;
 using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.EntityFrameworkCore.Storage;
 using Microsoft.Extensions.Logging;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
@@ -11,7 +10,7 @@ using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.Database.SupportTypes;
 using ProjApp.Mapping;
-using ProjApp.Normalizers;
+using ProjApp.Normalizers.VerificationMethod;
 using ProjApp.Services.ServiceResults;
 
 namespace ProjApp.Services;
@@ -239,7 +238,7 @@ public partial class VerificationMethodsService
 
         using var transaction = await _database.Database.BeginTransactionAsync();
 
-        var vrfsCount = await AddVrfAsync(m, transaction);
+        var vrfsCount = await AddVrfAsync(m);
 
         await _database.SaveChangesAsync();
         await transaction.CommitAsync();
@@ -254,22 +253,30 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Не указаны псевдонимы");
         }
 
-        if (verificationMethod.Aliases.GroupBy(a => a).Any(g => g.Count() > 1))
-        {
-            return ServiceResult.Fail("Псевдонимы должны быть уникальными");
-        }
-
-        if (verificationMethod.Checkups.Count == 0)
-        {
-            return ServiceResult.Fail("Не указаны пункты проверки");
-        }
-
         verificationMethod.Aliases = verificationMethod.Aliases
             .DistinctBy(VerificationMethodAliasComparerNormalizer.Instance.Normalize)
             .Select(VerificationMethodAliasVisualNormalizer.Instance.Normalize)
             .OrderBy(a => a.Length)
             .ThenBy(a => a)
             .ToArray();
+
+        if (verificationMethod.Checkups.Count == 0)
+        {
+            return ServiceResult.Fail("Не указаны пункты проверки");
+        }
+
+        var checkups = new Dictionary<string, string>();
+
+        foreach (var (key, val) in verificationMethod.Checkups)
+        {
+            if (key.Length < 3) return ServiceResult.Fail("Ключ пункта проверки слишком короткий");
+            if (string.IsNullOrWhiteSpace(val)) return ServiceResult.Fail("Значение пункта проверки не указано");
+            var normKey = VerificationMethodCheckupNormalizer.Instance.Normalize(key);
+            var normVal = val.Trim();
+            checkups[normKey] = normVal;
+        }
+
+        verificationMethod.Checkups = checkups;
 
         if (string.IsNullOrWhiteSpace(verificationMethod.Description) || verificationMethod.Description.Length < 3)
         {
@@ -303,14 +310,14 @@ public partial class VerificationMethodsService
         if (result.Error != null) return ServiceResult.Fail(result.Error);
         if (result.NewCount!.Value == 0) return ServiceResult.Fail("Метод поверки с псевдонимом уже существует");
 
-        var vrfsCount = await AddVrfAsync(verificationMethod, transaction);
+        var vrfsCount = await AddVrfAsync(verificationMethod);
 
         await transaction.CommitAsync();
 
         return ServiceResult.Success($"Метод поверки добавлен. Присвоен поверкам {vrfsCount}");
     }
 
-    private async Task<int> AddVrfAsync(VerificationMethod verificationMethod, IDbContextTransaction transaction)
+    private async Task<int> AddVrfAsync(VerificationMethod verificationMethod)
     {
         var vrfAdded = 0;
         var norm = VerificationMethodAliasComparerNormalizer.Instance.Normalize;
