@@ -64,13 +64,14 @@ internal static class Davlenie1Calculations
         double[][] actualErrors = [[0, 0, 0, 0, 0], [0, 0, 0, 0, 0]];
         double[] variations = [0, 0, 0, 0, 0];
 
+        var errorValue = etalonValues[0] / 100 * error;
+
         for (int i = 0; i < etalonValues.Count; i++)
         {
             var etalonValue = etalonValues[i];
-            pressureInputs[i] = (max - min) / 100 * ((etalonValue - 4) / 16 / 100) + min;
-            var errorValue = etalonValue / 100 * error;
-            var minRange = Math.Max(min, etalonValue - errorValue * 0.7);
-            var maxRange = Math.Min(max, etalonValue + errorValue * 0.7);
+            var pressureInput = pressureInputs[i] = (max - min) / 100 * ((etalonValue - 4) / 16 * 100) + min;
+            var minRange = etalonValue - errorValue;
+            var maxRange = etalonValue + errorValue;
             var forwardValue = deviceValues[0][i] = minRange + (maxRange - minRange) * Random.Shared.NextDouble();
             var forwardActualError = actualErrors[0][i] = (forwardValue - etalonValue) / 16 * 100;
             if (Math.Abs(forwardActualError) > error)
@@ -79,8 +80,6 @@ internal static class Davlenie1Calculations
                 logger.LogError("{Msg}", msg);
                 throw new Exception(msg);
             }
-            minRange = Math.Max(minRange, forwardValue - errorValue * 0.48);
-            maxRange = Math.Min(maxRange, forwardValue + errorValue * 0.48);
             var backwardValue = deviceValues[1][i] = minRange + (maxRange - minRange) * Random.Shared.NextDouble();
             var backwardActualError = actualErrors[1][i] = (backwardValue - etalonValue) / 16 * 100;
             if (Math.Abs(backwardActualError) > error)
