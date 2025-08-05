@@ -1,5 +1,6 @@
 import { Injectable } from '@angular/core';
 import { Pagination, IPaginationData } from '../shared/pagination';
+import { ChType } from '../api-client';
 
 type TableKey = 'verification' | 'possible';
 
@@ -7,6 +8,7 @@ interface AddVerificationMethodFormData {
   description: string;
   aliasInput: string;
   checkupKey: string;
+  checkupType: ChType;
   checkupValue: string;
 }
 
@@ -35,6 +37,7 @@ export class VerificationMethodsService {
     description: '',
     aliasInput: '',
     checkupKey: '',
+    checkupType: ChType.Yes_No,
     checkupValue: '',
   };
 
@@ -110,6 +113,7 @@ export class VerificationMethodsService {
       description: '',
       aliasInput: '',
       checkupKey: '',
+      checkupType: ChType.Yes_No,
       checkupValue: '',
     };
   }

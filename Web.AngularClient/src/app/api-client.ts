@@ -3333,7 +3333,7 @@ export interface IPossibleTemplateVerificationMethodsDTO {
 export class VerificationMethod extends DatabaseEntity implements IVerificationMethod {
     aliases?: string[];
     description?: string;
-    checkups?: { [key: string]: string; };
+    checkups?: { [key: string]: CheckupType; };
     protocolTemplateId?: string | undefined;
     protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
@@ -3359,7 +3359,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
                 this.checkups = {} as any;
                 for (let key in _data["checkups"]) {
                     if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
+                        (<any>this.checkups)![key] = _data["checkups"][key] ? CheckupType.fromJS(_data["checkups"][key]) : new CheckupType();
                 }
             }
             this.protocolTemplateId = _data["protocolTemplateId"];
@@ -3411,7 +3411,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
             data["checkups"] = {};
             for (let key in this.checkups) {
                 if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+                    (<any>data["checkups"])[key] = this.checkups[key] ? this.checkups[key].toJSON() : <any>undefined;
             }
         }
         data["protocolTemplateId"] = this.protocolTemplateId;
@@ -3449,7 +3449,7 @@ export class VerificationMethod extends DatabaseEntity implements IVerificationM
 export interface IVerificationMethod extends IDatabaseEntity {
     aliases?: string[];
     description?: string;
-    checkups?: { [key: string]: string; };
+    checkups?: { [key: string]: CheckupType; };
     protocolTemplateId?: string | undefined;
     protocolTemplate?: ProtocolTemplate | undefined;
     verificationMethodFiles?: VerificationMethodFile[] | undefined;
@@ -3457,6 +3457,51 @@ export interface IVerificationMethod extends IDatabaseEntity {
     failedInitialVerifications?: FailedInitialVerification[] | undefined;
     manometr1Verifications?: Manometr1Verification[] | undefined;
     davlenie1Verifications?: Davlenie1Verification[] | undefined;
+}
+
+export class CheckupType implements ICheckupType {
+    type?: ChType;
+    value?: string;
+
+    constructor(data?: ICheckupType) {
+        if (data) {
+            for (var property in data) {
+                if (data.hasOwnProperty(property))
+                    (<any>this)[property] = (<any>data)[property];
+            }
+        }
+    }
+
+    init(_data?: any) {
+        if (_data) {
+            this.type = _data["type"];
+            this.value = _data["value"];
+        }
+    }
+
+    static fromJS(data: any): CheckupType {
+        data = typeof data === 'object' ? data : {};
+        let result = new CheckupType();
+        result.init(data);
+        return result;
+    }
+
+    toJSON(data?: any) {
+        data = typeof data === 'object' ? data : {};
+        data["type"] = this.type;
+        data["value"] = this.value;
+        return data;
+    }
+}
+
+export interface ICheckupType {
+    type?: ChType;
+    value?: string;
+}
+
+export enum ChType {
+    Yes_No = "Yes_No",
+    Fact = "Fact",
 }
 
 export class ProtocolTemplate extends DatabaseEntity implements IProtocolTemplate {
@@ -4792,7 +4837,7 @@ export enum ShowVMethods {
 export class AddVerificationMethodRequest implements IAddVerificationMethodRequest {
     description?: string;
     aliases?: string[];
-    checkups?: { [key: string]: string; };
+    checkups?: { [key: string]: CheckupType; };
 
     constructor(data?: IAddVerificationMethodRequest) {
         if (data) {
@@ -4815,7 +4860,7 @@ export class AddVerificationMethodRequest implements IAddVerificationMethodReque
                 this.checkups = {} as any;
                 for (let key in _data["checkups"]) {
                     if (_data["checkups"].hasOwnProperty(key))
-                        (<any>this.checkups)![key] = _data["checkups"][key];
+                        (<any>this.checkups)![key] = _data["checkups"][key] ? CheckupType.fromJS(_data["checkups"][key]) : new CheckupType();
                 }
             }
         }
@@ -4840,7 +4885,7 @@ export class AddVerificationMethodRequest implements IAddVerificationMethodReque
             data["checkups"] = {};
             for (let key in this.checkups) {
                 if (this.checkups.hasOwnProperty(key))
-                    (<any>data["checkups"])[key] = (<any>this.checkups)[key];
+                    (<any>data["checkups"])[key] = this.checkups[key] ? this.checkups[key].toJSON() : <any>undefined;
             }
         }
         return data;
@@ -4850,7 +4895,7 @@ export class AddVerificationMethodRequest implements IAddVerificationMethodReque
 export interface IAddVerificationMethodRequest {
     description?: string;
     aliases?: string[];
-    checkups?: { [key: string]: string; };
+    checkups?: { [key: string]: CheckupType; };
 }
 
 export class ServicePaginatedResultOfSuccessInitialVerificationDto implements IServicePaginatedResultOfSuccessInitialVerificationDto {

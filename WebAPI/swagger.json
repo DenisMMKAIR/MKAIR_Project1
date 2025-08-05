@@ -2177,7 +2177,7 @@
               "checkups": {
                 "type": "object",
                 "additionalProperties": {
-                  "type": "string"
+                  "$ref": "#/components/schemas/CheckupType"
                 }
               },
               "protocolTemplateId": {
@@ -2230,6 +2230,30 @@
               }
             }
           }
+        ]
+      },
+      "CheckupType": {
+        "type": "object",
+        "additionalProperties": false,
+        "properties": {
+          "type": {
+            "$ref": "#/components/schemas/ChType"
+          },
+          "value": {
+            "type": "string"
+          }
+        }
+      },
+      "ChType": {
+        "type": "string",
+        "description": "",
+        "x-enumNames": [
+          "Yes_No",
+          "Fact"
+        ],
+        "enum": [
+          "Yes_No",
+          "Fact"
         ]
       },
       "ProtocolTemplate": {
@@ -3155,7 +3179,7 @@
           "checkups": {
             "type": "object",
             "additionalProperties": {
-              "type": "string"
+              "$ref": "#/components/schemas/CheckupType"
             }
           }
         }

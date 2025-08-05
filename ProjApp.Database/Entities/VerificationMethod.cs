@@ -1,3 +1,5 @@
+using System.Text.Json.Serialization;
+
 namespace ProjApp.Database.Entities;
 
 public class VerificationMethod : DatabaseEntity
@@ -26,6 +28,7 @@ public class CheckupType
         return $"{Type} - {Value}";
     }
 
+    [JsonConverter(typeof(JsonStringEnumConverter))]
     public enum ChType
     {
         Yes_No,

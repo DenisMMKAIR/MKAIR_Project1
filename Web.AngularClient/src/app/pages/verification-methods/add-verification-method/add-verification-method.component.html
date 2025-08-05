@@ -64,7 +64,7 @@
 
   <div class="single-row-form">
     <div class="form-group">
-      <label for="checkupKey">Проверки</label>
+      <label for="checkupKey">Пункты поверки</label>
       <div class="checkup-input-row">
         <input
           id="checkupKey"
@@ -73,6 +73,11 @@
           autocomplete="off"
           formControlName="checkupKey"
         />
+        <select formControlName="checkupType" class="checkup-type-select">
+          <option *ngFor="let option of chTypeOptions" [value]="option">
+            {{ option }}
+          </option>
+        </select>
         <input
           id="checkupValue"
           type="text"
@@ -83,7 +88,7 @@
         <button
           type="button"
           (click)="addCheckup()"
-          [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim()"
+          [disabled]="!checkupKeyValue.trim() || !checkupValueValue.trim() || !checkupTypeValue"
         >
           Добавить
         </button>
@@ -106,7 +111,7 @@
       *ngFor="let checkupCtrl of checkups.controls; let i = index"
       class="checkup-item"
     >
-      {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value }}
+      {{ checkupCtrl.value.key }}: {{ checkupCtrl.value.value.type }} {{ checkupCtrl.value.value.value }}
       <button type="button" (click)="removeCheckup(i)">×</button>
     </span>
   </div>

@@ -1,21 +1,20 @@
 import { Component, Output, EventEmitter, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormBuilder, FormGroup, FormArray, ReactiveFormsModule, Validators } from '@angular/forms';
+import {
+  FormBuilder,
+  FormGroup,
+  FormArray,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { Subject, takeUntil } from 'rxjs';
-import { VerificationMethodsClient, AddVerificationMethodRequest } from '../../../api-client';
+import {
+  VerificationMethodsClient,
+  AddVerificationMethodRequest,
+  ChType,
+  CheckupType,
+} from '../../../api-client';
 import { VerificationMethodsService } from '../../../services/verification-methods.service';
-
-interface CheckupItem {
-  key: string;
-  value: string;
-}
-
-interface FormData {
-  description: string;
-  aliasInput: string;
-  checkupKey: string;
-  checkupValue: string;
-}
 
 const VALIDATION_MESSAGES = {
   DESCRIPTION_REQUIRED: 'Заполните описание',
@@ -23,12 +22,12 @@ const VALIDATION_MESSAGES = {
   CHECKUPS_REQUIRED: 'Не указаны пункты проверки',
   FORM_INVALID: 'Проверьте корректность заполнения формы',
   SUCCESS: 'Метод успешно добавлен',
-  ERROR: 'Ошибка при добавлении'
+  ERROR: 'Ошибка при добавлении',
 } as const;
 
 const FILE_CONSTRAINTS = {
   MAX_SIZE: 10 * 1024 * 1024, // 10MB
-  ALLOWED_EXTENSIONS: /\.(pdf|docx?|xlsx?)$/i
+  ALLOWED_EXTENSIONS: /\.(pdf|docx?|xlsx?)$/i,
 } as const;
 
 @Component({
@@ -37,15 +36,16 @@ const FILE_CONSTRAINTS = {
   templateUrl: './add-verification-method.component.html',
   styleUrls: ['./add-verification-method.component.scss'],
   imports: [CommonModule, ReactiveFormsModule],
-  providers: [VerificationMethodsClient]
+  providers: [VerificationMethodsClient],
 })
 export class AddVerificationMethodComponent implements OnDestroy {
   @Output() added = new EventEmitter<void>();
-
+  
   form!: FormGroup;
   loading = false;
   result: string | null = null;
   file: File | null = null;
+  chTypeOptions = Object.values(ChType)
 
   private readonly destroy$ = new Subject<void>();
 
@@ -74,15 +74,21 @@ export class AddVerificationMethodComponent implements OnDestroy {
     return this.form.get('checkupKey')?.value || '';
   }
 
+  get checkupTypeValue(): ChType {
+    return this.form.get('checkupType')!.value;
+  }
+
   get checkupValueValue(): string {
     return this.form.get('checkupValue')?.value || '';
   }
 
   get isFormValid(): boolean {
-    return this.form.valid && 
-           this.aliases.length > 0 && 
-           this.checkups.length > 0 &&
-           this.form.get('description')?.value?.trim();
+    return (
+      this.form.valid &&
+      this.aliases.length > 0 &&
+      this.checkups.length > 0 &&
+      this.form.get('description')?.value?.trim()
+    );
   }
 
   ngOnDestroy(): void {
@@ -90,17 +96,21 @@ export class AddVerificationMethodComponent implements OnDestroy {
     this.destroy$.complete();
   }
 
-  // Form initialization
   private initializeForm(): void {
-    const savedData = this.verificationMethodsService.getAddVerificationMethodFormData();
+    const savedData =
+      this.verificationMethodsService.getAddVerificationMethodFormData();
     this.form = this.fb.group({
-      description: [savedData.description, [Validators.required, Validators.minLength(3)]],
+      description: [
+        savedData.description,
+        [Validators.required, Validators.minLength(3)],
+      ],
       aliasInput: [savedData.aliasInput],
       aliases: this.fb.array([]),
       checkupKey: [savedData.checkupKey],
+      checkupType: [savedData.checkupType],
       checkupValue: [savedData.checkupValue],
       checkups: this.fb.array([]),
-      file: [null]
+      file: [null],
     });
 
     this.setupFormPersistence();
@@ -109,7 +119,7 @@ export class AddVerificationMethodComponent implements OnDestroy {
   private setupFormPersistence(): void {
     this.form.valueChanges
       .pipe(takeUntil(this.destroy$))
-      .subscribe(values => {
+      .subscribe((values) => {
         this.verificationMethodsService.setAddVerificationMethodFormData({
           description: values.description || '',
           aliasInput: values.aliasInput || '',
@@ -140,12 +150,18 @@ export class AddVerificationMethodComponent implements OnDestroy {
     this.form.get('aliasInput')?.reset();
   }
 
-  // Checkup management
   addCheckup(): void {
     const key = this.checkupKeyValue.trim();
+    const type = this.checkupTypeValue;
     const value = this.checkupValueValue.trim();
+
     if (this.canAddCheckup(key, value)) {
-      this.checkups.push(this.fb.group({ key: [key], value: [value] }));
+      this.checkups.push(
+        this.fb.group({
+          key: [key],
+          value: { type: [type], value: [value] },
+        })
+      );
       this.resetCheckupInputs();
     }
   }
@@ -155,7 +171,9 @@ export class AddVerificationMethodComponent implements OnDestroy {
   }
 
   private canAddCheckup(key: string, value: string): boolean {
-    return Boolean(key && value && !this.checkups.value.some((c: CheckupItem) => c.key === key));
+    return Boolean(
+      key && value && !this.checkups.value.some((c: any) => c.key === key)
+    );
   }
 
   private resetCheckupInputs(): void {
@@ -182,12 +200,17 @@ export class AddVerificationMethodComponent implements OnDestroy {
   }
 
   private isValidFile(file: File): boolean {
-    return file.size <= FILE_CONSTRAINTS.MAX_SIZE && 
-           Boolean(file.name.match(FILE_CONSTRAINTS.ALLOWED_EXTENSIONS));
+    return (
+      file.size <= FILE_CONSTRAINTS.MAX_SIZE &&
+      Boolean(file.name.match(FILE_CONSTRAINTS.ALLOWED_EXTENSIONS))
+    );
   }
 
   private handleFileError(): void {
-    this.setResult('Только PDF, DOC, DOCX, XLS, XLSX файлы до 10 МБ разрешены', false);
+    this.setResult(
+      'Только PDF, DOC, DOCX, XLS, XLSX файлы до 10 МБ разрешены',
+      false
+    );
     this.form.patchValue({ file: null });
     this.file = null;
   }
@@ -195,12 +218,12 @@ export class AddVerificationMethodComponent implements OnDestroy {
   // Form submission
   submit(): void {
     this.validateForm();
-    
+
     if (!this.isFormValid) {
       this.setResult(this.getValidationError(), false);
       return;
     }
-    
+
     this.performSubmission();
   }
 
@@ -212,14 +235,15 @@ export class AddVerificationMethodComponent implements OnDestroy {
   private performSubmission(): void {
     this.loading = true;
     this.clearResult();
-    
+
     const request = this.buildRequest();
-    
-    this.client.addVerificationMethod(request)
+
+    this.client
+      .addVerificationMethod(request)
       .pipe(takeUntil(this.destroy$))
       .subscribe({
         next: (res) => this.handleSubmissionSuccess(res),
-        error: () => this.handleSubmissionError()
+        error: () => this.handleSubmissionError(),
       });
   }
 
@@ -227,13 +251,20 @@ export class AddVerificationMethodComponent implements OnDestroy {
     const request = new AddVerificationMethodRequest();
     request.description = this.form.value.description.trim();
     request.aliases = this.aliases.value;
-    
-    const checkupsObj: { [key: string]: string } = {};
-    this.checkups.value.forEach((c: CheckupItem) => {
-      checkupsObj[c.key] = c.value;
+    const checkupsObj: { [key: string]: CheckupType } = {};
+
+    this.checkups.value.forEach((c: any) => {
+      const type: ChType = c.value.type[0];
+      const value: string = c.value.value[0];
+
+      checkupsObj[c.key] = new CheckupType({
+        type,
+        value,
+      });
     });
+
     request.checkups = checkupsObj;
-    
+
     return request;
   }
 
@@ -286,4 +317,4 @@ export class AddVerificationMethodComponent implements OnDestroy {
     }
     return VALIDATION_MESSAGES.FORM_INVALID;
   }
-} 
+}
