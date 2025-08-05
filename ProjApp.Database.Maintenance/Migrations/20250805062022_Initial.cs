@@ -122,6 +122,57 @@ namespace ProjApp.Database.Maintenance.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "davlenie1verifications",
+                columns: table => new
+                {
+                    id = table.Column<Guid>(type: "uuid", nullable: false),
+                    protocol_number = table.Column<string>(type: "text", nullable: false),
+                    temperature = table.Column<double>(type: "double precision", nullable: false),
+                    humidity = table.Column<double>(type: "double precision", nullable: false),
+                    pressure = table.Column<string>(type: "text", nullable: false),
+                    verification_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    worker = table.Column<string>(type: "text", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    device_serial = table.Column<string>(type: "text", nullable: false),
+                    verification_group = table.Column<int>(type: "integer", nullable: false),
+                    location = table.Column<int>(type: "integer", nullable: false),
+                    verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    initial_verification_name = table.Column<string>(type: "text", nullable: false),
+                    owner_initial_name = table.Column<string>(type: "text", nullable: false),
+                    measurement_min = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_max = table.Column<double>(type: "double precision", nullable: false),
+                    measurement_unit = table.Column<string>(type: "text", nullable: false),
+                    pressure_inputs = table.Column<double[]>(type: "double precision[]", nullable: false),
+                    etalon_values = table.Column<double[]>(type: "double precision[]", nullable: false),
+                    device_values = table.Column<string>(type: "text", nullable: false),
+                    actual_error = table.Column<string>(type: "text", nullable: false),
+                    valid_error = table.Column<double>(type: "double precision", nullable: false),
+                    variations = table.Column<double[]>(type: "double precision[]", nullable: false),
+                    device_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    verification_method_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_davlenie1verifications", x => x.id);
+                    table.ForeignKey(
+                        name: "fk_davlenie1verifications_devices_device_id",
+                        column: x => x.device_id,
+                        principalTable: "devices",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_davlenie1verifications_owners_owner_id",
+                        column: x => x.owner_id,
+                        principalTable: "owners",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_davlenie1verifications_verification_methods_verification_me",
+                        column: x => x.verification_method_id,
+                        principalTable: "verification_methods",
+                        principalColumn: "id");
+                });
+
+            migrationBuilder.CreateTable(
                 name: "failed_initial_verifications",
                 columns: table => new
                 {
@@ -168,26 +219,18 @@ namespace ProjApp.Database.Maintenance.Migrations
                 {
                     id = table.Column<Guid>(type: "uuid", nullable: false),
                     protocol_number = table.Column<string>(type: "text", nullable: false),
-                    device_type_name = table.Column<string>(type: "text", nullable: false),
-                    device_modification = table.Column<string>(type: "text", nullable: false),
-                    device_type_number = table.Column<string>(type: "text", nullable: false),
-                    device_serial = table.Column<string>(type: "text", nullable: false),
-                    manufacture_year = table.Column<long>(type: "bigint", nullable: false),
-                    owner = table.Column<string>(type: "text", nullable: false),
-                    owner_inn = table.Column<decimal>(type: "numeric(20,0)", nullable: false),
-                    verifications_info = table.Column<string>(type: "text", nullable: false),
-                    etalons_info = table.Column<string>(type: "text", nullable: false),
                     temperature = table.Column<double>(type: "double precision", nullable: false),
                     humidity = table.Column<double>(type: "double precision", nullable: false),
                     pressure = table.Column<string>(type: "text", nullable: false),
-                    verification_visual_checkup = table.Column<string>(type: "text", nullable: false),
-                    verification_result_checkup = table.Column<string>(type: "text", nullable: false),
-                    verification_accuracy_checkup = table.Column<string>(type: "text", nullable: false),
                     verification_date = table.Column<DateOnly>(type: "date", nullable: false),
                     worker = table.Column<string>(type: "text", nullable: false),
+                    device_type_number = table.Column<string>(type: "text", nullable: false),
+                    device_serial = table.Column<string>(type: "text", nullable: false),
                     verification_group = table.Column<int>(type: "integer", nullable: false),
                     location = table.Column<int>(type: "integer", nullable: false),
                     verified_until_date = table.Column<DateOnly>(type: "date", nullable: false),
+                    initial_verification_name = table.Column<string>(type: "text", nullable: false),
+                    owner_initial_name = table.Column<string>(type: "text", nullable: false),
                     measurement_min = table.Column<double>(type: "double precision", nullable: false),
                     measurement_max = table.Column<double>(type: "double precision", nullable: false),
                     measurement_unit = table.Column<string>(type: "text", nullable: false),
@@ -197,7 +240,8 @@ namespace ProjApp.Database.Maintenance.Migrations
                     actual_error = table.Column<string>(type: "text", nullable: false),
                     actual_variation = table.Column<double[]>(type: "double precision[]", nullable: false),
                     device_id = table.Column<Guid>(type: "uuid", nullable: true),
-                    verification_method_id = table.Column<Guid>(type: "uuid", nullable: true)
+                    verification_method_id = table.Column<Guid>(type: "uuid", nullable: true),
+                    owner_id = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -206,6 +250,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                         name: "fk_manometr1verifications_devices_device_id",
                         column: x => x.device_id,
                         principalTable: "devices",
+                        principalColumn: "id");
+                    table.ForeignKey(
+                        name: "fk_manometr1verifications_owners_owner_id",
+                        column: x => x.owner_id,
+                        principalTable: "owners",
                         principalColumn: "id");
                     table.ForeignKey(
                         name: "fk_manometr1verifications_verification_methods_verification_me",
@@ -272,6 +321,30 @@ namespace ProjApp.Database.Maintenance.Migrations
                         name: "fk_verification_method_files_verification_methods_verification",
                         column: x => x.verification_method_id,
                         principalTable: "verification_methods",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                });
+
+            migrationBuilder.CreateTable(
+                name: "davlenie1verification_etalon",
+                columns: table => new
+                {
+                    davlenie1verifications_id = table.Column<Guid>(type: "uuid", nullable: false),
+                    etalons_id = table.Column<Guid>(type: "uuid", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("pk_davlenie1verification_etalon", x => new { x.davlenie1verifications_id, x.etalons_id });
+                    table.ForeignKey(
+                        name: "fk_davlenie1verification_etalon_davlenie1verifications_davleni",
+                        column: x => x.davlenie1verifications_id,
+                        principalTable: "davlenie1verifications",
+                        principalColumn: "id",
+                        onDelete: ReferentialAction.Cascade);
+                    table.ForeignKey(
+                        name: "fk_davlenie1verification_etalon_etalons_etalons_id",
+                        column: x => x.etalons_id,
+                        principalTable: "etalons",
                         principalColumn: "id",
                         onDelete: ReferentialAction.Cascade);
                 });
@@ -349,6 +422,26 @@ namespace ProjApp.Database.Maintenance.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "ix_davlenie1verification_etalon_etalons_id",
+                table: "davlenie1verification_etalon",
+                column: "etalons_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_davlenie1verifications_device_id",
+                table: "davlenie1verifications",
+                column: "device_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_davlenie1verifications_owner_id",
+                table: "davlenie1verifications",
+                column: "owner_id");
+
+            migrationBuilder.CreateIndex(
+                name: "ix_davlenie1verifications_verification_method_id",
+                table: "davlenie1verifications",
+                column: "verification_method_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_devices_device_type_id",
                 table: "devices",
                 column: "device_type_id");
@@ -384,6 +477,11 @@ namespace ProjApp.Database.Maintenance.Migrations
                 column: "device_id");
 
             migrationBuilder.CreateIndex(
+                name: "ix_manometr1verifications_owner_id",
+                table: "manometr1verifications",
+                column: "owner_id");
+
+            migrationBuilder.CreateIndex(
                 name: "ix_manometr1verifications_verification_method_id",
                 table: "manometr1verifications",
                 column: "verification_method_id");
@@ -413,6 +511,9 @@ namespace ProjApp.Database.Maintenance.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "davlenie1verification_etalon");
+
+            migrationBuilder.DropTable(
                 name: "etalon_failed_initial_verification");
 
             migrationBuilder.DropTable(
@@ -425,10 +526,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                 name: "initial_verification_jobs");
 
             migrationBuilder.DropTable(
-                name: "owners");
+                name: "verification_method_files");
 
             migrationBuilder.DropTable(
-                name: "verification_method_files");
+                name: "davlenie1verifications");
 
             migrationBuilder.DropTable(
                 name: "failed_initial_verifications");
@@ -441,6 +542,9 @@ namespace ProjApp.Database.Maintenance.Migrations
 
             migrationBuilder.DropTable(
                 name: "success_initial_verifications");
+
+            migrationBuilder.DropTable(
+                name: "owners");
 
             migrationBuilder.DropTable(
                 name: "devices");

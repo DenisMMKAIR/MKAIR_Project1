@@ -12,8 +12,8 @@ using ProjApp.Database;
 namespace ProjApp.Database.Maintenance.Migrations
 {
     [DbContext(typeof(ProjDatabase))]
-    [Migration("20250718090938_AddInitialVMethodNameToManometr1")]
-    partial class AddInitialVMethodNameToManometr1
+    [Migration("20250805062022_Initial")]
+    partial class Initial
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -24,6 +24,25 @@ namespace ProjApp.Database.Maintenance.Migrations
                 .HasAnnotation("Relational:MaxIdentifierLength", 63);
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
+
+            modelBuilder.Entity("Davlenie1VerificationEtalon", b =>
+                {
+                    b.Property<Guid>("Davlenie1VerificationsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("davlenie1verifications_id");
+
+                    b.Property<Guid>("EtalonsId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("etalons_id");
+
+                    b.HasKey("Davlenie1VerificationsId", "EtalonsId")
+                        .HasName("pk_davlenie1verification_etalon");
+
+                    b.HasIndex("EtalonsId")
+                        .HasDatabaseName("ix_davlenie1verification_etalon_etalons_id");
+
+                    b.ToTable("davlenie1verification_etalon", (string)null);
+                });
 
             modelBuilder.Entity("EtalonFailedInitialVerification", b =>
                 {
@@ -80,6 +99,141 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasDatabaseName("ix_etalon_success_initial_verification_success_initial_verific");
 
                     b.ToTable("etalon_success_initial_verification", (string)null);
+                });
+
+            modelBuilder.Entity("ProjApp.Database.Entities.Davlenie1Verification", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uuid")
+                        .HasColumnName("id");
+
+                    b.Property<string>("ActualError")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("actual_error");
+
+                    b.Property<Guid?>("DeviceId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("device_id");
+
+                    b.Property<string>("DeviceSerial")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_serial");
+
+                    b.Property<string>("DeviceTypeNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_type_number");
+
+                    b.Property<string>("DeviceValues")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("device_values");
+
+                    b.PrimitiveCollection<double[]>("EtalonValues")
+                        .IsRequired()
+                        .HasColumnType("double precision[]")
+                        .HasColumnName("etalon_values");
+
+                    b.Property<double>("Humidity")
+                        .HasColumnType("double precision")
+                        .HasColumnName("humidity");
+
+                    b.Property<string>("InitialVerificationName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("initial_verification_name");
+
+                    b.Property<int>("Location")
+                        .HasColumnType("integer")
+                        .HasColumnName("location");
+
+                    b.Property<double>("MeasurementMax")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_max");
+
+                    b.Property<double>("MeasurementMin")
+                        .HasColumnType("double precision")
+                        .HasColumnName("measurement_min");
+
+                    b.Property<string>("MeasurementUnit")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("measurement_unit");
+
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("OwnerInitialName")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("owner_initial_name");
+
+                    b.Property<string>("Pressure")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("pressure");
+
+                    b.PrimitiveCollection<double[]>("PressureInputs")
+                        .IsRequired()
+                        .HasColumnType("double precision[]")
+                        .HasColumnName("pressure_inputs");
+
+                    b.Property<string>("ProtocolNumber")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("protocol_number");
+
+                    b.Property<double>("Temperature")
+                        .HasColumnType("double precision")
+                        .HasColumnName("temperature");
+
+                    b.Property<double>("ValidError")
+                        .HasColumnType("double precision")
+                        .HasColumnName("valid_error");
+
+                    b.PrimitiveCollection<double[]>("Variations")
+                        .IsRequired()
+                        .HasColumnType("double precision[]")
+                        .HasColumnName("variations");
+
+                    b.Property<DateOnly>("VerificationDate")
+                        .HasColumnType("date")
+                        .HasColumnName("verification_date");
+
+                    b.Property<int>("VerificationGroup")
+                        .HasColumnType("integer")
+                        .HasColumnName("verification_group");
+
+                    b.Property<Guid?>("VerificationMethodId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("verification_method_id");
+
+                    b.Property<DateOnly>("VerifiedUntilDate")
+                        .HasColumnType("date")
+                        .HasColumnName("verified_until_date");
+
+                    b.Property<string>("Worker")
+                        .IsRequired()
+                        .HasColumnType("text")
+                        .HasColumnName("worker");
+
+                    b.HasKey("Id")
+                        .HasName("pk_davlenie1verifications");
+
+                    b.HasIndex("DeviceId")
+                        .HasDatabaseName("ix_davlenie1verifications_device_id");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_davlenie1verifications_owner_id");
+
+                    b.HasIndex("VerificationMethodId")
+                        .HasDatabaseName("ix_davlenie1verifications_verification_method_id");
+
+                    b.ToTable("davlenie1verifications", (string)null);
                 });
 
             modelBuilder.Entity("ProjApp.Database.Entities.Device", b =>
@@ -334,20 +488,10 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("uuid")
                         .HasColumnName("device_id");
 
-                    b.Property<string>("DeviceModification")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_modification");
-
                     b.Property<string>("DeviceSerial")
                         .IsRequired()
                         .HasColumnType("text")
                         .HasColumnName("device_serial");
-
-                    b.Property<string>("DeviceTypeName")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("device_type_name");
 
                     b.Property<string>("DeviceTypeNumber")
                         .IsRequired()
@@ -364,11 +508,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("etalon_values");
 
-                    b.Property<string>("EtalonsInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("etalons_info");
-
                     b.Property<double>("Humidity")
                         .HasColumnType("double precision")
                         .HasColumnName("humidity");
@@ -381,10 +520,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<int>("Location")
                         .HasColumnType("integer")
                         .HasColumnName("location");
-
-                    b.Property<long>("ManufactureYear")
-                        .HasColumnType("bigint")
-                        .HasColumnName("manufacture_year");
 
                     b.Property<double>("MeasurementMax")
                         .HasColumnType("double precision")
@@ -399,14 +534,14 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("text")
                         .HasColumnName("measurement_unit");
 
-                    b.Property<string>("Owner")
+                    b.Property<Guid?>("OwnerId")
+                        .HasColumnType("uuid")
+                        .HasColumnName("owner_id");
+
+                    b.Property<string>("OwnerInitialName")
                         .IsRequired()
                         .HasColumnType("text")
-                        .HasColumnName("owner");
-
-                    b.Property<decimal>("OwnerINN")
-                        .HasColumnType("numeric(20,0)")
-                        .HasColumnName("owner_inn");
+                        .HasColumnName("owner_initial_name");
 
                     b.Property<string>("Pressure")
                         .IsRequired()
@@ -426,11 +561,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasColumnType("double precision")
                         .HasColumnName("valid_error");
 
-                    b.Property<string>("VerificationAccuracyCheckup")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_accuracy_checkup");
-
                     b.Property<DateOnly>("VerificationDate")
                         .HasColumnType("date")
                         .HasColumnName("verification_date");
@@ -442,21 +572,6 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.Property<Guid?>("VerificationMethodId")
                         .HasColumnType("uuid")
                         .HasColumnName("verification_method_id");
-
-                    b.Property<string>("VerificationResultCheckup")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_result_checkup");
-
-                    b.Property<string>("VerificationVisualCheckup")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verification_visual_checkup");
-
-                    b.Property<string>("VerificationsInfo")
-                        .IsRequired()
-                        .HasColumnType("text")
-                        .HasColumnName("verifications_info");
 
                     b.Property<DateOnly>("VerifiedUntilDate")
                         .HasColumnType("date")
@@ -472,6 +587,9 @@ namespace ProjApp.Database.Maintenance.Migrations
 
                     b.HasIndex("DeviceId")
                         .HasDatabaseName("ix_manometr1verifications_device_id");
+
+                    b.HasIndex("OwnerId")
+                        .HasDatabaseName("ix_manometr1verifications_owner_id");
 
                     b.HasIndex("VerificationMethodId")
                         .HasDatabaseName("ix_manometr1verifications_verification_method_id");
@@ -695,6 +813,23 @@ namespace ProjApp.Database.Maintenance.Migrations
                     b.ToTable("verification_method_files", (string)null);
                 });
 
+            modelBuilder.Entity("Davlenie1VerificationEtalon", b =>
+                {
+                    b.HasOne("ProjApp.Database.Entities.Davlenie1Verification", null)
+                        .WithMany()
+                        .HasForeignKey("Davlenie1VerificationsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_davlenie1verification_etalon_davlenie1verifications_davleni");
+
+                    b.HasOne("ProjApp.Database.Entities.Etalon", null)
+                        .WithMany()
+                        .HasForeignKey("EtalonsId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired()
+                        .HasConstraintName("fk_davlenie1verification_etalon_etalons_etalons_id");
+                });
+
             modelBuilder.Entity("EtalonFailedInitialVerification", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.Etalon", null)
@@ -746,6 +881,30 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasConstraintName("fk_etalon_success_initial_verification_success_initial_verific");
                 });
 
+            modelBuilder.Entity("ProjApp.Database.Entities.Davlenie1Verification", b =>
+                {
+                    b.HasOne("ProjApp.Database.Entities.Device", "Device")
+                        .WithMany()
+                        .HasForeignKey("DeviceId")
+                        .HasConstraintName("fk_davlenie1verifications_devices_device_id");
+
+                    b.HasOne("ProjApp.Database.Entities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .HasConstraintName("fk_davlenie1verifications_owners_owner_id");
+
+                    b.HasOne("ProjApp.Database.Entities.VerificationMethod", "VerificationMethod")
+                        .WithMany("Davlenie1Verifications")
+                        .HasForeignKey("VerificationMethodId")
+                        .HasConstraintName("fk_davlenie1verifications_verification_methods_verification_me");
+
+                    b.Navigation("Device");
+
+                    b.Navigation("Owner");
+
+                    b.Navigation("VerificationMethod");
+                });
+
             modelBuilder.Entity("ProjApp.Database.Entities.Device", b =>
                 {
                     b.HasOne("ProjApp.Database.Entities.DeviceType", "DeviceType")
@@ -780,12 +939,19 @@ namespace ProjApp.Database.Maintenance.Migrations
                         .HasForeignKey("DeviceId")
                         .HasConstraintName("fk_manometr1verifications_devices_device_id");
 
+                    b.HasOne("ProjApp.Database.Entities.Owner", "Owner")
+                        .WithMany()
+                        .HasForeignKey("OwnerId")
+                        .HasConstraintName("fk_manometr1verifications_owners_owner_id");
+
                     b.HasOne("ProjApp.Database.Entities.VerificationMethod", "VerificationMethod")
                         .WithMany("Manometr1Verifications")
                         .HasForeignKey("VerificationMethodId")
                         .HasConstraintName("fk_manometr1verifications_verification_methods_verification_me");
 
                     b.Navigation("Device");
+
+                    b.Navigation("Owner");
 
                     b.Navigation("VerificationMethod");
                 });
@@ -833,6 +999,8 @@ namespace ProjApp.Database.Maintenance.Migrations
 
             modelBuilder.Entity("ProjApp.Database.Entities.VerificationMethod", b =>
                 {
+                    b.Navigation("Davlenie1Verifications");
+
                     b.Navigation("FailedInitialVerifications");
 
                     b.Navigation("Manometr1Verifications");
