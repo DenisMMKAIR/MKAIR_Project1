@@ -1,4 +1,5 @@
 using System.Reflection;
+using ProjApp.Database.Entities;
 using PuppeteerSharp;
 
 namespace Infrastructure.DocumentProcessor.Creator;
@@ -129,53 +130,47 @@ internal abstract class DocumentCreatorBase<T>
         {
             var verificationInfoProp = TypeProps.FirstOrDefault(p => p.Name.Equals("VerificationsInfo", StringComparison.OrdinalIgnoreCase));
             if (verificationInfoProp == null) return "Data property VerificationsInfo not found";
+            var verificationsInfo = verificationInfoProp.GetValue(data)!.ToString()!;
 
             var checkupsProp = TypeProps.FirstOrDefault(p => p.Name.Equals("Checkups", StringComparison.OrdinalIgnoreCase));
             if (checkupsProp == null) return "Data property Checkups not found";
-            var checkups = (Dictionary<string, string>)checkupsProp.GetValue(data)!;
+            var checkups = (Dictionary<string, CheckupType>)checkupsProp.GetValue(data)!;
 
-            return await page.EvaluateFunctionAsync<string?>(@"(checkupsData) => {
-            const template = document.querySelector('#manual_checkup');
-            if (!template) return 'template not found';
-
+            return await page.EvaluateFunctionAsync<string?>(@"(checkupsData, verificationsInfo) => {
+            const template = document.getElementById('manual_checkup');
+            if (!template) return 'Template element not found';
+            
             const container = template.parentElement;
-            if (!container) return 'container not found';
-
-            const checkups = Object.entries(checkupsData);
-
-            // Clear container and recreate template (to reset numbering)
+            if (!container) return 'Container not found';
+            
+            // Clear container but keep template structure
             container.innerHTML = '';
             container.appendChild(template);
 
-            let checkupNum = 1;
+            const hasVerifCheckup = template.querySelector('#manual_checkupVerification') !== null
+                
+            let index = 0;
+            for (const [key, checkup] of Object.entries(checkupsData)) {
+                const element = index === 0 ? template : template.cloneNode(true);
+                
+                const numE = `<span id=""manual_checkupNum"">${index + 1}. </span>`;
+                const titleE = `<span id=""manual_checkupTitle"">${key}</span>`;
 
-            for (const [key, value] of checkups) {
-                // Get or create current element
-                const currentElement = checkupNum === 1
-                    ? template
-                    : template.cloneNode(true);
+                const valueE = checkup.type === 1 
+                    ? ' в соответствии с п. <span id=""manual_checkupValue"">' + checkup.value + '</span> методики поверки'
+                    : ': <span style=""text-decoration-line: underline"">соответствует</span>/не соответствует п. <span id=""manual_checkupValue"">' + checkup.value + '</span> методики поверки';
 
-                // Update elements
-                const numEl = currentElement.querySelector('#manual_checkupNum');
-                const titleEl = currentElement.querySelector('#manual_checkupTitle');
-                const valueEl = currentElement.querySelector('#manual_checkupValue');
+                const verInfo = hasVerifCheckup ? ' ' + verificationsInfo : '';
+                element.innerHTML = numE + titleE + valueE + verInfo;
 
-                if (!numEl || !titleEl || !valueEl) {
-                    return 'Required checkup elements not found';
+                if (index > 0) {
+                    container.appendChild(element);
                 }
-
-                numEl.textContent = `${checkupNum++}. `;
-                titleEl.textContent = key;
-                valueEl.textContent = value;
-
-                // Append if not the first element
-                if (checkupNum > 2) {
-                    container.appendChild(currentElement);
-                }
+                index++;
             }
 
             return null;
-        }", checkups);
+        }", checkups, verificationsInfo);
         }
         catch (Exception ex)
         {

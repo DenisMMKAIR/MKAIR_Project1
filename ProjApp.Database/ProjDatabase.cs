@@ -53,10 +53,10 @@ public class ProjDatabase : DbContext
 
         modelBuilder.Entity<VerificationMethod>()
             .Property(e => e.Checkups)
-            .HasConversion(new ValueConverter<Dictionary<string, string>, string>(
+            .HasConversion(new ValueConverter<Dictionary<string, CheckupType>, string>(
                 v => JsonSerializer.Serialize(v, _jsonSerializerOptions),
-                v => JsonSerializer.Deserialize<Dictionary<string, string>>(v, _jsonSerializerOptions) ??
-                    new Dictionary<string, string>()));
+                v => JsonSerializer.Deserialize<Dictionary<string, CheckupType>>(v, _jsonSerializerOptions) ??
+                    new Dictionary<string, CheckupType>()));
     }
 
     private static void ConfigureInitialVerifications(ModelBuilder modelBuilder)

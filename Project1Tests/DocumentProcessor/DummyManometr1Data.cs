@@ -1,3 +1,4 @@
+using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.ProtocolForms;
 
@@ -26,11 +27,11 @@ public static class DummyManometr1Data
             Temperature = 24.2,
             Humidity = 0.44,
             Pressure = "93,5 кПа",
-            Checkups = new Dictionary<string, string>
+            Checkups = new Dictionary<string, CheckupType>
             {
-                ["Результат внешнего осмотра"] = "5.1",
-                ["Результат опробования"] = "5.2.3",
-                ["Определение основной погрешности"] = "5.3"
+                ["Результат внешнего осмотра"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.1" },
+                ["Результат опробования"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.2" },
+                ["Определение основной погрешности"] = new() { Type = CheckupType.ChType.Fact, Value = "6.6-6.7" },
             },
             MeasurementUnit = "МПа",
             DeviceValues = [[1, 2, 3, 4, 5, 6, 7, 8], [9, 10, 11, 12, 13, 14, 15, 16]],

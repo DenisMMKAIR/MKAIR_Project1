@@ -1,3 +1,4 @@
+using ProjApp.Database.Entities;
 using ProjApp.Database.EntitiesStatic;
 using ProjApp.ProtocolForms;
 
@@ -7,41 +8,37 @@ public static class DummyDavlenie1Data
 {
     public static DavlenieForm CreateForm(int checkupsCount = 5)
     {
-        if (checkupsCount < 1) checkupsCount = 1;
+        if (checkupsCount < 2) checkupsCount = 2;
         if (checkupsCount > 5) checkupsCount = 5;
 
         var date = new DateOnly(2025, 01, 02);
         var checkups = checkupsCount switch
         {
-            5 => new Dictionary<string, string>
+            5 => new Dictionary<string, CheckupType>
             {
-                ["Результат внешнего осмотра"] = "6.1",
-                ["Проверка герметичности системы"] = "6.2",
-                ["Результат опробования"] = "6.3",
-                ["Проверка электрической прочности и сопротивления изоляции"] = "6.4-6.5",
-                ["Определение основной приведенной погрешности и вариации"] = "6.6-6.7",
+                ["Результат внешнего осмотра"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.1" },
+                ["Проверка герметичности системы"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.2" },
+                ["Результат опробования"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.3" },
+                ["Проверка электрической прочности и сопротивления изоляции"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.4-6.5" },
+                ["Определение основной приведенной погрешности и вариации"] = new() { Type = CheckupType.ChType.Fact, Value = "6.6-6.7" },
             },
-            4 => new Dictionary<string, string>
+            4 => new Dictionary<string, CheckupType>
             {
-                ["Результат внешнего осмотра"] = "6.1",
-                ["Проверка герметичности системы"] = "6.2",
-                ["Результат опробования"] = "6.3",
-                ["Проверка электрической прочности и сопротивления изоляции"] = "6.4-6.5",
+                ["Результат внешнего осмотра"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.1" },
+                ["Проверка герметичности системы"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.2" },
+                ["Результат опробования"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.3" },
+                ["Определение основной приведенной погрешности и вариации"] = new() { Type = CheckupType.ChType.Fact, Value = "6.4-6.5" },
             },
-            3 => new Dictionary<string, string>
+            3 => new Dictionary<string, CheckupType>
             {
-                ["Результат внешнего осмотра"] = "6.1",
-                ["Проверка герметичности системы"] = "6.2",
-                ["Результат опробования"] = "6.3",
+                ["Результат внешнего осмотра"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.1" },
+                ["Проверка герметичности системы"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.2" },
+                ["Определение основной приведенной погрешности и вариации"] = new() { Type = CheckupType.ChType.Fact, Value = "6.3" },
             },
-            2 => new Dictionary<string, string>
+            2 => new Dictionary<string, CheckupType>
             {
-                ["Результат внешнего осмотра"] = "6.1",
-                ["Проверка герметичности системы"] = "6.2",
-            },
-            1 => new Dictionary<string, string>
-            {
-                ["Результат внешнего осмотра"] = "6.1",
+                ["Результат внешнего осмотра"] = new() { Type = CheckupType.ChType.Yes_No, Value = "6.1" },
+                ["Определение основной приведенной погрешности и вариации"] = new() { Type = CheckupType.ChType.Fact, Value = "6.2" },
             },
             _ => throw new ArgumentOutOfRangeException(nameof(checkupsCount), checkupsCount, null)
         };

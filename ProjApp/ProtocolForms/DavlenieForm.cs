@@ -18,7 +18,7 @@ public class DavlenieForm : IProtocolForm
     public required double Temperature { get; init; }
     public required double Humidity { get; init; }
     public required string Pressure { get; init; }
-    public required IReadOnlyDictionary<string, string> Checkups { get; init; }
+    public required IReadOnlyDictionary<string, CheckupType> Checkups { get; init; }
     public required string MeasurementUnit { get; init; }
     public required IReadOnlyList<double> PressureInputs { get; init; }
     public required IReadOnlyList<double> EtalonValues { get; init; }

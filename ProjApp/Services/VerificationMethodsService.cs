@@ -265,15 +265,15 @@ public partial class VerificationMethodsService
             return ServiceResult.Fail("Не указаны пункты проверки");
         }
 
-        var checkups = new Dictionary<string, string>();
+        var checkups = new Dictionary<string, CheckupType>();
 
         foreach (var (key, val) in verificationMethod.Checkups)
         {
             if (key.Length < 3) return ServiceResult.Fail("Ключ пункта проверки слишком короткий");
-            if (string.IsNullOrWhiteSpace(val)) return ServiceResult.Fail("Значение пункта проверки не указано");
+            if (string.IsNullOrWhiteSpace(val.Value)) return ServiceResult.Fail("Значение пункта проверки не указано");
             var normKey = VerificationMethodCheckupNormalizer.Instance.Normalize(key);
-            var normVal = val.Trim();
-            checkups[normKey] = normVal;
+            var normVal = val.Value.Trim();
+            checkups[normKey] = new() { Type = val.Type, Value = normVal };
         }
 
         verificationMethod.Checkups = checkups;
