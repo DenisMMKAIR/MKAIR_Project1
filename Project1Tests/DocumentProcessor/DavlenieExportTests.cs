@@ -5,6 +5,24 @@ namespace Project1Tests.DocumentProcessor;
 internal class DavlenieExportTests : CombinedFixture
 {
     [Test]
+    public async Task Davlenie_Etalons_2()
+    {
+        await PDFTest(
+            DummyDavlenie1Data.CreateForm(etaCount: 2),
+            "DavlenieEtalons2.pdf"
+        );
+    }
+
+    [Test]
+    public async Task Davlenie_Etalons_3()
+    {
+        await PDFTest(
+            DummyDavlenie1Data.CreateForm(etaCount: 3),
+            "DavlenieEtalons3.pdf"
+        );
+    }
+
+    [Test]
     public async Task Davlenie_Checkups_1()
     {
         await PDFTest(

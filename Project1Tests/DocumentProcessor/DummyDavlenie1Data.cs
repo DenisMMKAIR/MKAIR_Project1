@@ -6,12 +6,15 @@ namespace Project1Tests.DocumentProcessor;
 
 public static class DummyDavlenie1Data
 {
-    public static DavlenieForm CreateForm(int checkupsCount = 5)
+    public static DavlenieForm CreateForm(int etaCount = 2, int checkupsCount = 5)
     {
         if (checkupsCount < 2) checkupsCount = 2;
         if (checkupsCount > 5) checkupsCount = 5;
 
         var date = new DateOnly(2025, 01, 02);
+
+        var eta = "73828.19.1Р.00156416; 73828-19; Калибраторы многофункциональные; ЭЛМЕТРО-Паскаль-03, Паскаль-03; нет модификации; 0050; 2020; 1Р; Эталон 1-го разряда; Приказ Росстандарта от 01.10.2018 №2091; свидетельство о поверке № С-ВЯ/28-12-2023/305125031 от 28.12.2023г. действительно до 27.12.2024г.";
+
         var checkups = checkupsCount switch
         {
             5 => new Dictionary<string, CheckupType>
@@ -54,7 +57,7 @@ public static class DummyDavlenie1Data
             Owner = "ООО \"РИ-ИНВЕСТ\"",
             OwnerINN = 7705551779,
             VerificationsInfo = "НКГЖ.406233.028МП «Преобразователи давления измерительные АИР-20/М2. Методика поверки (с Изменением № 1)», утвержденному ФГУП «ВНИИМС» 22 июня 2020 г",
-            EtalonsInfo = "73828.19.1Р.00156416; 73828-19; Калибраторы многофункциональные; ЭЛМЕТРО-Паскаль-03, Паскаль-03; нет модификации; 0050; 2020; 1Р; Эталон 1-го разряда; Приказ Росстандарта от 01.10.2018 №2091; свидетельство о поверке № С-ВЯ/28-12-2023/305125031 от 28.12.2023г. действительно до 27.12.2024г. 73828.19.1Р.00156416; 73828-19; Калибраторы многофункциональные; ЭЛМЕТРО-Паскаль-03, Паскаль-03; нет модификации; 0050; 2020; 1Р; Эталон 1-го разряда; Приказ Росстандарта от 01.10.2018 №2091; свидетельство о поверке № С-ВЯ/28-12-2023/305125031 от 28.12.2023г. действительно до 27.12.2024г.",
+            EtalonsInfo = Enumerable.Repeat(eta, etaCount).Aggregate((sum, cur) => $"{sum}; {cur}"),
             Temperature = 22,
             Humidity = 0.42,
             Pressure = "101,8 кПа",
