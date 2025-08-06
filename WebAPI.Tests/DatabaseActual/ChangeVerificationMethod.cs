@@ -46,15 +46,11 @@ public class ChangeVerificationMethod : DatabaseActualFixture
 
     //     foreach (var vm in db.VerificationMethods)
     //     {
-    //         vm.CheckupsNew = [];
-    //         foreach (var (key, value) in vm.Checkups)
+    //         var chs = vm.Checkups;
+    //         vm.Checkups = [];
+    //         foreach (var (key, value) in chs)
     //         {
-    //             CheckupType.ChType t;
-    //             if (key.StartsWith("Опред"))
-    //                 t = CheckupType.ChType.Fact;
-    //             else t = CheckupType.ChType.Yes_No;
-
-    //             vm.CheckupsNew[key] = new() { Type = t, Value = value };
+    //             vm.Checkups[key] = value;
     //         }
     //     }
 
