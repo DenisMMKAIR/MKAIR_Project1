@@ -104,11 +104,33 @@ public class VerificationsService
 
     private async Task<ServiceResult> SetValuesBaseAsync(MemoryStream file, SetValuesRequest request, bool setLocation, bool setGroup)
     {
-        IReadOnlyList<IInitialVerification> resultIvs;
+        HashSet<IInitialVerification> excelVrfs;
+        var initialHasDuplicatesMsg = string.Empty;
 
         try
         {
-            resultIvs = _ivAddValuesProcessor.SetFromExcelFile(file, request);
+            var excelVrfsInitial = _ivAddValuesProcessor.SetFromExcelFile(file, request);
+
+            if (excelVrfsInitial.Count == 0)
+            {
+                return ServiceResult.Fail("Не найдены записи в файле");
+            }
+
+            excelVrfs = new HashSet<IInitialVerification>(excelVrfsInitial, VerificationUniqComparer.Instance);
+
+            if (excelVrfsInitial.Count != excelVrfs.Count)
+            {
+                var dups = excelVrfsInitial
+                    .GroupBy(v => v, VerificationUniqComparer.Instance)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key);
+
+                var dupsString = dups
+                    .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
+                    .Aggregate((sum, cur) => $"{sum}, {cur}");
+
+                initialHasDuplicatesMsg = $"Дубликаты в запрошенных данных: {dupsString}";
+            }
         }
         catch (Exception e)
         {
@@ -116,18 +138,29 @@ public class VerificationsService
             return ServiceResult.Fail(e.Message);
         }
 
-        var uniqComparer = new VerificationUniqComparer();
+        var typeNumbers = excelVrfs.Select(v => v.DeviceTypeNumber).Distinct().ToArray();
+        var serialNumbers = excelVrfs.Select(v => v.DeviceSerial).Distinct().ToArray();
+        var dates = excelVrfs.Select(v => v.VerificationDate).Distinct().ToArray();
 
         var dbIvs = _database.SuccessInitialVerifications
-            .AsEnumerable()
-            .Where(iv => resultIvs.Contains(iv, uniqComparer))
+            .Where(v => typeNumbers.Contains(v.DeviceTypeNumber) &&
+                        serialNumbers.Contains(v.DeviceSerial) &&
+                        dates.Contains(v.VerificationDate))
             .ToArray();
 
-        var setAny = false;
+        if (dbIvs.Length == 0)
+        {
+            var dbHasNoDataMsg = "В базе нет данных поверок";
+            if (initialHasDuplicatesMsg.Length > 0) dbHasNoDataMsg += $". {initialHasDuplicatesMsg}";
+            return ServiceResult.Fail(dbHasNoDataMsg);
+        }
+
+        var changedCount = 0;
 
         foreach (var dbIv in dbIvs)
         {
-            var resultIv = resultIvs.First(iv => uniqComparer.Equals(iv, dbIv));
+            var setAny = false;
+            if (!excelVrfs.TryGetValue(dbIv, out var excelVrf)) continue;
 
             if (setLocation && dbIv.Location != request.Location)
             {
@@ -139,74 +172,103 @@ public class VerificationsService
                 dbIv.VerificationGroup = request.Group;
                 setAny = true;
             }
-            if (request.VerificationTypeNum is true && dbIv.ProtocolNumber != resultIv.ProtocolNumber)
+            if (request.VerificationTypeNum is true && dbIv.ProtocolNumber != excelVrf.ProtocolNumber)
             {
-                dbIv.ProtocolNumber = resultIv.ProtocolNumber;
+                dbIv.ProtocolNumber = excelVrf.ProtocolNumber;
                 setAny = true;
             }
-            if (request.Worker is true && dbIv.Worker != resultIv.Worker)
+            if (request.Worker is true && dbIv.Worker != excelVrf.Worker)
             {
-                dbIv.Worker = resultIv.Worker;
+                dbIv.Worker = excelVrf.Worker;
                 setAny = true;
             }
-            if (request.Pressure is true && dbIv.Pressure != resultIv.Pressure)
+            if (request.Pressure is true && dbIv.Pressure != excelVrf.Pressure)
             {
-                dbIv.Pressure = resultIv.Pressure;
+                dbIv.Pressure = excelVrf.Pressure;
                 setAny = true;
             }
-            if (request.Temperature is true && dbIv.Temperature != resultIv.Temperature)
+            if (request.Temperature is true && dbIv.Temperature != excelVrf.Temperature)
             {
-                dbIv.Temperature = resultIv.Temperature;
+                dbIv.Temperature = excelVrf.Temperature;
                 setAny = true;
             }
-            if (request.Humidity is true && dbIv.Humidity != resultIv.Humidity)
+            if (request.Humidity is true && dbIv.Humidity != excelVrf.Humidity)
             {
-                dbIv.Humidity = resultIv.Humidity;
+                dbIv.Humidity = excelVrf.Humidity;
                 setAny = true;
             }
             if (request.MeasurementRange is true)
             {
-                if (dbIv.MeasurementMin != resultIv.MeasurementMin)
+                if (dbIv.MeasurementMin != excelVrf.MeasurementMin)
                 {
-                    dbIv.MeasurementMin = resultIv.MeasurementMin;
+                    dbIv.MeasurementMin = excelVrf.MeasurementMin;
                     setAny = true;
                 }
-                if (dbIv.MeasurementMax != resultIv.MeasurementMax)
+                if (dbIv.MeasurementMax != excelVrf.MeasurementMax)
                 {
-                    dbIv.MeasurementMax = resultIv.MeasurementMax;
+                    dbIv.MeasurementMax = excelVrf.MeasurementMax;
                     setAny = true;
                 }
-                if (dbIv.MeasurementUnit != resultIv.MeasurementUnit)
+                if (dbIv.MeasurementUnit != excelVrf.MeasurementUnit)
                 {
-                    dbIv.MeasurementUnit = resultIv.MeasurementUnit;
+                    dbIv.MeasurementUnit = excelVrf.MeasurementUnit;
                     setAny = true;
                 }
             }
-            if (request.Accuracy is true && dbIv.Accuracy != resultIv.Accuracy)
+            if (request.Accuracy is true && dbIv.Accuracy != excelVrf.Accuracy)
             {
-                dbIv.Accuracy = resultIv.Accuracy;
+                dbIv.Accuracy = excelVrf.Accuracy;
                 setAny = true;
             }
+
+            if (setAny) changedCount++;
         }
 
-        if (!setAny) return ServiceResult.Success("Нет изменений");
-
-        using var transaction = _database.Database.BeginTransaction();
+        if (changedCount == 0)
+        {
+            var hasNoChangesMsg = "Нет изменений";
+            if (initialHasDuplicatesMsg.Length > 0) hasNoChangesMsg += $". {initialHasDuplicatesMsg}";
+            return ServiceResult.Success(hasNoChangesMsg);
+        }
 
         try
         {
             await _database.SaveChangesAsync();
-            await transaction.CommitAsync();
         }
         catch (Exception e)
         {
-            await transaction.RollbackAsync();
             return ServiceResult.Fail(e.Message);
         }
 
         _eventKeeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
 
-        return ServiceResult.Success("Данные добавлены");
+
+        var msg = "Данные добавлены";
+
+        if (initialHasDuplicatesMsg.Length > 0)
+        {
+            msg += $". {initialHasDuplicatesMsg}";
+        }
+
+        var protocolNumsOnly = setGroup == false;
+
+        if (!protocolNumsOnly)
+        {
+            var notFoundVrfs = excelVrfs
+                .Except(dbIvs, VerificationUniqComparer.Instance)
+                .ToArray();
+
+            if (notFoundVrfs.Length > 0)
+            {
+                var notFoundMsg = notFoundVrfs
+                    .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
+                    .Aggregate((sum, cur) => $"{sum}, {cur}");
+
+                msg += $". Не найдены поверки: {notFoundMsg}";
+            }
+        }
+
+        return ServiceResult.Success(msg);
     }
 
     [Obsolete("Method used in Background service only")]

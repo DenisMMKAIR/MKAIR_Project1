@@ -9,15 +9,37 @@ public class VerificationUniqComparer : IEqualityComparer<IVerificationBase>
     {
         if (x == null || y == null) return false;
 
+        var xSerialString = x.DeviceSerial;
+        var ySerialString = y.DeviceSerial;
+
+        if (ulong.TryParse(xSerialString, out var xSerial))
+        {
+            xSerialString = xSerial.ToString();
+        }
+
+        if (ulong.TryParse(ySerialString, out var ySerial))
+        {
+            ySerialString = ySerial.ToString();
+        }
+
         return x.VerificationDate.Equals(y.VerificationDate) &&
-            x.DeviceTypeNumber.Equals(y.DeviceTypeNumber) &&
-            x.DeviceSerial.Equals(y.DeviceSerial);
+                x.DeviceTypeNumber.Equals(y.DeviceTypeNumber) &&
+                xSerialString.Equals(ySerialString);
     }
 
     public int GetHashCode([DisallowNull] IVerificationBase obj)
     {
-        return HashCode.Combine(obj.VerificationDate, obj.DeviceTypeNumber, obj.DeviceSerial);
+        var serialString = obj.DeviceSerial;
+
+        if (ulong.TryParse(serialString, out var serial))
+        {
+            serialString = serial.ToString();
+        }
+
+        return HashCode.Combine(obj.VerificationDate, obj.DeviceTypeNumber, serialString);
     }
 
     public static VerificationUniqComparer Instance { get; } = new();
 }
+
+

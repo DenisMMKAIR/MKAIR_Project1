@@ -16,7 +16,7 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
          AddDeviceTypeCommand addDeviceTypeCommand,
          AddDeviceCommand addDeviceCommand,
          AddEtalonCommand addEtalonCommand) :
-         base(logger, database, new VerificationUniqComparer())
+         base(logger, database, VerificationUniqComparer.Instance)
     {
         _addDeviceTypeCommand = addDeviceTypeCommand;
         _addDeviceCommand = addDeviceCommand;
@@ -48,7 +48,8 @@ public class AddInitialVerificationCommand<T> : AddWithUniqConstraintCommand<T> 
         var vrfDB = _database.SuccessInitialVerifications
                          .AsEnumerable<IVerificationBase>()
                          .Union(_database.FailedInitialVerifications)
-                         .Union(_database.Manometr1Verifications);
+                         .Union(_database.Manometr1Verifications)
+                         .Union(_database.Davlenie1Verifications);
 
         items = items.Except(vrfDB, VerificationUniqComparer.Instance).Cast<T>().ToArray();
 

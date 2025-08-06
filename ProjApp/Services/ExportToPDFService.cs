@@ -62,24 +62,44 @@ public class ExportToPDFService
         string dataRange,
         CancellationToken cancellationToken = default)
     {
-        IReadOnlyList<IVerificationBase> excelVrfs;
+        HashSet<IVerificationBase> excelVrfs;
+        var initialHasDuplicatesMsg = string.Empty;
 
         try
         {
-            excelVrfs = _excelGetVerificationsProcessor.GetVerificationsFromFile(file, fileName, sheetName, dataRange);
+            var excelVrfsInitial = _excelGetVerificationsProcessor.GetVerificationsFromFile(file, fileName, sheetName, dataRange);
+
+            if (excelVrfsInitial.Count == 0) return ServiceResult.Fail("Не найдены записи в файле для экспорта");
+
+            excelVrfs = new HashSet<IVerificationBase>(excelVrfsInitial, VerificationUniqComparer.Instance);
+
+            if (excelVrfsInitial.Count != excelVrfs.Count)
+            {
+                var dups = excelVrfsInitial
+                    .GroupBy(v => v, VerificationUniqComparer.Instance)
+                    .Where(g => g.Count() > 1)
+                    .Select(g => g.Key);
+
+                var dupsString = dups
+                    .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
+                    .Aggregate((sum, cur) => $"{sum}, {cur}");
+
+                initialHasDuplicatesMsg = $"Дубликаты в запрошенных данных: {dupsString}";
+            }
         }
         catch (Exception e)
         {
             return ServiceResult.Fail(e.Message);
         }
 
-        if (excelVrfs.Count == 0) return ServiceResult.Fail("Не найдены записи в файле для экспорта");
-
         var typeNumbers = excelVrfs.Select(x => x.DeviceTypeNumber).Distinct().ToArray();
         var serials = excelVrfs.Select(x => x.DeviceSerial).Distinct().ToArray();
         var dates = excelVrfs.Select(x => x.VerificationDate).Distinct().ToArray();
 
         var dbVrfs = await _database.Manometr1Verifications
+            .Where(v => typeNumbers.Contains(v.DeviceTypeNumber) &&
+                        serials.Contains(v.DeviceSerial) &&
+                        dates.Contains(v.VerificationDate))
             .Select(v => new BaseVrfQuery
             {
                 Id = v.Id,
@@ -88,6 +108,9 @@ public class ExportToPDFService
                 VerificationDate = v.VerificationDate
             })
             .Union(_database.Davlenie1Verifications
+                .Where(v => typeNumbers.Contains(v.DeviceTypeNumber) &&
+                            serials.Contains(v.DeviceSerial) &&
+                            dates.Contains(v.VerificationDate))
                 .Select(v => new BaseVrfQuery
                 {
                     Id = v.Id,
@@ -95,19 +118,17 @@ public class ExportToPDFService
                     DeviceSerial = v.DeviceSerial,
                     VerificationDate = v.VerificationDate
                 }))
-            .Where(v => typeNumbers.Contains(v.DeviceTypeNumber) &&
-                        serials.Contains(v.DeviceSerial) &&
-                        dates.Contains(v.VerificationDate))
             .ToArrayAsync(cancellationToken);
 
-        if (dbVrfs.Length == 0) return ServiceResult.Fail("Не найдены поверки для экспорта");
+        if (dbVrfs.Length == 0)
+        {
+            var dbMissingVrfsMsg = "Не найдены поверки для экспорта";
+            if (initialHasDuplicatesMsg.Length > 0) dbMissingVrfsMsg += $". {initialHasDuplicatesMsg}";
+            return ServiceResult.Fail(dbMissingVrfsMsg);
+        }
 
         var idsToExport = dbVrfs
-            .GroupJoin(excelVrfs,
-                       dbV => new { dbV.DeviceTypeNumber, dbV.DeviceSerial, dbV.VerificationDate },
-                       exV => new { exV.DeviceTypeNumber, exV.DeviceSerial, exV.VerificationDate },
-                       (dbV, exV) => new { dbV.Id, Exists = exV.FirstOrDefault() is not null })
-            .Where(dto => dto.Exists)
+            .Where(excelVrfs.Contains)
             .Select(dto => dto.Id)
             .ToArray();
 
@@ -137,26 +158,33 @@ public class ExportToPDFService
         }
         catch (Exception e)
         {
-            return ServiceResult.Fail(e.Message);
+            var errorMsg = e.Message;
+            if (initialHasDuplicatesMsg.Length > 0) errorMsg += $". {initialHasDuplicatesMsg}";
+            return ServiceResult.Fail(errorMsg);
         }
 
-        if (resultExportPDF.Error != null) return resultExportPDF;
-
-        var notFoundVrfs = excelVrfs.Except(dbVrfs, new VerificationUniqComparer())
-            .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
-            .ToArray();
+        if (resultExportPDF.Error != null)
+        {
+            var resultErrorMsg = resultExportPDF.Error;
+            if (initialHasDuplicatesMsg.Length > 0) resultErrorMsg += $". {initialHasDuplicatesMsg}";
+            return ServiceResult.Fail(resultErrorMsg);
+        }
 
         var msg = resultExportPDF.Message!;
+        if (initialHasDuplicatesMsg.Length > 0) msg += $". {initialHasDuplicatesMsg}";
 
-        if (notFoundVrfs.Length > 0)
+        var notFoundVrfsMsg = excelVrfs.Except(dbVrfs, VerificationUniqComparer.Instance)
+            .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
+            .Aggregate((sum, cur) => $"{sum}, {cur}");
+
+        if (notFoundVrfsMsg.Length > 0)
         {
-            var notFoundVrfsString = string.Join(" | ", notFoundVrfs);
-            msg = $"{msg}. Не найдены поверки {notFoundVrfsString}";
+            msg += $". Не найдены поверки {notFoundVrfsMsg}";
         }
 
         return ServiceResult.Success(msg);
     }
-    
+
     private async Task<ServiceResult> ExportAsync<T>(
         IReadOnlyList<Guid> ids,
         string? exportDir = null,
