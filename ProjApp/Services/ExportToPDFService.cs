@@ -175,7 +175,7 @@ public class ExportToPDFService
 
         var notFoundVrfsMsg = excelVrfs.Except(dbVrfs, VerificationUniqComparer.Instance)
             .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
-            .Aggregate((sum, cur) => $"{sum}, {cur}");
+            .Aggregate(string.Empty, (sum, cur) => $"{sum}, {cur}");
 
         if (notFoundVrfsMsg.Length > 0)
         {
