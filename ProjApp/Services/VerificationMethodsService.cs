@@ -4,6 +4,7 @@ using Mapster;
 using MapsterMapper;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
+using ProjApp.BackgroundServices;
 using ProjApp.Database;
 using ProjApp.Database.Commands;
 using ProjApp.Database.Entities;
@@ -21,13 +22,20 @@ public partial class VerificationMethodsService
     private readonly ProjDatabase _database;
     private readonly IMapper _mapper;
     private readonly AddVerificationMethodCommand _addCommand;
+    private readonly EventKeeper _keeper;
 
-    public VerificationMethodsService(ILogger<VerificationMethodsService> logger, ProjDatabase database, IMapper mapper, AddVerificationMethodCommand addCommand)
+    public VerificationMethodsService(
+        ILogger<VerificationMethodsService> logger,
+        ProjDatabase database,
+        IMapper mapper,
+        AddVerificationMethodCommand addCommand,
+        EventKeeper keeper)
     {
         _logger = logger;
         _database = database;
         _mapper = mapper;
         _addCommand = addCommand;
+        _keeper = keeper;
     }
 
     public async Task<ServicePaginatedResult<VerificationMethodDTO>> GetVerificationMethodsAsync(int pageNumber, int pageSize)
@@ -354,6 +362,8 @@ public partial class VerificationMethodsService
         }
 
         await _database.SaveChangesAsync();
+
+        _keeper.Signal(BackgroundEvents.AddedValuesInitialVerification);
 
         return vrfAdded;
     }
