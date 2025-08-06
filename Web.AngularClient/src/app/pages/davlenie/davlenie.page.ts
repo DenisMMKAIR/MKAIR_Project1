@@ -426,7 +426,7 @@ export class DavleniePage implements OnInit {
     this.dataRange = this.dataRange.trim();
     this.exportSubscription = this.exportToPdfClient
       .exportByExcelToPDF(
-        VerificationGroup.Манометры,
+        VerificationGroup.Датчики_давления,
         fileParam,
         this.sheetName.trim(),
         this.dataRange.trim()
