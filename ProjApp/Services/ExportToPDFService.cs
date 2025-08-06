@@ -173,12 +173,13 @@ public class ExportToPDFService
         var msg = resultExportPDF.Message!;
         if (initialHasDuplicatesMsg.Length > 0) msg += $". {initialHasDuplicatesMsg}";
 
-        var notFoundVrfsMsg = excelVrfs.Except(dbVrfs, VerificationUniqComparer.Instance)
+        var notFoundVrfs = excelVrfs.Except(dbVrfs, VerificationUniqComparer.Instance)
             .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
-            .Aggregate(string.Empty, (sum, cur) => $"{sum}, {cur}");
+            .ToArray();
 
-        if (notFoundVrfsMsg.Length > 0)
+        if (notFoundVrfs.Length > 0)
         {
+            var notFoundVrfsMsg = notFoundVrfs.Aggregate((sum, cur) => $"{sum}, {cur}");
             msg += $". Не найдены поверки {notFoundVrfsMsg}";
         }
 
