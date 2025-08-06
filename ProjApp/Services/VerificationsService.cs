@@ -106,6 +106,7 @@ public class VerificationsService
     {
         HashSet<IInitialVerification> excelVrfs;
         var initialHasDuplicatesMsg = string.Empty;
+        var protocolNumsOnly = setGroup == false;
 
         try
         {
@@ -118,18 +119,21 @@ public class VerificationsService
 
             excelVrfs = new HashSet<IInitialVerification>(excelVrfsInitial, VerificationUniqComparer.Instance);
 
-            if (excelVrfsInitial.Count != excelVrfs.Count)
+            if (!protocolNumsOnly)
             {
-                var dups = excelVrfsInitial
-                    .GroupBy(v => v, VerificationUniqComparer.Instance)
-                    .Where(g => g.Count() > 1)
-                    .Select(g => g.Key);
+                if (excelVrfsInitial.Count != excelVrfs.Count)
+                {
+                    var dups = excelVrfsInitial
+                        .GroupBy(v => v, VerificationUniqComparer.Instance)
+                        .Where(g => g.Count() > 1)
+                        .Select(g => g.Key);
 
-                var dupsString = dups
-                    .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
-                    .Aggregate((sum, cur) => $"{sum}, {cur}");
+                    var dupsString = dups
+                        .Select(v => $"{v.DeviceTypeNumber} {v.DeviceSerial} {v.VerificationDate}")
+                        .Aggregate((sum, cur) => $"{sum}, {cur}");
 
-                initialHasDuplicatesMsg = $"Дубликаты в запрошенных данных: {dupsString}";
+                    initialHasDuplicatesMsg = $"Дубликаты в запрошенных данных: {dupsString}";
+                }
             }
         }
         catch (Exception e)
@@ -249,8 +253,6 @@ public class VerificationsService
         {
             msg += $". {initialHasDuplicatesMsg}";
         }
-
-        var protocolNumsOnly = setGroup == false;
 
         if (!protocolNumsOnly)
         {
