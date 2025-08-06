@@ -156,7 +156,7 @@ internal abstract class DocumentCreatorBase<T>
                 const numE = `<span id=""manual_checkupNum"">${index + 1}. </span>`;
                 const titleE = `<span id=""manual_checkupTitle"">${key}</span>`;
 
-                const valueE = checkup.type === 1 
+                const valueE = checkup.type === 'Fact' 
                     ? ' в соответствии с п. <span id=""manual_checkupValue"">' + checkup.value + '</span> методики поверки'
                     : ': <span style=""text-decoration-line: underline"">соответствует</span>/не соответствует п. <span id=""manual_checkupValue"">' + checkup.value + '</span> методики поверки';
 
