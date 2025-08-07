@@ -25,7 +25,7 @@ public class DavlenieService
 
         if (deviceTypeFilter != null)
         {
-            query = query.Where(v => v.DeviceTypeName.Contains(deviceTypeFilter));
+            query = query.Where(v => v.DeviceTypeNumber.Contains(deviceTypeFilter));
         }
 
         if (deviceSerialFilter != null)
