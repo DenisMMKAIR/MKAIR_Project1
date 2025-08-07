@@ -223,7 +223,7 @@ public partial class InitialVerificationSetValuesProcessor : IIVSetValuesProcess
             };
         }
 
-        [GeneratedRegex(@"\(?([+-]*\d*[\.,]?\d+)\)?-\(?([+-]*\d*[\.,]?\d+)\)?(.+)")]
+        [GeneratedRegex(@"^\s*\(?([+-]*\d*[\.,]?\d+)\)?-\(?([+-]*\d*[\.,]?\d+)\)?(.+)")]
         private static partial Regex MeasurementRegex();
     }
 }
